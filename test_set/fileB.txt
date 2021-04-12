@@ -1,0 +1,15 @@
+#include "env-inl.h"
+#include "async_wrap.h"
+
+void EmitAsyncDestroy(Environment* env, async_context asyncContext) {
+  AsyncWrap::EmitDestroy(env, asyncContext.async_id);
+}
+
+namespace node {
+
+using v8::Context;
+using v8::HandleScope;
+using v8::String;
+using v8::Value;
+
+}  // namespace node
