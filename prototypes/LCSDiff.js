@@ -37,8 +37,8 @@ class LCSDiff extends AbstractDiff {
     }
 
     diff() {
-        let xml1_ordered = XMLTools.order(this.xml1);
-        let xml2_ordered = XMLTools.order(this.xml2);
+        let xml1_ordered = XMLTools.sortXML(this.xml1);
+        let xml2_ordered = XMLTools.sortXML(this.xml2);
         stringDiff(xml1_ordered, xml2_ordered);
 
         function stringDiff(textA, textB)  {
@@ -89,7 +89,7 @@ class LCSDiff extends AbstractDiff {
             while (indexA > 0 && indexB > 0) {
                 //if we took a diagonal step in the dp array, this item is part of the LCS
                 if (dp[indexA - 1][indexB - 1] !== undefined && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
-                    //prepending instead of appending preserves order consistency
+                    //prepending instead of appending preserves sorting order
                     LCS.unshift(linesA[indexA - 1]);
                     indexA--;
                     indexB--;
@@ -109,7 +109,6 @@ class LCSDiff extends AbstractDiff {
             /**
              * Output differences compared to LCS
              */
-
             const diff = [];
             let indexLCS = 0;
             indexA = 0;

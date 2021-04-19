@@ -25,9 +25,9 @@ class AbstractDiff {
     xml2;
 
     /**
-     * Instantiate an AbstractDiff object
-     * @param xml1 The original CPEE process model in XML
-     * @param xml2 The changed CPEE process model in XML
+     * Instantiate an AbstractDiff object.
+     * @param xml1 The original CPEE process model as an XML document string
+     * @param xml2 The changed CPEE process model as an XML document string
      * @throws Error If not called from within a subclass
      */
     constructor(xml1, xml2) {
@@ -39,8 +39,8 @@ class AbstractDiff {
     }
 
     /**
-     * Diffs the two CPEE process models.
-     * @return patch A list of patches, grouped by change operation
+     * Diffs the two CPEE process models in XML document format.
+     * @return patch A list of changes, grouped by operation
      */
     diff() {}
 }

@@ -13,8 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 const LCSDiff = require("./LCSDiff");
+const XMLTools = require("./XMLTools");
 
 let xml1 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
@@ -100,7 +100,7 @@ let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<ips/>\n" +
     "</stream>\n" +
     "</parameters>\n" +
-    "<annotations>\n" +
+    "<annotations keke=\"asdlfsajfsldfjsdlfjsdflsdfjsdlf\">\n" +
     "<_timing>\n" +
     "<_timing_weight/>\n" +
     "<_timing_avg/>\n" +
@@ -187,3 +187,5 @@ let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
 
 let test = new LCSDiff(xml1, xml2);
 test.diff();
+
+

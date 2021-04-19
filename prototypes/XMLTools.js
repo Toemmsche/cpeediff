@@ -15,147 +15,48 @@
 */
 
 const CPEESyntax = require("./CPEESyntax");
+const { DOMParser, XMLSerializer } = require("xmldom");
+const vkbeautify = require("vkbeautify");
+
 
 /**
- * Helper class to manipulate/generate xml documents.
+ * Helper class to manipulate/generate XML documents.
  */
 class XMLTools {
 
     /**
-     * Transforms an XML document string into an in-memory tree representation.
-     * @param xml The XML document string
-     * @return {XMLNode} Root node of the XML tree
+     * Sorts all child nodes lexicographically where permitted by the semantic of the CPEE syntax.
+     * @param xml The unordered CPEE process model as an XML document string.
+     * @return {string} The ordered CPEE process model as an XML document string.
      */
-    static transform(xml) {
-        //TODO Improve readability and efficiency -> helper functions
+    static sortXML(xml) {
+        let doc = new DOMParser().parseFromString(xml, "text/xml");
+        sortRecursive(doc);
+        //xmldom serializer messes up newlines
+        //use vkbeautify for proper formatting and remove all indentations
+        return vkbeautify.xml(new XMLSerializer().serializeToString(doc), 1).toString().replaceAll(/\r?\n\s*/g, "\n");
 
-        let root = new XMLNode();
-        function parseAttributes(startIndex) {
-            let i = startIndex;
-            //skip tag
-            while (xml.charAt(i) !== " " && xml.charAt(i) !== ">" && xml.substr(i, 2) !== "/>") {
-                i++;
-            }
-            let attributeMap = new Map();
-            //parse attributes
-            while (xml.charAt(i) !== ">" && xml.substr(i, 2) !== "/>") {
-                let j = i;
-                while(xml.charAt(j) === " ") {
-                    j++;
-                }
-                i = j;
-                while(xml.charAt(j) !== " " && xml.charAt(j) !== ">" && xml.substr(j, 2) !== "/>") {
-                    j++;
-                }
-                //append to map
-                let attribute = xml.substring(i, j).split("=");
-                attributeMap.set(attribute[0], attribute[1]);
-                i = j;
-            }
-            return attributeMap;
-        }
-
-        function parseTag(startIndex) {
-            let i = startIndex;
-            while (xml.charAt(i) !== " " && xml.charAt(i) !== ">" && xml.substr(i, 2) !== "/>") {
-                i++;
-            }
-            //skip "<" character
-            return xml.substring(startIndex + 1, i);
-        }
-
-        function findEndOfContent(startIndex) {
-            //start at character following startIndex
-            let i = startIndex;
-            let balance = 1;
-            while (i < xml.length && balance !== 0) {
-                i++;
-                if (xml.substr(i, 2) === "</" || xml.substr(i, 2) === "/>") {
-                    balance--;
-                } else if (xml.charAt(i) === "<") {
-                    balance++;
+        function sortRecursive(tNode) {
+            //xmldom doesn't provide iterable child nodes, we have to remove, sort and reinsert them on our own
+            let childArr = [];
+            if (tNode.hasChildNodes()) {
+                for (let i = 0; i < tNode.childNodes.length; i++) {
+                    sortRecursive(tNode.childNodes.item(i));
+                    childArr.push(tNode.childNodes.item(i));
                 }
             }
-            return i;
-        }
 
-        function findBeginOfContent(startIndex) {
-            while (xml.charAt(startIndex) !== ">") {
-                startIndex++;
-            }
-            //skip closing character
-            return startIndex + 1;
-        }
-
-
-        function traverseRec(startIndex, endOfContent) {
-            let beginOfContent = findBeginOfContent(startIndex);
-
-            let root = new XMLNode();
-
-            root.tag = parseTag(startIndex);
-            root.attributes = parseAttributes(startIndex);
-
-            for (let i = beginOfContent; i < endOfContent; i++) {
-                if (xml.charAt(i) === "<" && xml.substr(i, 2) !== "</") {
-                    let endOfChild = findEndOfContent(i);
-                    root.children.push(traverseRec(i, endOfChild));
-                    i = endOfChild - 1;
+            //Consider CPEE semantics! Only sort if child nodes can be sorted arbitrarily.
+            if (!CPEESyntax.hasInternalOrdering(tNode.nodeName)) {
+                childArr.sort((tNodeA, tNodeB) => tNodeA.nodeName.localeCompare(tNodeB.nodeName));
+                while (tNode.hasChildNodes()) {
+                    tNode.removeChild(0);
+                }
+                for (let childNode of childArr) {
+                    tNode.appendChild(childNode);
                 }
             }
-            if (root.children.length === 0 && beginOfContent < endOfContent) {
-                root.value = xml.substring(beginOfContent, endOfContent);
-            }
-            return root;
         }
-        return traverseRec(0, findEndOfContent(0));
-    }
-
-    static order(xml) {
-        return this.transform(xml).toStringOrdered();
-    }
-}
-
-/**
- * A node in the XML tree of a CPEE process model.
- */
-class XMLNode {
-    tag;
-    value;
-    children;
-    attributes;
-
-    constructor() {
-        this.tag = "";
-        this.value = "";
-        this.children = [];
-        this.attributes = {};
-    }
-
-    /**
-     * @return {string} The XML document string associated with this XML (sub-)tree.
-     *                  If the child nodes of this node have no inherent order,
-     *                  they will be sorted alphabetically by their tag.
-     */
-    toStringOrdered() {
-        let str = `<${this.tag}`;
-        for(let [attrKey, attrVal] of this.attributes.entries()) {
-            str += " " + attrKey + "=" + attrVal;
-        }
-        str += `>${this.value}`;
-        //nodes with no child nodes only occupy one line
-        if(this.children.length > 0) {
-            str += "\n";
-            for(let child of
-                (CPEESyntax.hasInternalOrdering(this.tag)
-                    ? this.children
-                    : this.children.sort((a,b) => a.tag.localeCompare(b.tag))
-                )) {
-                str += child.toStringOrdered() + "\n";
-            }
-        }
-        str += `</${this.tag}>`;
-        return str;
     }
 }
 

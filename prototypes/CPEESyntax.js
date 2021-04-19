@@ -22,17 +22,20 @@ class CPEE {
         DECISION: "choose",
         LOOP: "loop",
         CRITICAL: "critical",
-        STOP: "stop"
+        STOP: "stop",
+        ESCAPE: "escape",
+        TERMINATE: "terminate"
     }
 
     /**
-     * Determines if the child nodes of a given node have an ordering associated with them or can be ordered
-     * arbitrarily. E.g. child nodes of Service Calls are unordered, child nodes of loops are ordered.
-     * @param node The string tag of the node inside the CPEE process model.
+     * Determines if the child nodes of a given XML node from a CPEE process model have an ordering
+     * associated with them or can be ordered arbitrarily.
+     * E.g. child nodes of Service Calls are unordered, child nodes of loops are ordered.
+     * @param nodeTag The string tag of the XML node inside the CPEE process model.
      * @return hasInternalOrder A boolean reflecting the truth value of the statement.
      */
-    static hasInternalOrdering(node) {
-        return (node === this.DSL.LOOP || node === this.DSL.CRITICAL);
+    static hasInternalOrdering(nodeTag) {
+        return (nodeTag === this.DSL.LOOP || nodeTag === this.DSL.CRITICAL);
     }
 
 }

@@ -44,7 +44,7 @@ class AbstractPatch {
     }
 
     /**
-     * Apply the patch to a CPEE process model
+     * Apply the patch to a CPEE process model in XML document format.
      * @param xml
      */
     merge(xml) {}
