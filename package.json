@@ -8,5 +8,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "xml2js": "^0.4.23"
+  },
+  "dependencies": {
+    "xml-js": "^1.6.11"
+  }
 }
