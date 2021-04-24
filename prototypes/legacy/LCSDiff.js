@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-const {AbstractDiff} = require("./AbstractDiff");
-const {XMLTools} = require("./XMLTools");
+const {AbstractDiff} = require("../AbstractDiff");
+const {XMLTools} = require("../XMLTools");
 const {LCSPatch, LCSLine} = require("./LCSPatch");
 
 /**

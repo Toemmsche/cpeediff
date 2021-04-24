@@ -14,10 +14,10 @@
    limitations under the License.
 */
 
-const {AbstractDiff} = require("./AbstractDiff");
+const {AbstractDiff} = require("../AbstractDiff");
 const {LCSDiff} = require("./LCSDiff");
-const {XMLTools} = require("./XMLTools");
-const {LCSPatch, LCSLine} = require("./LCSPatch");
+const {XMLTools} = require("../XMLTools");
+const {LCSPatch, LCSLine} = require("../LCSPatch");
 
 /**
  This class features a greedy, polynomial time approximation algorithm for the minimum edit distance between two

@@ -20,15 +20,15 @@
  */
 class AbstractDiff {
     /**
-     * The original process model as an XML document
-     * @type {String}
+     * The original process model
+     * @type {CPEEModel}
      */
-    xml1;
+    model1;
     /**
-     * The changed process model as an XML document
-     * @type {String}
+     * The changed process model
+     * @type {CPEEModel}
      */
-    xml2;
+    model2;
     /**
      * Additional options for the difference calculation
      * @type {String[]}
@@ -38,22 +38,22 @@ class AbstractDiff {
 
     /**
      * Instantiate an AbstractDiff object with the given models and options.
-     * @param {String} xml1 The original CPEE process model as an XML document
-     * @param {String} xml2 The changed CPEE process model as an XML document
+     * @param {CPEEModel} model1 The original CPEE process model
+     * @param {CPEEModel} model2 The changed CPEE process model
      * @param {String[]} options Additional options for the difference calculation
      * @throws {Error} If not called from within a subclass
      */
-    constructor(xml1, xml2, options= []) {
+    constructor(model1, model2, options= []) {
         if (this.constructor === AbstractDiff) {
             throw new Error("Instantiation of Abstract class 'AbstractDiff'");
         }
-        this.xml1 = xml1;
-        this.xml2 = xml2;
+        this.model1 = model1;
+        this.model2 = model2;
         this.options = options;
     }
 
     /**
-     * Diffs the two CPEE process models in XML document format.
+     * Diffs the two CPEE process models.
      * @return {AbstractPatch} A patch containing a list of changes, grouped by operation
      */
     diff() {}

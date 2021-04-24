@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CPEESyntax} = require("./CPEESyntax");
+const {CPEESyntax} = require("./DSL");
 const { DOMParser, XMLSerializer } = require("xmldom");
 const vkbeautify = require("vkbeautify");
 

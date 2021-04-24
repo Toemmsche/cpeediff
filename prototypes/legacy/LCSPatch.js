@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {AbstractPatch} = require("./AbstractPatch");
+const {AbstractPatch} = require("../AbstractPatch");
 
 /**
  * Result of the LCSDiff Algorithm

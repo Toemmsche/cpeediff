@@ -47,9 +47,9 @@ class AbstractPatch {
 
     /**
      * Merge the changes contained in this patch with an existing process model
-     * @param {String } xml A CPEE process model as an XML document string
+     * @param {CPEEModel} model A CPEE process model
      */
-    merge(xml) {}
+    merge(model) {}
 
     /**
      * @override
