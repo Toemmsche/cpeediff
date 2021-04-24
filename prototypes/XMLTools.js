@@ -14,10 +14,9 @@
    limitations under the License.
 */
 
-const CPEESyntax = require("./CPEESyntax");
+const {CPEESyntax} = require("./CPEESyntax");
 const { DOMParser, XMLSerializer } = require("xmldom");
 const vkbeautify = require("vkbeautify");
-
 
 /**
  * Helper class to manipulate/generate XML documents.
@@ -26,19 +25,20 @@ class XMLTools {
 
     /**
      * Sorts all child nodes lexicographically where permitted by the semantic of the CPEE syntax.
-     * @param xml The unordered CPEE process model as an XML document string.
-     * @return {string} The ordered CPEE process model as an XML document string.
+     * Also tidies up the XML formatting.
+     * @param {String} xml The unordered CPEE process model as an XML document.
+     * @return {string} The ordered and tidied CPEE process model as an XML document.
      */
     static sortXML(xml) {
-        let doc = new DOMParser().parseFromString(xml, "text/xml");
+        let doc = new DOMParser().parseFromString(xml.replaceAll("\n", ""), "text/xml");
         sortRecursive(doc);
         //xmldom serializer messes up newlines
         //use vkbeautify for proper formatting and remove all indentations
-        return vkbeautify.xml(new XMLSerializer().serializeToString(doc), 1).toString().replaceAll(/\r?\n\s*/g, "\n");
+        return vkbeautify.xml(new XMLSerializer().serializeToString(doc), 1).replaceAll(/\r?\n\s*/g, "\n");
 
         function sortRecursive(tNode) {
             //xmldom doesn't provide iterable child nodes, we have to remove, sort and reinsert them on our own
-            let childArr = [];
+            const childArr = [];
             if (tNode.hasChildNodes()) {
                 for (let i = 0; i < tNode.childNodes.length; i++) {
                     sortRecursive(tNode.childNodes.item(i));
@@ -58,6 +58,45 @@ class XMLTools {
             }
         }
     }
+
+    //TODO
+    static getSubTreeSize(tNode) {
+        //only calculate each size once
+        if(tNode.subTreeSize !== undefined) {
+            return tNode.subTreeSize;
+        }
+        let count = 1;
+        for(let i = 0; i < tNode.childNodes.length; i++) {
+            count += this.getSubTreeSize(tNode.childNodes.item(i));
+        }
+
+        return (tNode.subTreeSize = count);
+    }
+
+    //TODO
+    static setAttributes(tNode) {
+        this.getSubTreeSize(tNode);
+        markDepth(tNode, 0);
+        function markDepth(tNode, depth) {
+            tNode.depth = depth;
+            for (let i = 0; i <tNode.childNodes.length ; i++) {
+                markDepth(tNode.childNodes.item(i), depth + 1);
+            }
+        }
+    }
+
+    //TODO
+    static getPreOrderArray(tNode) {
+        const res = [];
+        fillPreOrderArray(tNode, res);
+        return res;
+        function fillPreOrderArray(tNode, array) {
+            array.push(tNode);
+            for (let i = 0; i < tNode.childNodes.length; i++) {
+                fillPreOrderArray(tNode.childNodes.item(i), array);
+            }
+        }
+    }
 }
 
-module.exports = XMLTools;
+exports.XMLTools = XMLTools;

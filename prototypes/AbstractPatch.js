@@ -32,22 +32,30 @@ class AbstractPatch {
     deletes;
     //Move of a node within the tree without changing it
     moves;
+    //Relabeling of a node without changing child nodes
+    relabels;
 
-    constructor(diffList) {
+    constructor() {
         if(this.constructor === AbstractPatch) {
             throw new Error("Instantiation of Abstract class 'AbstractPatch'");
         }
-
         this.inserts = [];
         this.deletes = [];
         this.moves = [];
+        this.relabels = [];
     }
 
     /**
-     * Apply the patch to a CPEE process model in XML document format.
-     * @param xml
+     * Merge the changes contained in this patch with an existing process model
+     * @param {String } xml A CPEE process model as an XML document string
      */
     merge(xml) {}
+
+    /**
+     * @override
+     * @return {String} Color-coded string representation of this patch
+     */
+    toString() {}
 }
 
-module.exports = AbstractPatch;
+exports.AbstractPatch = AbstractPatch;

@@ -13,10 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-const LCSDiff = require("./LCSDiff");
-const XMLTools = require("./XMLTools");
+const {LCSDiff} = require("./LCSDiff");
+const {EDMDiff} = require("./EDMDiff");
+const {XMLTools} = require("./XMLTools");
+const {ComplexTreeDiff} = require("./ComplexTreeDiff");
 
-let xml1 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
+let xml234 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
     "<parameters>\n" +
     "<label/>\n" +
@@ -86,7 +88,7 @@ let xml1 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</call>\n" +
     "</description>";
 
-let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
+let xml123 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a3\" endpoint=\"DUMMY\">\n" +
     "<parameters>\n" +
     "<label>ADDEDTASK</label>\n" +
@@ -117,18 +119,6 @@ let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</implementation>\n" +
     "</call>\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
-    "<parameters>\n" +
-    "<label/>\n" +
-    "<method>:post</method>\n" +
-    "<arguments/>\n" +
-    "<stream>\n" +
-    "<sensors/>\n" +
-    "<ips/>\n" +
-    "</stream>\n" +
-    "<report>\n" +
-    "<url/>\n" +
-    "</report>\n" +
-    "</parameters>\n" +
     "<code>\n" +
     "<prepare/>\n" +
     "<finalize output=\"result\"/>\n" +
@@ -185,7 +175,11 @@ let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</call>\n" +
     "</description>";
 
-let test = new LCSDiff(xml1, xml2);
-test.diff();
+let xml1 = "<a><b><c></c><d></d><e></e></b></a>";
 
+let xml2 = "<a><m><b><c></c><d></d><f></f></b></m></a>";
+
+let test = new ComplexTreeDiff(xml1, xml2);
+let patch = test.diff();
+console.log(patch.toString());
 

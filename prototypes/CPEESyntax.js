@@ -14,8 +14,12 @@
    limitations under the License.
 */
 
-class CPEE {
+/**
+ * Helper class for process models conforming to the CPEE specification (cpee.org) in XML document format
+ */
+class CPEESyntax {
     static DSL = {
+        ROOT: "description",
         SERVICE_CALL: "call",
         SCRIPT: "manipulate",
         PARALLEL: "parallel",
@@ -35,9 +39,9 @@ class CPEE {
      * @return hasInternalOrder A boolean reflecting the truth value of the statement.
      */
     static hasInternalOrdering(nodeTag) {
-        return (nodeTag === this.DSL.LOOP || nodeTag === this.DSL.CRITICAL);
+        return nodeTag in [this.DSL.LOOP, this.DSL.CRITICAL, this.DSL.ROOT];
     }
 
 }
 
-module.exports = CPEE;
+exports.CPEESyntax = CPEESyntax;
