@@ -15,7 +15,7 @@
 */
 
 const {AbstractDiff} = require("../AbstractDiff");
-const {XMLTools} = require("../XMLTools");
+const {XMLTools} = require("../utils/XMLTools");
 const {DOMParser, XMLSerializer} = require("xmldom");
 
 class ComplexTreeDiff extends AbstractDiff {

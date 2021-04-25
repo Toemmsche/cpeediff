@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-const {CPEEModel} = require("./CPEEModel");
+const {CPEEModel} = require("../CPEE/CPEEModel");
 
 let xml234 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +

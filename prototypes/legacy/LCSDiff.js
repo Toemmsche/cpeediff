@@ -15,7 +15,7 @@
 */
 
 const {AbstractDiff} = require("../AbstractDiff");
-const {XMLTools} = require("../XMLTools");
+const {XMLTools} = require("../utils/XMLTools");
 const {LCSPatch, LCSLine} = require("./LCSPatch");
 
 /**
