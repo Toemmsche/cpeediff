@@ -13,10 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-const {LCSDiff} = require("./LCSDiff");
-const {EDMDiff} = require("./EDMDiff");
-const {XMLTools} = require("./XMLTools");
-const {ComplexTreeDiff} = require("./ComplexTreeDiff");
+const {CPEEModel} = require("./CPEEModel");
 
 let xml234 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
@@ -175,11 +172,7 @@ let xml123 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</call>\n" +
     "</description>";
 
-let xml1 = "<a><b><c></c><d></d><e></e></b></a>";
 
-let xml2 = "<a><m><b><c></c><d></d><f></f></b></m></a>";
-
-let test = new ComplexTreeDiff(xml1, xml2);
-let patch = test.diff();
-console.log(patch.toString());
+const model = CPEEModel.from(xml123);
+console.log(model);
 

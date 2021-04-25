@@ -16,25 +16,27 @@
 
 const {DSL} = require("./DSL");
 class CPEENode {
-    //ndoe tag
+    //ndoe tag (implies type)
     tag;
-    //String
-    type;
-    //Map
-    properties;
+    //Map of key-value attributes
+    attributes;
     //ordered child CPEENodes
-    children;
+    childNodes;
+    //string data of the node
+    data;
 
-    constructor(tag, type) {
+    constructor(tag) {
         this.tag = tag;
-        this.type = type;
-        this.properties = new Map();
-        this.children = [];
+        this.attributes = new Map();
+        this.childNodes = [];
+        this.data = "";
     }
 
     hasInternalOrdering() {
         return DSL.hasInternalOrdering(this.tag);
     }
+
+
 }
 
 exports.CPEENode = CPEENode;

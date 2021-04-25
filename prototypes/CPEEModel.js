@@ -15,16 +15,41 @@
 */
 
 const {CPEENode} = require("./CPEENode");
+const {DOMParser} = require("xmldom");
+
+//TODO doc
 class CPEEModel {
 
     //CPEENode
     root;
+
     constructor() {
         this.root = undefined;
     }
 
+    //TODO doc
     static from(xml) {
-        //TODO
+        const doc = new DOMParser().parseFromString(xml.replaceAll("\n", ""), "text/xml").firstChild;
+        const model = new CPEEModel();
+        model.root = constructRecursive(doc);
+        return model;
+
+        function constructRecursive(tNode) {
+            const root = new CPEENode(tNode.tagName);
+            for (let i = 0; i < tNode.childNodes.length; i++) {
+                const childNode = tNode.childNodes.item(i);
+                if (childNode.nodeType === 3) { //text node
+                    root.data = childNode.data;
+                } else {
+                    root.childNodes.push(constructRecursive(tNode.childNodes.item(i)));
+                }
+            }
+            for (let i = 0; i < tNode.attributes.length; i++) {
+                const attrNode = tNode.attributes.item(i);
+                root.attributes.set(attrNode.name, attrNode.value);
+            }
+            return root;
+        }
     }
 
 }

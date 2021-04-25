@@ -17,11 +17,15 @@
 
 
 class DSL {
+    //control flow constructs of the CPEE domain specific language
     static ROOT = "description"
     static SERVICE_CALL = "call"
     static SCRIPT = "manipulate"
     static PARALLEL = "parallel"
-    static DECISION = "choose"
+    static PARALLEL_BRANCH = "parallel_branch"
+    static CHOOSE = "choose"
+    static ALTERNATIVE = "alternative"
+    static OTHERWISE = "otherwise"
     static LOOP = "loop"
     static CRITICAL = "critical"
     static STOP = "stop"
@@ -30,6 +34,10 @@ class DSL {
 
     static hasInternalOrdering(nodeTag) {
         return nodeTag in [this.LOOP, this.CRITICAL, this.ROOT];
+    }
+
+    static isControlFlowLeafNode(nodeTag) {
+        return nodeTag in [this.SERVICE_CALL, this.SCRIPT, this.TERMINATE, this.STOP, this.ESCAPE];
     }
 
 }

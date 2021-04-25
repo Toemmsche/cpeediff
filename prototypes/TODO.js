@@ -8,6 +8,9 @@
 //      use a single preorder array for all operations (with start/end indices)
 //      work around size (use m an n CONSISTENTLY) or update value in setAttributes
 //      fix xmlserializer deleting duplicate nodes
+//      const instead of let in loops
+//      use tagName instead of nodeName
+//      make child nodes of call properties instead of child Nodes.
 
 
 //TODO  paper
