@@ -10,10 +10,10 @@
 //      fix xmlserializer deleting duplicate nodes
 //      const instead of let in loops
 //      use tagName instead of nodeName
-//      make child nodes of call properties instead of child Nodes.
+//      turn child nodes of call into properties instead of actual child Nodes.
+//      diff() performes conversion to CPEEModel
 
 
 //TODO  paper
 //      limitations of treediff (and other) algorithms e.g. is label == label + attributes?
-//
 

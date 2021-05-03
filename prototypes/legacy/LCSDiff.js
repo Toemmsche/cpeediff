@@ -61,8 +61,8 @@ class LCSDiff extends AbstractDiff {
          * construct Longest Common Subsequence (LCS) using dynamic programming
          */
 
-            //initial 2D array of size (m + 1) * (n + 1)
-        const dp = new Array(linesA.length + 1)
+        //initial 2D array of size (m + 1) * (n + 1)
+        const dp = new Array(linesA.length + 1);
         for (let i = 0; i < linesA.length + 1; i++) {
             dp[i] = new Array(linesB.length + 1);
         }

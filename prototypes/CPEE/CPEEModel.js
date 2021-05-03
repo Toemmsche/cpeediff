@@ -34,15 +34,20 @@ class CPEEModel {
         model.root = constructRecursive(doc);
         return model;
 
-        function constructRecursive(tNode) {
-            const root = new CPEENode(tNode.tagName);
+        function constructRecursive(tNode, parentCpeeNode = null, childIndex = -1) {
+            const root = new CPEENode(tNode.tagName, parentCpeeNode, childIndex);
+            childIndex = 0;
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
                 if (childNode.nodeType === 3) { //text node
                     root.data = childNode.data;
                 } else {
-                    root.childNodes.push(constructRecursive(tNode.childNodes.item(i)));
+                    root.childNodes.push(constructRecursive(tNode.childNodes.item(i), root, childIndex++));
                 }
+            }
+            //sort if order of childNodes is irrelevant
+            if(!root.hasInternalOrdering()) {
+                root.childNodes.sort((a, b) => a.tag.localeCompare(b.tag));
             }
             for (let i = 0; i < tNode.attributes.length; i++) {
                 const attrNode = tNode.attributes.item(i);
@@ -50,6 +55,31 @@ class CPEEModel {
             }
             return root;
         }
+    }
+
+    //TODO doc
+    toPreOrderArray() {
+        const preOrderArr = [];
+        fillPreOrderArray(this.root, preOrderArr);
+        function fillPreOrderArray(cpeeNode, arr) {
+            arr.push(cpeeNode);
+            for(const child of cpeeNode.childNodes) {
+                fillPreOrderArray(child, arr);
+            }
+        }
+        return preOrderArr;
+    }
+
+    toPostOrderArray() {
+        const postOrderArr = [];
+        fillPostOrderArray(this.root, postOrderArr);
+        function fillPostOrderArray(cpeeNode, arr) {
+            for(const child of cpeeNode.childNodes) {
+                fillPostOrderArray(child, arr);
+            }
+            arr.push(cpeeNode);
+        }
+        return postOrderArr;
     }
 
 }
