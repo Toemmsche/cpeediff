@@ -18,8 +18,8 @@ const {DSL} = require("./DSL");
 class CPEENode {
 
     //TODO parent and sibling relationship, fingerpringt considering path and subtree (maybe separate for each)
-    //node tag (implies type)
-    tag;
+    //node label (implies type)
+    label;
     //Map of key-value attributes
     attributes;
     //ordered child CPEENodes
@@ -30,8 +30,10 @@ class CPEENode {
     childIndex;
     path;
 
-    constructor(tag, parent, childIndex) {
-        this.tag = tag;
+    tempSubTree;
+
+    constructor(label, parent, childIndex) {
+        this.label = label;
         this.attributes = new Map();
         this.childNodes = [];
         this.data = "";
@@ -44,19 +46,23 @@ class CPEENode {
             this.path = this.parent.path.slice();
         }
         this.path.push(this);
+
+
+        //TODO
+        this.tempSubTree = [];
     }
 
     hasInternalOrdering() {
-        return DSL.hasInternalOrdering(this.tag);
+        return DSL.hasInternalOrdering(this.label);
     }
 
     nodeEquals(other) {
         //only compare internal data, not child nodes
-        if(this.tag !== other.tag) return false;
+        if(this.label !== other.label) return false;
         if(this.data !== other.data) return false;
         if(this.attributes.size !== other.attributes.size) return false;
-        for (const key of this.attributes) {
-            if(this.attributes.get(key) !== other.attributes.get(key)) return false;
+        for (const [key, value] of this.attributes) {
+            if(value !== other.attributes.get(key)) return false;
         }
         return true;
     }
@@ -73,6 +79,17 @@ class CPEENode {
 
     hasChildren() {
         return this.childNodes.length > 0;
+    }
+
+    isControlFlowLeafNode() {
+        return DSL.isControlFlowLeafNode(this.label);
+    }
+
+    compareTo(other) {
+        //TODO
+        //nodes are equal
+        if(this.nodeEquals(other)) return 0;
+        else return 1;
     }
 }
 

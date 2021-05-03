@@ -16,6 +16,7 @@
 
 const {CPEENode} = require("./CPEENode");
 const {DOMParser} = require("xmldom");
+const {DSL} = require("./DSL");
 
 //TODO doc
 class CPEEModel {
@@ -23,15 +24,14 @@ class CPEEModel {
     //CPEENode
     root;
 
-    constructor() {
-        this.root = undefined;
+    constructor(root) {
+        this.root = root;
     }
 
     //TODO doc
     static from(xml) {
         const doc = new DOMParser().parseFromString(xml.replaceAll("\n", ""), "text/xml").firstChild;
-        const model = new CPEEModel();
-        model.root = constructRecursive(doc);
+        const model = new CPEEModel(constructRecursive(doc));
         return model;
 
         function constructRecursive(tNode, parentCpeeNode = null, childIndex = -1) {
@@ -41,13 +41,15 @@ class CPEEModel {
                 const childNode = tNode.childNodes.item(i);
                 if (childNode.nodeType === 3) { //text node
                     root.data = childNode.data;
+                } else if (root.isControlFlowLeafNode()) {
+                    root.tempSubTree.push(constructRecursive(tNode.childNodes.item(i), root, 0));
                 } else {
                     root.childNodes.push(constructRecursive(tNode.childNodes.item(i), root, childIndex++));
                 }
             }
             //sort if order of childNodes is irrelevant
             if(!root.hasInternalOrdering()) {
-                root.childNodes.sort((a, b) => a.tag.localeCompare(b.tag));
+                root.childNodes.sort((a, b) => a.label.localeCompare(b.label));
             }
             for (let i = 0; i < tNode.attributes.length; i++) {
                 const attrNode = tNode.attributes.item(i);
@@ -80,6 +82,14 @@ class CPEEModel {
             arr.push(cpeeNode);
         }
         return postOrderArr;
+    }
+
+    leafNodes() {
+        return this.toPreOrderArray().filter(n => !n.hasChildren());
+    }
+
+    innerNodes() {
+        return this.toPreOrderArray().filter(n => n.hasChildren());
     }
 
 }
