@@ -24,25 +24,15 @@ class AbstractPatch {
     static red = "\x1b[31m";
     static cyan = "\x1b[36m";
     static white = "\x1b[37m";
+    static yellow = "\x1b[33m";
 
-    //We detect three types of change operations applied to a model
-    //Insertion of a new node
-    inserts;
-    //Deletion of a node
-    deletes;
-    //Move of a node within the tree without changing it
-    moves;
-    //Relabeling of a node without changing child nodes
-    relabels;
+    changes;
 
     constructor() {
         if(this.constructor === AbstractPatch) {
             throw new Error("Instantiation of Abstract class 'AbstractPatch'");
         }
-        this.inserts = [];
-        this.deletes = [];
-        this.moves = [];
-        this.relabels = [];
+        this.changes = [];
     }
 
     /**

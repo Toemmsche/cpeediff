@@ -14,8 +14,10 @@
    limitations under the License.
 */
 
+const {CPEENode} = require("./CPEE/CPEENode");
 const {AbstractDiff} = require("./AbstractDiff");
 const {CPEEModel} = require("./CPEE/CPEEModel");
+const {MatchPatch, Change} = require("./MatchPatch");
 
 class MatchDiff extends AbstractDiff {
 
@@ -28,17 +30,12 @@ class MatchDiff extends AbstractDiff {
         //get all nodes, leaf nodes and inner nodes of the models
         const oldPostOrderArray = this.model1.toPostOrderArray();
         const newPreOrderArray = this.model2.toPreOrderArray();
-
         const oldLeafNodes = this.model1.leafNodes();
         const newLeafNodes = this.model2.leafNodes();
 
-        const oldInnerNodes = this.model1.innerNodes();
-        const newInnerNodes = this.model2.innerNodes();
-
-
-        //compute approximate matching based on Kyong-Ho et al https://www.researchgate.net/publication/3297320_An_efficient_algorithm_to_compute_differences_between_structured_documents
-        const matchOldToNew = new Map();
-        let newToOldMatching= new Map();
+        //compute approximate matching based on https://www.researchgate.net/publication/3297320_An_efficient_algorithm_to_compute_differences_between_structured_documents
+        const oldToNewMatching = new Map();
+        let newToOldMatching = new Map();
         getMatching();
 
         function getMatching() {
@@ -60,7 +57,6 @@ class MatchDiff extends AbstractDiff {
                     }
                     if (compareValue <= t) {
                         //Matching is as as good as previous best, save for now
-
                         newToOldMatching.get(newLeafNode).push(oldLeafNode);
                     }
                 }
@@ -69,11 +65,11 @@ class MatchDiff extends AbstractDiff {
             /*
             Step 2: Transform one-to-many (new to old) leaf node matchings  into one-to-one matchings
              */
-            for(const [newLeafNode, matchArray] of newToOldMatching) {
-                if(matchArray.length > 1) {
+            for (const [newLeafNode, matchArray] of newToOldMatching) {
+                if (matchArray.length > 1) {
                     //turn into one-to-one matching according to matching criterion 2
                     //TODO
-                    matchArray.splice(1,matchArray.length - 1);
+                    matchArray.splice(1, matchArray.length - 1);
                 }
             }
 
@@ -83,7 +79,7 @@ class MatchDiff extends AbstractDiff {
             //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
             //to find potential matches. As non-leaf nodes in the CPEE standard do not hold complex attribute data,
             //we can resort to simpler comparison methods.
-            for(const [newLeafNode, oldMatchArray] of newToOldMatching) {
+            for (const [newLeafNode, oldMatchArray] of newToOldMatching) {
                 matchPath(oldMatchArray[0], newLeafNode);
             }
 
@@ -96,13 +92,13 @@ class MatchDiff extends AbstractDiff {
                 for (let i = 0; i < oldPath.length; i++) {
                     for (let k = 0; k < newPath.length; k++) {
                         //does there already exist a match between the two paths?
-                        if(newToOldMatching.has(newPath[k]) && oldPath.includes(newToOldMatching.get(newPath[k]))) {
+                        if (newToOldMatching.has(newPath[k]) && oldPath.includes(newToOldMatching.get(newPath[k])[0])) {
                             //If so, we terminate to preserve ancestor order
                             return;
                             //TODO replace with nodecompare or nodeeuqals
-                        } else if(newPath[k].label === oldPath[i].label) {
+                        } else if (newPath[k].label === oldPath[i].label) {
                             //found new matching
-                            if(!newToOldMatching.has(newPath[k])) {
+                            if (!newToOldMatching.has(newPath[k])) {
                                 newToOldMatching.set(newPath[k], []);
                             }
                             newToOldMatching.get(newPath[k]).push(oldPath[i]);
@@ -116,14 +112,14 @@ class MatchDiff extends AbstractDiff {
             /*
             Step 4: Transform one-to-many (new to old) inner node matchings into one-to-one matchings.
              */
-            for(const [newInnerNode, oldMatchArray] of newToOldMatching) {
-                if(oldMatchArray.size > 1) {
+            for (const [newInnerNode, oldMatchArray] of newToOldMatching) {
+                if (oldMatchArray.size > 1) {
                     //choose the old node with the highest similarity value
                     let maxSimilarityValue = 0;
                     let maxSimilarityNode = null;
-                    for(const oldInnerNode of oldMatchArray) {
+                    for (const oldInnerNode of oldMatchArray) {
                         const similarityValue = matchingSimilarity(oldInnerNode, newInnerNode);
-                        if(similarityValue> maxSimilarityValue) {
+                        if (similarityValue > maxSimilarityValue) {
                             maxSimilarityValue = similarityValue;
                             maxSimilarityNode = oldInnerNode;
                         }
@@ -139,15 +135,15 @@ class MatchDiff extends AbstractDiff {
                 const oldSubTreePreOrder = new CPEEModel(oldRootNode).toPreOrderArray().slice(1);
                 const newSubTreePreOrder = new CPEEModel(newRootNode).toPreOrderArray().slice(1);
 
-                if(oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
+                if (oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
                     return 0;
                 }
 
                 let commonSize = 0;
-                for(const oldNode of oldSubTreePreOrder) {
-                    for(const newNode of newSubTreePreOrder) {
+                for (const newNode of newSubTreePreOrder) {
+                    if (newToOldMatching.has(newNode)) {
                         //TODO replace with compare
-                        if(newToOldMatching.has(newNode) && newToOldMatching.get(newNode) === oldNode) {
+                        if (oldSubTreePreOrder.includes(newToOldMatching.get(newNode))) {
                             commonSize++;
                         }
                     }
@@ -157,38 +153,60 @@ class MatchDiff extends AbstractDiff {
             }
         }
 
+        for (const [newNode, matchArray] of newToOldMatching) {
+            const oldNode = matchArray[0];
+            if (!oldToNewMatching.has(oldNode)) {
+                oldToNewMatching.set(oldNode, []);
+            }
+            oldToNewMatching.get(oldNode).push(newNode);
+        }
 
+        //append changes to patch file
+        const patch = new MatchPatch();
 
-        //based on https://db.in.tum.de/~finis/papers/RWS-Diff.pdf
+        //Edit script generation based on https://db.in.tum.de/~finis/papers/RWS-Diff.pdf
         function generateEditScript() {
-            for (const node2 of preOrder2) {
-                if (node2.parent === null) continue;
-                if (matchBtoA.has(node2)) {
-                    const match = matchBtoA.get(node2);
-                    if (match.parent.tag !== node2.parent.tag) {
-                        console.log("MOVE " + match.tag + " TO " + matchBtoA.get(node2.parent).tag);
+            //iterate in pre order through new model
+            for (const newNode of newPreOrderArray) {
+                //We can safely skip the root node, as it will always be mapped between two CPEE models
+                if (newNode.parent == null) continue;
+                const matchOfParent = newToOldMatching.get(newNode.parent)[0];
+                if (newToOldMatching.has(newNode)) {
+                    //new Node has a match in the old model
+                    const match = newToOldMatching.get(newNode)[0];
+                    //TODO copy
+                    if (!matchOfParent.nodeEquals(match.parent)) {
+                        //move match to matchOfParent
+                        patch.changes.push(new Change(Change.typeEnum.MOVE, match, matchOfParent));
+                        match.removeFromParent();
+                        matchOfParent.insertChild(match);
                     }
-                    if (match.tag !== node2.tag) {
-                        console.log("RENAME " + match.tag + " to " + node2.tag);
-                        match.tag = node2.tag;
+                    if (!newNode.nodeEquals(match)) {
+                        //relabel node
+                        patch.changes.push(new Change(Change.typeEnum.RELABEL, match, newNode));
+                        match.label = newNode.label;
                     }
                 } else {
-                    console.log("INSERT " + node2.tag + " AT " + node2.parent.tag);
-                    newToOldMatching.set(node2, node2);
-                    matchBtoA.set(node2, node2);
+                    //perform insert operation at match of the parent node
+                    const copy = newNode.copy();
+                    matchOfParent.insertChild(copy);
+                    //insertions are always mapped back to the original node
+                    newToOldMatching.set(newNode, [copy]);
+                    patch.changes.push(new Change(Change.typeEnum.INSERTION, copy, matchOfParent));
                 }
             }
-
-            for (const node1 of postOrder1) {
-                if (!newToOldMatching.has(node1)) {
-                    console.log("REMOVE " + node1.tag);
+            for (const oldNode of oldPostOrderArray) {
+                if (!oldToNewMatching.has(oldNode)) {
+                    //delete node
+                    patch.changes.push(new Change(Change.typeEnum.DELETION, oldNode, oldNode.parent));
+                    oldNode.removeFromParent();
                 }
             }
         }
 
         generateEditScript();
 
-        console.log("lol");
+        return patch;
     }
 }
 

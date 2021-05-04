@@ -30,7 +30,7 @@ class CPEEModel {
 
     //TODO doc
     static from(xml) {
-        const doc = new DOMParser().parseFromString(xml.replaceAll("\n", ""), "text/xml").firstChild;
+        const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
         const model = new CPEEModel(constructRecursive(doc));
         return model;
 
@@ -40,7 +40,14 @@ class CPEEModel {
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
                 if (childNode.nodeType === 3) { //text node
-                    root.data = childNode.data;
+                    //check if text node contains acutal payload
+                    if(childNode.data.match(/^\s*$/) !== null) { //match whole string
+                        //empty data, skip
+                        continue;
+                    } else {
+                        //relevant data, set as node data
+                        root.data = childNode.data;
+                    }
                 } else if (root.isControlFlowLeafNode()) {
                     root.tempSubTree.push(constructRecursive(tNode.childNodes.item(i), root, 0));
                 } else {
@@ -90,6 +97,10 @@ class CPEEModel {
 
     innerNodes() {
         return this.toPreOrderArray().filter(n => n.hasChildren());
+    }
+
+    copy() {
+
     }
 
 }

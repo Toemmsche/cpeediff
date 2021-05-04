@@ -12,7 +12,13 @@
 //      use tagName instead of nodeName
 //      turn child nodes of call into properties instead of actual child Nodes.
 //      diff() performes conversion to CPEEModel
-
+//      maybe mark clearly which nodes belong to which tree
+//      replace arrray childnodes with hashset (for quick removal)
+//      declare all variables at function start
+//      turn path into method
+//      use patchbuilder
+//      add verbose function
+//      add preprocessing step to remove control flow structures as leaf nodes
 
 //TODO  paper
 //      limitations of treediff (and other) algorithms e.g. is label == label + attributes?

@@ -33,7 +33,7 @@ class DSL {
     static TERMINATE = "terminate"
 
     static hasInternalOrdering(nodeTag) {
-        return [this.LOOP, this.CRITICAL, this.ROOT].includes(nodeTag);
+        return [this.LOOP, this.CRITICAL, this.ROOT, this.ALTERNATIVE, this.OTHERWISE, this.PARALLEL_BRANCH].includes(nodeTag);
     }
 
     static isControlFlowLeafNode(nodeTag) {

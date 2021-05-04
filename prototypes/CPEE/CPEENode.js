@@ -15,6 +15,7 @@
 */
 
 const {DSL} = require("./DSL");
+
 class CPEENode {
 
     //TODO parent and sibling relationship, fingerpringt considering path and subtree (maybe separate for each)
@@ -32,14 +33,14 @@ class CPEENode {
 
     tempSubTree;
 
-    constructor(label, parent, childIndex) {
+    constructor(label, parent = null, childIndex = -1) {
         this.label = label;
         this.attributes = new Map();
         this.childNodes = [];
         this.data = "";
         this.parent = parent;
         this.childIndex = childIndex;
-        if(this.parent == null) {
+        if (this.parent == null) {
             this.path = [];
         } else {
             //copy parent path
@@ -58,21 +59,21 @@ class CPEENode {
 
     nodeEquals(other) {
         //only compare internal data, not child nodes
-        if(this.label !== other.label) return false;
-        if(this.data !== other.data) return false;
-        if(this.attributes.size !== other.attributes.size) return false;
+        if (this.label !== other.label) return false;
+        if (this.data !== other.data) return false;
+        if (this.attributes.size !== other.attributes.size) return false;
         for (const [key, value] of this.attributes) {
-            if(value !== other.attributes.get(key)) return false;
+            if (value !== other.attributes.get(key)) return false;
         }
         return true;
     }
 
     subTreeEquals(other) {
         //compare node data and child node data (ordered!)
-        if(!this.nodeEquals(other)) return false;
-        if(this.childNodes.length !== other.childNodes.length) return false;
+        if (!this.nodeEquals(other)) return false;
+        if (this.childNodes.length !== other.childNodes.length) return false;
         for (let i = 0; i < this.childNodes.length; i++) {
-            if(!this.childNodes[i].subTreeEquals(other.childNodes[i])) return false;
+            if (!this.childNodes[i].subTreeEquals(other.childNodes[i])) return false;
         }
         return true;
     }
@@ -88,8 +89,41 @@ class CPEENode {
     compareTo(other) {
         //TODO
         //nodes are equal
-        if(this.nodeEquals(other)) return 0;
+        if (this.nodeEquals(other)) return 0;
         else return 1;
+    }
+
+    insertChild(cpeeNode) {
+        cpeeNode.childIndex = this.childNodes.length;
+        cpeeNode.parent = this;
+        cpeeNode.path = this.path.splice();
+        cpeeNode.path.push(cpeeNode);
+        this.childNodes.push(cpeeNode);
+    }
+
+    removeFromParent() {
+        if (this.parent === null) {
+            throw new Error();
+        }
+        this.parent.childNodes.splice(this.childIndex, 1);
+        for (let i = this.childIndex; i < this.parent.childNodes.length; i++) {
+            this.parent.childNodes[i].childIndex--;
+        }
+    }
+
+    toString() {
+        return `{"${this.label}" : ${JSON.stringify(Array.from(this.attributes.entries()))}}`
+    }
+
+    copy() {
+        const copy = new CPEENode(this.label, this.parent, this.childIndex);
+        copy.path = this.path;
+        copy.data = this.data;
+        copy.tempSubTree = this.tempSubTree;
+        for(const [key, value] of this.attributes) {
+            copy.attributes.set(key, value);
+        }
+        return copy;
     }
 }
 
