@@ -20,6 +20,7 @@
 //      add verbose function
 //      add preprocessing step to remove control flow structures as leaf nodes
 //      constant values such as t in matchdiff should be options
+//      group inserts and deletes as subtreeinserts and deletes!!!!
 
 //TODO  paper
 //      limitations of treediff (and other) algorithms e.g. is label == label + attributes?

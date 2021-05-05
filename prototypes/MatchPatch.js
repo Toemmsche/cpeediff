@@ -41,7 +41,8 @@ class Change {
         INSERTION:1,
         DELETION:2,
         MOVE:3,
-        RELABEL:4
+        RELABEL:4,
+        COPY:5
     }
     type;
 
@@ -69,6 +70,8 @@ class Change {
                 color = MatchPatch.yellow; action = "MOVE"; conjunction = "to";break;
             case Change.typeEnum.RELABEL:
                 color = MatchPatch.cyan; action = "RELABEL"; conjunction = "to";break;
+            case Change.typeEnum.COPY:
+                color = MatchPatch.blue; action = "COPY"; conjunction = "to";break;
             default: color = MatchPatch.white; action = "NOOP"; conjunction = "";break;
         }
 

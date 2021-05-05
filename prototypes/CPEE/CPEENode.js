@@ -87,8 +87,7 @@ class CPEENode {
     }
 
     compareTo(other) {
-        //TODO
-        //nodes are equal
+        //sophisticated subclass implementation may be present
         if (this.nodeEquals(other)) return 0;
         else return 1;
     }

@@ -25,6 +25,7 @@ class AbstractPatch {
     static cyan = "\x1b[36m";
     static white = "\x1b[37m";
     static yellow = "\x1b[33m";
+    static blue = "\x1b[34m";
 
     changes;
 

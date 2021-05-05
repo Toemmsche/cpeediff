@@ -21,10 +21,12 @@ const {MatchPatch, Change} = require("./MatchPatch");
 
 class MatchDiff extends AbstractDiff {
 
-    constructor(model1, model2, options = []) {
-        super(model1, model2, options);
-    }
+    TOP_DOWN;
 
+    constructor(model1, model2, options = ["--with-top-down"]) {
+        super(model1, model2, options, ["--with-top-down"]);
+        this.TOP_DOWN = this.options.includes("--with-top-down");
+    }
 
     diff() {
         //get all nodes, leaf nodes and inner nodes of the models
@@ -36,9 +38,26 @@ class MatchDiff extends AbstractDiff {
         //compute approximate matching based on https://www.researchgate.net/publication/3297320_An_efficient_algorithm_to_compute_differences_between_structured_documents
         const oldToNewMatching = new Map();
         let newToOldMatching = new Map();
+
+        if (this.TOP_DOWN) {
+            getTopDownMatching(this.model1.root, this.model2.root);
+        }
         getMatching();
 
+        //TODO top down matching (as option)
+        function getTopDownMatching(oldNode, newNode) {
+            if (oldNode.nodeEquals(newNode)) {
+                newToOldMatching.set(newNode, [oldNode]);
+                for (const oldChild of oldNode.childNodes) {
+                    for (const newChild of newNode.childNodes) {
+                        getTopDownMatching(oldChild, newChild);
+                    }
+                }
+            }
+        }
+
         function getMatching() {
+            //Before
             /*
             Step 1: Match leaf nodes.
              */
@@ -174,8 +193,21 @@ class MatchDiff extends AbstractDiff {
                 if (newToOldMatching.has(newNode)) {
                     //new Node has a match in the old model
                     const match = newToOldMatching.get(newNode)[0];
-                    //TODO copy
-                    if (!matchOfParent.nodeEquals(match.parent)) {
+                    let copied = false;
+                    if (oldToNewMatching.get(match).length > 1) {
+                        for (const copy of oldToNewMatching.get(match)) {
+                            //prevent duplicate copy operations
+                            if (newPreOrderArray.indexOf(copy) < newPreOrderArray.indexOf(newNode)) {
+                                patch.changes.push(new Change(Change.typeEnum.COPY, copy, matchOfParent))
+                                const copyOfMatch = match.copy();
+                                matchOfParent.insertChild(copyOfMatch);
+                                //create mapping for newly inserted copy
+                                newToOldMatching.set(newNode, [copyOfMatch]);
+                                copied =  true;
+                            }
+                        }
+                    }
+                    if (!copied && !matchOfParent.nodeEquals(match.parent)) {
                         //move match to matchOfParent
                         patch.changes.push(new Change(Change.typeEnum.MOVE, match, matchOfParent));
                         match.removeFromParent();

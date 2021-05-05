@@ -34,6 +34,10 @@ class AbstractDiff {
      * @type {String[]}
      */
     options;
+    /**
+     * All the options available for this diff algorithm
+     * @type {Object}
+     */
     AVAILABLE_OPTIONS;
 
     /**
@@ -43,12 +47,19 @@ class AbstractDiff {
      * @param {String[]} options Additional options for the difference calculation
      * @throws {Error} If not called from within a subclass
      */
-    constructor(model1, model2, options= []) {
+    constructor(model1, model2, options= [], availableOptions = []) {
         if (this.constructor === AbstractDiff) {
             throw new Error("Instantiation of Abstract class 'AbstractDiff'");
         }
         this.model1 = model1;
         this.model2 = model2;
+        this.AVAILABLE_OPTIONS = availableOptions;
+        //validate options
+        for(const option of options) {
+            if(!this.AVAILABLE_OPTIONS.includes(option)) {
+                throw Error("Unrecognized option " + option);
+            }
+        }
         this.options = options;
     }
 

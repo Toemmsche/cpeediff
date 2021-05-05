@@ -75,6 +75,7 @@ class CPEEModel {
             childIndex = 0;
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
+                //TODO disregard description nodes
                 if (childNode.nodeType === 3) { //text node
                     //check if text node contains a non-empty payload
                     if(childNode.data.match(/^\s*$/) !== null) { //match whole string
