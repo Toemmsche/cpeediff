@@ -19,8 +19,8 @@
 class DSL {
     //control flow constructs of the CPEE domain specific language
     static ROOT = "description"
-    static SERVICE_CALL = "call"
-    static SCRIPT = "manipulate"
+    static CALL = "call"
+    static MANIPULATE = "manipulate"
     static PARALLEL = "parallel"
     static PARALLEL_BRANCH = "parallel_branch"
     static CHOOSE = "choose"
@@ -37,7 +37,7 @@ class DSL {
     }
 
     static isControlFlowLeafNode(nodeTag) {
-        return [this.SERVICE_CALL, this.SCRIPT, this.TERMINATE, this.STOP, this.ESCAPE].includes(nodeTag);
+        return [this.CALL, this.MANIPULATE, this.TERMINATE, this.STOP, this.ESCAPE].includes(nodeTag);
     }
 
 }

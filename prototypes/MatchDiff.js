@@ -44,13 +44,13 @@ class MatchDiff extends AbstractDiff {
              */
 
             //The treshold t dictates how similar two leaf nodes have to be in order to be matched (Matching Criterion 1)
-            const t = 0.1;
+            const t = 0.5;
             for (const newLeafNode of newLeafNodes) {
                 //the minimum compare value
                 let minCompareValue = 2;
                 for (const oldLeafNode of oldLeafNodes) {
                     const compareValue = newLeafNode.compareTo(oldLeafNode);
-                    if (compareValue < t) {
+                    if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
                         //Discard all matchings with a higher comparison value
                         newToOldMatching.set(newLeafNode, []);

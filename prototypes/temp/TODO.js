@@ -19,6 +19,7 @@
 //      use patchbuilder
 //      add verbose function
 //      add preprocessing step to remove control flow structures as leaf nodes
+//      constant values such as t in matchdiff should be options
 
 //TODO  paper
 //      limitations of treediff (and other) algorithms e.g. is label == label + attributes?

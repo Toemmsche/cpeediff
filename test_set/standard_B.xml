@@ -1,11 +1,11 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a1" endpoint="bookAir">
+    <call id="a14234234" endpoint="bookAirMirror">
         <parameters>
             <label>Book Airline</label>
             <method>:post</method>
             <arguments>
                 <from>data.from</from>
-                <to>data.to</to>
+                <to>data.t345o</to>
                 <persons>data.persons</persons>
             </arguments>
         </parameters>
@@ -16,6 +16,18 @@
     <parallel>
         <loop mode="pre_test" condition="data.persons > 0">
             <parallel_branch pass="data.persons" local="p">
+                <call id="a2" endpoint="bookHotel">
+                    <parameters>
+                        <label>Book Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <to>data.to</to>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                    </code>
+                </call>
             </parallel_branch>
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
@@ -30,18 +42,6 @@
                         <costs>data.costs</costs>
                     </arguments>
                 </parameters>
-            </call>
-            <call id="a2" endpoint="bookHotel">
-                <parameters>
-                    <label>Book Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <to>data.to</to>
-                    </arguments>
-                </parameters>
-                <code>
-                    <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
-                </code>
             </call>
         </alternative>
     </choose>
