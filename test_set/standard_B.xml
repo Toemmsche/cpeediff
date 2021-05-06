@@ -25,33 +25,15 @@
                         </arguments>
                     </parameters>
                     <code>
-                        <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                        <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
                     </code>
                 </call>
             </parallel_branch>
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <call id="a4" endpoint="approve">
-                <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <costs>data.costs</costs>
-                    </arguments>
-                </parameters>
-            </call>
-        </alternative>
-    </choose>
-    <call id="a4" endpoint="approve">
-        <parameters>
-            <label>Approve Hotel</label>
-            <method>:post</method>
-            <arguments>
-                <costs>data.costs</costs>
-            </arguments>
-        </parameters>
-    </call>
+        <manipulate/>
+<loop>
+<manipulate/>
+</loop>
 </description>

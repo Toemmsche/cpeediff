@@ -1,0 +1,70 @@
+<description
+        xmlns="http://cpee.org/ns/description/1.0">
+    <call id="a1" endpoint="">
+        <parameters>
+            <label/>
+            <method>:post</method>
+            <arguments/>
+            <stream>
+                <sensors/>
+                <ips/>
+            </stream>
+            <report>
+                <url/>
+            </report>
+        </parameters>
+        <code>
+            <prepare/>
+            <finalize output="result"/>
+            <update output="result"/>
+            <rescue output="result"/>
+        </code>
+        <annotations>
+            <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+            </_timing>
+            <_notes>
+                <_notes_general/>
+            </_notes>
+        </annotations>
+        <input/>
+        <output/>
+        <implementation>
+            <description/>
+        </implementation>
+        <code>
+            <description/>
+        </code>
+    </call>
+    <call id="a2" endpoint="">
+        <parameters>
+            <label/>
+            <method>:post</method>
+            <arguments/>
+            <stream>
+                <sensors/>
+                <ips/>
+            </stream>
+            <report>
+                <url/>
+            </report>
+        </parameters>
+        <annotations>
+            <_timing>
+                <_timing_weight/>
+                <_timing_avg/>
+                <explanations/>
+            </_timing>
+            <_notes>
+                <_notes_general/>
+            </_notes>
+        </annotations>
+        <input/>
+        <output/>
+        <implementation>
+            <description/>
+        </implementation>
+    </call>
+</description>

@@ -17,7 +17,7 @@ const {CPEEModel} = require("../CPEE/CPEEModel");
 const {MatchDiff} = require("../MatchDiff");
 const fs = require("fs");
 
-let xml234 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
+let xml1 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
     "<parameters>\n" +
     "<label/>\n" +
@@ -87,7 +87,7 @@ let xml234 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</call>\n" +
     "</description>";
 
-let xml123 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
+let xml2 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a3\" endpoint=\"DUMMY\">\n" +
     "<parameters>\n" +
     "<label>ADDEDTASK</label>\n" +
@@ -174,14 +174,14 @@ let xml123 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "</call>\n" +
     "</description>";
 
-const xml12342 = "<a><b><d></d><c></c></b><i></i></a>";
-const xml223523 = "<a><e><f><b><c></c></b><i></i></f></e><g></g></a>";
+const xml3 = "<a><b><d></d><c></c></b><i></i></a>";
+const xml4= "<a><e><f><b><c></c></b><i></i></f></e><g></g></a>";
 
 const xmlA = fs.readFileSync("test_set/standard_A.xml").toString();
 const xmlB = fs.readFileSync("test_set/standard_B.xml").toString();
 
-const model1 = CPEEModel.from(xmlA);
-const model2 = CPEEModel.from(xmlB);
+const model1 = CPEEModel.fromCPEE(xmlA);
+const model2 = CPEEModel.fromCPEE(xmlB);
 const sd = new MatchDiff(model1, model2);
 console.log(sd.diff().toString());
 

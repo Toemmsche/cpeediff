@@ -92,12 +92,12 @@ class CPEENode {
         else return 1;
     }
 
-    insertChild(cpeeNode) {
-        cpeeNode.childIndex = this.childNodes.length;
+    insertChild(cpeeNode, index = 0) {
+        cpeeNode.childIndex = index;
         cpeeNode.parent = this;
-        cpeeNode.path = this.path.splice();
+        cpeeNode.path = this.path.slice();
         cpeeNode.path.push(cpeeNode);
-        this.childNodes.push(cpeeNode);
+        this.childNodes.splice(index, 0, cpeeNode);
     }
 
     removeFromParent() {
@@ -110,8 +110,22 @@ class CPEENode {
         }
     }
 
-    toString() {
-        return `{"${this.label}" : ${JSON.stringify(Array.from(this.attributes.entries()))}}`
+    toString(displayType = "path-with-index") {
+        switch (displayType) {
+            case "label":
+                return this.label;
+            case "path-with-index": {
+                const strArr = this.path.map(n => n.label);
+                return `(${strArr.join("/")}[${this.childIndex}])`;
+            }
+            case "path": {
+                const strArr = this.path.map(n => n.toString("label"));
+                return `(${strArr.join("/")})`;
+            }
+            default:
+                return this.label;
+        }
+
     }
 
     copy() {
@@ -119,10 +133,42 @@ class CPEENode {
         copy.path = this.path;
         copy.data = this.data;
         copy.tempSubTree = this.tempSubTree;
-        for(const [key, value] of this.attributes) {
+        for (const [key, value] of this.attributes) {
             copy.attributes.set(key, value);
         }
         return copy;
+    }
+
+    indexPath()  {
+        return this.path.map(n => n.childIndex).reverse();
+    }
+
+    toPreOrderArray() {
+        const preOrderArr = [];
+        fillPreOrderArray(this, preOrderArr);
+
+        function fillPreOrderArray(cpeeNode, arr) {
+            arr.push(cpeeNode);
+            for (const child of cpeeNode.childNodes) {
+                fillPreOrderArray(child, arr);
+            }
+        }
+
+        return preOrderArr;
+    }
+
+    toPostOrderArray() {
+        const postOrderArr = [];
+        fillPostOrderArray(this, postOrderArr);
+
+        function fillPostOrderArray(cpeeNode, arr) {
+            for (const child of cpeeNode.childNodes) {
+                fillPostOrderArray(child, arr);
+            }
+            arr.push(cpeeNode);
+        }
+
+        return postOrderArr;
     }
 }
 

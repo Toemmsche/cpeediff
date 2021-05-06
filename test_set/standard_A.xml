@@ -25,8 +25,9 @@
                         </arguments>
                     </parameters>
                     <code>
-                        <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                        <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
                     </code>
+                    <description>SDFLJSDFLSDFJSLDFJSJDFLLDFKS</description>
                 </call>
             </parallel_branch>
             <manipulate id="a3">data.persons -= 1</manipulate>

@@ -37,7 +37,7 @@ class MatchDiff extends AbstractDiff {
 
         //compute approximate matching based on https://www.researchgate.net/publication/3297320_An_efficient_algorithm_to_compute_differences_between_structured_documents
         const oldToNewMatching = new Map();
-        let newToOldMatching = new Map();
+        const newToOldMatching = new Map();
 
         if (this.TOP_DOWN) {
             getTopDownMatching(this.model1.root, this.model2.root);
@@ -57,7 +57,6 @@ class MatchDiff extends AbstractDiff {
         }
 
         function getMatching() {
-            //Before
             /*
             Step 1: Match leaf nodes.
              */
@@ -69,7 +68,7 @@ class MatchDiff extends AbstractDiff {
                 let minCompareValue = 2;
                 for (const oldLeafNode of oldLeafNodes) {
                     const compareValue = newLeafNode.compareTo(oldLeafNode);
-                    if (compareValue < minCompareValue) {
+                    if (compareValue < minCompareValue && compareValue <= t) {
                         minCompareValue = compareValue;
                         //Discard all matchings with a higher comparison value
                         newToOldMatching.set(newLeafNode, []);
@@ -103,8 +102,8 @@ class MatchDiff extends AbstractDiff {
             }
 
             function matchPath(oldLeafNode, newLeafNode) {
-                const newPath = newLeafNode.path.reverse().slice(1);
-                const oldPath = oldLeafNode.path.reverse().slice(1);
+                const newPath = newLeafNode.path.slice().reverse().slice(1);
+                const oldPath = oldLeafNode.path.slice().reverse().slice(1);
 
                 //index in newPath where last matching occurred
                 let j = 0;
@@ -161,7 +160,6 @@ class MatchDiff extends AbstractDiff {
                 let commonSize = 0;
                 for (const newNode of newSubTreePreOrder) {
                     if (newToOldMatching.has(newNode)) {
-                        //TODO replace with compare
                         if (oldSubTreePreOrder.includes(newToOldMatching.get(newNode))) {
                             commonSize++;
                         }
@@ -180,8 +178,16 @@ class MatchDiff extends AbstractDiff {
             oldToNewMatching.get(oldNode).push(newNode);
         }
 
+        //TODO insert optional PHASE 4 algo step from https://www.researchgate.net/publication/3943331_Detecting_changes_in_XML_documents
+
+        //TODO order
+        //All nodes have the right path and are right.
+        //However, order of child nodes might not be right, we must verify that it matches the new model.
+
+
         //append changes to patch file
         const patch = new MatchPatch();
+        generateEditScript();
 
         //Edit script generation based on https://db.in.tum.de/~finis/papers/RWS-Diff.pdf
         function generateEditScript() {
@@ -194,50 +200,55 @@ class MatchDiff extends AbstractDiff {
                     //new Node has a match in the old model
                     const match = newToOldMatching.get(newNode)[0];
                     let copied = false;
+
+                    /*
                     if (oldToNewMatching.get(match).length > 1) {
                         for (const copy of oldToNewMatching.get(match)) {
                             //prevent duplicate copy operations
                             if (newPreOrderArray.indexOf(copy) < newPreOrderArray.indexOf(newNode)) {
-                                patch.changes.push(new Change(Change.typeEnum.COPY, copy, matchOfParent))
+                                patch.changes.push(new Change(Change.typeEnum.COPY, copy, matchOfParent, newNode.childIndex))
                                 const copyOfMatch = match.copy();
-                                matchOfParent.insertChild(copyOfMatch);
+                                matchOfParent.insertChild(copyOfMatch, newNode.childIndex);
                                 //create mapping for newly inserted copy
                                 newToOldMatching.set(newNode, [copyOfMatch]);
                                 copied =  true;
                             }
                         }
                     }
+
+                     */
+
                     if (!copied && !matchOfParent.nodeEquals(match.parent)) {
                         //move match to matchOfParent
-                        patch.changes.push(new Change(Change.typeEnum.MOVE, match, matchOfParent));
+                        patch.changes.push(new Change(Change.typeEnum.MOVE, match, matchOfParent, newNode.childIndex));
                         match.removeFromParent();
-                        matchOfParent.insertChild(match);
+                        matchOfParent.insertChild(match, newNode.childIndex);
                     }
+
                     if (!newNode.nodeEquals(match)) {
                         //relabel node
-                        patch.changes.push(new Change(Change.typeEnum.RELABEL, match, newNode));
+                        patch.changes.push(new Change(Change.typeEnum.RELABEL, match, newNode, match.childIndex));
                         match.label = newNode.label;
                     }
                 } else {
                     //perform insert operation at match of the parent node
                     const copy = newNode.copy();
-                    matchOfParent.insertChild(copy);
+                    matchOfParent.insertChild(copy, newNode.childIndex);
                     //insertions are always mapped back to the original node
                     newToOldMatching.set(newNode, [copy]);
-                    patch.changes.push(new Change(Change.typeEnum.INSERTION, copy, matchOfParent));
+                    patch.changes.push(new Change(Change.typeEnum.INSERTION, copy, matchOfParent, newNode.childIndex));
                 }
             }
             for (const oldNode of oldPostOrderArray) {
                 if (!oldToNewMatching.has(oldNode)) {
                     //delete node
-                    patch.changes.push(new Change(Change.typeEnum.DELETION, oldNode, oldNode.parent));
+                    patch.changes.push(new Change(Change.typeEnum.DELETION, oldNode, oldNode.parent, oldNode.childIndex));
                     oldNode.removeFromParent();
                 }
             }
         }
 
-        generateEditScript();
-
+        patch.compress();
         return patch;
     }
 }
