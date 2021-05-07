@@ -23,12 +23,12 @@ class AbstractDiff {
      * The original process model
      * @type {CPEEModel}
      */
-    model1;
+    oldModel;
     /**
      * The changed process model
      * @type {CPEEModel}
      */
-    model2;
+    newModel;
     /**
      * Additional options for the difference calculation
      * @type {String[]}
@@ -42,30 +42,23 @@ class AbstractDiff {
 
     /**
      * Instantiate an AbstractDiff object with the given models and options.
-     * @param {CPEEModel} model1 The original CPEE process model
-     * @param {CPEEModel} model2 The changed CPEE process model
+     * @param {CPEEModel} oldModel The original CPEE process model
+     * @param {CPEEModel} newModel The changed CPEE process model
      * @param {String[]} options Additional options for the difference calculation
+     * @param {String[]} availableOptions The options available for this diff algorithm.
      * @throws {Error} If not called from within a subclass
      */
-    constructor(model1, model2, options= [], availableOptions = []) {
+    constructor(oldModel, newModel) {
         if (this.constructor === AbstractDiff) {
             throw new Error("Instantiation of Abstract class 'AbstractDiff'");
         }
-        this.model1 = model1;
-        this.model2 = model2;
-        this.AVAILABLE_OPTIONS = availableOptions;
-        //validate options
-        for(const option of options) {
-            if(!this.AVAILABLE_OPTIONS.includes(option)) {
-                throw Error("Unrecognized option " + option);
-            }
-        }
-        this.options = options;
+        this.oldModel = oldModel;
+        this.newModel = newModel;
     }
 
     /**
      * Diffs the two CPEE process models.
-     * @return {AbstractPatch} A patch containing a list of changes, grouped by operation
+     * @return {AbstractEditScript} A patch containing a list of changes, grouped by operation
      */
     diff() {}
 }

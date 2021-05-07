@@ -17,7 +17,7 @@
 
 
 class DSL {
-    //control flow constructs of the CPEE domain specific language
+    //keywords of the CPEE domain specific language
     static ROOT = "description"
     static CALL = "call"
     static MANIPULATE = "manipulate"

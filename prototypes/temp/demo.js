@@ -13,9 +13,12 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+
 const {CPEEModel} = require("../CPEE/CPEEModel");
-const {MatchDiff} = require("../MatchDiff");
+const {MatchDiff} = require("../diffs/MatchDiff");
 const fs = require("fs");
+const {TopDownMatching} = require("../matchings/TopDownMatching");
+const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 
 let xml1 = "<description xmlns=\"http://cpee.org/ns/description/1.0\">\n" +
     "<call id=\"a1\" endpoint=\"\">\n" +
@@ -178,10 +181,10 @@ const xml3 = "<a><b><d></d><c></c></b><i></i></a>";
 const xml4= "<a><e><f><b><c></c></b><i></i></f></e><g></g></a>";
 
 const xmlA = fs.readFileSync("test_set/standard_A.xml").toString();
-const xmlB = fs.readFileSync("test_set/standard_B.xml").toString();
+const xmlB = fs.readFileSync("test_set/totallyDifferent.xml").toString();
 
 const model1 = CPEEModel.fromCPEE(xmlA);
 const model2 = CPEEModel.fromCPEE(xmlB);
-const sd = new MatchDiff(model1, model2);
+const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 console.log(sd.diff().toString());
 

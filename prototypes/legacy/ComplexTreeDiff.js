@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {AbstractDiff} = require("../AbstractDiff");
+const {AbstractDiff} = require("../diffs/AbstractDiff");
 const {XMLTools} = require("../utils/XMLTools");
 const {DOMParser, XMLSerializer} = require("xmldom");
 

@@ -15,13 +15,13 @@
 */
 
 
-const {AbstractPatch} = require("./AbstractPatch");
+const {AbstractEditScript} = require("./AbstractEditScript");
 
 /**
  * Abstract super class for all patches.
  * @abstract
  */
-class MatchPatch extends AbstractPatch {
+class OperationEditScript extends AbstractEditScript {
 
     constructor() {
         super();
@@ -37,46 +37,22 @@ class MatchPatch extends AbstractPatch {
 
     compress() {
         for (let i = 0; i < this.changes.length; i++) {
-
             const change = this.changes[i];
             if (change.type === Change.typeEnum.INSERTION || change.type === Change.typeEnum.COPY) {
                 const arr = change.sourceNode.toPreOrderArray();
-                //change type must remain the same
+                //change type must remain the same (insertion or copy)
                 for (let j = 1; j < arr.length; j++) {
-                    if(i + j >= this.changes.length || this.changes[j].type !== change.type || !this.changes[i + j].sourceNode.nodeEquals(arr[j])) {
+                    if(i + j >= this.changes.length || this.changes[i + j].type !== change.type || !this.changes[i + j].sourceNode.nodeEquals(arr[j])) {
                         break;
                     }
                     if(j === arr.length - 1) {
                         //replace whole subarray with single subtree insertion
-                        this.changes[i] = new Change(Change.typeEnum.SUBTREE_DELETION, change.sourceNode, change.targetNode, change.modifiedIndex);
+                        this.changes[i] = new Change(Change.typeEnum.SUBTREE_INSERTION, change.sourceNode, change.targetNode, change.modifiedIndex);
                         this.changes.splice(i + 1, arr.length - 1);
                     }
                 }
             }
         }
-        //reverse
-        //TODO doesnt work because child nodes are deleted from the tree
-        this.changes.reverse();
-        for (let i = 0; i < this.changes.length; i++) {
-            const change = this.changes[i];
-            if (change.type === Change.typeEnum.DELETION) {
-                const arr = change.sourceNode.toPreOrderArray();
-                //change type must remain the same
-                for (let j = 1; j < arr.length; j++) {
-                    if(i + j >= this.changes.length || this.changes[j].type !== change.type || !this.changes[i + j].sourceNode.nodeEquals(arr[j])) {
-                        break;
-                    }
-                    if(j === arr.length - 1) {
-                        //replace whole subarray with single subtree deletion
-                        this.changes[i] = new Change(Change.typeEnum.SUBTREE_DELETION, change.sourceNode, change.targetNode, change.modifiedIndex);
-                       this.changes.splice(i + 1, arr.length - 1);
-                    }
-                }
-            }
-        }
-        //keep order consistent
-        this.changes.reverse();
-        console.log("kek");
     }
 }
 
@@ -106,6 +82,9 @@ class Change {
         this.targetNode = targetNode;
         this.type = type;
         this.modifiedIndex = modifiedIndex;
+
+        //TODO tidy
+        this.sourceNode.changeType = type;
     }
 
     toString(displayType) {
@@ -115,42 +94,42 @@ class Change {
 
         switch (this.type) {
             case Change.typeEnum.INSERTION:
-                color = MatchPatch.green;
+                color = OperationEditScript.green;
                 action = "INSERT";
                 conjunction = "at";
                 break;
             case Change.typeEnum.DELETION:
-                color = MatchPatch.red;
+                color = OperationEditScript.red;
                 action = "DELETE";
                 conjunction = "from";
                 break;
             case Change.typeEnum.MOVE:
-                color = MatchPatch.yellow;
+                color = OperationEditScript.yellow;
                 action = "MOVE";
                 conjunction = "to";
                 break;
             case Change.typeEnum.RELABEL:
-                color = MatchPatch.cyan;
+                color = OperationEditScript.cyan;
                 action = "RELABEL";
                 conjunction = "to";
                 break;
             case Change.typeEnum.COPY:
-                color = MatchPatch.blue;
+                color = OperationEditScript.blue;
                 action = "COPY";
                 conjunction = "to";
                 break;
             case Change.typeEnum.SUBTREE_INSERTION:
-                color = MatchPatch.green;
+                color = OperationEditScript.green;
                 action = "INSERT SUBTREE";
                 conjunction = "at";
                 break;
             case Change.typeEnum.SUBTREE_DELETION:
-                color = MatchPatch.red;
+                color = OperationEditScript.red;
                 action = "DELETE SUBTREE";
                 conjunction = "from";
                 break;
             default:
-                color = MatchPatch.white;
+                color = OperationEditScript.white;
                 action = "NOOP";
                 conjunction = "";
                 break;
@@ -160,5 +139,5 @@ class Change {
     }
 }
 
-exports.MatchPatch = MatchPatch;
+exports.OperationEditScript = OperationEditScript;
 exports.Change = Change;

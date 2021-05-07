@@ -33,6 +33,9 @@ class CPEENode {
 
     tempSubTree;
 
+    changeType;
+
+
     constructor(label, parent = null, childIndex = -1) {
         this.label = label;
         this.attributes = new Map();
@@ -126,6 +129,13 @@ class CPEENode {
                 return this.label;
         }
 
+    }
+    getSubTreeSize() {
+        let size = 1;
+        for(const child of this.childNodes) {
+            size += child.getSubTreeSize();
+        }
+        return size;
     }
 
     copy() {

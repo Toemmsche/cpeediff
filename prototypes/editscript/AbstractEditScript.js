@@ -15,10 +15,10 @@
 */
 
 /**
- * Abstract super class for all patches.
+ * Abstract super class for all edit scripts.
  * @abstract
  */
-class AbstractPatch {
+class AbstractEditScript {
     //Color codes for the command line
     static green = "\x1b[32m";
     static red = "\x1b[31m";
@@ -33,23 +33,23 @@ class AbstractPatch {
     ]
 
     constructor() {
-        if(this.constructor === AbstractPatch) {
-            throw new Error("Instantiation of Abstract class 'AbstractPatch'");
+        if(this.constructor === AbstractEditScript) {
+            throw new Error("Instantiation of Abstract class 'AbstractEditScript'");
         }
         this.changes = [];
     }
 
     /**
-     * Merge the changes contained in this patch with an existing process model
+     * Merge the changes contained in this edit script with an existing process model
      * @param {CPEEModel} model A CPEE process model
      */
     merge(model) {}
 
     /**
      * @override
-     * @return {String} Color-coded string representation of this patch
+     * @return {String} Color-coded string representation of this edit script
      */
     toString() {}
 }
 
-exports.AbstractPatch = AbstractPatch;
+exports.AbstractEditScript = AbstractEditScript;

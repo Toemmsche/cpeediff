@@ -140,7 +140,6 @@ class CPEEModel {
             childIndex = 0;
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
-                //TODO disregard description nodes
                 if (childNode.nodeType === 3) { //text node
                     //check if text node contains a non-empty payload
                     if (childNode.data.match(/^\s*$/) !== null) { //match whole string
@@ -209,43 +208,15 @@ class CPEEModel {
 
     //TODO doc
     toPreOrderArray() {
-        const preOrderArr = [];
-        fillPreOrderArray(this.root, preOrderArr);
-
-        function fillPreOrderArray(cpeeNode, arr) {
-            arr.push(cpeeNode);
-            for (const child of cpeeNode.childNodes) {
-                fillPreOrderArray(child, arr);
-            }
-        }
-
-        return preOrderArr;
+      return this.root.toPreOrderArray();
     }
 
     toPostOrderArray() {
-        const postOrderArr = [];
-        fillPostOrderArray(this.root, postOrderArr);
-
-        function fillPostOrderArray(cpeeNode, arr) {
-            for (const child of cpeeNode.childNodes) {
-                fillPostOrderArray(child, arr);
-            }
-            arr.push(cpeeNode);
-        }
-
-        return postOrderArr;
+        return this.root.toPostOrderArray();
     }
 
     leafNodes() {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
-    }
-
-    innerNodes() {
-        return this.toPreOrderArray().filter(n => n.hasChildren());
-    }
-
-    copy() {
-
     }
 
 }
