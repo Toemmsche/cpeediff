@@ -18,7 +18,7 @@ const {DSL} = require("./DSL");
 
 class CPEENode {
 
-    //TODO parent and sibling relationship, fingerpringt considering path and subtree (maybe separate for each)
+    //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //node label (implies type)
     label;
     //Map of key-value attributes

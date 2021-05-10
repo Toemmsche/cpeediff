@@ -29,16 +29,6 @@ class AbstractDiff {
      * @type {CPEEModel}
      */
     newModel;
-    /**
-     * Additional options for the difference calculation
-     * @type {String[]}
-     */
-    options;
-    /**
-     * All the options available for this diff algorithm
-     * @type {Object}
-     */
-    AVAILABLE_OPTIONS;
 
     /**
      * Instantiate an AbstractDiff object with the given models and options.

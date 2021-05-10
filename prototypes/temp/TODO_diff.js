@@ -2,6 +2,10 @@
 //      output whole tree at subtree insertion
 //      Produce delta tree (mark
 
+//TODO new algos
+//      fast match by Chawathe et al.
+//      Simple match by Chawathe et al.
+//      optimize m
 
 //TODO semi-features
 //      output path instead of attributes
@@ -25,5 +29,5 @@
 //      maybe mark clearly which nodes belong to which tree
 //      Deicision options in diff or class
 //      Add documentation to _important_ local variables (eg DP array)
-//      find a way to copy gracefulkly
+//      find a way to copy gracefully
 //      use matching operations
