@@ -145,7 +145,7 @@ class CPEENode {
             }
             case "path": {
                 const strArr = this.path.map(n => n.toString("label"));
-                return `(${strArr.join("/")})`;
+                return `${strArr.join("/")}`;
             }
             default:
                 return this.label;

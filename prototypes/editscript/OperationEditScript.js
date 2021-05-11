@@ -137,7 +137,7 @@ class Change {
                 break;
         }
 
-        return `${color}${action} ${this.sourcePath} ${conjunction} ${this.targetPath} -> ${this.modifiedIndex}`;
+        return `${color}${action} (${this.sourcePath}) ${conjunction} (${this.targetPath}) -> ${this.modifiedIndex}`;
     }
 }
 

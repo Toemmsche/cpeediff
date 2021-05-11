@@ -45,7 +45,8 @@ class Call extends CPEENode {
         //we cannot possibly match a call with an inner node
         if (this.label !== other.label) return 1.0;
         let differentCounter = 0;
-        let total = Math.max(this.attributes.size + this.childAttributes.size, other.attributes.size + other.attributes.size);
+        //TODO weigh id and variables
+        let total = Math.min(this.attributes.size + this.childAttributes.size, other.attributes.size + other.attributes.size);
         for (const [key, value] of this.attributes) {
             //only count real differences, not pure insertions/deletions
             if (other.attributes.has(key) && value !== other.attributes.get(key)) {

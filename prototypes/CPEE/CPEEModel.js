@@ -137,6 +137,11 @@ class CPEEModel {
                 return null;
             }
 
+            //in case of property node, set path relative to parent control flow node
+            if(root.isPropertyNode() && !root.parent.isPropertyNode()) {
+                root.path.splice(0, root.parent.path.length);
+            }
+
             childIndex = 0;
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
@@ -155,6 +160,7 @@ class CPEEModel {
                     if (child !== null) {
                         //if child is not a control flow node, it's a property of root
                         if (root.hasPropertySubtree() && child.isPropertyNode()) {
+                            //remove unnecessary path
                             root.tempSubTree.push(child);
                         } else {
                             root.childNodes.push(child);
@@ -189,8 +195,7 @@ class CPEEModel {
             function buildChildAttributeMap(cpeeNode, map) {
                 if (cpeeNode.data != "") { //lossy comparison
                     //retain full (relative) structural information in the nodes
-                    //TODO dont assume unique labels for child attributes
-                    map.set(cpeeNode.label, cpeeNode);
+                    map.set(cpeeNode.toString("path"), cpeeNode.data);
                 }
 
                 for (const child of cpeeNode.childNodes) {
@@ -199,8 +204,6 @@ class CPEEModel {
             }
 
             return root;
-
-
         }
     }
 

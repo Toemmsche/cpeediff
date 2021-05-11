@@ -32,7 +32,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    static match(oldModel, newModel, existingMatching = new Matching(), t = 0.5) {
+    static match(oldModel, newModel, existingMatching = new Matching(), t = 0.25) {
         //get all nodes, leaf nodes and inner nodes of the models
         const oldLeafNodes = oldModel.leafNodes();
         const newLeafNodes = newModel.leafNodes();
@@ -96,8 +96,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
                     if (newToOldMap.has(newPath[k]) && oldPath.includes(newToOldMap.get(newPath[k])[0])) {
                         //If so, we terminate to preserve ancestor order
                         return;
-                        //TODO replace with nodecompare or nodeeuqals
-                    } else if (newPath[k].label === oldPath[i].label) {
+                    } else if (newPath[k].compareTo(oldPath[i]) < t) {
                         //found new matching
                         if (!newToOldMap.has(newPath[k])) {
                             newToOldMap.set(newPath[k], []);
@@ -157,7 +156,6 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             }
             oldToNewMap.get(oldNode).push(newNode);
         }
-
 
         return new Matching(oldToNewMap, newToOldMap);
     }
