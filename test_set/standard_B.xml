@@ -53,6 +53,18 @@
     <parallel>
         <loop mode="pre_test" condition="data.persons > 0">
             <parallel_branch pass="data.persons" local="p">
+                <call id="a2" endpoint="bookHotel">
+                    <parameters>
+                        <label>Book Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <to>data.to</to>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
+                    </code>
+                </call>
                 <call id="a1" endpoint="bookAirline">
                     <parameters>
                         <label>Book Airline</label>
@@ -93,18 +105,6 @@
                     </implementation>
                     <code>
                         <description/>
-                    </code>
-                </call>
-                <call id="a2" endpoint="bookHotel">
-                    <parameters>
-                        <label>Book Hotel</label>
-                        <method>:post</method>
-                        <arguments>
-                            <to>data.to</to>
-                        </arguments>
-                    </parameters>
-                    <code>
-                        <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
                     </code>
                 </call>
             </parallel_branch>

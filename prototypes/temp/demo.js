@@ -29,6 +29,10 @@ const xmlB = fs.readFileSync(file2).toString();
 const model1 = CPEEModel.fromCPEE(xmlA);
 const model2 = CPEEModel.fromCPEE(xmlB);
 
+console.log(model1.toTreeString());
+console.log("\n VS \n")
+console.log(model2.toTreeString());
+
 const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 
 console.log(sd.diff().toString());

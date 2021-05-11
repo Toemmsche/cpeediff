@@ -220,6 +220,10 @@ class CPEEModel {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
     }
 
+    toTreeString() {
+        return this.root.toTreeString([]);
+    }
+
 }
 
 exports.CPEEModel = CPEEModel;

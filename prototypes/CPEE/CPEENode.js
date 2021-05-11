@@ -202,6 +202,42 @@ class CPEENode {
 
         return postOrderArr;
     }
+
+    //TODO beautify... (and optimize)
+    //similar to unix tree command
+    toTreeString(barList) {
+        const isLast = this.parent !== null && this.childIndex === this.parent.childNodes.length - 1;
+        let line = "";
+        for (let i = 0; i < barList.length; i++) {
+            const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
+            line += " ".repeat(spaceCount);
+            if(i === barList.length - 1) {
+                if(isLast) {
+                    line += "└";
+                } else {
+                    line += "├";
+                }
+            } else {
+                line += "│";
+            }
+        }
+        if(isLast) {
+            barList.pop();
+        }
+        line += "─";
+        barList.push(line.length + 1);
+        line += this.label + "\n";
+        if(this.hasChildren()) {
+            for(const child of this.childNodes) {
+                line += child.toTreeString(barList);
+            }
+        } else {
+            //bar is popped by last child
+            barList.pop();
+        }
+
+        return line;
+    }
 }
 
 exports.CPEENode = CPEENode;
