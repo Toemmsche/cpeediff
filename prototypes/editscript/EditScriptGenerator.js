@@ -39,7 +39,7 @@ class EditScriptGenerator {
 
         const oldPostOrderArray = oldModel.toPostOrderArray();
         const newPreOrderArray = newModel.toPreOrderArray();
-        
+
         //iterate in pre order through new model
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two CPEE models
@@ -85,6 +85,7 @@ class EditScriptGenerator {
                 matchOfParent.insertChild(copy, newNode.childIndex);
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
+                oldToNewMap.set(copy, [newNode]);
                 editScript.changes.push(new Change(Change.typeEnum.INSERTION, copy, matchOfParent, newNode.childIndex));
             }
         }
@@ -117,6 +118,53 @@ class EditScriptGenerator {
 
         //detect subtree insertions
         editScript.compress();
+
+        //All nodes have the right path and are matched.
+        //However, order of child nodes might not be right, we must verify that it matches the new model.
+        for(const oldNode of oldModel.toPreOrderArray()) {
+            if(oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
+                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
+
+                //map each old child node to the child index of its matching partner
+                const arr = oldNode.childNodes.map(n => oldToNewMap.get(n)[0].childIndex);
+
+                //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
+                //dp[i] contains the length of the longest sequence that ends at i
+                const dp = new Array(arr.length);
+                const parent = new Array(arr.length);
+
+                //best value
+                let max = 0;
+                //Simple O(n²) algorithm to compute the LIS
+                for (let i = 0; i < dp.length; i++) {
+                    dp[i] = 1;
+                    parent[0] = -1;
+                    for (let j = 0; j < i; j++) {
+                        if(arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
+                            dp[i] = dp[j] + 1;
+                            parent[i] = j;
+                        }
+                    }
+                    //update best value
+                    if(dp[i] > dp[max]) {
+                        max = i;
+                    }
+                }
+                //all nodes not part of the LIS have to be reordered
+                const reshuffle = oldNode.childNodes.slice();
+                while(max !== -1) {
+                    reshuffle.splice(max, 1);
+                    max = parent[max];
+                }
+
+                for(const node of reshuffle) {
+                    const match = oldToNewMap.get(node)[0];
+                    editScript.changes.push(new Change(Change.typeEnum.RESHUFFLE, node, match, match.childIndex));
+                    node.changeChildIndex(match.childIndex);
+                }
+            }
+        }
+
         return editScript;
     }
 }

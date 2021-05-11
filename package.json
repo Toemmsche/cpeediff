@@ -2,7 +2,7 @@
   "name": "process-tree-diff",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "demo.js",
   "scripts": {
     "start": "node prototypes/temp/demo.js",
     "test": "echo \"Error: no test specified\" && exit 1"

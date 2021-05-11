@@ -21,6 +21,14 @@ class Root extends CPEENode {
     constructor(parent = null, childIndex = -1) {
         super(DSL.ROOT, parent, childIndex);
     }
+
+    isPropertyNode() {
+        return false;
+    }
+
+    compareTo(other) {
+        return super.compareTo(other);
+    }
 }
 
 exports.Root = Root;

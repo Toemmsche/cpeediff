@@ -158,9 +158,6 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             oldToNewMap.get(oldNode).push(newNode);
         }
 
-        //TODO order
-        //All nodes have the right path and are right.
-        //However, order of child nodes might not be right, we must verify that it matches the new model.
 
         return new Matching(oldToNewMap, newToOldMap);
     }

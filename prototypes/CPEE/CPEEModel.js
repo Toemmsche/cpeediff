@@ -30,7 +30,7 @@ const {Choose} = require("./inner_nodes/Choose");
 const {Critical} = require("./inner_nodes/Critical");
 const {Loop} = require("./inner_nodes/Loop");
 const {Otherwise} = require("./inner_nodes/Otherwise");
-const {Parallel} = require("./inner_nodes/Parallel");
+const {Parallel} = require("./inner_nodes/Paralel");
 const {ParallelBranch} = require("./inner_nodes/ParallelBranch");
 const {Root} = require("./inner_nodes/Root");
 
@@ -133,7 +133,7 @@ class CPEEModel {
             }
 
             //Description nodes (that are not the root) contain documentation and are irrelevant for a semantic diff algorithm
-            if(root.label === "description" && root.parent !== null) {
+            if (root.label === "description" && root.parent !== null) {
                 return null;
             }
 
@@ -149,19 +149,17 @@ class CPEEModel {
                         //relevant data, set as node data
                         root.data = childNode.data;
                     }
-                } else if (root.isControlFlowLeafNode()) {
-                    //childindex doesnt matter since these child nodes are converted into maps anyways
-                    const property = constructRecursive(tNode.childNodes.item(i), root, 0);
-                    //child can be null if it doesnt contain any data (see below)
-                    if(property !== null) {
-                        root.tempSubTree.push(property);
-                    }
                 } else {
                     const child = constructRecursive(tNode.childNodes.item(i), root, childIndex)
                     //empty control nodes are null values (see below)
                     if (child !== null) {
-                        root.childNodes.push(child);
-                        childIndex++;
+                        //if child is not a control flow node, it's a property of root
+                        if (root.hasPropertySubtree() && child.isPropertyNode()) {
+                            root.tempSubTree.push(child);
+                        } else {
+                            root.childNodes.push(child);
+                            childIndex++;
+                        }
                     }
                 }
             }
@@ -179,7 +177,7 @@ class CPEEModel {
                 root.attributes.set(attrNode.name, attrNode.value);
             }
             //if root is a leaf node, we transform child notes into attributes
-            if (root.isControlFlowLeafNode() && root.tempSubTree !== undefined) {
+            if (root.hasPropertySubtree()) {
                 const childAttributeMap = new Map();
                 for (const child of root.tempSubTree) {
                     buildChildAttributeMap(child, childAttributeMap);
@@ -208,7 +206,7 @@ class CPEEModel {
 
     //TODO doc
     toPreOrderArray() {
-      return this.root.toPreOrderArray();
+        return this.root.toPreOrderArray();
     }
 
     toPostOrderArray() {

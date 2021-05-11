@@ -17,10 +17,6 @@
 
 const {AbstractEditScript} = require("./AbstractEditScript");
 
-/**
- * Abstract super class for all patches.
- * @abstract
- */
 class OperationEditScript extends AbstractEditScript {
 
     constructor() {
@@ -64,7 +60,8 @@ class Change {
         RELABEL: 4,
         COPY: 5,
         SUBTREE_INSERTION: 6,
-        SUBTREE_DELETION: 7
+        SUBTREE_DELETION: 7,
+        RESHUFFLE: 8
     }
     type;
 
@@ -127,6 +124,11 @@ class Change {
                 color = OperationEditScript.red;
                 action = "DELETE SUBTREE";
                 conjunction = "from";
+                break;
+            case Change.typeEnum.RESHUFFLE:
+                color = OperationEditScript.cyan;
+                action = "RESHUFFLE ";
+                conjunction = "to";
                 break;
             default:
                 color = OperationEditScript.white;

@@ -18,8 +18,19 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class Otherwise extends CPEENode {
+
+    childAttributes;
+
     constructor(parent = null, childIndex = -1) {
         super(DSL.OTHERWISE, parent, childIndex);
+    }
+
+    isPropertyNode() {
+        return false;
+    }
+
+    compareTo(other) {
+        return super.compareTo(other);
     }
 }
 

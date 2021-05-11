@@ -22,6 +22,10 @@ class CallWithScript extends Call {
     constructor(parent = null, childIndex = -1) {
         super(DSL.CALL, parent, childIndex);
     }
+
+    isPropertyNode() {
+        return false;
+    }
 }
 
 exports.CallWithScript = CallWithScript;

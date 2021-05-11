@@ -26,15 +26,19 @@ class Call extends CPEENode {
     }
 
     nodeEquals(other) {
-        if(!super.nodeEquals(other)) return false;
-        if(this.childAttributes.size !== other.childAttributes.size) return false;
-        for(const [key, value] of this.childAttributes) {
+        if (!super.nodeEquals(other)) return false;
+        if (this.childAttributes.size !== other.childAttributes.size) return false;
+        for (const [key, value] of this.childAttributes) {
             //value is a CPEENode
-            if(value.data !== other.childAttributes.get(key).data) {
-               return false;
+            if (value.data !== other.childAttributes.get(key).data) {
+                return false;
             }
         }
         return true;
+    }
+
+    isPropertyNode() {
+        return false;
     }
 
     compareTo(other) {
@@ -42,15 +46,15 @@ class Call extends CPEENode {
         if (this.label !== other.label) return 1.0;
         let differentCounter = 0;
         let total = Math.max(this.attributes.size + this.childAttributes.size, other.attributes.size + other.attributes.size);
-        for(const [key, value] of this.attributes) {
+        for (const [key, value] of this.attributes) {
             //only count real differences, not pure insertions/deletions
-            if(other.attributes.has(key) && value !== other.attributes.get(key)) {
+            if (other.attributes.has(key) && value !== other.attributes.get(key)) {
                 differentCounter++;
             }
         }
-        for(const [key, value] of this.childAttributes) {
+        for (const [key, value] of this.childAttributes) {
             //value is a CPEENode
-            if(other.childAttributes.has(key) && value.data !== other.childAttributes.get(key).data) {
+            if (other.childAttributes.has(key) && value.data !== other.childAttributes.get(key).data) {
                 differentCounter++;
             }
         }

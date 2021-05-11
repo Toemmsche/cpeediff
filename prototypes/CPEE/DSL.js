@@ -32,12 +32,16 @@ class DSL {
     static ESCAPE = "escape"
     static TERMINATE = "terminate"
 
-    static hasInternalOrdering(nodeTag) {
-        return [this.LOOP, this.CRITICAL, this.ROOT, this.ALTERNATIVE, this.OTHERWISE, this.PARALLEL_BRANCH].includes(nodeTag);
+    static hasInternalOrdering(nodeLabel) {
+        return [this.LOOP, this.CRITICAL, this.ROOT, this.ALTERNATIVE, this.OTHERWISE, this.PARALLEL_BRANCH].includes(nodeLabel);
     }
 
-    static isControlFlowLeafNode(nodeTag) {
-        return [this.CALL, this.MANIPULATE, this.TERMINATE, this.STOP, this.ESCAPE].includes(nodeTag);
+    static isControlFlowLeafNode(nodeLabel) {
+        return [this.CALL, this.MANIPULATE, this.TERMINATE, this.STOP, this.ESCAPE].includes(nodeLabel);
+    }
+
+    static hasPropertySubtree(nodeLabel) {
+        return [this.CALL, this.MANIPULATE, this.TERMINATE, this.STOP, this.ESCAPE, this.OTHERWISE, this.ALTERNATIVE].includes(nodeLabel);
     }
 
 }

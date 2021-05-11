@@ -21,6 +21,14 @@ class Escape extends CPEENode {
     constructor(parent = null, childIndex = -1) {
         super(DSL.ESCAPE, parent, childIndex);
     }
+
+    isPropertyNode() {
+        return false;
+    }
+
+    compareTo(other) {
+        return super.compareTo(other);
+    }
 }
 
-exports.Escape  = Escape;
+exports.Escape = Escape;

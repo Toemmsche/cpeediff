@@ -15,7 +15,8 @@
 //      use global variable for options
 //      slice vs splice
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
-
+//      use existing code diff tools to evalute script similarity
+//      use path as key in call comparison
 
 
 //TODO tidy
@@ -31,3 +32,7 @@
 //      Add documentation to _important_ local variables (eg DP array)
 //      find a way to copy gracefully
 //      use matching operations
+//      fix parallel
+//      replace label comparison with instanceof
+//      use multiple inheritance for call otherwise etc.
+//      find cleaner way to get node attributes (e.g. is property node)

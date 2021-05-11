@@ -21,6 +21,14 @@ class Choose extends CPEENode {
     constructor(parent = null, childIndex = -1) {
         super(DSL.CHOOSE, parent, childIndex);
     }
+
+    isPropertyNode() {
+        return false;
+    }
+
+    compareTo(other) {
+        return super.compareTo(other);
+    }
 }
 
 exports.Choose = Choose;

@@ -89,9 +89,17 @@ class CPEENode {
         return DSL.isControlFlowLeafNode(this.label);
     }
 
+    hasPropertySubtree() {
+        return DSL.hasPropertySubtree(this.label);
+    }
+
+    isPropertyNode() {
+        return true;
+    }
+
     compareTo(other) {
-        //sophisticated subclass implementation may be present
-        if (this.nodeEquals(other)) return 0;
+        //specific subclass implementation may be present
+        if (this.label === other.label) return 0;
         else return 1;
     }
 
@@ -101,6 +109,22 @@ class CPEENode {
         cpeeNode.path = this.path.slice();
         cpeeNode.path.push(cpeeNode);
         this.childNodes.splice(index, 0, cpeeNode);
+        this.fixChildIndices();
+    }
+
+    changeChildIndex(newIndex) {
+        //delete
+        this.parent.childNodes.splice(this.childIndex, 1);
+        //insert
+        this.parent.childNodes.splice(newIndex, 0 , this);
+        //adjust child indices
+        this.parent.fixChildIndices();
+    }
+
+    fixChildIndices() {
+        for (let i = 0; i < this.childNodes.length; i++) {
+            this.childNodes[i].childIndex = i;
+        }
     }
 
     removeFromParent() {
@@ -108,9 +132,7 @@ class CPEENode {
             throw new Error();
         }
         this.parent.childNodes.splice(this.childIndex, 1);
-        for (let i = this.childIndex; i < this.parent.childNodes.length; i++) {
-            this.parent.childNodes[i].childIndex--;
-        }
+        this.parent.fixChildIndices();
     }
 
     toString(displayType = "path-with-index") {
