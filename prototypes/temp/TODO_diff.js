@@ -1,11 +1,13 @@
 //TODO features
+//      preserve deleted nodes for tree output
+//      copy model
 //      output whole tree at subtree insertion
-//      Produce delta tree (mark
+//      export set and map similarity calculations
 
 //TODO new algos
 //      fast match by Chawathe et al.
 //      Simple match by Chawathe et al.
-//      optimize m
+//      optimize matching
 
 //TODO semi-features
 //      output path instead of attributes
@@ -13,11 +15,12 @@
 //      add verbose function
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
-//      slice vs splice
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      use existing code diff tools to evalute script similarity
 //      use path as key in call comparison
-
+//      convert cpeemodel back to XML
+//      IMPORTANT use default parameters to simplify postorder methods etc.
+//      use inner no0de matching to match leaf nodes in smilar trees even when they're slightly different
 
 //TODO tidy
 //      encapsulate handleInsert() in edit script generation
@@ -26,13 +29,13 @@
 //      use patchbuilder
 //      turn path into method
 //      declare all variables at function start
-//      replace arrray childnodes with hashset (for quick removal)
 //      maybe mark clearly which nodes belong to which tree
 //      Deicision options in diff or class
 //      Add documentation to _important_ local variables (eg DP array)
 //      find a way to copy gracefully
-//      use matching operations
+//      use matching object methods to set mappings
 //      fix parallel
 //      replace label comparison with instanceof
 //      use multiple inheritance for call otherwise etc.
 //      find cleaner way to get node attributes (e.g. is property node)
+//      use scientific names for variables

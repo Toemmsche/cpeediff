@@ -19,6 +19,7 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 const fs = require("fs");
 const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {KyongHoMatching} = require("../matchings/KyongHoMatching");
+const {UnifiedEditScript} = require("../editscript/UnifiedEditScript");
 
 let file1 = process.argv[2];
 let file2 = process.argv[3];
@@ -35,5 +36,7 @@ console.log(model2.toTreeString());
 
 const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 
-console.log(sd.diff().toString());
+const script = sd.diff();
+console.log(script.toString("lines"));
+script.writeToFile("prototypes/temp/changes.json");
 

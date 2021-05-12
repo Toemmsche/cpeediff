@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {AbstractEditScript} = require("../editscript/AbstractEditScript");
+const {OperationEditScript, Change} = require("../editscript/OperationEditScript");
 const {DSL} = require("./DSL");
 
 class CPEENode {
@@ -34,6 +36,8 @@ class CPEENode {
     tempSubTree;
 
     changeType;
+    touchedVariables;
+
 
 
     constructor(label, parent = null, childIndex = -1) {
@@ -54,6 +58,7 @@ class CPEENode {
 
         //TODO
         this.tempSubTree = [];
+        this.touchedVariables = new Set();
     }
 
     hasInternalOrdering() {
@@ -94,7 +99,13 @@ class CPEENode {
     }
 
     isPropertyNode() {
+        //overridden in subclasses
         return true;
+    }
+
+    containsCode() {
+        //overridden in subclasses
+        return false;
     }
 
     compareTo(other) {
@@ -116,7 +127,7 @@ class CPEENode {
         //delete
         this.parent.childNodes.splice(this.childIndex, 1);
         //insert
-        this.parent.childNodes.splice(newIndex, 0 , this);
+        this.parent.childNodes.splice(newIndex, 0, this);
         //adjust child indices
         this.parent.fixChildIndices();
     }
@@ -135,26 +146,62 @@ class CPEENode {
         this.parent.fixChildIndices();
     }
 
-    toString(displayType = "path-with-index") {
+    getTypeIndex() {
+        let index = 0;
+        for (let i = 0; i < this.childIndex; i++) {
+            if(this.parent.childNodes[i].label === this.label) {
+                index++;
+            }
+        }
+        return index;
+    }
+    toString(displayType = "label") {
         switch (displayType) {
             case "label":
                 return this.label;
-            case "path-with-index": {
-                const strArr = this.path.map(n => n.label);
-                return `(${strArr.join("/")}[${this.childIndex}])`;
+            case "label-with-type-index":
+                return this.label + "[" + this.getTypeIndex() + "]";
+            case "path-with-type-index": {
+                const strArr = this.path.map(n => n.toString("label-with-type-index"));
+                return  "(" + strArr.join("/") + ")";
             }
             case "path": {
                 const strArr = this.path.map(n => n.toString("label"));
                 return `${strArr.join("/")}`;
+            }
+            case "change": {
+                let color;
+                switch (this.changeType) {
+                    case Change.typeEnum.INSERTION:
+                        color = AbstractEditScript.green;
+                        break;
+                    case Change.typeEnum.DELETION:
+                        color = AbstractEditScript.red;
+                        break;
+                    case Change.typeEnum.MOVE:
+                        color = AbstractEditScript.yellow;
+                        break;
+                    case Change.typeEnum.RELABEL:
+                        color = AbstractEditScript.cyan;
+                        break;
+                    case Change.typeEnum.COPY:
+                        color = AbstractEditScript.blue;
+                        break;
+                    default:
+                        color = AbstractEditScript.white;
+                        break;
+                }
+                return color + this.label + AbstractEditScript.white;
             }
             default:
                 return this.label;
         }
 
     }
+
     getSubTreeSize() {
         let size = 1;
-        for(const child of this.childNodes) {
+        for (const child of this.childNodes) {
             size += child.getSubTreeSize();
         }
         return size;
@@ -171,7 +218,7 @@ class CPEENode {
         return copy;
     }
 
-    indexPath()  {
+    indexPath() {
         return this.path.map(n => n.childIndex).reverse();
     }
 
@@ -205,14 +252,14 @@ class CPEENode {
 
     //TODO beautify... (and optimize)
     //similar to unix tree command
-    toTreeString(barList) {
+    toTreeString(barList, displayType) {
         const isLast = this.parent !== null && this.childIndex === this.parent.childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
             const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
             line += " ".repeat(spaceCount);
-            if(i === barList.length - 1) {
-                if(isLast) {
+            if (i === barList.length - 1) {
+                if (isLast) {
                     line += "└";
                 } else {
                     line += "├";
@@ -221,15 +268,15 @@ class CPEENode {
                 line += "│";
             }
         }
-        if(isLast) {
+        if (isLast) {
             barList.pop();
         }
         line += "─";
         barList.push(line.length + 1);
-        line += this.label + "\n";
-        if(this.hasChildren()) {
-            for(const child of this.childNodes) {
-                line += child.toTreeString(barList);
+        line += this.toString(displayType) + "\n";
+        if (this.hasChildren()) {
+            for (const child of this.childNodes) {
+                line += child.toTreeString(barList, displayType);
             }
         } else {
             //bar is popped by last child

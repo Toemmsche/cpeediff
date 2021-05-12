@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http=//www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,26 @@
    limitations under the License.
 */
 
-const {Call} = require("./Call");
-const {CPEENode} = require("../CPEENode");
-const {DSL} = require("../DSL");
 
-class CallWithScript extends Call {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.CALL, parent, childIndex);
+const {AbstractEditScript} = require("./AbstractEditScript");
+
+class TreeEditScript {
+
+    oldModifiedModel;
+    constructor(oldModifiedModel) {
+        this.oldModifiedModel = oldModifiedModel;
     }
 
-    isPropertyNode() {
-        return false;
+    /**
+     * @override
+     * @return {String} Color-coded tree string representation of this patch (similar to unix tree)
+     */
+    toString(displayType = "path") {
+
+        return this.oldModifiedModel.toTreeString("change");
     }
 
-    containsCode() {
-        return true;
-    }
 }
 
-exports.CallWithScript = CallWithScript;
+
+exports.TreeEditScript = TreeEditScript;

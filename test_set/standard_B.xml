@@ -84,7 +84,7 @@
                     </parameters>
                     <code>
                         <prepare/>
-                        <finalize output="result"/>
+                        <finalize output="result">data.value--; abc = 5;</finalize>
                         <update output="result"/>
                         <rescue output="result"/>
                     </code>
@@ -108,7 +108,7 @@
                     </code>
                 </call>
             </parallel_branch>
-            <manipulate id="a3">data.persons -= 1</manipulate>
+            <manipulate id="a3">data.persons -= 1; data.value++; abc = 5</manipulate>
         </loop>
     </parallel>
 </description>

@@ -48,7 +48,8 @@ class AbstractDiff {
 
     /**
      * Diffs the two CPEE process models.
-     * @return {AbstractEditScript} A patch containing a list of changes, grouped by operation
+     * @return {UnifiedEditScript} A textual or graphical representation of an edit script that transforms
+     *                              the old model into the new one
      */
     diff() {}
 }

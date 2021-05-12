@@ -41,26 +41,42 @@ class Call extends CPEENode {
         return false;
     }
 
+    containsCode() {
+        return true;
+    }
+
     compareTo(other) {
         //we cannot possibly match a call with an inner node
         if (this.label !== other.label) return 1.0;
         let differentCounter = 0;
         //TODO weigh id and variables
-        let total = Math.min(this.attributes.size + this.childAttributes.size, other.attributes.size + other.attributes.size);
+        let total = Math.max(this.attributes.size + this.childAttributes.size + this.touchedVariables.size, other.attributes.size + other.attributes.size + other.touchedVariables.size);
         for (const [key, value] of this.attributes) {
             //only count real differences, not pure insertions/deletions
-            if (other.attributes.has(key) && value !== other.attributes.get(key)) {
+            if (!other.attributes.has(key) || other.attributes.has(key) && value !== other.attributes.get(key)) {
                 differentCounter++;
             }
         }
         for (const [key, value] of this.childAttributes) {
             //value is a CPEENode
-            if (other.childAttributes.has(key) && value.data !== other.childAttributes.get(key).data) {
+            if (!other.childAttributes.has(key) || other.childAttributes.has(key) && value.data !== other.childAttributes.get(key).data) {
+                differentCounter++;
+            }
+        }
+        for(const variable of this.touchedVariables) {
+            if(!other.touchedVariables.has(variable)) {
+                differentCounter++;
+            }
+        }
+        for(const variable of other.touchedVariables) {
+            if(!this.touchedVariables.has(variable)) {
                 differentCounter++;
             }
         }
         return differentCounter / total;
     }
+
+
 
 
 }

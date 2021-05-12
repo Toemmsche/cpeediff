@@ -138,7 +138,7 @@ class CPEEModel {
             }
 
             //in case of property node, set path relative to parent control flow node
-            if(root.isPropertyNode() && !root.parent.isPropertyNode()) {
+            if (root.isPropertyNode() && !root.parent.isPropertyNode()) {
                 root.path.splice(0, root.parent.path.length);
             }
 
@@ -203,6 +203,35 @@ class CPEEModel {
                 }
             }
 
+            //extract necessary/declared data variables
+            if (root.containsCode()) {
+                let code = "";
+                if (root instanceof Manipulate) {
+                    code = root.data;
+                } else {
+                    //concatenate everything (if present)
+                    const prepare = (root.childAttributes.has("code/prepare") ? root.childAttributes.get("code/prepare"): "");
+                    const finalize =  (root.childAttributes.has("code/finalize") ? root.childAttributes.get("code/finalize") : "");
+                    const update =  (root.childAttributes.has("code/update") ? root.childAttributes.get("code/update") : "");
+                    const rescue =  (root.childAttributes.has("code/rescue") ? root.childAttributes.get("code/rescue") : "");
+                    code = prepare + finalize + update + rescue;
+                }
+
+                if (code != "") {
+                    //extract variables using regex
+                    const touchedVariables = new Set();
+                    //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
+                    const matches = code.match(/([a-zA-Z]+\w*\.)*[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+                    if(matches !== null) {
+                        for (const variable of matches) {
+                            //match only variable name
+                            touchedVariables.add(variable.match(/([a-zA-Z]+\w*\.)*[a-zA-Z]+\w*/g)[0]);
+                        }
+                        root.touchedVariables = touchedVariables;
+                    }
+                }
+            }
+
             return root;
         }
     }
@@ -220,8 +249,8 @@ class CPEEModel {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
     }
 
-    toTreeString() {
-        return this.root.toTreeString([]);
+    toTreeString(displayType = "label") {
+        return this.root.toTreeString([], displayType);
     }
 
 }

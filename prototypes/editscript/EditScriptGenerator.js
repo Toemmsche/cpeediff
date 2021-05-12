@@ -14,26 +14,25 @@
    limitations under the License.
 */
 
-const {OperationEditScript, Change} = require("./OperationEditScript");
-/**
- * Abstract super class for all edit scripts.
- * @abstract
- */
+
+const {UnifiedEditScript, UnifiedChange} = require("./UnifiedEditScript");
+
+
 class EditScriptGenerator {
 
     /**
      * Given a (partial) matching between the nodes of two process trees,
      * generates an edit script that includes (subtree) insert, (subree) delete and subtree move operations.
      * Based on the edit script algorithm by
-     * Chawathe et al., "Change Detection in Hierarchically Structured Information"
+     * Chawathe et al., "UnifiedChange Detection in Hierarchically Structured Information"
      * @param oldModel
      * @param newModel
      * @param matching
      * @param options
-     * @return {OperationEditScript}
+     * @return {UnifiedEditScript}
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
-        const editScript = new OperationEditScript();
+        const editScript = new UnifiedEditScript(oldModel);
         const newToOldMap = matching.newToOldMap;
         const oldToNewMap = matching.oldToNewMap;
 
@@ -56,7 +55,7 @@ class EditScriptGenerator {
                     for (const copy of oldToNewMap.get(match)) {
                         //prevent duplicate copy operations
                         if (newPreOrderArray.indexOf(copy) < newPreOrderArray.indexOf(newNode)) {
-                            editScript.changes.push(new Change(Change.typeEnum.COPY, copy, matchOfParent, newNode.childIndex))
+                            editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.COPY, copy, matchOfParent, newNode.childIndex))
                             const copyOfMatch = match.copy();
                             matchOfParent.insertChild(copyOfMatch, newNode.childIndex);
                             //create mapping for newly inserted copy
@@ -69,14 +68,14 @@ class EditScriptGenerator {
 
                 if (!copied && !matchOfParent.nodeEquals(match.parent)) {
                     //move match to matchOfParent
-                    editScript.changes.push(new Change(Change.typeEnum.MOVE, match, matchOfParent, newNode.childIndex));
+                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.MOVE, match, matchOfParent, newNode.childIndex));
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
                 }
 
                 if (!newNode.nodeEquals(match)) {
                     //relabel node
-                    editScript.changes.push(new Change(Change.typeEnum.RELABEL, match, newNode, match.childIndex));
+                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.RELABEL, match, newNode, match.childIndex));
                     match.label = newNode.label;
                 }
             } else {
@@ -86,7 +85,7 @@ class EditScriptGenerator {
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.changes.push(new Change(Change.typeEnum.INSERTION, copy, matchOfParent, newNode.childIndex));
+                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.INSERTION, copy, matchOfParent, newNode.childIndex));
             }
         }
         const oldDeletedNodes = [];
@@ -108,22 +107,38 @@ class EditScriptGenerator {
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             if(subTreeSize > 1) {
                 //subtree deletion
-                editScript.changes.push(new Change(Change.typeEnum.SUBTREE_DELETION, node, node.parent, node.childIndex));
+                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.SUBTREE_DELETION, node, node.parent, node.childIndex));
             } else {
                 //leaf node deletion
-                editScript.changes.push(new Change(Change.typeEnum.DELETION, node, node.parent, node.childIndex));
+                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.DELETION, node, node.parent, node.childIndex));
             }
             oldDeletedNodes.splice(0, subTreeSize);
         }
 
         //detect subtree insertions
-        editScript.compress();
+        for (let i = 0; i < editScript.changes.length; i++) {
+            const change = editScript.changes[i];
+            if (change.type === UnifiedChange.TYPE_ENUM.INSERTION || change.type === UnifiedChange.TYPE_ENUM.COPY) {
+                const arr = change.sourceNode.toPreOrderArray();
+                //change type must remain the same (insertion or copy)
+                for (let j = 1; j < arr.length; j++) {
+                    if(i + j >= editScript.changes.length || editScript.changes[i + j].type !== change.type || !editScript.changes[i + j].sourceNode.nodeEquals(arr[j])) {
+                        break;
+                    }
+                    if(j === arr.length - 1) {
+                        //replace whole subarray with single subtree insertion
+                        editScript.changes[i] = new UnifiedChange(UnifiedChange.TYPE_ENUM.SUBTREE_INSERTION, change.sourceNode, change.targetNode, change.modifiedIndex);
+                        editScript.changes.splice(i + 1, arr.length - 1);
+                    }
+                }
+            }
+        }
 
         //All nodes have the right path and are matched.
         //However, order of child nodes might not be right, we must verify that it matches the new model.
         for(const oldNode of oldModel.toPreOrderArray()) {
             if(oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
-                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
+                //Based on A. Marian, "Detecting UnifiedChanges in XML Documents", 2002
 
                 //map each old child node to the child index of its matching partner
                 const arr = oldNode.childNodes.map(n => oldToNewMap.get(n)[0].childIndex);
@@ -159,7 +174,7 @@ class EditScriptGenerator {
 
                 for(const node of reshuffle) {
                     const match = oldToNewMap.get(node)[0];
-                    editScript.changes.push(new Change(Change.typeEnum.RESHUFFLE, node, match, match.childIndex));
+                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.RESHUFFLE, node, match, match.childIndex));
                     node.changeChildIndex(match.childIndex);
                 }
             }

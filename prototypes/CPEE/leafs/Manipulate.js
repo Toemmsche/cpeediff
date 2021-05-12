@@ -27,15 +27,29 @@ class Manipulate extends CPEENode {
         return false;
     }
 
+    containsCode() {
+        return true;
+    }
+
     compareTo(other) {
         //we can't match a script to a regular call
         if (this.label !== other.label) {
             return 1;
         }
-        //match script based on lcs
-        //script is the data of this node
-        const LCS = LCSSimilarity.getLCS([...this.data], [...other.data]);
-        return 1 - LCS.length / [...this.data].length; //convert to character array
+        const total = Math.max(this.touchedVariables.size, other.touchedVariables.size);
+        let differentCounter = 0;
+        for(const variable of this.touchedVariables) {
+            if(!other.touchedVariables.has(variable)) {
+                differentCounter++;
+            }
+        }
+        for(const variable of other.touchedVariables) {
+            if(!this.touchedVariables.has(variable)) {
+                differentCounter++;
+            }
+        }
+        let compValue = differentCounter / (2*total);
+        return compValue;
     }
 }
 

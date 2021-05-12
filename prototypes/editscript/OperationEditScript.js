@@ -21,8 +21,8 @@ class OperationEditScript extends AbstractEditScript {
 
     constructor() {
         super();
-    }
 
+    }
     /**
      * @override
      * @return {String} Color-coded string representation of this patch
@@ -32,23 +32,6 @@ class OperationEditScript extends AbstractEditScript {
     }
 
     compress() {
-        for (let i = 0; i < this.changes.length; i++) {
-            const change = this.changes[i];
-            if (change.type === Change.typeEnum.INSERTION || change.type === Change.typeEnum.COPY) {
-                const arr = change.sourceNode.toPreOrderArray();
-                //change type must remain the same (insertion or copy)
-                for (let j = 1; j < arr.length; j++) {
-                    if(i + j >= this.changes.length || this.changes[i + j].type !== change.type || !this.changes[i + j].sourceNode.nodeEquals(arr[j])) {
-                        break;
-                    }
-                    if(j === arr.length - 1) {
-                        //replace whole subarray with single subtree insertion
-                        this.changes[i] = new Change(Change.typeEnum.SUBTREE_INSERTION, change.sourceNode, change.targetNode, change.modifiedIndex);
-                        this.changes.splice(i + 1, arr.length - 1);
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -80,8 +63,10 @@ class Change {
         this.type = type;
         this.modifiedIndex = modifiedIndex;
 
-        //TODO tidy
-        this.sourceNode.changeType = type;
+        //TODO tidy and support multiple change types and preserver deleted nodes
+        if(this.sourceNode.changeType === undefined) {
+            this.sourceNode.changeType = type;
+        }
     }
 
     toString(displayType) {
@@ -91,47 +76,47 @@ class Change {
 
         switch (this.type) {
             case Change.typeEnum.INSERTION:
-                color = OperationEditScript.green;
+                color = AbstractEditScript.green;
                 action = "INSERT";
                 conjunction = "at";
                 break;
             case Change.typeEnum.DELETION:
-                color = OperationEditScript.red;
+                color = AbstractEditScript.red;
                 action = "DELETE";
                 conjunction = "from";
                 break;
             case Change.typeEnum.MOVE:
-                color = OperationEditScript.yellow;
+                color = AbstractEditScript.yellow;
                 action = "MOVE";
                 conjunction = "to";
                 break;
             case Change.typeEnum.RELABEL:
-                color = OperationEditScript.cyan;
+                color = AbstractEditScript.cyan;
                 action = "RELABEL";
                 conjunction = "to";
                 break;
             case Change.typeEnum.COPY:
-                color = OperationEditScript.blue;
+                color = AbstractEditScript.blue;
                 action = "COPY";
                 conjunction = "to";
                 break;
             case Change.typeEnum.SUBTREE_INSERTION:
-                color = OperationEditScript.green;
+                color = AbstractEditScript.green;
                 action = "INSERT SUBTREE";
                 conjunction = "at";
                 break;
             case Change.typeEnum.SUBTREE_DELETION:
-                color = OperationEditScript.red;
+                color = AbstractEditScript.red;
                 action = "DELETE SUBTREE";
                 conjunction = "from";
                 break;
             case Change.typeEnum.RESHUFFLE:
-                color = OperationEditScript.cyan;
+                color = AbstractEditScript.cyan;
                 action = "RESHUFFLE ";
                 conjunction = "to";
                 break;
             default:
-                color = OperationEditScript.white;
+                color = AbstractEditScript.white;
                 action = "NOOP";
                 conjunction = "";
                 break;
