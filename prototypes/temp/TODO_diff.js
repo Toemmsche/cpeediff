@@ -21,8 +21,12 @@
 //      convert cpeemodel back to XML
 //      IMPORTANT use default parameters to simplify postorder methods etc.
 //      use inner no0de matching to match leaf nodes in smilar trees even when they're slightly different
+//      diff method is static
+//      make parseFromJSON return properly typed and instantiated (parent and path) object
+
 
 //TODO tidy
+//      replace nodeequals with === where applicable
 //      encapsulate handleInsert() in edit script generation
 //      diff() performes conversion to CPEEModel
 //      use arrow notation (or dont use private functiosn)

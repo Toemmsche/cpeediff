@@ -19,22 +19,8 @@ const {DSL} = require("../DSL");
 
 class Call extends CPEENode {
 
-    childAttributes;
-
     constructor(parent = null, childIndex = -1) {
         super(DSL.CALL, parent, childIndex);
-    }
-
-    nodeEquals(other) {
-        if (!super.nodeEquals(other)) return false;
-        if (this.childAttributes.size !== other.childAttributes.size) return false;
-        for (const [key, value] of this.childAttributes) {
-            //value is a CPEENode
-            if (value.data !== other.childAttributes.get(key).data) {
-                return false;
-            }
-        }
-        return true;
     }
 
     isPropertyNode() {

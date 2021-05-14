@@ -47,26 +47,7 @@ class EditScriptGenerator {
             if (newToOldMap.has(newNode)) {
                 //new Node has a match in the old model
                 const match = newToOldMap.get(newNode)[0];
-                let copied = false;
-
-                //TODO fix copy (or not)
-                /*
-                if (oldToNewMap.get(match).length > 1) {
-                    for (const copy of oldToNewMap.get(match)) {
-                        //prevent duplicate copy operations
-                        if (newPreOrderArray.indexOf(copy) < newPreOrderArray.indexOf(newNode)) {
-                            editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.COPY, copy, matchOfParent, newNode.childIndex))
-                            const copyOfMatch = match.copy();
-                            matchOfParent.insertChild(copyOfMatch, newNode.childIndex);
-                            //create mapping for newly inserted copy
-                            .set(newNode, [copyOfMatch]);
-                            copied =  true;
-                        }
-                    }
-                }
-                 */
-
-                if (!copied && !matchOfParent.nodeEquals(match.parent)) {
+                if (matchOfParent !== match.parent) {
                     //move match to matchOfParent
                     editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.MOVE, match, matchOfParent, newNode.childIndex));
                     match.removeFromParent();
@@ -122,7 +103,7 @@ class EditScriptGenerator {
                 const arr = change.sourceNode.toPreOrderArray();
                 //change type must remain the same (insertion or copy)
                 for (let j = 1; j < arr.length; j++) {
-                    if(i + j >= editScript.changes.length || editScript.changes[i + j].type !== change.type || !editScript.changes[i + j].sourceNode.nodeEquals(arr[j])) {
+                    if(i + j >= editScript.changes.length || editScript.changes[i + j].type !== change.type || !editScript.changes[i + j].sourceNode === arr[j]) {
                         break;
                     }
                     if(j === arr.length - 1) {

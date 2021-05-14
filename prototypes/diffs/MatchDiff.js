@@ -14,11 +14,8 @@
    limitations under the License.
 */
 
-const {TreeEditScript} = require("../editscript/TreeEditScript");
 const {Matching} = require("../matchings/Matching");
-const {CPEENode} = require("../CPEE/CPEENode");
 const {AbstractDiff} = require("./AbstractDiff");
-const {CPEEModel} = require("../CPEE/CPEEModel");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 
 class MatchDiff extends AbstractDiff {
@@ -36,7 +33,6 @@ class MatchDiff extends AbstractDiff {
             m = matchingAlgorithm.match(this.oldModel, this.newModel, m);
         }
         //generate edit script
-
         return EditScriptGenerator.generateEditScript(this.oldModel, this.newModel, m);
     }
 }

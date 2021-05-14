@@ -78,6 +78,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         /*
         Step 3: Match inner nodes.
          */
+
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
         for (const [newLeafNode, oldMatchArray] of newToOldMap) {
@@ -85,6 +86,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         }
 
         function matchPath(oldLeafNode, newLeafNode) {
+            //copy paths, reverse them and remove first element
             const newPath = newLeafNode.path.slice().reverse().slice(1);
             const oldPath = oldLeafNode.path.slice().reverse().slice(1);
 

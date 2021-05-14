@@ -28,9 +28,6 @@ class AbstractEditScript {
     static blue = "\x1b[34m";
 
     changes;
-    AVAILABLE_DISPLAY_TYPES= [
-        "attributes", "path"
-    ]
 
     constructor() {
         if(this.constructor === AbstractEditScript) {

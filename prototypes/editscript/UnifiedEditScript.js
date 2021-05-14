@@ -63,14 +63,16 @@ class UnifiedChange {
     changeType;
     sourcePath;
     targetPath;
-    payload;
+    sourcePayload;
+    targetPayload
 
     constructor(changeType, sourceNode, targetNode) {
         if(changeType !== undefined && sourceNode !== undefined && targetNode !== undefined) {
-            this.sourcePath = sourceNode.toString("path-with-type-index");
-            this.targetPath = targetNode.toString("path-with-type-index");
+            this.sourcePath = sourceNode.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
+            this.targetPath = targetNode.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
             this.changeType = changeType;
-            //TODO payload
+            this.sourcePayload = sourceNode.convertToJSON();
+            this.targetPayload = targetNode.convertToJSON();
 
             //TODO tidy and support multiple change types and preserver deleted nodes
             if(sourceNode.changeType === undefined) {

@@ -23,21 +23,21 @@ class CPEENode {
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //node label (implies type)
     label;
-    //Map of key-value attributes
     attributes;
-    //ordered child CPEENodes
-    childNodes;
-    //string data of the node
+    childAttributes;
     data;
+
     parent;
     childIndex;
+
+    childNodes;
+
     path;
 
     tempSubTree;
 
     changeType;
     touchedVariables;
-
 
 
     constructor(label, parent = null, childIndex = -1) {
@@ -73,18 +73,22 @@ class CPEENode {
         for (const [key, value] of this.attributes) {
             if (value !== other.attributes.get(key)) return false;
         }
-        return true;
-    }
-
-    subTreeEquals(other) {
-        //compare node data and child node data (ordered!)
-        if (!this.nodeEquals(other)) return false;
-        if (this.childNodes.length !== other.childNodes.length) return false;
-        for (let i = 0; i < this.childNodes.length; i++) {
-            if (!this.childNodes[i].subTreeEquals(other.childNodes[i])) return false;
+        if (this.childAttributes.size !== other.childAttributes.size) return false;
+        for (const [key, value] of this.childAttributes) {
+            //value is a CPEENode
+            if (value !== other.childAttributes.get(key)) {
+                return false;
+            }
         }
         return true;
     }
+
+    compareTo(other) {
+        //specific subclass implementation may be present
+        if (this.label === other.label) return 0;
+        else return 1;
+    }
+
 
     hasChildren() {
         return this.childNodes.length > 0;
@@ -108,19 +112,13 @@ class CPEENode {
         return false;
     }
 
-    compareTo(other) {
-        //specific subclass implementation may be present
-        if (this.label === other.label) return 0;
-        else return 1;
-    }
-
-    insertChild(cpeeNode, index = 0) {
-        cpeeNode.childIndex = index;
-        cpeeNode.parent = this;
-        cpeeNode.path = this.path.slice();
-        cpeeNode.path.push(cpeeNode);
-        this.childNodes.splice(index, 0, cpeeNode);
-        this.fixChildIndices();
+    insertChild(node, index = 0) {
+        node.childIndex = index;
+        node.parent = this;
+        node.path = this.path.slice();
+        node.path.push(node);
+        this.childNodes.splice(index, 0, node);
+        this._fixChildIndices();
     }
 
     changeChildIndex(newIndex) {
@@ -129,13 +127,7 @@ class CPEENode {
         //insert
         this.parent.childNodes.splice(newIndex, 0, this);
         //adjust child indices
-        this.parent.fixChildIndices();
-    }
-
-    fixChildIndices() {
-        for (let i = 0; i < this.childNodes.length; i++) {
-            this.childNodes[i].childIndex = i;
-        }
+        this.parent._fixChildIndices();
     }
 
     removeFromParent() {
@@ -143,33 +135,48 @@ class CPEENode {
             throw new Error();
         }
         this.parent.childNodes.splice(this.childIndex, 1);
-        this.parent.fixChildIndices();
+        this.parent._fixChildIndices();
     }
 
-    getTypeIndex() {
+    _fixChildIndices() {
+        for (let i = 0; i < this.childNodes.length; i++) {
+            this.childNodes[i].childIndex = i;
+        }
+    }
+
+    _getTypeIndex() {
         let index = 0;
         for (let i = 0; i < this.childIndex; i++) {
-            if(this.parent.childNodes[i].label === this.label) {
+            if (this.parent.childNodes[i].label === this.label) {
                 index++;
             }
         }
         return index;
     }
-    toString(displayType = "label") {
+
+    static STRING_OPTIONS = {
+        LABEL: 1,
+        LABEL_WITH_TYPE_INDEX: 2,
+        PATH:3,
+        PATH_WITH_TYPE_INDEX: 4,
+        CHANGE: 5
+    }
+
+    toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
         switch (displayType) {
-            case "label":
+            case CPEENode.STRING_OPTIONS.LABEL:
                 return this.label;
-            case "label-with-type-index":
-                return this.label + "[" + this.getTypeIndex() + "]";
-            case "path-with-type-index": {
+            case CPEENode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
+                return this.label + "[" + this._getTypeIndex() + "]";
+            case CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
                 const strArr = this.path.map(n => n.toString("label-with-type-index"));
-                return  "(" + strArr.join("/") + ")";
+                return "(" + strArr.join("/") + ")";
             }
-            case "path": {
+            case CPEENode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
                 return `${strArr.join("/")}`;
             }
-            case "change": {
+            case CPEENode.STRING_OPTIONS.CHANGE: {
                 let color;
                 switch (this.changeType) {
                     case Change.typeEnum.INSERTION:
@@ -196,58 +203,6 @@ class CPEENode {
             default:
                 return this.label;
         }
-
-    }
-
-    getSubTreeSize() {
-        let size = 1;
-        for (const child of this.childNodes) {
-            size += child.getSubTreeSize();
-        }
-        return size;
-    }
-
-    copy() {
-        const copy = new CPEENode(this.label, this.parent, this.childIndex);
-        copy.path = this.path;
-        copy.data = this.data;
-        copy.tempSubTree = this.tempSubTree;
-        for (const [key, value] of this.attributes) {
-            copy.attributes.set(key, value);
-        }
-        return copy;
-    }
-
-    indexPath() {
-        return this.path.map(n => n.childIndex).reverse();
-    }
-
-    toPreOrderArray() {
-        const preOrderArr = [];
-        fillPreOrderArray(this, preOrderArr);
-
-        function fillPreOrderArray(cpeeNode, arr) {
-            arr.push(cpeeNode);
-            for (const child of cpeeNode.childNodes) {
-                fillPreOrderArray(child, arr);
-            }
-        }
-
-        return preOrderArr;
-    }
-
-    toPostOrderArray() {
-        const postOrderArr = [];
-        fillPostOrderArray(this, postOrderArr);
-
-        function fillPostOrderArray(cpeeNode, arr) {
-            for (const child of cpeeNode.childNodes) {
-                fillPostOrderArray(child, arr);
-            }
-            arr.push(cpeeNode);
-        }
-
-        return postOrderArr;
     }
 
     //TODO beautify... (and optimize)
@@ -285,6 +240,77 @@ class CPEENode {
 
         return line;
     }
+    
+    copy() {
+        const copy = new CPEENode(this.label, this.parent, this.childIndex);
+        copy.path = this.path;
+        copy.data = this.data;
+        copy.tempSubTree = this.tempSubTree;
+        for (const [key, value] of this.attributes) {
+            copy.attributes.set(key, value);
+        }
+        return copy;
+    }
+
+    toPreOrderArray() {
+        const preOrderArr = [];
+        fillPreOrderArray(this, preOrderArr);
+
+        function fillPreOrderArray(node, arr) {
+            arr.push(node);
+            for (const child of node.childNodes) {
+                fillPreOrderArray(child, arr);
+            }
+        }
+
+        return preOrderArr;
+    }
+
+    toPostOrderArray() {
+        const postOrderArr = [];
+        fillPostOrderArray(this, postOrderArr);
+
+        function fillPostOrderArray(node, arr) {
+            for (const child of node.childNodes) {
+                fillPostOrderArray(child, arr);
+            }
+            arr.push(node);
+        }
+
+        return postOrderArr;
+    }
+
+    convertToJSON() {
+        function replacer(key, value) {
+            if (key === "parent" || key === "path" || key === "tempSubTree") return undefined;
+            //convert maps to arrays of key-value pairs
+            else if (value instanceof Map) {
+                return {
+                    //preserve data type for correct parsing
+                    dataType: "Map",
+                    value: Array.from(value.entries())
+                };
+            }
+            return value;
+        }
+
+        return JSON.stringify(this, replacer);
+    }
+
+    static parseFromJSON(str) {
+        function reviver(key, value) {
+            if(value instanceof Object) {
+                //all maps are marked
+                if (value.dataType === "Map") {
+                    return new Map(value.value)
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver)
+    }
+
 }
 
 exports.CPEENode = CPEENode;

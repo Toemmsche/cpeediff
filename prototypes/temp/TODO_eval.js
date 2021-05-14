@@ -6,3 +6,8 @@
 //      comparison counters and running time framework
 //      eval edit distance
 //      use simpler node format (without parent) to store payload in edit script as json
+
+
+//TODO merge
+//      use path maps (with and without index) to find nodes
+//      use node labels (siblings, ancestors) as context

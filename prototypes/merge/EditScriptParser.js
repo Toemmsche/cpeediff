@@ -15,6 +15,7 @@
 */
 
 const fs = require("fs");
+const {CPEENode} = require("../CPEE/CPEENode");
 const {UnifiedChange} = require("../editscript/UnifiedEditScript");
 
 class EditScriptParser {
@@ -24,11 +25,16 @@ class EditScriptParser {
             throw new Error("File " + path + " does not exist");
         }
         const changes =[];
-        for(const change of JSON.parse(fs.readFileSync(path).toString())) {
+
+        function reviver(key, value) {
+            if (key === "sourcePayload" || key === "targetPayload") return CPEENode.parseFromJSON(value);
+            else return value;
+        }
+        for(const change of JSON.parse(fs.readFileSync(path).toString(), reviver)) {
             changes.push(Object.assign(new UnifiedChange, change));
         }
 
-        console.log(changes);
+        return changes;
     }
 }
 
