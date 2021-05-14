@@ -14,55 +14,53 @@
    limitations under the License.
 */
 
-const {AbstractEditScript} = require("../editscript/AbstractEditScript");
-const {OperationEditScript, Change} = require("../editscript/OperationEditScript");
 const {DSL} = require("./DSL");
 
 class CPEENode {
 
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
-    //node label (implies type)
+    //CPEE information
     label;
     attributes;
     childAttributes;
+    touchedVariables;
     data;
 
+    //structural information
     parent;
     childIndex;
-
     childNodes;
 
-    path;
-
-    tempSubTree;
-
-    changeType;
-    touchedVariables;
-
-
-    constructor(label, parent = null, childIndex = -1) {
+    constructor(label) {
         this.label = label;
         this.attributes = new Map();
+        this.childAttributes = new Map();
         this.childNodes = [];
         this.data = "";
-        this.parent = parent;
-        this.childIndex = childIndex;
-        if (this.parent == null) {
-            this.path = [];
-        } else {
-            //copy parent path
-            this.path = this.parent.path.slice();
-        }
-        this.path.push(this);
-
-
-        //TODO
-        this.tempSubTree = [];
+        this.parent = null;
+        this.childIndex = null;
         this.touchedVariables = new Set();
     }
 
-    hasInternalOrdering() {
-        return DSL.hasInternalOrdering(this.label);
+    get typeIndex() {
+        let index = 0;
+        for (let i = 0; i < this.childIndex; i++) {
+            if (this.parent.childNodes[i].label === this.label) {
+                index++;
+            }
+        }
+        return index;
+    }
+
+    get path() {
+        const pathArr = [];
+        let node = this;
+        const isPropertyNode = this.isPropertyNode();
+        while(node !== null && (!isPropertyNode || !node.isPropertyNode())) {
+            pathArr.add(node);
+            node = node.parent;
+        }
+        return pathArr;
     }
 
     nodeEquals(other) {
@@ -85,38 +83,33 @@ class CPEENode {
 
     compareTo(other) {
         //specific subclass implementation may be present
-        if (this.label === other.label) return 0;
+        if(this.nodeEquals(other)) return 0;
         else return 1;
     }
 
-
     hasChildren() {
         return this.childNodes.length > 0;
+    }
+
+    hasInternalOrdering() {
+        return DSL.hasInternalOrdering(this.label);
     }
 
     isControlFlowLeafNode() {
         return DSL.isControlFlowLeafNode(this.label);
     }
 
-    hasPropertySubtree() {
-        return DSL.hasPropertySubtree(this.label);
-    }
-
     isPropertyNode() {
-        //overridden in subclasses
-        return true;
+        return this.constructor === CPEENode;
     }
 
     containsCode() {
-        //overridden in subclasses
-        return false;
+        return DSL.containsCode(this.label);
     }
 
-    insertChild(node, index = 0) {
-        node.childIndex = index;
+    insertChild(node, index = -1) {
+        node.childIndex = index < 0 ? this.childNodes.length - index : index;
         node.parent = this;
-        node.path = this.path.slice();
-        node.path.push(node);
         this.childNodes.splice(index, 0, node);
         this._fixChildIndices();
     }
@@ -132,7 +125,7 @@ class CPEENode {
 
     removeFromParent() {
         if (this.parent === null) {
-            throw new Error();
+            throw new Error("Cannot remove node that has no parent");
         }
         this.parent.childNodes.splice(this.childIndex, 1);
         this.parent._fixChildIndices();
@@ -144,22 +137,11 @@ class CPEENode {
         }
     }
 
-    _getTypeIndex() {
-        let index = 0;
-        for (let i = 0; i < this.childIndex; i++) {
-            if (this.parent.childNodes[i].label === this.label) {
-                index++;
-            }
-        }
-        return index;
-    }
-
     static STRING_OPTIONS = {
         LABEL: 1,
         LABEL_WITH_TYPE_INDEX: 2,
         PATH:3,
-        PATH_WITH_TYPE_INDEX: 4,
-        CHANGE: 5
+        PATH_WITH_TYPE_INDEX: 4
     }
 
     toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
@@ -167,7 +149,7 @@ class CPEENode {
             case CPEENode.STRING_OPTIONS.LABEL:
                 return this.label;
             case CPEENode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
-                return this.label + "[" + this._getTypeIndex() + "]";
+                return this.label + "[" + this.typeIndex + "]";
             case CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
                 const strArr = this.path.map(n => n.toString("label-with-type-index"));
                 return "(" + strArr.join("/") + ")";
@@ -175,30 +157,6 @@ class CPEENode {
             case CPEENode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
                 return `${strArr.join("/")}`;
-            }
-            case CPEENode.STRING_OPTIONS.CHANGE: {
-                let color;
-                switch (this.changeType) {
-                    case Change.typeEnum.INSERTION:
-                        color = AbstractEditScript.green;
-                        break;
-                    case Change.typeEnum.DELETION:
-                        color = AbstractEditScript.red;
-                        break;
-                    case Change.typeEnum.MOVE:
-                        color = AbstractEditScript.yellow;
-                        break;
-                    case Change.typeEnum.RELABEL:
-                        color = AbstractEditScript.cyan;
-                        break;
-                    case Change.typeEnum.COPY:
-                        color = AbstractEditScript.blue;
-                        break;
-                    default:
-                        color = AbstractEditScript.white;
-                        break;
-                }
-                return color + this.label + AbstractEditScript.white;
             }
             default:
                 return this.label;

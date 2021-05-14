@@ -15,8 +15,11 @@
 */
 
 
-const {UnifiedEditScript, UnifiedChange} = require("./UnifiedEditScript");
-
+const {Reshuffle} = require("./change/Reshuffle");
+const {Deletion} = require("./change/Deletion");
+const {Insertion} = require("./change/Insertion");
+const {Modification} = require("./change/Modification");
+const {Move} = require("./change/Move");
 
 class EditScriptGenerator {
 
@@ -29,7 +32,7 @@ class EditScriptGenerator {
      * @param newModel
      * @param matching
      * @param options
-     * @return {UnifiedEditScript}
+     * @return {EditSCript}
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
         const editScript = new UnifiedEditScript(oldModel);
@@ -49,14 +52,16 @@ class EditScriptGenerator {
                 const match = newToOldMap.get(newNode)[0];
                 if (matchOfParent !== match.parent) {
                     //move match to matchOfParent
-                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.MOVE, match, matchOfParent, newNode.childIndex));
+                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
+                    editScript.addChange(new Move(match, oldPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
-                    //relabel node
-                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.RELABEL, match, newNode, match.childIndex));
+                    //modify node
+                    editScript.addChange(new Modification(match))
+                    //TODO replace attributes
                     match.label = newNode.label;
                 }
             } else {
@@ -66,7 +71,7 @@ class EditScriptGenerator {
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.INSERTION, copy, matchOfParent, newNode.childIndex));
+                editScript.addChange(new Insertion(copy));
             }
         }
         const oldDeletedNodes = [];
@@ -78,38 +83,32 @@ class EditScriptGenerator {
             }
         }
         //second pass to detect the largest subtrees that are fully deleted
-        while(oldDeletedNodes.length > 0) {
+        while (oldDeletedNodes.length > 0) {
             let node = oldDeletedNodes[0];
             //parent is also fully deleted
-            while(node.parent !== null && oldDeletedNodes.includes(node.parent)) {
+            while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
                 node = node.parent;
             }
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
-            if(subTreeSize > 1) {
-                //subtree deletion
-                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.SUBTREE_DELETION, node, node.parent, node.childIndex));
-            } else {
-                //leaf node deletion
-                editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.DELETION, node, node.parent, node.childIndex));
-            }
             oldDeletedNodes.splice(0, subTreeSize);
+            editScript.addChange(new Deletion(node));
         }
 
         //detect subtree insertions
         for (let i = 0; i < editScript.changes.length; i++) {
             const change = editScript.changes[i];
-            if (change.type === UnifiedChange.TYPE_ENUM.INSERTION || change.type === UnifiedChange.TYPE_ENUM.COPY) {
-                const arr = change.sourceNode.toPreOrderArray();
+            if (change instanceof Insertion) {
+                const arr = change.targetNode.toPreOrderArray();
                 //change type must remain the same (insertion or copy)
                 for (let j = 1; j < arr.length; j++) {
-                    if(i + j >= editScript.changes.length || editScript.changes[i + j].type !== change.type || !editScript.changes[i + j].sourceNode === arr[j]) {
+                    if (i + j >= editScript.changes.length || !(editScript.changes[i + j] instanceof Insertion) || !editScript.changes[i + j].targetNode === arr[j]) {
                         break;
                     }
-                    if(j === arr.length - 1) {
+                    if (j === arr.length - 1) {
                         //replace whole subarray with single subtree insertion
-                        editScript.changes[i] = new UnifiedChange(UnifiedChange.TYPE_ENUM.SUBTREE_INSERTION, change.sourceNode, change.targetNode, change.modifiedIndex);
                         editScript.changes.splice(i + 1, arr.length - 1);
+                        editScript.changes[i] = new Insertion(change.targetNode);
                     }
                 }
             }
@@ -117,8 +116,8 @@ class EditScriptGenerator {
 
         //All nodes have the right path and are matched.
         //However, order of child nodes might not be right, we must verify that it matches the new model.
-        for(const oldNode of oldModel.toPreOrderArray()) {
-            if(oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
+        for (const oldNode of oldModel.toPreOrderArray()) {
+            if (oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
                 //Based on A. Marian, "Detecting UnifiedChanges in XML Documents", 2002
 
                 //map each old child node to the child index of its matching partner
@@ -136,27 +135,28 @@ class EditScriptGenerator {
                     dp[i] = 1;
                     parent[0] = -1;
                     for (let j = 0; j < i; j++) {
-                        if(arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
+                        if (arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
                             dp[i] = dp[j] + 1;
                             parent[i] = j;
                         }
                     }
                     //update best value
-                    if(dp[i] > dp[max]) {
+                    if (dp[i] > dp[max]) {
                         max = i;
                     }
                 }
                 //all nodes not part of the LIS have to be reordered
                 const reshuffle = oldNode.childNodes.slice();
-                while(max !== -1) {
+                while (max !== -1) {
                     reshuffle.splice(max, 1);
                     max = parent[max];
                 }
 
-                for(const node of reshuffle) {
+                for (const node of reshuffle) {
                     const match = oldToNewMap.get(node)[0];
-                    editScript.changes.push(new UnifiedChange(UnifiedChange.TYPE_ENUM.RESHUFFLE, node, match, match.childIndex));
+                    const oldIndex = node.childIndex;
                     node.changeChildIndex(match.childIndex);
+                    editScript.addChange(new Reshuffle(node, oldIndex));
                 }
             }
         }

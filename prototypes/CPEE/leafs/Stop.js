@@ -18,16 +18,9 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class Stop extends CPEENode {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.STOP, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
-    }
-
-    compareTo(other) {
-        return super.compareTo(other);
+    constructor() {
+        super(DSL.STOP);
     }
 }
 

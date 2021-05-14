@@ -18,16 +18,9 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class Critical extends CPEENode {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.CRITICAL, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
-    }
-
-    compareTo(other) {
-        return super.compareTo(other);
+    constructor() {
+        super(DSL.CRITICAL);
     }
 }
 

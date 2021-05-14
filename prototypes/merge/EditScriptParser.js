@@ -16,7 +16,7 @@
 
 const fs = require("fs");
 const {CPEENode} = require("../CPEE/CPEENode");
-const {UnifiedChange} = require("../editscript/UnifiedEditScript");
+const {UnifiedChange} = require("../editscript/EditScript");
 
 class EditScriptParser {
 

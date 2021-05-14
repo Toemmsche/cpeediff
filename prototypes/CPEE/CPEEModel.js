@@ -38,10 +38,10 @@ const {Root} = require("./inner_nodes/Root");
 class CPEEModel {
 
     //CPEENode
-    _root;
+    root;
 
     constructor(root) {
-        this._root = root;
+        this.root = root;
     }
 
     //Standard XML file (not a CPEE model)
@@ -51,9 +51,8 @@ class CPEEModel {
         const model = new CPEEModel(constructRecursive(doc));
         return model;
 
-        function constructRecursive(tNode, parentNode = null, childIndex = -1) {
-            const root = new CPEENode(tNode.tagName, parentNode, childIndex);
-            childIndex = 0;
+        function constructRecursive(tNode) {
+            const root = new CPEENode(tNode.tagName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childNode = tNode.childNodes.item(i);
                 if (childNode.nodeType === 3) { //text node
@@ -85,50 +84,50 @@ class CPEEModel {
         const model = new CPEEModel(constructRecursive(doc));
         return model;
 
-        function constructRecursive(tNode, parentNode = null, childIndex = -1) {
+        function constructRecursive(tNode) {
             let root;
             switch (tNode.tagName) {
                 case DSL.CALL:
-                    root = new Call(parentNode, childIndex);
+                    root = new Call();
                     break;
                 case DSL.MANIPULATE:
-                    root = new Manipulate(parentNode, childIndex);
+                    root = new Manipulate();
                     break;
                 case DSL.PARALLEL:
-                    root = new Parallel(parentNode, childIndex);
+                    root = new Parallel();
                     break;
                 case DSL.PARALLEL_BRANCH:
-                    root = new ParallelBranch(parentNode, childIndex);
+                    root = new ParallelBranch();
                     break;
                 case DSL.CHOOSE:
-                    root = new Choose(parentNode, childIndex);
+                    root = new Choose();
                     break;
                 case DSL.ALTERNATIVE:
-                    root = new Alternative(parentNode, childIndex);
+                    root = new Alternative();
                     break;
                 case DSL.OTHERWISE:
-                    root = new Otherwise(parentNode, childIndex);
+                    root = new Otherwise();
                     break;
                 case DSL.ESCAPE:
-                    root = new Escape(parentNode, childIndex);
+                    root = new Escape();
                     break;
                 case DSL.STOP:
-                    root = new Stop(parentNode, childIndex);
+                    root = new Stop();
                     break;
                 case DSL.LOOP:
-                    root = new Loop(parentNode, childIndex);
+                    root = new Loop();
                     break;
                 case DSL.TERMINATE:
-                    root = new Terminate(parentNode, childIndex);
+                    root = new Terminate();
                     break;
                 case DSL.CRITICAL:
-                    root = new Critical(parentNode, childIndex);
+                    root = new Critical();
                     break;
                 case DSL.ROOT:
-                    root = new Root(parentNode, childIndex);
+                    root = new Root();
                     break;
                 default:
-                    root = new CPEENode(tNode.tagName, parentNode, childIndex);
+                    root = new CPEENode(tNode.tagName);
             }
 
             //Description nodes (that are not the root) contain documentation and are irrelevant for a semantic diff algorithm
@@ -136,38 +135,44 @@ class CPEEModel {
                 return null;
             }
 
-            //in case of (root) property node, set path relative to parent control flow node
-            if (root.isPropertyNode() && !root.parent.isPropertyNode()) {
-                root.path.splice(0, root.parent.path.length);
-            }
-
-            childIndex = 0;
             for (let i = 0; i < tNode.childNodes.length; i++) {
-                const childNode = tNode.childNodes.item(i);
-                if (childNode.nodeType === 3) { //text node
+                const childTNode = tNode.childNodes.item(i);
+                if (childTNode.nodeType === 3) { //text node
                     //check if text node contains a non-empty payload
-                    if (childNode.data.match(/^\s*$/) !== null) { //match whole string
+                    if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
                         //empty data, skip
                         continue;
                     } else {
                         //relevant data, set as node data
-                        root.data = childNode.data;
+                        root.data = childTNode.data;
                     }
                 } else {
-                    const child = constructRecursive(tNode.childNodes.item(i), root, childIndex)
+                    const child = constructRecursive(childTNode)
                     //empty control nodes are null values (see below)
                     if (child !== null) {
                         //if child is not a control flow node, it's a property of root
-                        if (root.hasPropertySubtree() && child.isPropertyNode()) {
+                        if (child.isPropertyNode()) {
                             //remove unnecessary path
-                            root.tempSubTree.push(child);
+                            //TODO use childAttribues of first leaf node
+                           buildChildAttributeMap(child, root.childAttributes);
                         } else {
-                            root.childNodes.push(child);
-                            childIndex++;
+                            root.insertChild(child);
                         }
                     }
                 }
             }
+
+            function buildChildAttributeMap(node, map) {
+                if (node.data != "") { //lossy comparison
+                    //retain full (relative) structural information in the nodes
+                    map.set(node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
+                }
+
+                for (const child of node.childNodes) {
+                    buildChildAttributeMap(child, map);
+                }
+            }
+            
             //if root is a control node or a call property but has no children and no data, we can safely disregard it
             if (!root.hasChildren() && !root.isControlFlowLeafNode() && root.data == "") {
                 return null;
@@ -177,27 +182,6 @@ class CPEEModel {
             for (let i = 0; i < tNode.attributes.length; i++) {
                 const attrNode = tNode.attributes.item(i);
                 root.attributes.set(attrNode.name, attrNode.value);
-            }
-
-            //if root is a leaf node, we transform child notes into attributes
-            if (root.hasPropertySubtree()) {
-                const childAttributeMap = new Map();
-                for (const child of root.tempSubTree) {
-                    buildChildAttributeMap(child, childAttributeMap);
-                }
-                root.childAttributes = childAttributeMap;
-                root.tempSubTree = undefined;
-            }
-
-            function buildChildAttributeMap(cpeeNode, map) {
-                if (cpeeNode.data != "") { //lossy comparison
-                    //retain full (relative) structural information in the nodes
-                    map.set(cpeeNode.toString(CPEENode.STRING_OPTIONS.PATH), cpeeNode.data);
-                }
-
-                for (const child of cpeeNode.childNodes) {
-                    buildChildAttributeMap(child, map);
-                }
             }
 
             //extract necessary/declared data variables
@@ -235,19 +219,19 @@ class CPEEModel {
 
     //TODO doc
     toPreOrderArray() {
-        return this._root.toPreOrderArray();
+        return this.root.toPreOrderArray();
     }
 
     toPostOrderArray() {
-        return this._root.toPostOrderArray();
+        return this.root.toPostOrderArray();
     }
 
     leafNodes() {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
     }
 
-    toTreeString(displayType = "label") {
-        return this._root.toTreeString([], displayType);
+    toTreeString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
+        return this.root.toTreeString([], stringOption);
     }
 
 }

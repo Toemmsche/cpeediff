@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http=//www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,23 @@
    limitations under the License.
 */
 
-const {CPEENode} = require("../CPEENode");
-const {DSL} = require("../DSL");
+const {CPEENode} = require("../../CPEE/CPEENode");
 
-class Loop extends CPEENode {
+/**
+ * @abstract
+ */
+class AbstractChange {
 
-    constructor() {
-        super(DSL.LOOP);
+    targetNode;
+
+    constructor(targetNode) {
+        if(this.constructor === AbstractChange) {
+            throw new Error("Cannot instantiate abstract class AbstractChange");
+        }
+        this.targetNode = targetNode;
     }
+
+    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX){}
 }
 
-exports.Loop = Loop;
+exports.AbstractChange = AbstractChange;

@@ -44,6 +44,9 @@ class DSL {
         return [this.CALL, this.MANIPULATE, this.TERMINATE, this.STOP, this.ESCAPE, this.OTHERWISE, this.ALTERNATIVE].includes(nodeLabel);
     }
 
+    static containsCode(nodeLabel) {
+        return [this.CALL, this.MANIPULATE].includes(nodeLabel);
+    }
 }
 
 exports.DSL = DSL;

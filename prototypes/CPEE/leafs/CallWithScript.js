@@ -19,16 +19,9 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class CallWithScript extends Call {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.CALL, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
-    }
-
-    containsCode() {
-        return true;
+    constructor() {
+        super();
     }
 }
 

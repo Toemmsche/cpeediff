@@ -19,18 +19,10 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class Manipulate extends CPEENode {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.MANIPULATE, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
+    constructor() {
+        super(DSL.MANIPULATE);
     }
-
-    containsCode() {
-        return true;
-    }
-
     compareTo(other) {
         //we can't match a script to a regular call
         if (this.label !== other.label) {

@@ -15,7 +15,7 @@
 */
 
 const fs = require("fs");
-const {UnifiedEditScript, UnifiedChange} = require("../editscript/UnifiedEditScript");
+const {EditSCript, UnifiedChange} = require("../editscript/EditScript");
 
 class Merger {
 

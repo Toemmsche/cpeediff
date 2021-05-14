@@ -19,16 +19,8 @@ const {DSL} = require("../DSL");
 
 class Otherwise extends CPEENode {
 
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.OTHERWISE, parent, childIndex);
-    }
-
-    isPropertyNode() {
-        return false;
-    }
-
-    compareTo(other) {
-        return super.compareTo(other);
+    constructor() {
+        super(DSL.OTHERWISE);
     }
 }
 

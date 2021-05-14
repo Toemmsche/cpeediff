@@ -3,6 +3,7 @@
 //      copy model
 //      output whole tree at subtree insertion
 //      export set and map similarity calculations
+//      take proper snapshot
 
 //TODO new algos
 //      fast match by Chawathe et al.
@@ -43,3 +44,5 @@
 //      use multiple inheritance for call otherwise etc.
 //      find cleaner way to get node attributes (e.g. is property node)
 //      use scientific names for variables
+//      maybe change member variable declaration and initiliazation
+//      use constructor for node comparison

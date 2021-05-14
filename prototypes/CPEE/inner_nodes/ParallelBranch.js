@@ -18,16 +18,9 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class ParallelBranch extends CPEENode {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.PARALLEL_BRANCH, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
-    }
-
-    compareTo(other) {
-        return super.compareTo(other);
+    constructor() {
+        super(DSL.PARALLEL_BRANCH);
     }
 }
 

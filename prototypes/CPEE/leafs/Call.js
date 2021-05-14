@@ -19,16 +19,8 @@ const {DSL} = require("../DSL");
 
 class Call extends CPEENode {
 
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.CALL, parent, childIndex);
-    }
-
-    isPropertyNode() {
-        return false;
-    }
-
-    containsCode() {
-        return true;
+    constructor() {
+        super(DSL.CALL);
     }
 
     compareTo(other) {

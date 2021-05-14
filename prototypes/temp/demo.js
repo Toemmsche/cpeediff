@@ -19,7 +19,6 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 const fs = require("fs");
 const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {KyongHoMatching} = require("../matchings/KyongHoMatching");
-const {UnifiedEditScript} = require("../editscript/UnifiedEditScript");
 
 let file1 = process.argv[2];
 let file2 = process.argv[3];

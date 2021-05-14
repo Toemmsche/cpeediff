@@ -18,12 +18,9 @@ const {CPEENode} = require("../CPEENode");
 const {DSL} = require("../DSL");
 
 class Parallel extends CPEENode {
-    constructor(parent = null, childIndex = -1) {
-        super(DSL.PARALLEL, parent, childIndex);
-    }
 
-    isPropertyNode() {
-        return false;
+    constructor() {
+        super(DSL.PARALLEL);
     }
 
     compareTo(other) {
