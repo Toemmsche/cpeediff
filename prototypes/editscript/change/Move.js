@@ -27,7 +27,7 @@ class Move extends AbstractChange {
     }
 
     toString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
-        return "Move " + this.target.toString(stringOption) +
+        return "Move " + this.targetNode.toString(stringOption) +
             " from " + this.oldPath +
             " to " + this.targetNode.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX)
     }

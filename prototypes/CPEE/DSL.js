@@ -47,6 +47,13 @@ class DSL {
     static containsCode(nodeLabel) {
         return [this.CALL, this.MANIPULATE].includes(nodeLabel);
     }
+
+    static isPropertyNode(label) {
+        for(const cpeeKeyWord in DSL) {
+            if(label === DSL[cpeeKeyWord]) return false;
+        }
+        return true;
+    }
 }
 
 exports.DSL = DSL;

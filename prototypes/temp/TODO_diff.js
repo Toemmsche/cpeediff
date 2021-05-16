@@ -46,3 +46,4 @@
 //      use scientific names for variables
 //      maybe change member variable declaration and initiliazation
 //      use constructor for node comparison
+//      move node boolean flags into cpeemodel to keep semantic parsing in one place

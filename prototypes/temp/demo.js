@@ -37,5 +37,4 @@ const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 
 const script = sd.diff();
 console.log(script.toString("lines"));
-script.writeToFile("prototypes/temp/changes.json");
 

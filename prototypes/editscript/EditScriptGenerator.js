@@ -15,6 +15,8 @@
 */
 
 
+const {CPEENode} = require("../CPEE/CPEENode");
+const {EditScript} = require("./EditScript");
 const {Reshuffle} = require("./change/Reshuffle");
 const {Deletion} = require("./change/Deletion");
 const {Insertion} = require("./change/Insertion");
@@ -35,7 +37,7 @@ class EditScriptGenerator {
      * @return {EditSCript}
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
-        const editScript = new UnifiedEditScript(oldModel);
+        const editScript = new EditScript(oldModel);
         const newToOldMap = matching.newToOldMap;
         const oldToNewMap = matching.oldToNewMap;
 
@@ -55,12 +57,12 @@ class EditScriptGenerator {
                     const oldPath = match.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
-                    editScript.addChange(new Move(match, oldPath));
+                    editScript.appendChange(new Move(match, oldPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
                     //modify node
-                    editScript.addChange(new Modification(match))
+                    editScript.appendChange(new Modification(match))
                     //TODO replace attributes
                     match.label = newNode.label;
                 }
@@ -71,7 +73,7 @@ class EditScriptGenerator {
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.addChange(new Insertion(copy));
+                editScript.appendChange(new Insertion(copy));
             }
         }
         const oldDeletedNodes = [];
@@ -92,7 +94,7 @@ class EditScriptGenerator {
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             oldDeletedNodes.splice(0, subTreeSize);
-            editScript.addChange(new Deletion(node));
+            editScript.appendChange(new Deletion(node));
         }
 
         //detect subtree insertions
@@ -156,7 +158,7 @@ class EditScriptGenerator {
                     const match = oldToNewMap.get(node)[0];
                     const oldIndex = node.childIndex;
                     node.changeChildIndex(match.childIndex);
-                    editScript.addChange(new Reshuffle(node, oldIndex));
+                    editScript.appendChange(new Reshuffle(node, oldIndex));
                 }
             }
         }

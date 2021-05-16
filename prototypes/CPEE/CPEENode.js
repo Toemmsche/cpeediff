@@ -56,11 +56,11 @@ class CPEENode {
         const pathArr = [];
         let node = this;
         const isPropertyNode = this.isPropertyNode();
-        while(node !== null && (!isPropertyNode || !node.isPropertyNode())) {
-            pathArr.add(node);
+        while(node !== null && (!isPropertyNode || node.isPropertyNode())) {
+            pathArr.push(node);
             node = node.parent;
         }
-        return pathArr;
+        return pathArr.reverse();
     }
 
     nodeEquals(other) {
@@ -91,6 +91,10 @@ class CPEENode {
         return this.childNodes.length > 0;
     }
 
+    hasAttributes() {
+        return this.attributes.size > 0 || this.childAttributes.size > 0
+    }
+
     hasInternalOrdering() {
         return DSL.hasInternalOrdering(this.label);
     }
@@ -100,17 +104,34 @@ class CPEENode {
     }
 
     isPropertyNode() {
-        return this.constructor === CPEENode;
+        return DSL.isPropertyNode(this.label);
+    }
+
+    isEmpty() {
+        return !this.isControlFlowLeafNode()
+            && this.data == ""
+            && !this.hasAttributes()
+            && !this.hasChildren();
+    }
+
+    isDocumentation() {
+        return this.label === "description"
+            && !this.hasChildren()
+            && !this.hasAttributes();
     }
 
     containsCode() {
         return DSL.containsCode(this.label);
     }
 
-    insertChild(node, index = -1) {
-        node.childIndex = index < 0 ? this.childNodes.length - index : index;
+    appendChild(node) {
+        node.childIndex = this.childNodes.push(node) - 1;
         node.parent = this;
+    }
+
+    insertChild(node, index) {
         this.childNodes.splice(index, 0, node);
+        node.parent = this;
         this._fixChildIndices();
     }
 
@@ -156,7 +177,7 @@ class CPEENode {
             }
             case CPEENode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
-                return `${strArr.join("/")}`;
+                return strArr.join("/");
             }
             default:
                 return this.label;
@@ -201,7 +222,6 @@ class CPEENode {
     
     copy() {
         const copy = new CPEENode(this.label, this.parent, this.childIndex);
-        copy.path = this.path;
         copy.data = this.data;
         copy.tempSubTree = this.tempSubTree;
         for (const [key, value] of this.attributes) {
@@ -268,7 +288,6 @@ class CPEENode {
 
         return JSON.parse(str, reviver)
     }
-
 }
 
 exports.CPEENode = CPEENode;

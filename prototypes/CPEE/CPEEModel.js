@@ -65,7 +65,7 @@ class CPEEModel {
                         root.data = childNode.data;
                     }
                 } else {
-                    root.childNodes.push(constructRecursive(tNode.childNodes.item(i), root, childIndex++));
+                    root.appendChild(constructRecursive(tNode.childNodes.item(i)));
                 }
             }
 
@@ -130,11 +130,6 @@ class CPEEModel {
                     root = new CPEENode(tNode.tagName);
             }
 
-            //Description nodes (that are not the root) contain documentation and are irrelevant for a semantic diff algorithm
-            if (root.label === "description" && root.parent !== null) {
-                return null;
-            }
-
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -153,10 +148,10 @@ class CPEEModel {
                         //if child is not a control flow node, it's a property of root
                         if (child.isPropertyNode()) {
                             //remove unnecessary path
-                            //TODO use childAttribues of first leaf node
+                            //first ancestor is parent of first entry in path
                            buildChildAttributeMap(child, root.childAttributes);
                         } else {
-                            root.insertChild(child);
+                            root.appendChild(child);
                         }
                     }
                 }
@@ -168,13 +163,14 @@ class CPEEModel {
                     map.set(node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
                 }
 
-                for (const child of node.childNodes) {
-                    buildChildAttributeMap(child, map);
+                //copy all values into new map
+                for(const [key, value] of node.childAttributes) {
+                    map.set(key, value);
                 }
             }
             
-            //if root is a control node or a call property but has no children and no data, we can safely disregard it
-            if (!root.hasChildren() && !root.isControlFlowLeafNode() && root.data == "") {
+            //if root cannot contain any semantic information, it is discarded
+            if (root.isEmpty() || root.isDocumentation()) {
                 return null;
             }
 

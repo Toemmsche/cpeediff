@@ -28,6 +28,7 @@ class EditScript {
     }
 
 
+    //TODO add string option enum
     toString(displayType = "lines") {
         switch(displayType) {
             case "lines":
@@ -35,14 +36,9 @@ class EditScript {
         }
     }
 
-    addChange(change) {
+    appendChange(change) {
         this.changes.push(change);
-    }
-
-    writeToFile(path) {
-        const asJson = JSON.stringify(this.changes);
-        fs.writeFileSync(path, asJson);
     }
 }
 
-exports.EditSCript = EditScript;
+exports.EditScript = EditScript;
