@@ -8,6 +8,6 @@
 //      use simpler node format (without parent) to store payload in edit script as json
 
 
-//TODO merge
+//TODO twowaymerge
 //      use path maps (with and without index) to find nodes
 //      use node labels (siblings, ancestors) as context

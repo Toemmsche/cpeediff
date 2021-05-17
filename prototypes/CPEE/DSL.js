@@ -14,8 +14,6 @@
    limitations under the License.
 */
 
-
-
 class DSL {
     //keywords of the CPEE domain specific language
     static ROOT = "description"

@@ -17,22 +17,22 @@
 const {CPEENode} = require("../../CPEE/CPEENode");
 const {AbstractChange} = require("./AbstractChange");
 
-class Reshuffle extends AbstractChange {
+class Update extends AbstractChange {
 
-    oldIndex;
-    newIndex;
+    oldData;
+    newData;
 
-    constructor(shuffledNode, oldIndex, newIndex) {
-        super(shuffledNode);
-        this.oldIndex = oldIndex;
-        this.newIndex = newIndex;
+    constructor(updatedNode, oldData, newData) {
+        super(updatedNode);
+        this.oldData = oldData;
+        this.newData = newData;
     }
 
     toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
-        return "Reshuffle " + this.targetPath+
-            " from index " + this.oldIndex +
-            " to index " + this.newIndex;
+        return "Update " + this.targetPath +
+            " from " + this.oldData +
+            " to " + this.newData;
     }
 }
 
-exports.Reshuffle = Reshuffle;
+exports.Modification = Update;

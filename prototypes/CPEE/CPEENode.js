@@ -56,7 +56,7 @@ class CPEENode {
         const pathArr = [];
         let node = this;
         const isPropertyNode = this.isPropertyNode();
-        while(node !== null && (!isPropertyNode || node.isPropertyNode())) {
+        while (node !== null && (!isPropertyNode || node.isPropertyNode())) {
             pathArr.push(node);
             node = node.parent;
         }
@@ -83,7 +83,7 @@ class CPEENode {
 
     compareTo(other) {
         //specific subclass implementation may be present
-        if(this.nodeEquals(other)) return 0;
+        if (this.nodeEquals(other)) return 0;
         else return 1;
     }
 
@@ -161,7 +161,7 @@ class CPEENode {
     static STRING_OPTIONS = {
         LABEL: 1,
         LABEL_WITH_TYPE_INDEX: 2,
-        PATH:3,
+        PATH: 3,
         PATH_WITH_TYPE_INDEX: 4
     }
 
@@ -173,7 +173,7 @@ class CPEENode {
                 return this.label + "[" + this.typeIndex + "]";
             case CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
                 const strArr = this.path.map(n => n.toString("label-with-type-index"));
-                return "(" + strArr.join("/") + ")";
+                return strArr.join("/");
             }
             case CPEENode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
@@ -219,7 +219,7 @@ class CPEENode {
 
         return line;
     }
-    
+
     copy() {
         const copy = new CPEENode(this.label, this.parent, this.childIndex);
         copy.data = this.data;
@@ -230,37 +230,25 @@ class CPEENode {
         return copy;
     }
 
-    toPreOrderArray() {
-        const preOrderArr = [];
-        fillPreOrderArray(this, preOrderArr);
-
-        function fillPreOrderArray(node, arr) {
-            arr.push(node);
-            for (const child of node.childNodes) {
-                fillPreOrderArray(child, arr);
-            }
+    toPreOrderArray(arr = []) {
+        arr.push(this);
+        for (const child of this.childNodes) {
+            child.toPreOrderArray(arr);
         }
-
-        return preOrderArr;
+        return arr;
     }
 
-    toPostOrderArray() {
-        const postOrderArr = [];
-        fillPostOrderArray(this, postOrderArr);
-
-        function fillPostOrderArray(node, arr) {
-            for (const child of node.childNodes) {
-                fillPostOrderArray(child, arr);
-            }
-            arr.push(node);
+    toPostOrderArray(arr = []) {
+        for (const child of this.childNodes) {
+            child.toPostOrderArray(arr);
         }
-
-        return postOrderArr;
+        arr.push(this);
+        return arr;
     }
 
     convertToJSON() {
         function replacer(key, value) {
-            if (key === "parent" || key === "path" || key === "tempSubTree") return undefined;
+            if (key === "parent" || key === "path") return undefined;
             //convert maps to arrays of key-value pairs
             else if (value instanceof Map) {
                 return {
@@ -275,19 +263,7 @@ class CPEENode {
         return JSON.stringify(this, replacer);
     }
 
-    static parseFromJSON(str) {
-        function reviver(key, value) {
-            if(value instanceof Object) {
-                //all maps are marked
-                if (value.dataType === "Map") {
-                    return new Map(value.value)
-                }
-            }
-            return value;
-        }
 
-        return JSON.parse(str, reviver)
-    }
 }
 
 exports.CPEENode = CPEENode;

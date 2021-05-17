@@ -24,7 +24,7 @@ class Deletion extends AbstractChange {
     }
 
     toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
-        return "Delete " + this.targetNode.toString(stringOption);
+        return "Delete " + this.targetPath;
     }
 }
 

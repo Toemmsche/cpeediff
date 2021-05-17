@@ -19,12 +19,15 @@ const {AbstractChange} = require("./AbstractChange");
 
 class Insertion extends AbstractChange {
 
-    constructor(insertedNode) {
+    newNode;
+
+    constructor(insertedNode, newNode) {
         super(insertedNode);
+        this.newNode = newNode;
     }
 
     toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
-        return "Insert " + this.targetNode.toString(stringOption);
+        return "Insert " + this.newNode.convertToJSON() + " at " + this.targetPath;
     }
 }
 

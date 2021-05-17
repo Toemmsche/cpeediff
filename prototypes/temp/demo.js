@@ -1,4 +1,4 @@
-/*
+    /*
     Copyright 2021 Tom Papke
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,8 @@
 const {CPEEModel} = require("../CPEE/CPEEModel");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const fs = require("fs");
+    const {Merger} = require("../twowaymerge/Merger");
+    const {CPEENode} = require("../CPEE/CPEENode");
 const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 
@@ -33,8 +35,11 @@ console.log(model1.toTreeString());
 console.log("\n VS \n")
 console.log(model2.toTreeString());
 
+const json = model1.root.convertToJSON();
+const node = CPEEModel.parseFromJSON(json);
 const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 
-const script = sd.diff();
+Merger.merge(model1, model2)
+    script = sd.diff();
 console.log(script.toString("lines"));
 

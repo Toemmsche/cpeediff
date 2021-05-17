@@ -20,7 +20,7 @@ const {EditScript} = require("./EditScript");
 const {Reshuffle} = require("./change/Reshuffle");
 const {Deletion} = require("./change/Deletion");
 const {Insertion} = require("./change/Insertion");
-const {Modification} = require("./change/Modification");
+const {Modification} = require("./change/Update");
 const {Move} = require("./change/Move");
 
 class EditScriptGenerator {
@@ -34,7 +34,7 @@ class EditScriptGenerator {
      * @param newModel
      * @param matching
      * @param options
-     * @return {EditSCript}
+     * @return {EditScript}
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
         const editScript = new EditScript(oldModel);
@@ -57,14 +57,16 @@ class EditScriptGenerator {
                     const oldPath = match.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
-                    editScript.appendChange(new Move(match, oldPath));
+                    editScript.appendChange(new Move(matchOfParent, oldPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
                     //modify node
-                    editScript.appendChange(new Modification(match))
+                   const oldData = match.convertToJSON();
+                   const newData = newNode.convertToJSON();
                     //TODO replace attributes
                     match.label = newNode.label;
+                    editScript.appendChange(new Modification(newNode, oldData, newData))
                 }
             } else {
                 //perform insert operation at match of the parent node
@@ -73,7 +75,7 @@ class EditScriptGenerator {
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.appendChange(new Insertion(copy));
+                editScript.appendChange(new Insertion(copy.parent, newNode));
             }
         }
         const oldDeletedNodes = [];
@@ -97,6 +99,9 @@ class EditScriptGenerator {
             editScript.appendChange(new Deletion(node));
         }
 
+        /*
+        //TODO
+
         //detect subtree insertions
         for (let i = 0; i < editScript.changes.length; i++) {
             const change = editScript.changes[i];
@@ -110,11 +115,13 @@ class EditScriptGenerator {
                     if (j === arr.length - 1) {
                         //replace whole subarray with single subtree insertion
                         editScript.changes.splice(i + 1, arr.length - 1);
-                        editScript.changes[i] = new Insertion(change.targetNode);
+                        editScript.changes[i] = new Insertion(change.targetNode, change.targetNode);
                     }
                 }
             }
         }
+        */
+
 
         //All nodes have the right path and are matched.
         //However, order of child nodes might not be right, we must verify that it matches the new model.
@@ -158,7 +165,7 @@ class EditScriptGenerator {
                     const match = oldToNewMap.get(node)[0];
                     const oldIndex = node.childIndex;
                     node.changeChildIndex(match.childIndex);
-                    editScript.appendChange(new Reshuffle(node, oldIndex));
+                    editScript.appendChange(new Reshuffle(node, oldIndex, node.childIndex));
                 }
             }
         }

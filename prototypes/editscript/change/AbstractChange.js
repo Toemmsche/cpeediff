@@ -21,13 +21,13 @@ const {CPEENode} = require("../../CPEE/CPEENode");
  */
 class AbstractChange {
 
-    targetNode;
+    targetPath;
 
     constructor(targetNode) {
         if(this.constructor === AbstractChange) {
             throw new Error("Cannot instantiate abstract class AbstractChange");
         }
-        this.targetNode = targetNode;
+        this.targetPath= targetNode.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
     }
 
     toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX){}

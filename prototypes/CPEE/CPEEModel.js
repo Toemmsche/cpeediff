@@ -44,6 +44,39 @@ class CPEEModel {
         this.root = root;
     }
 
+    static newNodeFromLabel(nodeLabel) {
+        switch (nodeLabel) {
+            case DSL.CALL:
+                return new Call();
+            case DSL.MANIPULATE:
+                return new Manipulate();
+            case DSL.PARALLEL:
+                return new Parallel();
+            case DSL.PARALLEL_BRANCH:
+                return new ParallelBranch();
+            case DSL.CHOOSE:
+                return new Choose();
+            case DSL.ALTERNATIVE:
+                return new Alternative();
+            case DSL.OTHERWISE:
+                return new Otherwise();
+            case DSL.ESCAPE:
+                return new Escape();
+            case DSL.STOP:
+                return new Stop();
+            case DSL.LOOP:
+                return new Loop();
+            case DSL.TERMINATE:
+                return new Terminate();
+            case DSL.CRITICAL:
+                return new Critical();
+            case DSL.ROOT:
+                return new Root();
+            default:
+                return new CPEENode(nodeLabel);
+        }
+    }
+
     //Standard XML file (not a CPEE model)
     static from(xml) {
         //Parse options
@@ -81,55 +114,11 @@ class CPEEModel {
     static fromCPEE(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        const model = new CPEEModel(constructRecursive(doc));
-        return model;
+        return  new CPEEModel(constructRecursive(doc));
+
 
         function constructRecursive(tNode) {
-            let root;
-            switch (tNode.tagName) {
-                case DSL.CALL:
-                    root = new Call();
-                    break;
-                case DSL.MANIPULATE:
-                    root = new Manipulate();
-                    break;
-                case DSL.PARALLEL:
-                    root = new Parallel();
-                    break;
-                case DSL.PARALLEL_BRANCH:
-                    root = new ParallelBranch();
-                    break;
-                case DSL.CHOOSE:
-                    root = new Choose();
-                    break;
-                case DSL.ALTERNATIVE:
-                    root = new Alternative();
-                    break;
-                case DSL.OTHERWISE:
-                    root = new Otherwise();
-                    break;
-                case DSL.ESCAPE:
-                    root = new Escape();
-                    break;
-                case DSL.STOP:
-                    root = new Stop();
-                    break;
-                case DSL.LOOP:
-                    root = new Loop();
-                    break;
-                case DSL.TERMINATE:
-                    root = new Terminate();
-                    break;
-                case DSL.CRITICAL:
-                    root = new Critical();
-                    break;
-                case DSL.ROOT:
-                    root = new Root();
-                    break;
-                default:
-                    root = new CPEENode(tNode.tagName);
-            }
-
+            let root = CPEEModel.newNodeFromLabel(tNode.tagName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -145,8 +134,8 @@ class CPEEModel {
                     const child = constructRecursive(childTNode)
                     //empty control nodes are null values (see below)
                     if (child !== null) {
-                        //if child is not a control flow node, it's a property of root
-                        if (child.isPropertyNode()) {
+                        //if this node has child properties, hoist them
+                        if (!root.isPropertyNode() && child.isPropertyNode()) {
                             //remove unnecessary path
                             //first ancestor is parent of first entry in path
                            buildChildAttributeMap(child, root.childAttributes);
@@ -158,14 +147,15 @@ class CPEEModel {
             }
 
             function buildChildAttributeMap(node, map) {
+
                 if (node.data != "") { //lossy comparison
                     //retain full (relative) structural information in the nodes
                     map.set(node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
                 }
 
                 //copy all values into new map
-                for(const [key, value] of node.childAttributes) {
-                    map.set(key, value);
+                for(const child of node.childNodes) {
+                    buildChildAttributeMap(child, map);
                 }
             }
             
@@ -228,6 +218,29 @@ class CPEEModel {
 
     toTreeString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
         return this.root.toTreeString([], stringOption);
+    }
+
+    static parseFromJSON(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if ("dataType" in value && value.dataType === "Map") {
+                    return new Map(value.value)
+                } else if ("label" in value) {
+                    const node = CPEEModel.newNodeFromLabel(value["label"]);
+                    for (const property in node) {
+                        node[property] = value[property];
+                    }
+                    for (const child of node.childNodes) {
+                        child.parent = node;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver)
     }
 
 }

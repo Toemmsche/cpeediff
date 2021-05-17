@@ -44,9 +44,9 @@
                 </implementation>
             </call>
             <_probability>
-                <_probability_min/>
-                <_probability_max/>
-                <_probability_avg/>
+              <_probability_min>0.1</_probability_min>
+               <_probability_max>90</_probability_max>
+                <_probability_avg>123</_probability_avg>
             </_probability>
         </otherwise>
     </choose>
@@ -84,7 +84,7 @@
                     </parameters>
                     <code>
                         <prepare/>
-                        <finalize output="result">data.value--; abc = 5;</finalize>
+                        <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
                         <update output="result"/>
                         <rescue output="result"/>
                     </code>

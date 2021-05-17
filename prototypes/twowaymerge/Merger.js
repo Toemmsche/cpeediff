@@ -14,18 +14,18 @@
    limitations under the License.
 */
 
-const {CPEENode} = require("../../CPEE/CPEENode");
-const {AbstractChange} = require("./AbstractChange");
+const fs = require("fs");
+const {MatchDiff} = require("../diffs/MatchDiff");
 
-class Modification extends AbstractChange {
+class Merger {
 
-    constructor(modifiedNode) {
-        super(modifiedNode);
-    }
+    static merge(modelA, modelB) {
+        //arbitrarily choose modelA as "old" model and modelB as "new" model to comppute edit script
+        const md = new MatchDiff(modelA, modelB);
+        const editScript = md.diff();
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
-        return "Modify " + this.targetNode.toString(stringOption);
+        console.log("hello");
     }
 }
 
-exports.Modification = Modification;
+exports.Merger = Merger;

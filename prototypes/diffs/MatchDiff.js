@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {TopDownMatching} = require("../matchings/TopDownMatching");
+const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 const {Matching} = require("../matchings/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
@@ -24,6 +26,9 @@ class MatchDiff extends AbstractDiff {
 
     constructor(oldModel, newModel, ...matchingAlgorithms) {
         super(oldModel, newModel);
+        if(matchingAlgorithms.length === 0) {
+            matchingAlgorithms = [TopDownMatching, KyongHoMatching];
+        }
         this.matchingAlgorithms = matchingAlgorithms;
     }
 
