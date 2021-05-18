@@ -27,7 +27,6 @@ class EditScript {
         this.changes = [];
     }
 
-
     //TODO add string option enum
     toString(displayType = "lines") {
         switch(displayType) {

@@ -40,8 +40,11 @@ class CPEEModel {
     //CPEENode
     root;
 
-    constructor(root) {
+    declaredVariables;
+
+    constructor(root, declaredVariables = new Set()) {
         this.root = root;
+        this.declaredVariables = declaredVariables;
     }
 
     static newNodeFromLabel(nodeLabel) {
@@ -77,44 +80,29 @@ class CPEEModel {
         }
     }
 
-    //Standard XML file (not a CPEE model)
-    static from(xml) {
-        //Parse options
-        const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        const model = new CPEEModel(constructRecursive(doc));
-        return model;
-
-        function constructRecursive(tNode) {
-            const root = new CPEENode(tNode.tagName);
-            for (let i = 0; i < tNode.childNodes.length; i++) {
-                const childNode = tNode.childNodes.item(i);
-                if (childNode.nodeType === 3) { //text node
-                    //check if text node contains a non-empty payload
-                    if (childNode.data.match(/^\s*$/) !== null) { //match whole string
-                        //empty data, skip
-                        continue;
-                    } else {
-                        //relevant data, set as node data
-                        root.data = childNode.data;
-                    }
-                } else {
-                    root.appendChild(constructRecursive(tNode.childNodes.item(i)));
-                }
-            }
-
-            for (let i = 0; i < tNode.attributes.length; i++) {
-                const attrNode = tNode.attributes.item(i);
-                root.attributes.set(attrNode.name, attrNode.value);
-            }
-            return root;
-        }
-    }
-
     //TODO doc
     static fromCPEE(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        return  new CPEEModel(constructRecursive(doc));
+        const declaredVariables = new Set();
+        let root;
+        for (let i = 0; i < doc.childNodes.length; i++) {
+            const childTNode = doc.childNodes.item(i);
+            if(childTNode.tagName === "dataelements") {
+                for (let j = 0; j < childTNode.childNodes.length; j++) {
+                    const variable = childTNode.childNodes.item(j);
+                    if(variable.nodeType === 1) {
+                        declaredVariables.add(variable.tagName);
+                    }
+                }
+            } else if (childTNode.tagName === "dslx") {
+                let j = 0;
+                while(childTNode.childNodes.item(j).tagName !== "description") j++;
+                root = constructRecursive(childTNode.childNodes.item(j));
+            }
+        }
+        console.log("hey");
+        return  new CPEEModel(root, declaredVariables);
 
 
         function constructRecursive(tNode) {
@@ -186,15 +174,15 @@ class CPEEModel {
 
                 if (code != "") {
                     //extract variables using regex
-                    const touchedVariables = new Set();
+                    const modifiedVariables = new Set();
                     //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
-                    const matches = code.match(/([a-zA-Z]+\w*\.)*[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+                    const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
                     if(matches !== null) {
                         for (const variable of matches) {
-                            //match only variable name
-                            touchedVariables.add(variable.match(/([a-zA-Z]+\w*\.)*[a-zA-Z]+\w*/g)[0]);
+                            //match only variable name and remove data. prefix
+                            modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
                         }
-                        root.touchedVariables = touchedVariables;
+                        root.modifiedVariables = modifiedVariables;
                     }
                 }
             }
@@ -225,8 +213,10 @@ class CPEEModel {
             if (value instanceof Object) {
                 //all maps are marked
                 if ("dataType" in value && value.dataType === "Map") {
-                    return new Map(value.value)
-                } else if ("label" in value) {
+                    return new Map(value.value);
+                } else if ("dataType" in value && value.dataType === "Set") {
+                    return new Set(value.value);
+                } if ("label" in value) {
                     const node = CPEEModel.newNodeFromLabel(value["label"]);
                     for (const property in node) {
                         node[property] = value[property];
@@ -239,7 +229,6 @@ class CPEEModel {
             }
             return value;
         }
-
         return JSON.parse(str, reviver)
     }
 

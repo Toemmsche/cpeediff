@@ -28,10 +28,17 @@ class Reshuffle extends AbstractChange {
         this.newIndex = newIndex;
     }
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
+    toString() {
         return "Reshuffle " + this.targetPath+
             " from index " + this.oldIndex +
             " to index " + this.newIndex;
+    }
+
+    convertToJson() {
+        return {
+            changeType: "Reshuffle",
+            value: JSON.stringify(this)
+        }
     }
 }
 

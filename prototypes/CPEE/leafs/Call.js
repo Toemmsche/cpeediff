@@ -28,7 +28,7 @@ class Call extends CPEENode {
         if (this.label !== other.label) return 1.0;
         let differentCounter = 0;
         //TODO weigh id and variables
-        let total = Math.max(this.attributes.size + this.childAttributes.size + this.touchedVariables.size, other.attributes.size + other.attributes.size + other.touchedVariables.size);
+        let total = Math.max(this.attributes.size + this.childAttributes.size + this.modifiedVariables.size, other.attributes.size + other.attributes.size + other.modifiedVariables.size);
         for (const [key, value] of this.attributes) {
             //only count real differences, not pure insertions/deletions
             if (!other.attributes.has(key) || other.attributes.has(key) && value !== other.attributes.get(key)) {
@@ -41,13 +41,13 @@ class Call extends CPEENode {
                 differentCounter++;
             }
         }
-        for(const variable of this.touchedVariables) {
-            if(!other.touchedVariables.has(variable)) {
+        for(const variable of this.modifiedVariables) {
+            if(!other.modifiedVariables.has(variable)) {
                 differentCounter++;
             }
         }
-        for(const variable of other.touchedVariables) {
-            if(!this.touchedVariables.has(variable)) {
+        for(const variable of other.modifiedVariables) {
+            if(!this.modifiedVariables.has(variable)) {
                 differentCounter++;
             }
         }

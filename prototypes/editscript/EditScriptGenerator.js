@@ -15,12 +15,13 @@
 */
 
 
+const {Update} = require("./change/Update");
+const {CPEEModel} = require("../CPEE/CPEEModel");
 const {CPEENode} = require("../CPEE/CPEENode");
 const {EditScript} = require("./EditScript");
 const {Reshuffle} = require("./change/Reshuffle");
 const {Deletion} = require("./change/Deletion");
 const {Insertion} = require("./change/Insertion");
-const {Modification} = require("./change/Update");
 const {Move} = require("./change/Move");
 
 class EditScriptGenerator {
@@ -54,10 +55,10 @@ class EditScriptGenerator {
                 const match = newToOldMap.get(newNode)[0];
                 if (matchOfParent !== match.parent) {
                     //move match to matchOfParent
-                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
+                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
-                    editScript.appendChange(new Move(matchOfParent, oldPath));
+                    editScript.appendChange(new Move(match, oldPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
@@ -66,16 +67,18 @@ class EditScriptGenerator {
                    const newData = newNode.convertToJSON();
                     //TODO replace attributes
                     match.label = newNode.label;
-                    editScript.appendChange(new Modification(newNode, oldData, newData))
+                    editScript.appendChange(new Update(newNode, oldData, newData))
                 }
             } else {
                 //perform insert operation at match of the parent node
-                const copy = newNode.copy();
+                const nodeJSON = newNode.convertToJSON();
+                const copy = CPEEModel.parseFromJSON(nodeJSON);
+                copy.childNodes = []; //reset child nodes
                 matchOfParent.insertChild(copy, newNode.childIndex);
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.appendChange(new Insertion(copy.parent, newNode));
+                editScript.appendChange(new Insertion(copy, newNode));
             }
         }
         const oldDeletedNodes = [];
@@ -127,7 +130,7 @@ class EditScriptGenerator {
         //However, order of child nodes might not be right, we must verify that it matches the new model.
         for (const oldNode of oldModel.toPreOrderArray()) {
             if (oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
-                //Based on A. Marian, "Detecting UnifiedChanges in XML Documents", 2002
+                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
                 //map each old child node to the child index of its matching partner
                 const arr = oldNode.childNodes.map(n => oldToNewMap.get(n)[0].childIndex);

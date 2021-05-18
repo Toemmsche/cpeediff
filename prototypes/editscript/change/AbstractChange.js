@@ -27,10 +27,10 @@ class AbstractChange {
         if(this.constructor === AbstractChange) {
             throw new Error("Cannot instantiate abstract class AbstractChange");
         }
-        this.targetPath= targetNode.toString(CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX);
+        this.targetPath= targetNode.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
     }
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX){}
+    toString(stringOption = CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY){}
 }
 
 exports.AbstractChange = AbstractChange;

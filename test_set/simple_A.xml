@@ -1,70 +1,323 @@
-<description
-        xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a1" endpoint="">
-        <parameters>
-            <label/>
-            <method>:post</method>
-            <arguments/>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
-            <report>
-                <url/>
-            </report>
-        </parameters>
-        <code>
-            <prepare/>
-            <finalize output="result"/>
-            <update output="result"/>
-            <rescue output="result"/>
-        </code>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-        <code>
-            <description/>
-        </code>
-    </call>
-    <call id="a2" endpoint="">
-        <parameters>
-            <label/>
-            <method>:post</method>
-            <arguments/>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
-            <report>
-                <url/>
-            </report>
-        </parameters>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-    </call>
+<properties xmlns="http://cpee.org/ns/properties/2.0">
+    <state changed="2021-05-17T16:34:35.131+02:00">ready</state>
+    <status>
+        <id>0</id>
+        <message>undefined</message>
+    </status>
+    <handlerwrapper>DefaultHandlerWrapper</handlerwrapper>
+    <positions>
+        <a4>at</a4>
+    </positions>
+    <dataelements>
+        <i>0</i>
+        <persons>3</persons>
+        <card>Visa_12345</card>
+        <airline>null</airline>
+        <places>[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[0,5],[1,5]]</places>
+        <hotels>[]</hotels>
+        <from>Vienna</from>
+        <to>Prague</to>
+        <costs>0</costs>
+    </dataelements>
+    <endpoints>
+        <bookAir>http://gruppe.wst.univie.ac.at/~mangler/services/airline.php</bookAir>
+        <overview>http-put://ryloth.wst.univie.ac.at:9329/move/overview</overview>
+        <start_url>http://localhost:9296/url/</start_url>
+        <timeout>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</timeout>
+        <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
+        <move_tool>http-put://ryloth.wst.univie.ac.at:9329/move/position/point</move_tool>
+        <worklist>http://cpee.org:9398</worklist>
+        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
+        <move_camera>http-put://ryloth.wst.univie.ac.at:9329/move/position/view</move_camera>
+        <get_items_base>http-get://ryloth.wst.univie.ac.at:9329/view/items</get_items_base>
+        <get_items_neural>http-get://ryloth.wst.univie.ac.at:9330/view/items</get_items_neural>
+        <get_offset_base>http-get://ryloth.wst.univie.ac.at:9329/view/details</get_offset_base>
+        <get_offset_neural>http-get://ryloth.wst.univie.ac.at:9330/view/details</get_offset_neural>
+        <grip_and_place>http-put://ryloth.wst.univie.ac.at:9329/move/grip_and_place</grip_and_place>
+        <move_rel>http-put://ryloth.wst.univie.ac.at:9329/move/position/relative</move_rel>
+        <subprocess>https://cpee.org/flow/start/url/</subprocess>
+        <wait>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</wait>
+        <adjust>https://cpee.org/flow/templates/UR-VUE%202020%20Manual%20Adjust.xml</adjust>
+    </endpoints>
+    <attributes>
+        <uuid>70cb61be-7423-4b39-b211-e257d83dd7b1</uuid>
+        <info>UR-VUE 2020 Manual Adjust</info>
+        <modeltype>CPEE</modeltype>
+        <organisation1>http://cpee.org/~demo/orgviz/organisation_informatik.xml</organisation1>
+        <theme>preset</theme>
+        <customer>pilotfabrik</customer>
+        <resource>ur51</resource>
+        <creator>Christine Ashcreek</creator>
+        <status>development</status>
+        <author>Christine Ashcreek</author>
+        <design_stage>development</design_stage>
+        <design_dir>/home/demo/Projects/cpee/cockpit/templates</design_dir>
+    </attributes>
+    <dsl>call :a1, :bookAir, parameters: { :label => "Book Airline", :method => :post, :arguments => [⭐(:name => :from, :value => ->{ "data.from" }), ⭐(:name => :to, :value => ->{ "data.to" }), ⭐(:name => :persons, :value => ->{ "data.persons" })] }, finalize: <<-END data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel' END parallel do loop pre_test("data.persons > 0") do parallel_branch data.persons do |p| call :a2, :bookHotel, parameters: { :label => "Book Hotel", :method => :post, :arguments => [⭐(:name => :to, :value => ->{ "data.to" })] }, finalize: <<-END data.hotels << result.value('id') data.costs += result.value('costs').to_f END end manipulate :a3, <<-END data.persons -= 1 END end end choose :inclusive do alternative test("data.costs > 700") do call :a4, :approve, parameters: { :label => "Approve Hotel", :method => :post, :arguments => [⭐(:name => :costs, :value => ->{ "data.costs" })] } end end </dsl>
+    <dslx>
+        <description xmlns="http://cpee.org/ns/description/1.0">
+            <call id="a1" endpoint="bookAir">
+                <parameters>
+                    <label>Book Airline</label>
+                    <method>:post</method>
+                    <arguments>
+                        <from>data.from</from>
+                        <to>data.to</to>
+                        <persons>data.persons</persons>
+                    </arguments>
+                </parameters>
+                <code>
+                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+                </code>
+            </call>
+            <parallel>
+                <loop mode="pre_test" condition="data.persons > 0">
+                    <parallel_branch pass="data.persons" local="p">
+                        <call id="a2" endpoint="bookHotel">
+                            <parameters>
+                                <label>Book Hotel</label>
+                                <method>:post</method>
+                                <arguments>
+                                    <to>data.to</to>
+                                </arguments>
+                            </parameters>
+                            <code>
+                                <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                            </code>
+                        </call>
+                    </parallel_branch>
+                    <manipulate id="a3">data.persons -= 1</manipulate>
+                </loop>
+            </parallel>
+            <choose mode="inclusive">
+                <alternative condition="data.costs > 700">
+                    <call id="a4" endpoint="approve">
+                        <parameters>
+                            <label>Approve Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <costs>data.costs</costs>
+                            </arguments>
+                        </parameters>
+                    </call>
+                </alternative>
+            </choose>
+        </description>
+    </dslx>
+    <description>
+        <description xmlns="http://cpee.org/ns/description/1.0">
+            <call id="a1" endpoint="bookAir">
+                <parameters>
+                    <label>Book Airline</label>
+                    <method>:post</method>
+                    <arguments>
+                        <from>data.from</from>
+                        <to>data.to</to>
+                        <persons>data.persons</persons>
+                    </arguments>
+                </parameters>
+                <code>
+                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+                </code>
+            </call>
+            <parallel>
+                <loop mode="pre_test" condition="data.persons > 0">
+                    <parallel_branch pass="data.persons" local="p">
+                        <call id="a2" endpoint="bookHotel">
+                            <parameters>
+                                <label>Book Hotel</label>
+                                <method>:post</method>
+                                <arguments>
+                                    <to>data.to</to>
+                                </arguments>
+                            </parameters>
+                            <code>
+                                <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                            </code>
+                        </call>
+                    </parallel_branch>
+                    <manipulate id="a3">data.persons -= 1</manipulate>
+                </loop>
+            </parallel>
+            <choose mode="inclusive">
+                <alternative condition="data.costs > 700">
+                    <call id="a4" endpoint="approve">
+                        <parameters>
+                            <label>Approve Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <costs>data.costs</costs>
+                            </arguments>
+                        </parameters>
+                    </call>
+                </alternative>
+            </choose>
+        </description>
+    </description>
+    <transformation>
+        <description type="copy"/>
+        <dataelements type="rest"/>
+        <endpoints type="rest"/>
+    </transformation>
+</properties><properties xmlns="http://cpee.org/ns/properties/2.0">
+<state changed="2021-05-17T16:34:35.131+02:00">ready</state>
+<status>
+    <id>0</id>
+    <message>undefined</message>
+</status>
+<handlerwrapper>DefaultHandlerWrapper</handlerwrapper>
+<positions>
+    <a4>at</a4>
+</positions>
+<dataelements>
+    <i>0</i>
+    <persons>3</persons>
+    <card>Visa_12345</card>
+    <airline>null</airline>
+    <places>[[0,0],[1,0],[0,1],[1,1],[0,2],[1,2],[0,3],[1,3],[0,4],[1,4],[0,5],[1,5]]</places>
+    <hotels>[]</hotels>
+    <from>Vienna</from>
+    <to>Prague</to>
+    <costs>0</costs>
+</dataelements>
+<endpoints>
+    <bookAir>http://gruppe.wst.univie.ac.at/~mangler/services/airline.php</bookAir>
+    <overview>http-put://ryloth.wst.univie.ac.at:9329/move/overview</overview>
+    <start_url>http://localhost:9296/url/</start_url>
+    <timeout>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</timeout>
+    <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
+    <move_tool>http-put://ryloth.wst.univie.ac.at:9329/move/position/point</move_tool>
+    <worklist>http://cpee.org:9398</worklist>
+    <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
+    <move_camera>http-put://ryloth.wst.univie.ac.at:9329/move/position/view</move_camera>
+    <get_items_base>http-get://ryloth.wst.univie.ac.at:9329/view/items</get_items_base>
+    <get_items_neural>http-get://ryloth.wst.univie.ac.at:9330/view/items</get_items_neural>
+    <get_offset_base>http-get://ryloth.wst.univie.ac.at:9329/view/details</get_offset_base>
+    <get_offset_neural>http-get://ryloth.wst.univie.ac.at:9330/view/details</get_offset_neural>
+    <grip_and_place>http-put://ryloth.wst.univie.ac.at:9329/move/grip_and_place</grip_and_place>
+    <move_rel>http-put://ryloth.wst.univie.ac.at:9329/move/position/relative</move_rel>
+    <subprocess>https://cpee.org/flow/start/url/</subprocess>
+    <wait>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</wait>
+    <adjust>https://cpee.org/flow/templates/UR-VUE%202020%20Manual%20Adjust.xml</adjust>
+</endpoints>
+<attributes>
+    <uuid>70cb61be-7423-4b39-b211-e257d83dd7b1</uuid>
+    <info>UR-VUE 2020 Manual Adjust</info>
+    <modeltype>CPEE</modeltype>
+    <organisation1>http://cpee.org/~demo/orgviz/organisation_informatik.xml</organisation1>
+    <theme>preset</theme>
+    <customer>pilotfabrik</customer>
+    <resource>ur51</resource>
+    <creator>Christine Ashcreek</creator>
+    <status>development</status>
+    <author>Christine Ashcreek</author>
+    <design_stage>development</design_stage>
+    <design_dir>/home/demo/Projects/cpee/cockpit/templates</design_dir>
+</attributes>
+<dsl>call :a1, :bookAir, parameters: { :label => "Book Airline", :method => :post, :arguments => [⭐(:name => :from, :value => ->{ "data.from" }), ⭐(:name => :to, :value => ->{ "data.to" }), ⭐(:name => :persons, :value => ->{ "data.persons" })] }, finalize: <<-END data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel' END parallel do loop pre_test("data.persons > 0") do parallel_branch data.persons do |p| call :a2, :bookHotel, parameters: { :label => "Book Hotel", :method => :post, :arguments => [⭐(:name => :to, :value => ->{ "data.to" })] }, finalize: <<-END data.hotels << result.value('id') data.costs += result.value('costs').to_f END end manipulate :a3, <<-END data.persons -= 1 END end end choose :inclusive do alternative test("data.costs > 700") do call :a4, :approve, parameters: { :label => "Approve Hotel", :method => :post, :arguments => [⭐(:name => :costs, :value => ->{ "data.costs" })] } end end </dsl>
+<dslx>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+        <call id="a1" endpoint="bookAir">
+            <parameters>
+                <label>Book Airline</label>
+                <method>:post</method>
+                <arguments>
+                    <from>data.from</from>
+                    <to>data.to</to>
+                    <persons>data.persons</persons>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+            </code>
+        </call>
+        <parallel>
+            <loop mode="pre_test" condition="data.persons > 0">
+                <parallel_branch pass="data.persons" local="p">
+                    <call id="a2" endpoint="bookHotel">
+                        <parameters>
+                            <label>Book Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <to>data.to</to>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                        </code>
+                    </call>
+                </parallel_branch>
+                <manipulate id="a3">data.persons -= 1</manipulate>
+            </loop>
+        </parallel>
+        <choose mode="inclusive">
+            <alternative condition="data.costs > 700">
+                <call id="a4" endpoint="approve">
+                    <parameters>
+                        <label>Approve Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <costs>data.costs</costs>
+                        </arguments>
+                    </parameters>
+                </call>
+            </alternative>
+        </choose>
+    </description>
+</dslx>
+<description>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+        <call id="a1" endpoint="bookAir">
+            <parameters>
+                <label>Book Airline</label>
+                <method>:post</method>
+                <arguments>
+                    <from>data.from</from>
+                    <to>data.to</to>
+                    <persons>data.persons</persons>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+            </code>
+        </call>
+        <parallel>
+            <loop mode="pre_test" condition="data.persons > 0">
+                <parallel_branch pass="data.persons" local="p">
+                    <call id="a2" endpoint="bookHotel">
+                        <parameters>
+                            <label>Book Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <to>data.to</to>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
+                        </code>
+                    </call>
+                </parallel_branch>
+                <manipulate id="a3">data.persons -= 1</manipulate>
+            </loop>
+        </parallel>
+        <choose mode="inclusive">
+            <alternative condition="data.costs > 700">
+                <call id="a4" endpoint="approve">
+                    <parameters>
+                        <label>Approve Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <costs>data.costs</costs>
+                        </arguments>
+                    </parameters>
+                </call>
+            </alternative>
+        </choose>
+    </description>
 </description>
+<transformation>
+    <description type="copy"/>
+    <dataelements type="rest"/>
+    <endpoints type="rest"/>
+</transformation>
+</properties>

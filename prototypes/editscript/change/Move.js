@@ -26,9 +26,16 @@ class Move extends AbstractChange {
         this.oldPath = oldPath;
     }
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
+    toString() {
         return "Move " + this.oldPath +
             " to " + this.targetPath;
+    }
+
+    convertToJson() {
+        return {
+            changeType: "Move",
+            value: JSON.stringify(this)
+        }
     }
 }
 

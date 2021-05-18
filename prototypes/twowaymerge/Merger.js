@@ -15,16 +15,43 @@
 */
 
 const fs = require("fs");
+const {Reshuffle} = require("../editscript/change/Reshuffle");
+const {Update} = require("../editscript/change/Update");
+const {Move} = require("../editscript/change/Move");
+const {Insertion} = require("../editscript/change/Insertion");
+const {Deletion} = require("../editscript/change/Deletion");
+const {CPEEModel} = require("../CPEE/CPEEModel");
 const {MatchDiff} = require("../diffs/MatchDiff");
 
 class Merger {
 
-    static merge(modelA, modelB) {
+    static merge(baseModel, modelA, modelB) {
+        const json = baseModel.root.convertToJSON();
         //arbitrarily choose modelA as "old" model and modelB as "new" model to comppute edit script
-        const md = new MatchDiff(modelA, modelB);
-        const editScript = md.diff();
+        let md = new MatchDiff(baseModel, modelA);
+        const editScriptA = md.diff();
 
-        console.log("hello");
+        baseModel = new CPEEModel(CPEEModel.parseFromJSON(json));
+         md = new MatchDiff(baseModel, modelB);
+        const editScriptB = md.diff();
+
+        let i = 0;
+        let j = 0;
+        while( i < editScriptA.changes.length && j < editScriptB.changes.length) {
+            const change = editScriptB.changes[j];
+
+           switch(change.constructor) {
+               case Deletion: {
+
+               }
+               case Insertion:
+               case Move:
+               case Update:
+               case Reshuffle:
+           }
+            console.log("hello");
+        }
+
     }
 }
 

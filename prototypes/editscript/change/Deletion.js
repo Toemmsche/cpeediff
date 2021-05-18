@@ -23,8 +23,15 @@ class Deletion extends AbstractChange {
         super(deletedNode);
     }
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
+    toString() {
         return "Delete " + this.targetPath;
+    }
+
+    convertToJson() {
+        return {
+            changeType: "Deletion",
+            value: JSON.stringify(this)
+        }
     }
 }
 

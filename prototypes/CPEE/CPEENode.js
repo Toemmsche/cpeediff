@@ -23,7 +23,7 @@ class CPEENode {
     label;
     attributes;
     childAttributes;
-    touchedVariables;
+    modifiedVariables;
     data;
 
     //structural information
@@ -38,8 +38,8 @@ class CPEENode {
         this.childNodes = [];
         this.data = "";
         this.parent = null;
-        this.childIndex = null;
-        this.touchedVariables = new Set();
+        this.childIndex = 0;
+        this.modifiedVariables = new Set();
     }
 
     get typeIndex() {
@@ -56,7 +56,7 @@ class CPEENode {
         const pathArr = [];
         let node = this;
         const isPropertyNode = this.isPropertyNode();
-        while (node !== null && (!isPropertyNode || node.isPropertyNode())) {
+        while (node !== null && node !== undefined && (!isPropertyNode || node.isPropertyNode())) {
             pathArr.push(node);
             node = node.parent;
         }
@@ -162,7 +162,8 @@ class CPEENode {
         LABEL: 1,
         LABEL_WITH_TYPE_INDEX: 2,
         PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4
+        PATH_WITH_TYPE_INDEX: 4,
+        CHILD_INDEX_ONLY: 5
     }
 
     toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
@@ -177,6 +178,10 @@ class CPEENode {
             }
             case CPEENode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
+                return strArr.join("/");
+            }
+            case CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY: {
+                const strArr = this.path.map(n => n.childIndex);
                 return strArr.join("/");
             }
             default:
@@ -220,16 +225,6 @@ class CPEENode {
         return line;
     }
 
-    copy() {
-        const copy = new CPEENode(this.label, this.parent, this.childIndex);
-        copy.data = this.data;
-        copy.tempSubTree = this.tempSubTree;
-        for (const [key, value] of this.attributes) {
-            copy.attributes.set(key, value);
-        }
-        return copy;
-    }
-
     toPreOrderArray(arr = []) {
         arr.push(this);
         for (const child of this.childNodes) {
@@ -255,6 +250,12 @@ class CPEENode {
                     //preserve data type for correct parsing
                     dataType: "Map",
                     value: Array.from(value.entries())
+                };
+            } else if (value instanceof Set) {
+                return {
+                    //preserve data type for correct parsing
+                    dataType: "Set",
+                    value: Array.from(value.keys())
                 };
             }
             return value;

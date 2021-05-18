@@ -28,11 +28,18 @@ class Update extends AbstractChange {
         this.newData = newData;
     }
 
-    toString(stringOption = CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX) {
+    toString() {
         return "Update " + this.targetPath +
             " from " + this.oldData +
             " to " + this.newData;
     }
+
+    convertToJson() {
+        return {
+            changeType: "Update",
+            value: JSON.stringify(this)
+        }
+    }
 }
 
-exports.Modification = Update;
+exports.Update = Update;
