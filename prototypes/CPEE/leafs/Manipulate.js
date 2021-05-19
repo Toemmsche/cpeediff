@@ -28,14 +28,14 @@ class Manipulate extends CPEENode {
         if (this.label !== other.label) {
             return 1;
         }
-        const total = Math.max(this.modifiedVariables.size, other.touchedVariables.size);
+        const total = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
         let differentCounter = 0;
         for(const variable of this.modifiedVariables) {
-            if(!other.touchedVariables.has(variable)) {
+            if(!other.modifiedVariables.has(variable)) {
                 differentCounter++;
             }
         }
-        for(const variable of other.touchedVariables) {
+        for(const variable of other.modifiedVariables) {
             if(!this.modifiedVariables.has(variable)) {
                 differentCounter++;
             }

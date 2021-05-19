@@ -67,7 +67,7 @@ class EditScriptGenerator {
                    const newData = newNode.convertToJSON();
                     //TODO replace attributes
                     match.label = newNode.label;
-                    editScript.appendChange(new Update(newNode, oldData, newData))
+                    editScript.appendChange(new Update(match, oldData, newData))
                 }
             } else {
                 //perform insert operation at match of the parent node

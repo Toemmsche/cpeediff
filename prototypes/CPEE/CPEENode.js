@@ -56,7 +56,7 @@ class CPEENode {
         const pathArr = [];
         let node = this;
         const isPropertyNode = this.isPropertyNode();
-        while (node !== null && node !== undefined && (!isPropertyNode || node.isPropertyNode())) {
+        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
             pathArr.push(node);
             node = node.parent;
         }
@@ -163,7 +163,8 @@ class CPEENode {
         LABEL_WITH_TYPE_INDEX: 2,
         PATH: 3,
         PATH_WITH_TYPE_INDEX: 4,
-        CHILD_INDEX_ONLY: 5
+        CHILD_INDEX_ONLY: 5,
+        CHANGE: 6
     }
 
     toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
@@ -184,6 +185,11 @@ class CPEENode {
                 const strArr = this.path.map(n => n.childIndex);
                 return strArr.join("/");
             }
+            case CPEENode.STRING_OPTIONS.CHANGE:
+                if("changeType" in this) {
+                    return this.label + " <" + this.changeType + ">";
+                }
+                return this.label;
             default:
                 return this.label;
         }
@@ -191,8 +197,8 @@ class CPEENode {
 
     //TODO beautify... (and optimize)
     //similar to unix tree command
-    toTreeString(barList, displayType) {
-        const isLast = this.parent !== null && this.childIndex === this.parent.childNodes.length - 1;
+    toTreeString(barList, stringOption) {
+        const isLast = this.parent != null && this.childIndex === this.parent.childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
             const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
@@ -211,16 +217,15 @@ class CPEENode {
             barList.pop();
         }
         line += "─";
-        barList.push(line.length + 1);
-        line += this.toString(displayType) + "\n";
+        const lineLength = line.length;
+        line += this.toString(stringOption) + "\n";
         if (this.hasChildren()) {
+            barList.push(lineLength + 1);
             for (const child of this.childNodes) {
-                line += child.toTreeString(barList, displayType);
+                line += child.toTreeString(barList, stringOption);
             }
-        } else {
-            //bar is popped by last child
-            barList.pop();
         }
+
 
         return line;
     }

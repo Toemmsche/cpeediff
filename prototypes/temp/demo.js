@@ -25,23 +25,20 @@ const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 let file1 = process.argv[2];
 let file2 = process.argv[3];
 
-const xmlA = fs.readFileSync("test_set/simple_A.xml").toString();
+const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
-const xmlC = fs.readFileSync("test_set/standard_A_mod.xml").toString();
 
 const model1 = CPEEModel.fromCPEE(xmlA);
 const model2 = CPEEModel.fromCPEE(xmlB);
-const model3 = CPEEModel.fromCPEE(xmlC);
-
+/*
 console.log(model1.toTreeString());
 console.log("\n VS \n")
 console.log(model2.toTreeString());
+ */
 
 const json = model1.root.convertToJSON();
 const node = CPEEModel.parseFromJSON(json);
 const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
 
-//Merger.merge(model1, model3, model2)
-    script = sd.diff();
-console.log(script.toString("lines"));
+Merger.merge(model1, model2)
 

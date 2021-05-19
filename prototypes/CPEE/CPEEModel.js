@@ -84,26 +84,28 @@ class CPEEModel {
     static fromCPEE(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        const declaredVariables = new Set();
-        let root;
-        for (let i = 0; i < doc.childNodes.length; i++) {
-            const childTNode = doc.childNodes.item(i);
-            if(childTNode.tagName === "dataelements") {
-                for (let j = 0; j < childTNode.childNodes.length; j++) {
-                    const variable = childTNode.childNodes.item(j);
-                    if(variable.nodeType === 1) {
-                        declaredVariables.add(variable.tagName);
+        if(doc.tagName === "properties") {
+            const declaredVariables = new Set();
+            let root;
+            for (let i = 0; i < doc.childNodes.length; i++) {
+                const childTNode = doc.childNodes.item(i);
+                if(childTNode.tagName === "dataelements") {
+                    for (let j = 0; j < childTNode.childNodes.length; j++) {
+                        const variable = childTNode.childNodes.item(j);
+                        if(variable.nodeType === 1) {
+                            declaredVariables.add(variable.tagName);
+                        }
                     }
+                } else if (childTNode.tagName === "dslx") {
+                    let j = 0;
+                    while(childTNode.childNodes.item(j).tagName !== "description") j++;
+                    root = constructRecursive(childTNode.childNodes.item(j));
                 }
-            } else if (childTNode.tagName === "dslx") {
-                let j = 0;
-                while(childTNode.childNodes.item(j).tagName !== "description") j++;
-                root = constructRecursive(childTNode.childNodes.item(j));
             }
+            return  new CPEEModel(root, declaredVariables);
+        } else {
+            return new CPEEModel(constructRecursive(doc));
         }
-        console.log("hey");
-        return  new CPEEModel(root, declaredVariables);
-
 
         function constructRecursive(tNode) {
             let root = CPEEModel.newNodeFromLabel(tNode.tagName);

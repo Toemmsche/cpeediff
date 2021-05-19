@@ -5,6 +5,8 @@
 //      export set and map similarity calculations
 //      take proper snapshot
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
+//      conflict groups for reshuffling
+//      add reshuffling in merger
 
 
 //TODO new algos
