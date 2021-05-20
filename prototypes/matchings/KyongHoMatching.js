@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {Globals} = require("../Global");
+const {LCSSimilarity} = require("../utils/LCSSimilarity");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
 const {CPEEModel} = require("../CPEE/CPEEModel");
@@ -32,7 +34,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    static match(oldModel, newModel, existingMatching = new Matching(), t = 0.25) {
+    static match(oldModel, newModel, existingMatching = new Matching()) {
         //get all nodes, leaf nodes and inner nodes of the models
         const oldLeafNodes = oldModel.leafNodes();
         const newLeafNodes = newModel.leafNodes();
@@ -51,12 +53,12 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             let minCompareValue = 2;
             for (const oldLeafNode of oldLeafNodes) {
                 const compareValue = newLeafNode.compareTo(oldLeafNode);
-                if (compareValue < minCompareValue && compareValue <= t) {
+                if (compareValue < minCompareValue && compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
                     minCompareValue = compareValue;
                     //Discard all matchings with a higher comparison value
                     newToOldMap.set(newLeafNode, []);
                 }
-                if (compareValue <= t) {
+                if (compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
                     //Matching is as as good as previous best, save for now
                     newToOldMap.get(newLeafNode).push(oldLeafNode);
                 }
@@ -70,8 +72,20 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         for (const [newLeafNode, matchArray] of newToOldMap) {
             if (matchArray.length > 1) {
                 //turn into one-to-one matching according to matching criterion 2
-                //TODO
-                matchArray.splice(1, matchArray.length - 1);
+                //compute LCS of paths
+                const newPathArr = newLeafNode.path.map(n => n.label);
+                let longestLCS = -1;
+                let bestMatch = null;
+                for(const oldLeafNode of matchArray) {
+                    const oldPathArr = oldLeafNode.path.map(n => n.label);
+                    const lcs = LCSSimilarity.getLCS(newPathArr, oldPathArr);
+                    //TODO more sophisticated similarity measure. LCS is not great
+                    if(lcs.length > longestLCS) {
+                        bestMatch = oldLeafNode;
+                        longestLCS = lcs.length;
+                    }
+                }
+                matchArray.splice(0, matchArray.length, bestMatch);
             }
         }
 
@@ -98,7 +112,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
                     if (newToOldMap.has(newPath[k]) && oldPath.includes(newToOldMap.get(newPath[k])[0])) {
                         //If so, we terminate to preserve ancestor order
                         return;
-                    } else if (newPath[k].compareTo(oldPath[i]) < t) {
+                    } else if (newPath[k].compareTo(oldPath[i]) < Globals.INNER_NODE_SIMILARITY_THRESHOLD) {
                         //found new matching
                         if (!newToOldMap.has(newPath[k])) {
                             newToOldMap.set(newPath[k], []);

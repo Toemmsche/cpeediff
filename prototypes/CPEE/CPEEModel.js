@@ -84,25 +84,25 @@ class CPEEModel {
     static fromCPEE(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        if(doc.tagName === "properties") {
+        if (doc.tagName === "properties") {
             const declaredVariables = new Set();
             let root;
             for (let i = 0; i < doc.childNodes.length; i++) {
                 const childTNode = doc.childNodes.item(i);
-                if(childTNode.tagName === "dataelements") {
+                if (childTNode.tagName === "dataelements") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const variable = childTNode.childNodes.item(j);
-                        if(variable.nodeType === 1) {
+                        if (variable.nodeType === 1) {
                             declaredVariables.add(variable.tagName);
                         }
                     }
                 } else if (childTNode.tagName === "dslx") {
                     let j = 0;
-                    while(childTNode.childNodes.item(j).tagName !== "description") j++;
+                    while (childTNode.childNodes.item(j).tagName !== "description") j++;
                     root = constructRecursive(childTNode.childNodes.item(j));
                 }
             }
-            return  new CPEEModel(root, declaredVariables);
+            return new CPEEModel(root, declaredVariables);
         } else {
             return new CPEEModel(constructRecursive(doc));
         }
@@ -128,7 +128,7 @@ class CPEEModel {
                         if (!root.isPropertyNode() && child.isPropertyNode()) {
                             //remove unnecessary path
                             //first ancestor is parent of first entry in path
-                           buildChildAttributeMap(child, root.childAttributes);
+                            buildChildAttributeMap(child, root.childAttributes);
                         } else {
                             root.appendChild(child);
                         }
@@ -137,18 +137,17 @@ class CPEEModel {
             }
 
             function buildChildAttributeMap(node, map) {
-
                 if (node.data != "") { //lossy comparison
                     //retain full (relative) structural information in the nodes
                     map.set(node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
                 }
 
                 //copy all values into new map
-                for(const child of node.childNodes) {
+                for (const child of node.childNodes) {
                     buildChildAttributeMap(child, map);
                 }
             }
-            
+
             //if root cannot contain any semantic information, it is discarded
             if (root.isEmpty() || root.isDocumentation()) {
                 return null;
@@ -167,31 +166,41 @@ class CPEEModel {
                     code = root.data;
                 } else {
                     //concatenate everything (if present)
-                    const prepare = (root.childAttributes.has("code/prepare") ? root.childAttributes.get("code/prepare"): "");
-                    const finalize =  (root.childAttributes.has("code/finalize") ? root.childAttributes.get("code/finalize") : "");
-                    const update =  (root.childAttributes.has("code/update") ? root.childAttributes.get("code/update") : "");
-                    const rescue =  (root.childAttributes.has("code/rescue") ? root.childAttributes.get("code/rescue") : "");
+                    const prepare = (root.childAttributes.has("code/prepare") ? root.childAttributes.get("code/prepare") : "");
+                    const finalize = (root.childAttributes.has("code/finalize") ? root.childAttributes.get("code/finalize") : "");
+                    const update = (root.childAttributes.has("code/update") ? root.childAttributes.get("code/update") : "");
+                    const rescue = (root.childAttributes.has("code/rescue") ? root.childAttributes.get("code/rescue") : "");
                     code = prepare + finalize + update + rescue;
                 }
-
-                if (code != "") {
-                    //extract variables using regex
-                    const modifiedVariables = new Set();
-                    //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
-                    const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
-                    if(matches !== null) {
-                        for (const variable of matches) {
-                            //match only variable name and remove data. prefix
-                            modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                        }
-                        root.modifiedVariables = modifiedVariables;
+                const modifiedVariables = new Set();
+                //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
+                const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+                if (matches !== null) {
+                    for (const variable of matches) {
+                        //match only variable name and remove data. prefix
+                        modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
                     }
                 }
+               root.modifiedVariables =  modifiedVariables;
+            }
+
+            if(root.containsCondition()) {
+                const condition = root.attributes.get("condition");
+                const readVariables = new Set();
+                const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
+                if (matches !== null) {
+                    for (const variable of matches) {
+                        //match only variable name and remove data. prefix
+                        readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                    }
+                }
+                root.readVariables = readVariables;
             }
 
             return root;
         }
     }
+
 
     //TODO doc
     toPreOrderArray() {
@@ -218,12 +227,13 @@ class CPEEModel {
                     return new Map(value.value);
                 } else if ("dataType" in value && value.dataType === "Set") {
                     return new Set(value.value);
-                } if ("label" in value) {
+                }
+                if ("label" in value) {
                     const node = CPEEModel.newNodeFromLabel(value["label"]);
-                    for (const property in node) {
+                    for (const property in value) {
                         node[property] = value[property];
                     }
-                    for (const child of node.childNodes) {
+                    for (const child of node._childNodes) {
                         child.parent = node;
                     }
                     return node;
@@ -231,6 +241,7 @@ class CPEEModel {
             }
             return value;
         }
+
         return JSON.parse(str, reviver)
     }
 

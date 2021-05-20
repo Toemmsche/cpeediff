@@ -30,7 +30,7 @@ class EditScriptGenerator {
      * Given a (partial) matching between the nodes of two process trees,
      * generates an edit script that includes (subtree) insert, (subree) delete and subtree move operations.
      * Based on the edit script algorithm by
-     * Chawathe et al., "UnifiedChange Detection in Hierarchically Structured Information"
+     * Chawathe et al., "Change Detection in Hierarchically Structured Information"
      * @param oldModel
      * @param newModel
      * @param matching

@@ -94,9 +94,15 @@ class Merger {
                 }
 
                 //TODO reshuffles, ignore for now as they need to be updated anyways
-
             }
         }
+
+        for(const node of model1.toPreOrderArray()) {
+            if(node.changeType != null) {
+                //TODO check for conflicting operation in vicinity
+            }
+        }
+
 
         console.log(model1.toTreeString(CPEENode.STRING_OPTIONS.CHANGE));
     }

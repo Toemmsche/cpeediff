@@ -52,6 +52,10 @@ class DSL {
         }
         return true;
     }
+
+    static containsCondition(label) {
+        return [this.ALTERNATIVE, this.LOOP].includes(label);
+    }
 }
 
 exports.DSL = DSL;

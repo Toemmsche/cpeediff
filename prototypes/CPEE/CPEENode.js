@@ -20,93 +20,216 @@ class CPEENode {
 
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //CPEE information
+    /**
+     * @type String
+     */
     label;
+    /**
+     * @type Map<String,String>
+     */
     attributes;
+    /**
+     * @type Map<String,String>
+     */
     childAttributes;
+    /**
+     * @type Set<CPEENode>
+     */
     modifiedVariables;
+    /**
+     * @type Set<CPEENode>
+     */
+    readVariables;
+    /**
+     * @type String
+     */
     data;
 
     //structural information
-    parent;
-    childIndex;
-    childNodes;
+    /**
+     * @type CPEENode
+     * @private
+     */
+    _parent;
+    /**
+     * @type Number
+     * @private
+     */
+    _childIndex;
+    /**
+     * @type CPEENode[]
+     * @private
+     */
+    _childNodes;
 
     constructor(label) {
         this.label = label;
         this.attributes = new Map();
         this.childAttributes = new Map();
-        this.childNodes = [];
-        this.data = "";
-        this.parent = null;
-        this.childIndex = 0;
         this.modifiedVariables = new Set();
+        this.readVariables = new Set();
+        this.data = "";
+
+        this._childNodes = [];
+        this._parent = null;
+        this._childIndex = 0;
     }
 
+    /**
+     * @returns {Number}
+     */
     get typeIndex() {
         let index = 0;
-        for (let i = 0; i < this.childIndex; i++) {
-            if (this.parent.childNodes[i].label === this.label) {
+        for (let i = 0; i < this._childIndex; i++) {
+            if (this._parent.childNodes[i].label === this.label) {
                 index++;
             }
         }
         return index;
     }
 
+    /**
+     * @returns {CPEENode[]}
+     */
     get path() {
         const pathArr = [];
         let node = this;
         const isPropertyNode = this.isPropertyNode();
         while (node != null && (!isPropertyNode || node.isPropertyNode())) {
             pathArr.push(node);
-            node = node.parent;
+            node = node._parent;
         }
         return pathArr.reverse();
     }
 
+    /**
+     * @returns {CPEENode}
+     */
+    get parent() {
+        return this._parent;
+    }
+
+    /**
+     *
+     * @param {CPEENode} parentNode
+     */
+    set parent(parentNode) {
+        this._parent = parentNode;
+    }
+
+    /**
+     * @returns {CPEENode[]}
+     */
+    get childNodes() {
+        return this._childNodes;
+    }
+
+    /**
+     *
+     * @param {CPEENode[]} newChildNodes
+     */
+    set childNodes(childNodes) {
+        this._childNodes = childNodes;
+    }
+
+    /**
+     * @returns {Number}
+     */
+    get childIndex() {
+        return this._childIndex;
+    }
+
+    /**
+     *
+     * @param {Number} childIndex
+     */
+    set childIndex(childIndex) {
+        this._childIndex = childIndex;
+    }
+
+    /**
+     *
+     * @param {CPEENode} other
+     * @returns {boolean}
+     */
     nodeEquals(other) {
-        //only compare internal data, not child nodes
-        if (this.label !== other.label) return false;
-        if (this.data !== other.data) return false;
-        if (this.attributes.size !== other.attributes.size) return false;
-        for (const [key, value] of this.attributes) {
-            if (value !== other.attributes.get(key)) return false;
-        }
-        if (this.childAttributes.size !== other.childAttributes.size) return false;
-        for (const [key, value] of this.childAttributes) {
-            //value is a CPEENode
-            if (value !== other.childAttributes.get(key)) {
-                return false;
+        for (const member in this) {
+            //only check public members
+            if (!member.startsWith("_")) {
+                const thisValue = this[member];
+                const otherValue = other[member];
+                if (thisValue instanceof Set) {
+                    if (thisValue.size !== otherValue.size) return false;
+                    for (const element of thisValue) {
+                        if (!otherValue.has(element)) return false;
+                    }
+                } else if (thisValue instanceof Map) {
+                    if (thisValue.size !== otherValue.size) return false;
+                    for (const [key, value] of thisValue) {
+                        if (otherValue.get(key) !== value) return false;
+                    }
+                } else if (thisValue !== otherValue) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
+    /**
+     *
+     * @param {CPEENode} other
+     * @returns {number}
+     */
     compareTo(other) {
         //specific subclass implementation may be present
         if (this.nodeEquals(other)) return 0;
         else return 1;
     }
 
+    /**
+     * @returns {boolean}
+     */
     hasChildren() {
-        return this.childNodes.length > 0;
+        return this._childNodes.length > 0;
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     hasAttributes() {
         return this.attributes.size > 0 || this.childAttributes.size > 0
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     hasInternalOrdering() {
         return DSL.hasInternalOrdering(this.label);
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     isControlFlowLeafNode() {
         return DSL.isControlFlowLeafNode(this.label);
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     isPropertyNode() {
         return DSL.isPropertyNode(this.label);
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     isEmpty() {
         return !this.isControlFlowLeafNode()
             && this.data == ""
@@ -114,50 +237,82 @@ class CPEENode {
             && !this.hasChildren();
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     isDocumentation() {
         return this.label === "description"
             && !this.hasChildren()
             && !this.hasAttributes();
     }
 
+    /**
+     *
+     * @returns {boolean}
+     */
     containsCode() {
+        //TODO replace with check of has()
         return DSL.containsCode(this.label);
     }
 
-    appendChild(node) {
-        node.childIndex = this.childNodes.push(node) - 1;
-        node.parent = this;
+    /**
+     *  @returns {boolean}
+     */
+    containsCondition() {
+        return this.attributes.has("condition");
     }
 
+    /**
+     *
+     * @param {CPEENode} node
+     */
+    appendChild(node) {
+        node._childIndex = this._childNodes.push(node) - 1;
+        node._parent = this;
+    }
+
+    /**
+     *
+     * @param {CPEENode} node
+     * @param {Number} index
+     */
     insertChild(node, index) {
-        this.childNodes.splice(index, 0, node);
+        this._childNodes.splice(index, 0, node);
         node.parent = this;
         this._fixChildIndices();
     }
 
+    /**
+     *
+     * @param {Number} newIndex
+     */
     changeChildIndex(newIndex) {
         //delete
-        this.parent.childNodes.splice(this.childIndex, 1);
+        this._parent.childNodes.splice(this._childIndex, 1);
         //insert
-        this.parent.childNodes.splice(newIndex, 0, this);
+        this._parent.childNodes.splice(newIndex, 0, this);
         //adjust child indices
-        this.parent._fixChildIndices();
+        this._parent._fixChildIndices();
     }
 
     removeFromParent() {
-        if (this.parent === null) {
+        if (this._parent === null) {
             throw new Error("Cannot remove node that has no parent");
         }
-        this.parent.childNodes.splice(this.childIndex, 1);
-        this.parent._fixChildIndices();
+        this._parent.childNodes.splice(this._childIndex, 1);
+        this._parent._fixChildIndices();
     }
 
     _fixChildIndices() {
-        for (let i = 0; i < this.childNodes.length; i++) {
-            this.childNodes[i].childIndex = i;
+        for (let i = 0; i < this._childNodes.length; i++) {
+            this._childNodes[i].childIndex = i;
         }
     }
 
+    /**
+     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     */
     static STRING_OPTIONS = {
         LABEL: 1,
         LABEL_WITH_TYPE_INDEX: 2,
@@ -167,6 +322,11 @@ class CPEENode {
         CHANGE: 6
     }
 
+    /**
+     *
+     * @param {Number} displayType
+     * @returns {String}
+     */
     toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
         switch (displayType) {
             case CPEENode.STRING_OPTIONS.LABEL:
@@ -186,7 +346,7 @@ class CPEENode {
                 return strArr.join("/");
             }
             case CPEENode.STRING_OPTIONS.CHANGE:
-                if("changeType" in this) {
+                if ("changeType" in this) {
                     return this.label + " <" + this.changeType + ">";
                 }
                 return this.label;
@@ -197,8 +357,14 @@ class CPEENode {
 
     //TODO beautify... (and optimize)
     //similar to unix tree command
+    /**
+     *
+     * @param {Number[]} barList
+     * @param {Number} stringOption
+     * @returns {String}
+     */
     toTreeString(barList, stringOption) {
-        const isLast = this.parent != null && this.childIndex === this.parent.childNodes.length - 1;
+        const isLast = this._parent != null && this._childIndex === this._parent.childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
             const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
@@ -221,34 +387,46 @@ class CPEENode {
         line += this.toString(stringOption) + "\n";
         if (this.hasChildren()) {
             barList.push(lineLength + 1);
-            for (const child of this.childNodes) {
+            for (const child of this._childNodes) {
                 line += child.toTreeString(barList, stringOption);
             }
         }
-
-
         return line;
     }
 
+    /**
+     *
+     * @param {CPEENode[]} arr
+     * @returns {CPEENode[]}
+     */
     toPreOrderArray(arr = []) {
         arr.push(this);
-        for (const child of this.childNodes) {
+        for (const child of this._childNodes) {
             child.toPreOrderArray(arr);
         }
         return arr;
     }
 
+    /**
+     *
+     * @param {CPEENode[]} arr
+     * @returns {CPEENode[]}
+     */
     toPostOrderArray(arr = []) {
-        for (const child of this.childNodes) {
+        for (const child of this._childNodes) {
             child.toPostOrderArray(arr);
         }
         arr.push(this);
         return arr;
     }
 
+    /**
+     *
+     * @returns {String}
+     */
     convertToJSON() {
         function replacer(key, value) {
-            if (key === "parent" || key === "path") return undefined;
+            if (key === "_parent") return undefined;
             //convert maps to arrays of key-value pairs
             else if (value instanceof Map) {
                 return {
@@ -268,8 +446,6 @@ class CPEENode {
 
         return JSON.stringify(this, replacer);
     }
-
-
 }
 
 exports.CPEENode = CPEENode;

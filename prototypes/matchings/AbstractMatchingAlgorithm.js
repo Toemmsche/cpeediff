@@ -58,10 +58,9 @@ class AbstractMatchingAlgorithm {
      * @param {CPEEModel} newModel The new process model
      * @param {Matching} existingMatching An existing matching that is extended.
      *                                    The order the matching algorithms are applied in matters.
-     * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2
      */
-    static match(oldModel, newModel,existingMatching, t) {}
+    static match(oldModel, newModel,existingMatching) {}
 }
 
 exports.AbstractMatchingAlgorithm = AbstractMatchingAlgorithm;

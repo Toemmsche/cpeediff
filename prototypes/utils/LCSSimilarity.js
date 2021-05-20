@@ -21,7 +21,7 @@
 class LCSSimilarity {
 
     /**
-     * Usees the built-in comparator ("===")
+     * Uses the built-in comparator ("===")
      * @param seqA
      * @param seqB
      */
@@ -64,12 +64,12 @@ class LCSSimilarity {
         const LCS = []
         while (indexA > 0 && indexB > 0) {
             //if we took a diagonal step in the dp array, this item is part of the LCS
-            if (dp[indexA - 1][indexB - 1] !== undefined && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
+            if (dp[indexA - 1][indexB - 1] != null && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
                 //prepending instead of appending preserves sorting order
                 LCS.unshift(seqA[indexA - 1]);
                 indexA--;
                 indexB--;
-            } else if (dp[indexA - 1][indexB] !== undefined && dp[indexA][indexB] === dp[indexA - 1][indexB]) {
+            } else if (dp[indexA - 1][indexB] != null&& dp[indexA][indexB] === dp[indexA - 1][indexB]) {
                 indexA--;
             } else {
                 indexB--;

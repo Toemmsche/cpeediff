@@ -2,3 +2,18 @@ POSSIBLE OPERATIONS:
 MOVE/DELETE/INSERT LEAF NODE
 MOVE/DELETE/INSERT SUBTREE (complete)
 RELABEL NODE
+
+to Include in thesis:
+Matching criteria
+Change model (operations)
+Steps of the algorithm
+Function (procedure) definitions and pseudocode
+empirical analysis
+comparison to other algorithms / tools
+Proofs (or references to proofs)
+runtime analysis
+Contribution
+Goals
+Overview over existing diff algorithms and appraoches (runtime, limitations, goals)
+limitations of the chosen appraoch
+Future work

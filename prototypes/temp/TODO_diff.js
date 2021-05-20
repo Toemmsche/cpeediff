@@ -7,6 +7,7 @@
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
 //      conflict groups for reshuffling
 //      add reshuffling in merger
+//      delta Tree with placeholders for move
 
 
 //TODO new algos
@@ -30,6 +31,7 @@
 //      use inner no0de matching to match leaf nodes in similar trees even when they're slightly different
 //      diff method is static
 //      make parseFromJSON return properly typed and instantiated (parent and path) object
+//      pretty output vs machine readable (JSON vs treestring)
 
 
 //TODO tidy
