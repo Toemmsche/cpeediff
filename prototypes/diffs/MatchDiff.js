@@ -22,23 +22,13 @@ const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 
 class MatchDiff extends AbstractDiff {
 
-    matchingAlgorithms;
-
-    constructor(oldModel, newModel, ...matchingAlgorithms) {
-        super(oldModel, newModel);
-        if(matchingAlgorithms.length === 0) {
-            matchingAlgorithms = [TopDownMatching, KyongHoMatching];
-        }
-        this.matchingAlgorithms = matchingAlgorithms;
-    }
-
-    diff() {
+    static diff(oldModel, newModel, ...matchingAlgorithms) {
         let m = new Matching();
-        for(const matchingAlgorithm of this.matchingAlgorithms) {
-            m = matchingAlgorithm.match(this.oldModel, this.newModel, m);
+        for(const matchingAlgorithm of matchingAlgorithms) {
+            m = matchingAlgorithm.match(oldModel, newModel, m);
         }
         //generate edit script
-        return EditScriptGenerator.generateEditScript(this.oldModel, this.newModel, m);
+        return EditScriptGenerator.generateEditScript(oldModel, newModel, m);
     }
 }
 

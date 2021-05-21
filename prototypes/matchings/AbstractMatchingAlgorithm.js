@@ -39,7 +39,7 @@ class AbstractMatchingAlgorithm {
      * @throws {Error} If not called from within a subclass
      */
     constructor(options= [], availableOptions = []) {
-        if (this.constructor === AbstractDiff) {
+        if (this.constructor === AbstractMatchingAlgorithm) {
             throw new Error("Instantiation of Abstract class 'AbstractDiff'");
         }
         this.AVAILABLE_OPTIONS = availableOptions;

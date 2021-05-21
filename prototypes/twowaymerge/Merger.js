@@ -15,6 +15,8 @@
 */
 
 const fs = require("fs");
+const {KyongHoMatching} = require("../matchings/KyongHoMatching");
+const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {CPEENode} = require("../CPEE/CPEENode");
 const {Reshuffle} = require("../editscript/change/Reshuffle");
 const {Update} = require("../editscript/change/Update");
@@ -30,11 +32,10 @@ class Merger {
         const json = model1.root.convertToJSON();
 
         //arbitrarily choose modelA as "old" model and modelB as "new" model to comppute edit script
-        let md = new MatchDiff(model1, model2);
-        const editScript = md.diff();
+        let editScript = MatchDiff.diff(model1, model2, TopDownMatching, KyongHoMatching);
 
         //reset first model
-        model1 = new CPEEModel(CPEEModel.parseFromJSON(json));
+        model1 = new CPEEModel(CPEENode.parseFromJSON(json));
 
         //apply edit script to first model until deletions
         for(const change of editScript.changes) {
@@ -46,7 +47,7 @@ class Merger {
 
                     const childIndex = indexArr.pop();
                     const parent = Merger.findNode(model1, indexArr);
-                    const child = CPEEModel.parseFromJSON(change.newNodeJSON);
+                    const child = CPEENode.parseFromJSON(change.newNodeJSON);
                     parent.insertChild(child, childIndex);
                     child.changeType = "Insertion"
                     break;
@@ -74,10 +75,10 @@ class Merger {
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
                     const node = Merger.findNode(model1, nodeIndexArr);
-                    const newNode = CPEEModel.parseFromJSON(change.newData);
+                    const newNode = CPEENode.parseFromJSON(change.newData);
                     for(const property in newNode) {
                         //preserve structural information
-                        if(property !== "_parent" && property !== "_childNodes") {
+                        if(!property.startsWith("_")) {
                             node[property] = newNode[property]
                         }
                     }

@@ -4,7 +4,7 @@
   "description": "",
   "main": "demo.js",
   "scripts": {
-    "start": "node prototypes/temp/demo.js",
+    "start": "node prototypes/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

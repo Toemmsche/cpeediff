@@ -18,6 +18,20 @@ const {DSL} = require("./DSL");
 
 class CPEENode {
 
+    static ROOT = "description"
+    static CALL = "call"
+    static MANIPULATE = "manipulate"
+    static PARALLEL = "parallel"
+    static PARALLEL_BRANCH = "parallel_branch"
+    static CHOOSE = "choose"
+    static ALTERNATIVE = "alternative"
+    static OTHERWISE = "otherwise"
+    static LOOP = "loop"
+    static CRITICAL = "critical"
+    static STOP = "stop"
+    static ESCAPE = "escape"
+    static TERMINATE = "terminate"
+
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //CPEE information
     /**
@@ -180,9 +194,71 @@ class CPEENode {
      * @returns {number}
      */
     compareTo(other) {
-        //specific subclass implementation may be present
-        if (this.nodeEquals(other)) return 0;
-        else return 1;
+        switch (this.label) {
+            case "call": {
+                //we cannot possibly match a call with an inner node
+                if (this.label !== other.label) return 1.0;
+                let differentCounter = 0;
+                //TODO weigh id and variables
+                let total = Math.max(this.attributes.size + this.modifiedVariables.size, other.attributes.size + other.modifiedVariables.size);
+                for (const [key, value] of this.attributes) {
+                    //only count real differences, not pure insertions/deletions
+                    if (!other.attributes.has(key) || other.attributes.has(key) && value !== other.attributes.get(key)) {
+                        differentCounter++;
+                    }
+                }
+                for (const variable of this.modifiedVariables) {
+                    if (!other.modifiedVariables.has(variable)) {
+                        differentCounter++;
+                    }
+                }
+                for (const variable of other.modifiedVariables) {
+                    if (!this.modifiedVariables.has(variable)) {
+                        differentCounter++;
+                    }
+                }
+                return differentCounter / total;
+            }
+
+            case "manipulate": {
+                //we can't match a script to a regular call
+                if (this.label !== other.label) {
+                    return 1;
+                }
+                const total = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
+                let differentCounter = 0;
+                for (const variable of this.modifiedVariables) {
+                    if (!other.modifiedVariables.has(variable)) {
+                        differentCounter++;
+                    }
+                }
+                for (const variable of other.modifiedVariables) {
+                    if (!this.modifiedVariables.has(variable)) {
+                        differentCounter++;
+                    }
+                }
+                let compValue = differentCounter / (2 * total);
+                return compValue;
+            }
+
+            case "parallel": {
+                if (this.label !== other.label) {
+                    return 1;
+                }
+                let compareValue = 0;
+                //wait attribute dictates the number of branches that have to finish until execution proceeds
+                if (this.attributes.has("wait") && this.attributes.get("wait") !== other.attributes.get("wait")) {
+                    compareValue += 0.2;
+                }
+                return compareValue;
+            }
+
+            default: {
+                //hard comparison
+                if (this.nodeEquals(other)) return 0;
+                else return 1;
+            }
+        }
     }
 
     /**
@@ -205,7 +281,7 @@ class CPEENode {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return DSL.hasInternalOrdering(this.label);
+        return [CPEENode.LOOP, CPEENode.CRITICAL, CPEENode.ROOT, CPEENode.ALTERNATIVE, CPEENode.OTHERWISE, CPEENode.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -213,7 +289,7 @@ class CPEENode {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return DSL.isControlFlowLeafNode(this.label);
+        return [CPEENode.CALL, CPEENode.MANIPULATE, CPEENode.TERMINATE, CPEENode.STOP, CPEENode.ESCAPE].includes(this.label);
     }
 
     /**
@@ -221,7 +297,10 @@ class CPEENode {
      * @returns {boolean}
      */
     isPropertyNode() {
-        return DSL.isPropertyNode(this.label);
+        for (const cpeeKeyWord in CPEENode) {
+            if (this.label === CPEENode[cpeeKeyWord]) return false;
+        }
+        return true;
     }
 
     /**
@@ -251,7 +330,7 @@ class CPEENode {
      */
     containsCode() {
         //TODO replace with check of has()
-        return DSL.containsCode(this.label);
+        return [CPEENode.CALL, CPEENode.MANIPULATE].includes(this.label);
     }
 
     /**
@@ -362,7 +441,7 @@ class CPEENode {
      * @returns {String}
      */
     toTreeString(barList, stringOption) {
-        const isLast = this._parent != null && this._childIndex === this._parent.childNodes.length - 1;
+        const isLast = this._parent != null && this._childIndex === this._parent._childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
             const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
@@ -424,9 +503,11 @@ class CPEENode {
      */
     convertToJSON() {
         function replacer(key, value) {
-            if (key === "_parent") return undefined;
-            //convert maps to arrays of key-value pairs
-            else if (value instanceof Map) {
+            if (key === "_parent" || key === "_childIndex") {
+                return undefined;
+            } else if (value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
+                return undefined;
+            } else if (value instanceof Map) {
                 return {
                     //preserve data type for correct parsing
                     dataType: "Map",
@@ -437,12 +518,39 @@ class CPEENode {
                     //preserve data type for correct parsing
                     dataType: "Set",
                     value: Array.from(value.keys())
-                };
+                }
             }
             return value;
         }
 
         return JSON.stringify(this, replacer);
+    }
+
+    static parseFromJSON(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if ("dataType" in value && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if ("dataType" in value && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if ("label" in value) {
+                    const node = new CPEENode(value["label"]);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver)
     }
 }
 

@@ -1,13 +1,14 @@
 //TODO features
 //      preserve deleted nodes for tree output
-//      copy model
-//      output whole tree at subtree insertion
+//      copy model before edit script gerneration
 //      export set and map similarity calculations
 //      take proper snapshot
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
 //      conflict groups for reshuffling
 //      add reshuffling in merger
 //      delta Tree with placeholders for move
+//      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
+//      use custom comparators (differnet performance, granularity)
 
 
 //TODO new algos
@@ -17,7 +18,6 @@
 //      matchSimilarUnmatched() by 3DM
 
 //TODO semi-features
-//      maybe just use cpeenode, no subclasses (because of json)
 //      output path instead of attributes
 //      constant values such as t in matchdiff should be options
 //      add verbose function

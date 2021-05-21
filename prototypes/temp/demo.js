@@ -37,8 +37,7 @@ console.log(model2.toTreeString());
  */
 
 const json = model1.root.convertToJSON();
-const node = CPEEModel.parseFromJSON(json);
-const sd = new MatchDiff(model1, model2, TopDownMatching, KyongHoMatching);
+const node = CPEENode.parseFromJSON(json);
 
 Merger.merge(model1, model2)
 

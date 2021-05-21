@@ -17,23 +17,6 @@
 const {CPEENode} = require("./CPEENode");
 const {DOMParser} = require("xmldom");
 
-
-const {DSL} = require("./DSL");
-const {Call} = require("./leafs/Call");
-const {CallWithScript} = require("./leafs/CallWithScript");
-const {Escape} = require("./leafs/Escape");
-const {Manipulate} = require("./leafs/Manipulate");
-const {Stop} = require("./leafs/Stop");
-const {Terminate} = require("./leafs/Terminate");
-const {Alternative} = require("./inner_nodes/Alternative");
-const {Choose} = require("./inner_nodes/Choose");
-const {Critical} = require("./inner_nodes/Critical");
-const {Loop} = require("./inner_nodes/Loop");
-const {Otherwise} = require("./inner_nodes/Otherwise");
-const {Parallel} = require("./inner_nodes/Paralel");
-const {ParallelBranch} = require("./inner_nodes/ParallelBranch");
-const {Root} = require("./inner_nodes/Root");
-
 //TODO doc
 class CPEEModel {
 
@@ -45,39 +28,6 @@ class CPEEModel {
     constructor(root, declaredVariables = new Set()) {
         this.root = root;
         this.declaredVariables = declaredVariables;
-    }
-
-    static newNodeFromLabel(nodeLabel) {
-        switch (nodeLabel) {
-            case DSL.CALL:
-                return new Call();
-            case DSL.MANIPULATE:
-                return new Manipulate();
-            case DSL.PARALLEL:
-                return new Parallel();
-            case DSL.PARALLEL_BRANCH:
-                return new ParallelBranch();
-            case DSL.CHOOSE:
-                return new Choose();
-            case DSL.ALTERNATIVE:
-                return new Alternative();
-            case DSL.OTHERWISE:
-                return new Otherwise();
-            case DSL.ESCAPE:
-                return new Escape();
-            case DSL.STOP:
-                return new Stop();
-            case DSL.LOOP:
-                return new Loop();
-            case DSL.TERMINATE:
-                return new Terminate();
-            case DSL.CRITICAL:
-                return new Critical();
-            case DSL.ROOT:
-                return new Root();
-            default:
-                return new CPEENode(nodeLabel);
-        }
     }
 
     //TODO doc
@@ -108,7 +58,7 @@ class CPEEModel {
         }
 
         function constructRecursive(tNode) {
-            let root = CPEEModel.newNodeFromLabel(tNode.tagName);
+            let root = new CPEENode(tNode.tagName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -162,7 +112,7 @@ class CPEEModel {
             //extract necessary/declared data variables
             if (root.containsCode()) {
                 let code = "";
-                if (root instanceof Manipulate) {
+                if (root.label === "manipulate") {
                     code = root.data;
                 } else {
                     //concatenate everything (if present)
@@ -208,7 +158,6 @@ class CPEEModel {
         }
     }
 
-
     //TODO doc
     toPreOrderArray() {
         return this.root.toPreOrderArray();
@@ -225,33 +174,6 @@ class CPEEModel {
     toTreeString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
         return this.root.toTreeString([], stringOption);
     }
-
-    static parseFromJSON(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if ("dataType" in value && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if ("dataType" in value && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if ("label" in value) {
-                    const node = CPEEModel.newNodeFromLabel(value["label"]);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (const child of node._childNodes) {
-                        child.parent = node;
-                    }
-                    return node;
-                }
-            }
-            return value;
-        }
-
-        return JSON.parse(str, reviver)
-    }
-
 }
 
 exports.CPEEModel = CPEEModel;

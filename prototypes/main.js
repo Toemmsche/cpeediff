@@ -17,16 +17,54 @@
 */
 
 const yargs = require("yargs");
+const fs = require("fs");
+const {CPEEModel} = require("./CPEE/CPEEModel");
+const {KyongHoMatching} = require("./matchings/KyongHoMatching");
+const {TopDownMatching} = require("./matchings/TopDownMatching");
+const {MatchDiff} = require("./diffs/MatchDiff");
 
 const argv = yargs
-    .command("diff", "Calculcates the difference between two CPEE process models", (yargs) => {
-        yargs.option("time", {
-            description: "Time the calculation and print the elapsed time",
-            alias: "t",
-            type: "boolean",
-            default: false
-        });
+    .command("diff <oldFile> <newFile>", "Calculcates the difference between two CPEE process models", (yargs) => {
+        yargs
+            .positional("oldFile", {
+                description: "The original CPEE process model as an XML document",
+                type: "string"
+            })
+            .positional("newFile", {
+                description: "The changed CPEE process model as an XML document",
+                type: "string"
+            })
+            .option("leafThreshold", {
+                description: "Similarity Threshold for matching leaf nodes",
+                alias: "t",
+                type: "number",
+                default: 0.25
+            })
+            .option("innerThreshold", {
+                description: "Similarity Threshold for matching inner nodes",
+                alias: "i",
+                type: "number",
+                default: 0.25
+            })
+            .option("level", {
+                description: "Level of the matching granularity",
+                alias: "l",
+                type: "number",
+                default: 1
+            })
+            .check(argv => {
+                if(!fs.existsSync(argv.oldFile)) {
+                    throw new Error(argv.oldFile + " ist not a valid file path");
+                }
+                if(!fs.existsSync(argv.newFile)) {
+                    throw new Error(argv.newFile + " ist not a valid file path");
+                }
+                return true;
+            })
+        ;
     }, (argv) => {
-        console.log("diffing");
-        console.log(argv);
+        const oldModel = CPEEModel.fromCPEE(fs.readFileSync(argv.oldFile).toString());
+        const newModel = CPEEModel.fromCPEE(fs.readFileSync(argv.newFile).toString());
+        const editScript = MatchDiff.diff(oldModel, newModel, TopDownMatching, KyongHoMatching);
+        console.log(editScript.toString("lines"));
     }).argv;

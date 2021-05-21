@@ -72,7 +72,7 @@ class EditScriptGenerator {
             } else {
                 //perform insert operation at match of the parent node
                 const nodeJSON = newNode.convertToJSON();
-                const copy = CPEEModel.parseFromJSON(nodeJSON);
+                const copy = CPEENode.parseFromJSON(nodeJSON);
                 copy.childNodes = []; //reset child nodes
                 matchOfParent.insertChild(copy, newNode.childIndex);
                 //insertions are always mapped back to the original node
