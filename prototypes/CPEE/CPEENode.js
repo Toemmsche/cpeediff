@@ -29,10 +29,6 @@ class CPEENode {
      */
     attributes;
     /**
-     * @type Map<String,String>
-     */
-    childAttributes;
-    /**
      * @type String
      */
     data;
@@ -67,7 +63,7 @@ class CPEENode {
     constructor(label) {
         this.label = label;
         this.attributes = new Map();
-        this.childAttributes = new Map();
+        this.attributes = new Map();
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
         this.data = "";
@@ -201,7 +197,7 @@ class CPEENode {
      * @returns {boolean}
      */
     hasAttributes() {
-        return this.attributes.size > 0 || this.childAttributes.size > 0
+        return this.attributes.size > 0
     }
 
     /**

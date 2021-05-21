@@ -128,7 +128,7 @@ class CPEEModel {
                         if (!root.isPropertyNode() && child.isPropertyNode()) {
                             //remove unnecessary path
                             //first ancestor is parent of first entry in path
-                            buildChildAttributeMap(child, root.childAttributes);
+                            buildChildAttributeMap(child, root.attributes);
                         } else {
                             root.appendChild(child);
                         }
@@ -139,7 +139,7 @@ class CPEEModel {
             function buildChildAttributeMap(node, map) {
                 if (node.data != "") { //lossy comparison
                     //retain full (relative) structural information in the nodes
-                    map.set(node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
+                    map.set("./" + node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
                 }
 
                 //copy all values into new map
@@ -166,10 +166,10 @@ class CPEEModel {
                     code = root.data;
                 } else {
                     //concatenate everything (if present)
-                    const prepare = (root.childAttributes.has("code/prepare") ? root.childAttributes.get("code/prepare") : "");
-                    const finalize = (root.childAttributes.has("code/finalize") ? root.childAttributes.get("code/finalize") : "");
-                    const update = (root.childAttributes.has("code/update") ? root.childAttributes.get("code/update") : "");
-                    const rescue = (root.childAttributes.has("code/rescue") ? root.childAttributes.get("code/rescue") : "");
+                    const prepare = (root.attributes.has("code/prepare") ? root.attributes.get("code/prepare") : "");
+                    const finalize = (root.attributes.has("code/finalize") ? root.attributes.get("code/finalize") : "");
+                    const update = (root.attributes.has("code/update") ? root.attributes.get("code/update") : "");
+                    const rescue = (root.attributes.has("code/rescue") ? root.attributes.get("code/rescue") : "");
                     code = prepare + finalize + update + rescue;
                 }
                 const modifiedVariables = new Set();
@@ -184,7 +184,7 @@ class CPEEModel {
                root.modifiedVariables =  modifiedVariables;
 
                 const readVariables = new Set();
-                for(const[key, value] of root.childAttributes) {
+                for(const[key, value] of root.attributes) {
                     if(key.startsWith("parameters/arguments/")) {
                         readVariables.add(value.replace(/data\./, ""));
                     }
