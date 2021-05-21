@@ -14,8 +14,6 @@
    limitations under the License.
 */
 
-const {DSL} = require("./DSL");
-
 class CPEENode {
 
     static ROOT = "description"
@@ -551,6 +549,10 @@ class CPEENode {
         }
 
         return JSON.parse(str, reviver)
+    }
+
+    copy() {
+        return CPEENode.parseFromJSON(this.convertToJSON());
     }
 }
 

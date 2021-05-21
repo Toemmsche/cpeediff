@@ -16,12 +16,14 @@
    limitations under the License.
 */
 
+
 const yargs = require("yargs");
 const fs = require("fs");
 const {CPEEModel} = require("./CPEE/CPEEModel");
 const {KyongHoMatching} = require("./matchings/KyongHoMatching");
 const {TopDownMatching} = require("./matchings/TopDownMatching");
 const {MatchDiff} = require("./diffs/MatchDiff");
+
 
 const argv = yargs
     .command("diff <oldFile> <newFile>", "Calculcates the difference between two CPEE process models", (yargs) => {
@@ -68,3 +70,4 @@ const argv = yargs
         const editScript = MatchDiff.diff(oldModel, newModel, TopDownMatching, KyongHoMatching);
         console.log(editScript.toString("lines"));
     }).argv;
+

@@ -14,8 +14,7 @@
    limitations under the License.
 */
 
-const {TopDownMatching} = require("../matchings/TopDownMatching");
-const {KyongHoMatching} = require("../matchings/KyongHoMatching");
+const {CPEEModel} = require("../CPEE/CPEEModel");
 const {Matching} = require("../matchings/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
@@ -23,12 +22,14 @@ const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 class MatchDiff extends AbstractDiff {
 
     static diff(oldModel, newModel, ...matchingAlgorithms) {
+        //this will modify the old model, hence a copy is used
+        const copyOfOld = new CPEEModel(oldModel.root.copy());
         let m = new Matching();
         for(const matchingAlgorithm of matchingAlgorithms) {
-            m = matchingAlgorithm.match(oldModel, newModel, m);
+            m = matchingAlgorithm.match(copyOfOld, newModel, m);
         }
         //generate edit script
-        return EditScriptGenerator.generateEditScript(oldModel, newModel, m);
+        return EditScriptGenerator.generateEditScript(copyOfOld, newModel, m);
     }
 }
 

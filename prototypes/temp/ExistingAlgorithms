@@ -1,0 +1,9 @@
+XMLDiff: Pypi
+DiffXml: https://github.com/amouat/diffxml described on https://sourceforge.net/projects/diffxml/
+RWS-diff: location??? described by https://db.in.tum.de/~finis/papers/RWS-Diff.pdf
+XYDiff: https://github.com/fdintino/xydiff described by Detecting changes in XML documents.
+LaDiff: https://db.in.tum.de/~finis/papers/RWS-Diff.pdf
+node-delta: https://github.com/znerol/node-delta described by ???
+X-diff: https://github.com/albfan/x-diff-c described by http://resources.mpi-inf.mpg.de/d5/teaching/ss03/xml-seminar/Material/wang_icde2003.pdf
+
+many more found in XyDiff doc and RWSdiff
