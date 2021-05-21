@@ -33,6 +33,12 @@ class CPEENode {
      */
     childAttributes;
     /**
+     * @type String
+     */
+    data;
+
+    //private
+    /**
      * @type Set<CPEENode>
      */
     modifiedVariables;
@@ -40,10 +46,6 @@ class CPEENode {
      * @type Set<CPEENode>
      */
     readVariables;
-    /**
-     * @type String
-     */
-    data;
 
     //structural information
     /**

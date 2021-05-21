@@ -182,6 +182,13 @@ class CPEEModel {
                     }
                 }
                root.modifiedVariables =  modifiedVariables;
+
+                const readVariables = new Set();
+                for(const[key, value] of root.childAttributes) {
+                    if(key.startsWith("parameters/arguments/")) {
+                        readVariables.add(value.replace(/data\./, ""));
+                    }
+                }
             }
 
             if(root.containsCondition()) {
