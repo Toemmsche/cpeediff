@@ -77,7 +77,7 @@ class Merger {
                     const newNode = CPEEModel.parseFromJSON(change.newData);
                     for(const property in newNode) {
                         //preserve structural information
-                        if(property !== "parent" && property !== "childNodes") {
+                        if(property !== "_parent" && property !== "_childNodes") {
                             node[property] = newNode[property]
                         }
                     }
