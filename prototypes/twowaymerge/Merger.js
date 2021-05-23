@@ -15,15 +15,11 @@
 */
 
 const fs = require("fs");
+const {Change} = require("../editscript/Change");
+const {CPEEModel} = require("../CPEE/CPEEModel");
 const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {CPEENode} = require("../CPEE/CPEENode");
-const {Reshuffle} = require("../editscript/change/Reshuffle");
-const {Update} = require("../editscript/change/Update");
-const {Move} = require("../editscript/change/Move");
-const {Insertion} = require("../editscript/change/Insertion");
-const {Deletion} = require("../editscript/change/Deletion");
-const {CPEEModel} = require("../CPEE/CPEEModel");
 const {MatchDiff} = require("../diffs/MatchDiff");
 
 class Merger {
@@ -40,20 +36,20 @@ class Merger {
         //apply edit script to first model until deletions
         let placeHolderCount = 0;
         for(const change of editScript.changes) {
-            switch(change.constructor) {
-                case Insertion: {
-                    const indexArr = change.targetPath.split("/").map(str => parseInt(str));
+            switch(change.changeType) {
+                case Change.CHANGE_TYPES.INSERTION: {
+                    const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     indexArr.splice(0, 1);
 
                     const childIndex = indexArr.pop();
                     const parent = Merger.findNode(model1, indexArr);
-                    const child = CPEENode.parseFromJSON(change.newNodeJSON);
+                    const child = CPEENode.parseFromJSON(change.newNode);
                     parent.insertChild(child, childIndex);
-                    child.changeType = "Insertion"
+                    child.changeType = change.changeType;
                     break;
                 }
-                case Move: {
+                case Change.CHANGE_TYPES.MOVE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
@@ -64,7 +60,7 @@ class Merger {
                     node.parent.placeholders.push(node.childIndex);
                     node.removeFromParent();
 
-                    const parentIndexArr = change.targetPath.split("/").map(str => parseInt(str));
+                    const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     parentIndexArr.splice(0, 1);
                     const targetIndex = parentIndexArr.pop();
@@ -72,31 +68,31 @@ class Merger {
                     const parent = Merger.findNode(model1, parentIndexArr);
 
                     parent.insertChild(node, targetIndex);
-                    node.changeType = "Move";
+                    node.changeType = change.changeType;
                     break;
                 }
-                case Update: {
-                    const nodeIndexArr = change.targetPath.split("/").map(str => parseInt(str));
+                case Change.CHANGE_TYPES.UPDATE: {
+                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
                     const node = Merger.findNode(model1, nodeIndexArr);
-                    const newNode = CPEENode.parseFromJSON(change.newData);
+                    const newNode = CPEENode.parseFromJSON(change.newNode);
                     for(const property in newNode) {
                         //preserve structural information
                         if(!property.startsWith("_")) {
                             node[property] = newNode[property]
                         }
                     }
-                    node.changeType = "Update";
+                    node.changeType = change.changeType;
                     break;
                 }
-                case Deletion: {
-                    const nodeIndexArr = change.targetPath.split("/").map(str => parseInt(str));
+                case Change.CHANGE_TYPES.DELETION: {
+                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
                     const node = Merger.findNode(model1, nodeIndexArr);
                     //Don't actually delete the node, just mark it to verify consistency of model
-                    node.changeType = "Deletion";
+                    node.changeType = change.changeType;
                 }
 
                 //TODO reshuffles, ignore for now as they need to be updated anyways

@@ -424,7 +424,7 @@ class CPEENode {
                 return strArr.join("/");
             }
             case CPEENode.STRING_OPTIONS.CHANGE:
-                if ("changeType" in this) {
+                if (this.changeType !== undefined) {
                     return this.label + " <" + this.changeType + ">";
                 }
                 return this.label;

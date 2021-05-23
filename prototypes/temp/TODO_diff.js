@@ -1,4 +1,5 @@
 //TODO features
+//      IMPROTANT path string separate method
 //      IMPORANT make reshuffle a move
 //      preserve deleted nodes for tree output
 //      copy model before edit script gerneration

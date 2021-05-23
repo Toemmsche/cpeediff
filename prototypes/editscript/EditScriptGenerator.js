@@ -15,14 +15,10 @@
 */
 
 
-const {Update} = require("./change/Update");
+const {Change} = require("./Change");
 const {CPEEModel} = require("../CPEE/CPEEModel");
 const {CPEENode} = require("../CPEE/CPEENode");
 const {EditScript} = require("./EditScript");
-const {Reshuffle} = require("./change/Reshuffle");
-const {Deletion} = require("./change/Deletion");
-const {Insertion} = require("./change/Insertion");
-const {Move} = require("./change/Move");
 
 class EditScriptGenerator {
 
@@ -58,38 +54,44 @@ class EditScriptGenerator {
                     const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
-                    editScript.appendChange(new Move(match, oldPath));
+                    const newPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    editScript.appendChange(Change.move(oldPath, newPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
                     //modify node
-                   const oldData = match.convertToJSON();
-                   const newData = newNode.convertToJSON();
+                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldData = match.convertToJSON();
+                    const newData = newNode.convertToJSON();
                     //TODO replace attributes
                     match.label = newNode.label;
-                    editScript.appendChange(new Update(match, oldData, newData))
+                    editScript.appendChange(Change.update(oldPath, oldData, newData))
                 }
             } else {
                 //perform insert operation at match of the parent node
                 const copy = newNode.copy()
                 copy.childNodes = []; //reset child nodes
                 matchOfParent.insertChild(copy, newNode.childIndex);
+                const newPath = copy.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                const newData = copy.convertToJSON();
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);
-                editScript.appendChange(new Insertion(copy, newNode));
+                editScript.appendChange(Change.insert(newPath, newData));
             }
         }
         const oldDeletedNodes = [];
         for (const oldNode of oldPostOrderArray) {
             if (!oldToNewMap.has(oldNode)) {
-                //delete node (old parent
+                //delete node
+                //TODO document that removeFromParent() does not change the parent attributes
                 oldNode.removeFromParent();
                 oldDeletedNodes.push(oldNode);
             }
         }
         //second pass to detect the largest subtrees that are fully deleted
         while (oldDeletedNodes.length > 0) {
+
             let node = oldDeletedNodes[0];
             //parent is also fully deleted
             while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
@@ -98,7 +100,8 @@ class EditScriptGenerator {
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             oldDeletedNodes.splice(0, subTreeSize);
-            editScript.appendChange(new Deletion(node));
+            const oldPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+            editScript.appendChange(Change.delete(oldPath));
         }
 
         /*
@@ -165,9 +168,10 @@ class EditScriptGenerator {
 
                 for (const node of reshuffle) {
                     const match = oldToNewMap.get(node)[0];
-                    const oldIndex = node.childIndex;
+                    const oldPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     node.changeChildIndex(match.childIndex);
-                    editScript.appendChange(new Reshuffle(node, oldIndex, node.childIndex));
+                    const newPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    editScript.appendChange(Change.move(oldPath, newPath));
                 }
             }
         }
