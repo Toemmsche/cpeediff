@@ -14,7 +14,9 @@
    limitations under the License.
 */
 
-class Change {
+const {Serializable} = require("../utils/Serializable");
+
+class Change extends Serializable {
 
     static CHANGE_TYPES = {
         INSERTION: "Insertion",
@@ -30,6 +32,7 @@ class Change {
     newNode;
 
     constructor(changeType, oldPath = null, oldNode = null, newPath = null, newNode = null) {
+        super();
         this.changeType = changeType;
         this.oldPath = oldPath;
         this.newPath = newPath;
@@ -58,8 +61,18 @@ class Change {
             (this.newNode !== null ? this.newNode + " " : "");
     }
 
+    /**
+     * @override
+     * @returns {string}
+     */
     convertToJson() {
-
+        function replacer(key, value) {
+            if(value == "") { //lossy comparison matches null
+                return undefined;
+            }
+            return value;
+        }
+        return JSON.stringify(this, replacer);
     }
 }
 

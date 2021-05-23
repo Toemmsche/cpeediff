@@ -61,8 +61,8 @@ class EditScriptGenerator {
                 if (!newNode.nodeEquals(match)) {
                     //modify node
                     const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    const oldData = match.convertToJSON();
-                    const newData = newNode.convertToJSON();
+                    const oldData = match.convertToJson();
+                    const newData = newNode.convertToJson();
                     //TODO replace attributes
                     match.label = newNode.label;
                     editScript.appendChange(Change.update(oldPath, oldData, newData))
@@ -73,7 +73,7 @@ class EditScriptGenerator {
                 copy.childNodes = []; //reset child nodes
                 matchOfParent.insertChild(copy, newNode.childIndex);
                 const newPath = copy.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                const newData = copy.convertToJSON();
+                const newData = copy.convertToJson();
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
                 oldToNewMap.set(copy, [newNode]);

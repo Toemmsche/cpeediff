@@ -14,7 +14,9 @@
    limitations under the License.
 */
 
-class CPEENode {
+const {Serializable} = require("../utils/Serializable");
+
+class CPEENode extends Serializable {
 
     static KEYWORDS = {
         ROOT: "description",
@@ -76,6 +78,7 @@ class CPEENode {
     _childNodes;
 
     constructor(label) {
+        super();
         this.label = label;
         this.attributes = new Map();
         this.attributes = new Map();
@@ -505,10 +508,10 @@ class CPEENode {
     }
 
     /**
-     *
+     *  @override
      * @returns {String}
      */
-    convertToJSON() {
+    convertToJson() {
         function replacer(key, value) {
             if (key === "_parent" || key === "_childIndex") {
                 return undefined;
@@ -533,7 +536,12 @@ class CPEENode {
         return JSON.stringify(this, replacer);
     }
 
-    static parseFromJSON(str) {
+    /**
+     *
+     * @override
+     * @returns {String}
+     */
+    static parseFromJson(str) {
         function reviver(key, value) {
             if (value instanceof Object) {
                 //all maps are marked
@@ -561,7 +569,7 @@ class CPEENode {
     }
 
     copy() {
-        return CPEENode.parseFromJSON(this.convertToJSON());
+        return CPEENode.parseFromJson(this.convertToJson());
     }
 }
 

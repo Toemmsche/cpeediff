@@ -38,6 +38,12 @@ class EditScript {
     appendChange(change) {
         this.changes.push(change);
     }
+
+
+    convertToJSON() {
+
+    }
+
 }
 
 exports.EditScript = EditScript;

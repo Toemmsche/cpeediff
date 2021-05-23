@@ -25,13 +25,13 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 class Merger {
 
     static merge(model1, model2) {
-        const json = model1.root.convertToJSON();
+        const json = model1.root.convertToJson();
 
         //arbitrarily choose modelA as "old" model and modelB as "new" model to comppute edit script
         let editScript = MatchDiff.diff(model1, model2, TopDownMatching, KyongHoMatching);
 
         //reset first model
-        model1 = new CPEEModel(CPEENode.parseFromJSON(json));
+        model1 = new CPEEModel(CPEENode.parseFromJson(json));
 
         //apply edit script to first model until deletions
         let placeHolderCount = 0;
@@ -44,7 +44,7 @@ class Merger {
 
                     const childIndex = indexArr.pop();
                     const parent = Merger.findNode(model1, indexArr);
-                    const child = CPEENode.parseFromJSON(change.newNode);
+                    const child = CPEENode.parseFromJson(change.newNode);
                     parent.insertChild(child, childIndex);
                     child.changeType = change.changeType;
                     break;
@@ -76,7 +76,7 @@ class Merger {
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
                     const node = Merger.findNode(model1, nodeIndexArr);
-                    const newNode = CPEENode.parseFromJSON(change.newNode);
+                    const newNode = CPEENode.parseFromJson(change.newNode);
                     for(const property in newNode) {
                         //preserve structural information
                         if(!property.startsWith("_")) {

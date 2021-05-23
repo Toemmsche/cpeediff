@@ -36,8 +36,8 @@ console.log("\n VS \n")
 console.log(model2.toTreeString());
  */
 
-const json = model1.root.convertToJSON();
-const node = CPEENode.parseFromJSON(json);
+const json = model1.root.convertToJson();
+const node = CPEENode.parseFromJson(json);
 
 Merger.merge(model1, model2)
 
