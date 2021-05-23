@@ -1,4 +1,5 @@
 //TODO features
+//      IMPORANT make reshuffle a move
 //      preserve deleted nodes for tree output
 //      copy model before edit script gerneration
 //      export set and map similarity calculations
@@ -8,7 +9,7 @@
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
 //      use custom comparators (differnet performance, granularity)
-
+//      compare groups (endpoint, readVariables, modifiedVariables, other (maybe path, too))
 
 //TODO new algos
 //      fast match by Chawathe et al.
@@ -17,6 +18,8 @@
 //      matchSimilarUnmatched() by 3DM
 
 //TODO semi-features
+//      make placehollders and changeType private variables that are not serialized or compared
+//      define iterator on node
 //      output path instead of attributes
 //      constant values such as t in matchdiff should be options
 //      add verbose function
@@ -31,6 +34,8 @@
 //      diff method is static
 //      make parseFromJSON return properly typed and instantiated (parent and path) object
 //      pretty output vs machine readable (JSON vs treestring)
+//      readVariables considers Code, too
+//      read and modified Variables as Getter???
 
 
 //TODO tidy

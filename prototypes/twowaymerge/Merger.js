@@ -38,6 +38,7 @@ class Merger {
         model1 = new CPEEModel(CPEENode.parseFromJSON(json));
 
         //apply edit script to first model until deletions
+        let placeHolderCount = 0;
         for(const change of editScript.changes) {
             switch(change.constructor) {
                 case Insertion: {
@@ -57,6 +58,10 @@ class Merger {
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
                     const node = Merger.findNode(model1, nodeIndexArr);
+                    if(node.parent.placeholders === undefined) {
+                        node.parent.placeholders = []
+                    }
+                    node.parent.placeholders.push(node.childIndex);
                     node.removeFromParent();
 
                     const parentIndexArr = change.targetPath.split("/").map(str => parseInt(str));
@@ -99,8 +104,14 @@ class Merger {
         }
 
         for(const node of model1.toPreOrderArray()) {
-            if(node.changeType != null) {
+            if(node.changeType === "Insertion") {
                 //TODO check for conflicting operation in vicinity
+                for(const sibling of node.parent.childNodes) {
+                    if(sibling.changeType === "Deletion") {
+                        node.changeType = "CONFLICT Insertion";
+                        sibling.changeType = "CONFLICT Deletion";
+                    }
+                }
             }
         }
 

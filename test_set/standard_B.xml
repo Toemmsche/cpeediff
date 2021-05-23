@@ -111,4 +111,5 @@
             <manipulate id="a3">data.persons -= 1; data.value++; abc = 5</manipulate>
         </loop>
     </parallel>
+    <terminate id="145"></terminate>
 </description>

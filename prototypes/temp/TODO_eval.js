@@ -6,8 +6,3 @@
 //      comparison counters and running time framework
 //      eval edit distance
 //      decompose by stage (mapping vs edit script generation vs merging etc)
-
-
-//TODO twowaymerge
-//      use path maps (with and without index) to find nodes
-//      use node labels (siblings, ancestors) as context

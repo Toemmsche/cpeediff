@@ -16,19 +16,22 @@
 
 class CPEENode {
 
-    static ROOT = "description"
-    static CALL = "call"
-    static MANIPULATE = "manipulate"
-    static PARALLEL = "parallel"
-    static PARALLEL_BRANCH = "parallel_branch"
-    static CHOOSE = "choose"
-    static ALTERNATIVE = "alternative"
-    static OTHERWISE = "otherwise"
-    static LOOP = "loop"
-    static CRITICAL = "critical"
-    static STOP = "stop"
-    static ESCAPE = "escape"
-    static TERMINATE = "terminate"
+    static KEYWORDS = {
+        ROOT: "description",
+        CALL: "call",
+        MANIPULATE: "manipulate",
+        PARALLEL: "parallel",
+        PARALLEL_BRANCH: "parallel_branch",
+        CHOOSE: "choose",
+        ALTERNATIVE: "alternative",
+        OTHERWISE: "otherwise",
+        LOOP: "loop",
+        CRITICAL: "critical",
+        STOP: "stop",
+        ESCAPE: "escape",
+        TERMINATE: "terminate"
+    }
+
 
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //CPEE information
@@ -279,7 +282,7 @@ class CPEENode {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [CPEENode.LOOP, CPEENode.CRITICAL, CPEENode.ROOT, CPEENode.ALTERNATIVE, CPEENode.OTHERWISE, CPEENode.PARALLEL_BRANCH].includes(this.label);
+        return [CPEENode.KEYWORDS.LOOP, CPEENode.KEYWORDS.CRITICAL, CPEENode.KEYWORDS.ROOT, CPEENode.KEYWORDS.ALTERNATIVE, CPEENode.KEYWORDS.OTHERWISE, CPEENode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -287,7 +290,7 @@ class CPEENode {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [CPEENode.CALL, CPEENode.MANIPULATE, CPEENode.TERMINATE, CPEENode.STOP, CPEENode.ESCAPE].includes(this.label);
+        return [CPEENode.KEYWORDS.CALL, CPEENode.KEYWORDS.MANIPULATE, CPEENode.KEYWORDS.TERMINATE, CPEENode.KEYWORDS.STOP, CPEENode.KEYWORDS.ESCAPE].includes(this.label);
     }
 
     /**
@@ -295,8 +298,8 @@ class CPEENode {
      * @returns {boolean}
      */
     isPropertyNode() {
-        for (const cpeeKeyWord in CPEENode) {
-            if (this.label === CPEENode[cpeeKeyWord]) return false;
+        for (const cpeeKeyWord in CPEENode.KEYWORDS) {
+            if (this.label === CPEENode.KEYWORDS[cpeeKeyWord]) return false;
         }
         return true;
     }
@@ -328,7 +331,7 @@ class CPEENode {
      */
     containsCode() {
         //TODO replace with check of has()
-        return [CPEENode.CALL, CPEENode.MANIPULATE].includes(this.label);
+        return [CPEENode.KEYWORDS.CALL, CPEENode.KEYWORDS.MANIPULATE].includes(this.label);
     }
 
     /**
@@ -439,6 +442,12 @@ class CPEENode {
      * @returns {String}
      */
     toTreeString(barList, stringOption) {
+        //TODO
+        if (this.placeholders !== undefined) {
+            for (const index of this.placeholders) {
+                this.insertChild(new CPEENode("<Placeholder>"), index);
+            }
+        }
         const isLast = this._parent != null && this._childIndex === this._parent._childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
