@@ -14,16 +14,13 @@
    limitations under the License.
 */
 
-const {CPEENode} = require("../../CPEE/CPEENode");
-const {AbstractChange} = require("./AbstractChange");
-
 class Change {
 
     static CHANGE_TYPES = {
-        INSERTION: 1,
-        DELETION: 2,
-        MOVE: 3,
-        UPDATE: 4,
+        INSERTION: "Insertion",
+        DELETION: "Deletion",
+        MOVE: "Move",
+        UPDATE: "Update"
     }
 
     changeType;
@@ -40,6 +37,19 @@ class Change {
         this.newNode = newNode;
     }
 
+    static insert(newPath, newNode) {
+        return new Change(this.CHANGE_TYPES.INSERTION, null, null, newPath, newNode);
+    }
+    static delete(oldPath) {
+        return new Change(this.CHANGE_TYPES.DELETION, oldPath, null,null, null);
+    }
+    static move(oldPath, newPath) {
+        return new Change(this.CHANGE_TYPES.MOVE, oldPath, null, newPath);
+    }
+    static update(oldPath, oldNode, newNode) {
+        return new Change(this.CHANGE_TYPES.UPDATE, oldPath, oldNode, null, newNode);
+    }
+
     toString() {
         return this.changeType + " " +
             (this.oldPath !== null ? this.oldPath + " " : "") +
@@ -49,10 +59,7 @@ class Change {
     }
 
     convertToJson() {
-        return {
-            changeType: "Deletion",
-            value: JSON.stringify(this)
-        }
+
     }
 }
 
