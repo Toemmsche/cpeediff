@@ -53,6 +53,7 @@ class Merger {
                     break;
                 }
                 case Change.CHANGE_TYPES.MOVE: {
+                    //TODO deletions can mess with reshuffles
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     //remove description index (always 0)
                     nodeIndexArr.splice(0, 1);
@@ -97,8 +98,6 @@ class Merger {
                     //Don't actually delete the node, just mark it to verify consistency of model
                     node.changeType = change.changeType;
                 }
-
-                //TODO reshuffles, ignore for now as they need to be updated anyways
             }
         }
 

@@ -1,8 +1,6 @@
 //TODO features
 //      IMPROTANT path string separate method
-//      IMPORANT make reshuffle a move
 //      preserve deleted nodes for tree output
-//      copy model before edit script gerneration
 //      export set and map similarity calculations
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
 //      conflict groups for reshuffling
@@ -20,7 +18,6 @@
 
 //TODO semi-features
 //      make placehollders and changeType private variables that are not serialized or compared
-//      define iterator on node
 //      output path instead of attributes
 //      constant values such as t in matchdiff should be options
 //      add verbose function

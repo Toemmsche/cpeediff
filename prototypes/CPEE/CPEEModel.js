@@ -110,22 +110,11 @@ class CPEEModel {
                 root.attributes.set(attrNode.name, attrNode.value);
             }
 
-            //extract necessary/declared data variables
+            //extract modified variables from code and read variables from call to endpoint
             if (root.containsCode()) {
-                let code = "";
-                if (root.label === "manipulate") {
-                    code = root.data;
-                } else {
-                    //concatenate everything (if present)
-                    const prepare = (root.attributes.has("code/prepare") ? root.attributes.get("code/prepare") : "");
-                    const finalize = (root.attributes.has("code/finalize") ? root.attributes.get("code/finalize") : "");
-                    const update = (root.attributes.has("code/update") ? root.attributes.get("code/update") : "");
-                    const rescue = (root.attributes.has("code/rescue") ? root.attributes.get("code/rescue") : "");
-                    code = prepare + finalize + update + rescue;
-                }
                 const modifiedVariables = new Set();
                 //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
-                const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+                const matches = root.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
                 if (matches !== null) {
                     for (const variable of matches) {
                         //match only variable name and remove data. prefix
@@ -136,12 +125,14 @@ class CPEEModel {
 
                 const readVariables = new Set();
                 for(const[key, value] of root.attributes) {
-                    if(key.startsWith("parameters/arguments/")) {
+                    if(key.startsWith("./parameters/arguments/")) {
                         readVariables.add(value.replace(/data\./, ""));
                     }
                 }
+                root.readVariables = readVariables;
             }
 
+            //extract read Variables from condition
             if(root.containsCondition()) {
                 const condition = root.attributes.get("condition");
                 const readVariables = new Set();

@@ -273,6 +273,23 @@ class CPEENode extends Serializable {
     }
 
     /**
+     *  @returns {String}
+     */
+    getCode() {
+        if(this.containsCode()) {
+            if(this.label === "manipulate") {
+               return this.data;
+            } else {
+                const prepare = (this.attributes.has("./code/prepare") ? this.attributes.get("./code/prepare") : "");
+                const finalize = (this.attributes.has("./code/finalize") ? this.attributes.get("./code/finalize") : "");
+                const update = (this.attributes.has("./code/update") ? this.attributes.get("./code/update") : "");
+                const rescue = (this.attributes.has("./code/rescue") ? this.attributes.get("./code/rescue") : "");
+                return prepare + finalize + update + rescue;
+            }
+        }
+    }
+    
+    /**
      * @returns {boolean}
      */
     hasChildren() {
@@ -292,7 +309,12 @@ class CPEENode extends Serializable {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [CPEENode.KEYWORDS.LOOP, CPEENode.KEYWORDS.CRITICAL, CPEENode.KEYWORDS.ROOT, CPEENode.KEYWORDS.ALTERNATIVE, CPEENode.KEYWORDS.OTHERWISE, CPEENode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
+        return [CPEENode.KEYWORDS.LOOP,
+            CPEENode.KEYWORDS.CRITICAL,
+            CPEENode.KEYWORDS.ROOT,
+            CPEENode.KEYWORDS.ALTERNATIVE,
+            CPEENode.KEYWORDS.OTHERWISE,
+            CPEENode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -300,7 +322,11 @@ class CPEENode extends Serializable {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [CPEENode.KEYWORDS.CALL, CPEENode.KEYWORDS.MANIPULATE, CPEENode.KEYWORDS.TERMINATE, CPEENode.KEYWORDS.STOP, CPEENode.KEYWORDS.ESCAPE].includes(this.label);
+        return [CPEENode.KEYWORDS.CALL,
+            CPEENode.KEYWORDS.MANIPULATE,
+            CPEENode.KEYWORDS.TERMINATE,
+            CPEENode.KEYWORDS.STOP,
+            CPEENode.KEYWORDS.ESCAPE].includes(this.label);
     }
 
     /**
@@ -341,7 +367,11 @@ class CPEENode extends Serializable {
      */
     containsCode() {
         //TODO replace with check of has()
-        return [CPEENode.KEYWORDS.CALL, CPEENode.KEYWORDS.MANIPULATE].includes(this.label);
+        return this.label === "manipulate"
+            || this.attributes.has("./code/finalize")
+            || this.attributes.has("./code/prepare") 
+            || this.attributes.has("./code/rescue") 
+            || this.attributes.has("./code/update");
     }
 
     /**
