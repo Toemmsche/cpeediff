@@ -171,7 +171,7 @@ class EditScriptGenerator {
                     const oldPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     node.changeChildIndex(match.childIndex);
                     const newPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    editScript.appendChange(Change.move(oldPath, newPath));
+                    //editScript.appendChange(Change.move(oldPath, newPath));
                 }
             }
         }

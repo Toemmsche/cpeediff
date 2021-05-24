@@ -33,9 +33,6 @@ class Merger {
         //reset first model
         model1 = new CPEEModel(CPEENode.parseFromJson(json));
 
-        for(const child of model1.root) {
-            console.log(child.label);
-        }
         //apply edit script to first model until deletions
         let placeHolderCount = 0;
         for(const change of editScript.changes) {
@@ -119,11 +116,17 @@ class Merger {
 
     static findNode(model, indexArr) {
         let currNode = model.root;
-        for(const index of indexArr) {
-            if(index >= currNode.childNodes.length) {
-                throw new Error("Edit script not applicable to model");
+        indexLoop: for(let index of indexArr) {
+            //TODO replace this dirty fix for multiple deletions
+            for (let i = 0; i < currNode.childNodes.length; i++) {
+                const childNode = currNode.childNodes[i];
+                if(childNode.changeType === "Deletion") index++;
+                if(i === index) {
+                    currNode = childNode;
+                    continue indexLoop;
+                }
             }
-            currNode = currNode.childNodes[index];
+            throw new Error("Edit script not applicable to model");
         }
         return currNode;
     }

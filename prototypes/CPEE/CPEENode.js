@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {LCSSimilarity} = require("../utils/LCSSimilarity");
 const {Serializable} = require("../utils/Serializable");
 
 class CPEENode extends Serializable {
@@ -207,28 +208,65 @@ class CPEENode extends Serializable {
     compareTo(other) {
         switch (this.label) {
             case "call": {
-                //we cannot possibly match a call with an inner node
+                //we cannot possibly match a call with another node type
                 if (this.label !== other.label) return 1.0;
+                /*
+                To compare call nodes, a fixed number of separate comparison groups are defined.
+                If two nodes exhibit differences in almost all of the groups, a high comparison value (= low similarity) will be returned.
+                If two nodes are identical in many of the groups, a low comparison value (= high similarity) will be returned.
+                The preliminary comparison groups are focussed around the endpoint (endPoint descriptor and method),
+                the variables modified in the code, the variables read in the code or as parameters for the call,
+                and the path of the node.
+                 */
+
+                const thisEndpoint = this.attributes.get("endpoint");
+                const otherEndpoint = other.attributes.get("endpoint");
+                const endPointLcsSimilarity = LCSSimilarity.getLCS(thisEndpoint, otherEndpoint).length
+                    / Math.max(thisEndpoint.length, otherEndpoint.length);
+                let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
+                if(this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
+                    endPointComparisonValue *= 1.2;
+                }
+
                 let differentCounter = 0;
-                //TODO weigh id and variables
-                let total = Math.max(this.attributes.size + this.modifiedVariables.size, other.attributes.size + other.modifiedVariables.size);
-                for (const [key, value] of this.attributes) {
-                    //only count real differences, not pure insertions/deletions
-                    if (!other.attributes.has(key) || other.attributes.has(key) && value !== other.attributes.get(key)) {
+                for (const modifiedVariable of this.modifiedVariables) {
+                    if (!other.modifiedVariables.has(modifiedVariable)) {
                         differentCounter++;
                     }
                 }
-                for (const variable of this.modifiedVariables) {
-                    if (!other.modifiedVariables.has(variable)) {
+                for (const otherModifiedVariable of other.modifiedVariables) {
+                    if (!this.modifiedVariables.has(otherModifiedVariable)) {
                         differentCounter++;
                     }
                 }
-                for (const variable of other.modifiedVariables) {
-                    if (!this.modifiedVariables.has(variable)) {
+                let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
+                //avoid NaN
+                if(maxSize === 0) {
+                    maxSize = 1;
+                }
+                const modifiedVariablesComparisonValue = differentCounter / maxSize;
+
+                differentCounter = 0;
+                for (const readVariable of this.readVariables) {
+                    if (!other.readVariables.has(readVariable)) {
                         differentCounter++;
                     }
                 }
-                return differentCounter / total;
+                for (const otherReadVariable of other.readVariables) {
+                    if (!this.readVariables.has(otherReadVariable)) {
+                        differentCounter++;
+                    }
+                }
+                maxSize = Math.max(this.readVariables.size, other.readVariables.size);
+                //avoid NaN
+                if(maxSize === 0) {
+                    maxSize = 1;
+                }
+                const readVariablesComparisonValue = differentCounter / maxSize;
+
+
+                //endpoint and modified variables have higher weights
+                return endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
             }
 
             case "manipulate": {
@@ -276,9 +314,9 @@ class CPEENode extends Serializable {
      *  @returns {String}
      */
     getCode() {
-        if(this.containsCode()) {
-            if(this.label === "manipulate") {
-               return this.data;
+        if (this.containsCode()) {
+            if (this.label === "manipulate") {
+                return this.data;
             } else {
                 const prepare = (this.attributes.has("./code/prepare") ? this.attributes.get("./code/prepare") : "");
                 const finalize = (this.attributes.has("./code/finalize") ? this.attributes.get("./code/finalize") : "");
@@ -288,7 +326,7 @@ class CPEENode extends Serializable {
             }
         }
     }
-    
+
     /**
      * @returns {boolean}
      */
@@ -369,8 +407,8 @@ class CPEENode extends Serializable {
         //TODO replace with check of has()
         return this.label === "manipulate"
             || this.attributes.has("./code/finalize")
-            || this.attributes.has("./code/prepare") 
-            || this.attributes.has("./code/rescue") 
+            || this.attributes.has("./code/prepare")
+            || this.attributes.has("./code/rescue")
             || this.attributes.has("./code/update");
     }
 

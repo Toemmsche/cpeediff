@@ -15,7 +15,7 @@
 */
 
 class Globals {
-    static LEAF_SIMILARITY_THRESHOLD = 0.25;
+    static LEAF_SIMILARITY_THRESHOLD = 0.3;
     static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
 }
 

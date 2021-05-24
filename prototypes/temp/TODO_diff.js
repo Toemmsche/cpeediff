@@ -8,7 +8,7 @@
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
 //      use custom comparators (differnet performance, granularity)
-//      compare groups (endpoint, readVariables, modifiedVariables, other (maybe path, too))
+//      add path to call compare
 
 //TODO new algos
 //      fast match by Chawathe et al.
@@ -17,6 +17,8 @@
 //      matchSimilarUnmatched() by 3DM
 
 //TODO semi-features
+//      use custom class for attributes (maybe extension of map)
+//      patcher supports child index only and type index
 //      make placehollders and changeType private variables that are not serialized or compared
 //      output path instead of attributes
 //      constant values such as t in matchdiff should be options
