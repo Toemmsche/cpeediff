@@ -100,7 +100,7 @@ class Merger {
 
         for(const node of model1.toPreOrderArray()) {
             if(node.changeType === "Insertion") {
-                //TODO check for conflicting operation in vicinity
+                //TODO check for conflicting operation in regards to read/modified variables
                 for(const sibling of node.parent) {
                     if(sibling.changeType === "Deletion") {
                         node.changeType = "CONFLICT Insertion";

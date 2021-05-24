@@ -8,7 +8,6 @@
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
 //      use custom comparators (differnet performance, granularity)
-//      add path to call compare
 
 //TODO new algos
 //      fast match by Chawathe et al.
@@ -19,14 +18,13 @@
 //TODO semi-features
 //      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
-//      make placehollders and changeType private variables that are not serialized or compared
+//      make placeholder a node type and changeType private variables that are not serialized or compared
 //      output path instead of attributes
 //      constant values such as t in matchdiff should be options
 //      add verbose function
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
-//      use existing code diff tools to evalute script similarity
 //      use path as key in call comparison
 //      convert cpeemodel back to XML
 //      IMPORTANT use default parameters to simplify postorder methods etc.

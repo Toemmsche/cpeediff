@@ -44,6 +44,7 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
             if (oldNode.compareTo(newNode) <= t) {
                 newToOldMap.set(newNode, [oldNode]);
                 //If two nodes match exactly, we try to match their children recursively, too.
+                //TODO don't map when keyword appears mukltiple times
                 //That's it.
                 for (const oldChild of oldNode) {
                     for (const newChild of newNode.childNodes) {

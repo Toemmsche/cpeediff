@@ -215,8 +215,7 @@ class CPEENode extends Serializable {
                 If two nodes exhibit differences in almost all of the groups, a high comparison value (= low similarity) will be returned.
                 If two nodes are identical in many of the groups, a low comparison value (= high similarity) will be returned.
                 The preliminary comparison groups are focussed around the endpoint (endPoint descriptor and method),
-                the variables modified in the code, the variables read in the code or as parameters for the call,
-                and the path of the node.
+                the variables modified in the code, and the variables read in the code or as parameters for the call.
                  */
 
                 const thisEndpoint = this.attributes.get("endpoint");
@@ -224,9 +223,14 @@ class CPEENode extends Serializable {
                 const endPointLcsSimilarity = LCSSimilarity.getLCS(thisEndpoint, otherEndpoint).length
                     / Math.max(thisEndpoint.length, otherEndpoint.length);
                 let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
-                if(this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
-                    endPointComparisonValue *= 1.2;
+                if(this.attributes.get("./parameters/label") === other.attributes.get("./parameters/label")) {
+                    //TODO maybe use LCS, too
+                    endPointComparisonValue *= 0.5;
                 }
+                if(this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
+                    endPointComparisonValue = Math.min(1.5*endPointComparisonValue, 1);
+                }
+
 
                 let differentCounter = 0;
                 for (const modifiedVariable of this.modifiedVariables) {
