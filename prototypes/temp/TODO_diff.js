@@ -43,7 +43,6 @@
 //      use arrow notation (or dont use private function)
 //      use patchbuilder
 //      turn path into method
-//      declare all variables at function start
 //      maybe mark clearly which nodes belong to which tree
 //      Deicision options in diff or class
 //      Add documentation to _important_ local variables (eg DP array)
