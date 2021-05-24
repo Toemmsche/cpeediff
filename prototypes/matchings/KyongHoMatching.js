@@ -148,8 +148,8 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         function matchingSimilarity(oldRootNode, newRootNode) {
             //divide size of set of common nodes by size of old subtree
             //only consider true descendants
-            const oldSubTreePreOrder = new CPEEModel(oldRootNode).toPreOrderArray().slice(1);
-            const newSubTreePreOrder = new CPEEModel(newRootNode).toPreOrderArray().slice(1);
+            const oldSubTreePreOrder = new CPEEModel(oldRootNode).toPreOrderArray();
+            const newSubTreePreOrder = new CPEEModel(newRootNode).toPreOrderArray();
 
             if (oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
                 return 0;

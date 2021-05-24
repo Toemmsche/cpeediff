@@ -164,6 +164,13 @@ class CPEENode extends Serializable {
     }
 
     /**
+     * @returns {IterableIterator<CPEENode>}
+     */
+    [Symbol.iterator]() {
+        return this._childNodes[Symbol.iterator]();
+    }
+
+    /**
      *
      * @param {CPEENode} other
      * @returns {boolean}
@@ -474,7 +481,7 @@ class CPEENode extends Serializable {
         line += this.toString(stringOption) + "\n";
         if (this.hasChildren()) {
             barList.push(lineLength + 1);
-            for (const child of this._childNodes) {
+            for (const child of this) {
                 line += child.toTreeString(barList, stringOption);
             }
         }
@@ -488,7 +495,7 @@ class CPEENode extends Serializable {
      */
     toPreOrderArray(arr = []) {
         arr.push(this);
-        for (const child of this._childNodes) {
+        for (const child of this) {
             child.toPreOrderArray(arr);
         }
         return arr;
@@ -500,7 +507,7 @@ class CPEENode extends Serializable {
      * @returns {CPEENode[]}
      */
     toPostOrderArray(arr = []) {
-        for (const child of this._childNodes) {
+        for (const child of this) {
             child.toPostOrderArray(arr);
         }
         arr.push(this);
@@ -539,7 +546,7 @@ class CPEENode extends Serializable {
     /**
      *
      * @override
-     * @returns {String}
+     * @returns {CPEENode}
      */
     static parseFromJson(str) {
         function reviver(key, value) {

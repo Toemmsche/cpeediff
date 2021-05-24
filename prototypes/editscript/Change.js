@@ -74,6 +74,10 @@ class Change extends Serializable {
         }
         return JSON.stringify(this, replacer);
     }
+
+    static parseFromJson(str) {
+       return Object.assign(new Change(), JSON.parse(str));
+    }
 }
 
 exports.Change = Change;

@@ -42,7 +42,7 @@ class CPEEModel {
                 if (childTNode.tagName === "dataelements") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const variable = childTNode.childNodes.item(j);
-                        if (variable.nodeType === 1) {
+                        if (variable.nodeType === 1) { //Element, not Text
                             declaredVariables.add(variable.tagName);
                         }
                     }
@@ -54,6 +54,7 @@ class CPEEModel {
             }
             return new CPEEModel(root, declaredVariables);
         } else {
+            //no information about declared Variables available
             return new CPEEModel(constructRecursive(doc));
         }
 

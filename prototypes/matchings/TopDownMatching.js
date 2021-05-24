@@ -45,7 +45,7 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
                 newToOldMap.set(newNode, [oldNode]);
                 //If two nodes match exactly, we try to match their children recursively, too.
                 //That's it.
-                for (const oldChild of oldNode.childNodes) {
+                for (const oldChild of oldNode) {
                     for (const newChild of newNode.childNodes) {
                         topDown(oldChild, newChild);
                     }

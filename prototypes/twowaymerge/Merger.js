@@ -33,6 +33,9 @@ class Merger {
         //reset first model
         model1 = new CPEEModel(CPEENode.parseFromJson(json));
 
+        for(const child of model1.root) {
+            console.log(child.label);
+        }
         //apply edit script to first model until deletions
         let placeHolderCount = 0;
         for(const change of editScript.changes) {
@@ -102,7 +105,7 @@ class Merger {
         for(const node of model1.toPreOrderArray()) {
             if(node.changeType === "Insertion") {
                 //TODO check for conflicting operation in vicinity
-                for(const sibling of node.parent.childNodes) {
+                for(const sibling of node.parent) {
                     if(sibling.changeType === "Deletion") {
                         node.changeType = "CONFLICT Insertion";
                         sibling.changeType = "CONFLICT Deletion";
