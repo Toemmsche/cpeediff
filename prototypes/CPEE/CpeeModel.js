@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-const {CPEENode} = require("./CPEENode");
+const {CpeeNode} = require("./CpeeNode");
 const {DOMParser} = require("xmldom");
 
 //TODO doc
-class CPEEModel {
+class CpeeModel {
 
-    //CPEENode
+    //CpeeNode
     root;
 
     declaredVariables;
@@ -31,7 +31,7 @@ class CPEEModel {
     }
 
     //TODO doc
-    static fromCPEE(xml, options = []) {
+    static fromCpee(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
         if (doc.tagName === "properties") {
@@ -52,14 +52,14 @@ class CPEEModel {
                     root = constructRecursive(childTNode.childNodes.item(j));
                 }
             }
-            return new CPEEModel(root, declaredVariables);
+            return new CpeeModel(root, declaredVariables);
         } else {
             //no information about declared Variables available
-            return new CPEEModel(constructRecursive(doc));
+            return new CpeeModel(constructRecursive(doc));
         }
 
         function constructRecursive(tNode) {
-            let root = new CPEENode(tNode.tagName);
+            let root = new CpeeNode(tNode.tagName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -90,7 +90,7 @@ class CPEEModel {
             function buildChildAttributeMap(node, map) {
                 if (node.data != "") { //lossy comparison
                     //retain full (relative) structural information in the nodes
-                    map.set("./" + node.toString(CPEENode.STRING_OPTIONS.PATH), node.data);
+                    map.set("./" + node.toString(CpeeNode.STRING_OPTIONS.PATH), node.data);
                 }
 
                 //copy all values into new map
@@ -150,6 +150,10 @@ class CPEEModel {
         }
     }
 
+    toXml() {
+
+    }
+
     //TODO doc
     toPreOrderArray() {
         return this.root.toPreOrderArray();
@@ -163,9 +167,9 @@ class CPEEModel {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
     }
 
-    toTreeString(stringOption = CPEENode.STRING_OPTIONS.LABEL) {
+    toTreeString(stringOption = CpeeNode.STRING_OPTIONS.LABEL) {
         return this.root.toTreeString([], stringOption);
     }
 }
 
-exports.CPEEModel = CPEEModel;
+exports.CpeeModel = CpeeModel;

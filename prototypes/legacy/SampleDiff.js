@@ -15,7 +15,7 @@
 */
 
 const {AbstractDiff} = require("../AbstractDiff");
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 
 class SampleDiff extends AbstractDiff {
 

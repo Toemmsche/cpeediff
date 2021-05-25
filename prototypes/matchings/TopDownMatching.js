@@ -16,7 +16,7 @@
 
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 
 
 class TopDownMatching extends AbstractMatchingAlgorithm {
@@ -28,8 +28,8 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
 
     /**
      * Matches nodes based on a simple top-down approach.
-     * @param {CPEEModel} oldModel The old process model
-     * @param {CPEEModel} newModel The new process model
+     * @param {CpeeModel} oldModel The old process model
+     * @param {CpeeModel} newModel The new process model
      * @param {Matching} existingMatching An existing matching that is extended.
      *                                    The order the matching algorithms are applied in matters.
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches

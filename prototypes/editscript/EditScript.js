@@ -44,6 +44,10 @@ class EditScript {
 
     }
 
+    [Symbol.iterator]() {
+        return this.changes[Symbol.iterator]();
+    }
+
 }
 
 exports.EditScript = EditScript;

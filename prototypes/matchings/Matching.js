@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 
 
 class Matching {

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 const {Matching} = require("../matchings/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
@@ -23,7 +23,7 @@ class MatchDiff extends AbstractDiff {
 
     static diff(oldModel, newModel, ...matchingAlgorithms) {
         //this will modify the old model, hence a copy is used
-        const copyOfOld = new CPEEModel(oldModel.root.copy());
+        const copyOfOld = new CpeeModel(oldModel.root.copy());
         let m = new Matching();
         for(const matchingAlgorithm of matchingAlgorithms) {
             m = matchingAlgorithm.match(copyOfOld, newModel, m);

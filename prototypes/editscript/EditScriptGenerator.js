@@ -16,8 +16,8 @@
 
 
 const {Change} = require("./Change");
-const {CPEEModel} = require("../CPEE/CPEEModel");
-const {CPEENode} = require("../CPEE/CPEENode");
+const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeNode} = require("../CPEE/CpeeNode");
 const {EditScript} = require("./EditScript");
 
 class EditScriptGenerator {
@@ -51,16 +51,16 @@ class EditScriptGenerator {
                 const match = newToOldMap.get(newNode)[0];
                 if (matchOfParent !== match.parent) {
                     //move match to matchOfParent
-                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     match.removeFromParent();
                     matchOfParent.insertChild(match, newNode.childIndex);
-                    const newPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const newPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     editScript.appendChange(Change.move(oldPath, newPath));
                 }
 
                 if (!newNode.nodeEquals(match)) {
                     //modify node
-                    const oldPath = match.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     const oldData = match.convertToJson();
                     const newData = newNode.convertToJson();
                     //TODO replace attributes
@@ -72,7 +72,7 @@ class EditScriptGenerator {
                 const copy = newNode.copy()
                 copy.childNodes = []; //reset child nodes
                 matchOfParent.insertChild(copy, newNode.childIndex);
-                const newPath = copy.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                const newPath = copy.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                 const newData = copy.convertToJson();
                 //insertions are always mapped back to the original node
                 newToOldMap.set(newNode, [copy]);
@@ -100,7 +100,7 @@ class EditScriptGenerator {
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             oldDeletedNodes.splice(0, subTreeSize);
-            const oldPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+            const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
             editScript.appendChange(Change.delete(oldPath));
         }
 
@@ -168,9 +168,9 @@ class EditScriptGenerator {
 
                 for (const node of reshuffle) {
                     const match = oldToNewMap.get(node)[0];
-                    const oldPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     node.changeChildIndex(match.childIndex);
-                    const newPath = node.toString(CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const newPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     //editScript.appendChange(Change.move(oldPath, newPath));
                 }
             }

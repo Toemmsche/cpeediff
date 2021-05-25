@@ -18,7 +18,7 @@ const {Globals} = require("../Global");
 const {LCSSimilarity} = require("../utils/LCSSimilarity");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 
 
 class KyongHoMatching extends AbstractMatchingAlgorithm {
@@ -27,8 +27,8 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
      * Matches nodes in the two process models according to the matching algorithm
      * described by
      * Kyong-Ho et al., "An Efficient Algorithm to Compute Differences between Structured Documents", 2004
-     * @param {CPEEModel} oldModel The old process model
-     * @param {CPEEModel} newModel The new process model
+     * @param {CpeeModel} oldModel The old process model
+     * @param {CpeeModel} newModel The new process model
      * @param {Matching} existingMatching An existing matching that is extended.
      *                                    The order the matching algorithms are applied in matters.
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
@@ -148,8 +148,8 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         function matchingSimilarity(oldRootNode, newRootNode) {
             //divide size of set of common nodes by size of old subtree
             //only consider true descendants
-            const oldSubTreePreOrder = new CPEEModel(oldRootNode).toPreOrderArray();
-            const newSubTreePreOrder = new CPEEModel(newRootNode).toPreOrderArray();
+            const oldSubTreePreOrder = new CpeeModel(oldRootNode).toPreOrderArray();
+            const newSubTreePreOrder = new CpeeModel(newRootNode).toPreOrderArray();
 
             if (oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
                 return 0;

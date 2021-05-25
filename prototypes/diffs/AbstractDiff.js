@@ -21,19 +21,19 @@
 class AbstractDiff {
     /**
      * The original process model
-     * @type {CPEEModel}
+     * @type {CpeeModel}
      */
     oldModel;
     /**
      * The changed process model
-     * @type {CPEEModel}
+     * @type {CpeeModel}
      */
     newModel;
 
     /**
      * Instantiate an AbstractDiff object with the given models and options.
-     * @param {CPEEModel} oldModel The original CPEE process model
-     * @param {CPEEModel} newModel The changed CPEE process model
+     * @param {CpeeModel} oldModel The original CPEE process model
+     * @param {CpeeModel} newModel The changed CPEE process model
      * @param {String[]} options Additional options for the difference calculation
      * @param {String[]} availableOptions The options available for this diff algorithm.
      * @throws {Error} If not called from within a subclass

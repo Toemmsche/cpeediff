@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 
 /**
  * Abstract super class for all matching algorithms.
@@ -54,8 +54,8 @@ class AbstractMatchingAlgorithm {
 
     /**
      * Matches nodes in the two process models
-     * @param {CPEEModel} oldModel The old process model
-     * @param {CPEEModel} newModel The new process model
+     * @param {CpeeModel} oldModel The old process model
+     * @param {CpeeModel} newModel The new process model
      * @param {Matching} existingMatching An existing matching that is extended.
      *                                    The order the matching algorithms are applied in matters.
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2

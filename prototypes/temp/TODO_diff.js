@@ -39,7 +39,7 @@
 //TODO tidy
 //      replace nodeequals with === where applicable
 //      encapsulate handleInsert() in edit script generation
-//      diff() performes conversion to CPEEModel
+//      diff() performes conversion to CpeeModel
 //      use arrow notation (or dont use private function)
 //      use patchbuilder
 //      turn path into method

@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-const {CPEEModel} = require("../CPEE/CPEEModel");
+const {CpeeModel} = require("../CPEE/CpeeModel");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const fs = require("fs");
     const {Merger} = require("../twowaymerge/Merger");
-    const {CPEENode} = require("../CPEE/CPEENode");
+    const {CpeeNode} = require("../CPEE/CpeeNode");
 const {TopDownMatching} = require("../matchings/TopDownMatching");
 const {KyongHoMatching} = require("../matchings/KyongHoMatching");
 
@@ -28,8 +28,8 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const model1 = CPEEModel.fromCPEE(xmlA);
-const model2 = CPEEModel.fromCPEE(xmlB);
+const model1 = CpeeModel.fromCpee(xmlA);
+const model2 = CpeeModel.fromCpee(xmlB);
 /*
 console.log(model1.toTreeString());
 console.log("\n VS \n")
@@ -37,7 +37,7 @@ console.log(model2.toTreeString());
  */
 
 const json = model1.root.convertToJson();
-const node = CPEENode.parseFromJson(json);
+const node = CpeeNode.parseFromJson(json);
 
 Merger.merge(model1, model2)
 

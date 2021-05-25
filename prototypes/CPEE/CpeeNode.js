@@ -17,7 +17,7 @@
 const {LCSSimilarity} = require("../utils/LCSSimilarity");
 const {Serializable} = require("../utils/Serializable");
 
-class CPEENode extends Serializable {
+class CpeeNode extends Serializable {
 
     static KEYWORDS = {
         ROOT: "description",
@@ -53,17 +53,17 @@ class CPEENode extends Serializable {
 
     //private
     /**
-     * @type Set<CPEENode>
+     * @type Set<CpeeNode>
      */
     modifiedVariables;
     /**
-     * @type Set<CPEENode>
+     * @type Set<CpeeNode>
      */
     readVariables;
 
     //structural information
     /**
-     * @type CPEENode
+     * @type CpeeNode
      * @private
      */
     _parent;
@@ -73,7 +73,7 @@ class CPEENode extends Serializable {
      */
     _childIndex;
     /**
-     * @type CPEENode[]
+     * @type CpeeNode[]
      * @private
      */
     _childNodes;
@@ -81,7 +81,6 @@ class CPEENode extends Serializable {
     constructor(label) {
         super();
         this.label = label;
-        this.attributes = new Map();
         this.attributes = new Map();
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
@@ -106,7 +105,7 @@ class CPEENode extends Serializable {
     }
 
     /**
-     * @returns {CPEENode[]}
+     * @returns {CpeeNode[]}
      */
     get path() {
         const pathArr = [];
@@ -120,7 +119,7 @@ class CPEENode extends Serializable {
     }
 
     /**
-     * @returns {CPEENode}
+     * @returns {CpeeNode}
      */
     get parent() {
         return this._parent;
@@ -128,14 +127,14 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode} parentNode
+     * @param {CpeeNode} parentNode
      */
     set parent(parentNode) {
         this._parent = parentNode;
     }
 
     /**
-     * @returns {CPEENode[]}
+     * @returns {CpeeNode[]}
      */
     get childNodes() {
         return this._childNodes;
@@ -143,7 +142,7 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode[]} newChildNodes
+     * @param {CpeeNode[]} newChildNodes
      */
     set childNodes(childNodes) {
         this._childNodes = childNodes;
@@ -165,7 +164,7 @@ class CPEENode extends Serializable {
     }
 
     /**
-     * @returns {IterableIterator<CPEENode>}
+     * @returns {IterableIterator<CpeeNode>}
      */
     [Symbol.iterator]() {
         return this._childNodes[Symbol.iterator]();
@@ -173,7 +172,32 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode} other
+     * @returns {number}
+     */
+    numChildren() {
+        return this._childNodes.length;
+    }
+
+    /**
+     *
+     * @param index
+     * @returns {CpeeNode}
+     */
+    getChild(index) {
+        return this._childNodes[index];
+    }
+
+    /**
+     *
+     * @returns {CpeeNode[]}
+     */
+    getSiblings() {
+        return this._parent._childNodes;
+    }
+
+    /**
+     *
+     * @param {CpeeNode} other
      * @returns {boolean}
      */
     nodeEquals(other) {
@@ -202,7 +226,7 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode} other
+     * @param {CpeeNode} other
      * @returns {number}
      */
     compareTo(other) {
@@ -231,43 +255,46 @@ class CPEENode extends Serializable {
                     endPointComparisonValue = Math.min(1.5*endPointComparisonValue, 1);
                 }
 
-
-                let differentCounter = 0;
-                for (const modifiedVariable of this.modifiedVariables) {
-                    if (!other.modifiedVariables.has(modifiedVariable)) {
-                        differentCounter++;
-                    }
-                }
-                for (const otherModifiedVariable of other.modifiedVariables) {
-                    if (!this.modifiedVariables.has(otherModifiedVariable)) {
-                        differentCounter++;
-                    }
-                }
                 let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
-                //avoid NaN
+                let modifiedVariablesComparisonValue;
+                //if modifiedVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
                 if(maxSize === 0) {
-                    maxSize = 1;
+                    modifiedVariablesComparisonValue = endPointComparisonValue;
+                } else {
+                    let differentCounter = 0;
+                    for (const modifiedVariable of this.modifiedVariables) {
+                        if (!other.modifiedVariables.has(modifiedVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    for (const otherModifiedVariable of other.modifiedVariables) {
+                        if (!this.modifiedVariables.has(otherModifiedVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    modifiedVariablesComparisonValue = differentCounter / maxSize;
                 }
-                const modifiedVariablesComparisonValue = differentCounter / maxSize;
 
-                differentCounter = 0;
-                for (const readVariable of this.readVariables) {
-                    if (!other.readVariables.has(readVariable)) {
-                        differentCounter++;
-                    }
-                }
-                for (const otherReadVariable of other.readVariables) {
-                    if (!this.readVariables.has(otherReadVariable)) {
-                        differentCounter++;
-                    }
-                }
                 maxSize = Math.max(this.readVariables.size, other.readVariables.size);
-                //avoid NaN
-                if(maxSize === 0) {
-                    maxSize = 1;
-                }
-                const readVariablesComparisonValue = differentCounter / maxSize;
 
+                let readVariablesComparisonValue;
+                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
+                if(maxSize === 0) {
+                    readVariablesComparisonValue = endPointComparisonValue;
+                } else {
+                    let differentCounter = 0;
+                    for (const readVariable of this.readVariables) {
+                        if (!other.readVariables.has(readVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    for (const otherReadVariable of other.readVariables) {
+                        if (!this.readVariables.has(otherReadVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    readVariablesComparisonValue = differentCounter / maxSize;
+                }
 
                 //endpoint and modified variables have higher weights
                 return endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
@@ -307,7 +334,7 @@ class CPEENode extends Serializable {
             }
 
             default: {
-                //hard comparison
+                //all-or-nothing comparison
                 if (this.nodeEquals(other)) return 0;
                 else return 1;
             }
@@ -351,12 +378,12 @@ class CPEENode extends Serializable {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [CPEENode.KEYWORDS.LOOP,
-            CPEENode.KEYWORDS.CRITICAL,
-            CPEENode.KEYWORDS.ROOT,
-            CPEENode.KEYWORDS.ALTERNATIVE,
-            CPEENode.KEYWORDS.OTHERWISE,
-            CPEENode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
+        return [CpeeNode.KEYWORDS.LOOP,
+            CpeeNode.KEYWORDS.CRITICAL,
+            CpeeNode.KEYWORDS.ROOT,
+            CpeeNode.KEYWORDS.ALTERNATIVE,
+            CpeeNode.KEYWORDS.OTHERWISE,
+            CpeeNode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -364,11 +391,11 @@ class CPEENode extends Serializable {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [CPEENode.KEYWORDS.CALL,
-            CPEENode.KEYWORDS.MANIPULATE,
-            CPEENode.KEYWORDS.TERMINATE,
-            CPEENode.KEYWORDS.STOP,
-            CPEENode.KEYWORDS.ESCAPE].includes(this.label);
+        return [CpeeNode.KEYWORDS.CALL,
+            CpeeNode.KEYWORDS.MANIPULATE,
+            CpeeNode.KEYWORDS.TERMINATE,
+            CpeeNode.KEYWORDS.STOP,
+            CpeeNode.KEYWORDS.ESCAPE].includes(this.label);
     }
 
     /**
@@ -376,8 +403,8 @@ class CPEENode extends Serializable {
      * @returns {boolean}
      */
     isPropertyNode() {
-        for (const cpeeKeyWord in CPEENode.KEYWORDS) {
-            if (this.label === CPEENode.KEYWORDS[cpeeKeyWord]) return false;
+        for (const cpeeKeyWord in CpeeNode.KEYWORDS) {
+            if (this.label === CpeeNode.KEYWORDS[cpeeKeyWord]) return false;
         }
         return true;
     }
@@ -425,7 +452,7 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode} node
+     * @param {CpeeNode} node
      */
     appendChild(node) {
         node._childIndex = this._childNodes.push(node) - 1;
@@ -434,7 +461,7 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode} node
+     * @param {CpeeNode} node
      * @param {Number} index
      */
     insertChild(node, index) {
@@ -487,25 +514,25 @@ class CPEENode extends Serializable {
      * @param {Number} displayType
      * @returns {String}
      */
-    toString(displayType = CPEENode.STRING_OPTIONS.LABEL) {
+    toString(displayType = CpeeNode.STRING_OPTIONS.LABEL) {
         switch (displayType) {
-            case CPEENode.STRING_OPTIONS.LABEL:
+            case CpeeNode.STRING_OPTIONS.LABEL:
                 return this.label;
-            case CPEENode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
+            case CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
                 return this.label + "[" + this.typeIndex + "]";
-            case CPEENode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
+            case CpeeNode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
                 const strArr = this.path.map(n => n.toString("label-with-type-index"));
                 return strArr.join("/");
             }
-            case CPEENode.STRING_OPTIONS.PATH: {
+            case CpeeNode.STRING_OPTIONS.PATH: {
                 const strArr = this.path.map(n => n.toString("label"));
                 return strArr.join("/");
             }
-            case CPEENode.STRING_OPTIONS.CHILD_INDEX_ONLY: {
+            case CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY: {
                 const strArr = this.path.map(n => n.childIndex);
-                return strArr.join("/");
+                return strArr.slice(1).join("/"); //drop root child index (always 0)
             }
-            case CPEENode.STRING_OPTIONS.CHANGE:
+            case CpeeNode.STRING_OPTIONS.CHANGE:
                 if (this.changeType !== undefined) {
                     return this.label + " <" + this.changeType + ">";
                 }
@@ -527,7 +554,7 @@ class CPEENode extends Serializable {
         //TODO
         if (this.placeholders !== undefined) {
             for (const index of this.placeholders) {
-                this.insertChild(new CPEENode("<Placeholder>"), index);
+                this.insertChild(new CpeeNode("<Placeholder>"), index);
             }
         }
         const isLast = this._parent != null && this._childIndex === this._parent._childNodes.length - 1;
@@ -562,8 +589,8 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode[]} arr
-     * @returns {CPEENode[]}
+     * @param {CpeeNode[]} arr
+     * @returns {CpeeNode[]}
      */
     toPreOrderArray(arr = []) {
         arr.push(this);
@@ -575,8 +602,8 @@ class CPEENode extends Serializable {
 
     /**
      *
-     * @param {CPEENode[]} arr
-     * @returns {CPEENode[]}
+     * @param {CpeeNode[]} arr
+     * @returns {CpeeNode[]}
      */
     toPostOrderArray(arr = []) {
         for (const child of this) {
@@ -618,7 +645,7 @@ class CPEENode extends Serializable {
     /**
      *
      * @override
-     * @returns {CPEENode}
+     * @returns {CpeeNode}
      */
     static parseFromJson(str) {
         function reviver(key, value) {
@@ -630,7 +657,7 @@ class CPEENode extends Serializable {
                     return new Set(value.value);
                 }
                 if ("label" in value) {
-                    const node = new CPEENode(value["label"]);
+                    const node = new CpeeNode(value["label"]);
                     for (const property in value) {
                         node[property] = value[property];
                     }
@@ -648,8 +675,8 @@ class CPEENode extends Serializable {
     }
 
     copy() {
-        return CPEENode.parseFromJson(this.convertToJson());
+        return CpeeNode.parseFromJson(this.convertToJson());
     }
 }
 
-exports.CPEENode = CPEENode;
+exports.CpeeNode = CpeeNode;
