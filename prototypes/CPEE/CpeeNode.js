@@ -35,7 +35,6 @@ class CpeeNode extends Serializable {
         TERMINATE: "terminate"
     }
 
-
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     //CPEE information
     /**
@@ -301,24 +300,54 @@ class CpeeNode extends Serializable {
             }
 
             case "manipulate": {
-                //we can't match a script to a regular call
                 if (this.label !== other.label) {
                     return 1;
                 }
-                const total = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
-                let differentCounter = 0;
-                for (const variable of this.modifiedVariables) {
-                    if (!other.modifiedVariables.has(variable)) {
-                        differentCounter++;
+              /*
+              Comparison of two scripts is identical to comparison of two service calls minus the endpoint comparison
+               */
+                let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
+                let modifiedVariablesComparisonValue;
+                //if modifiedVariables is empty, we must return a pessimistic estimate
+                if(maxSize === 0) {
+                    modifiedVariablesComparisonValue = 1;
+                } else {
+                    let differentCounter = 0;
+                    for (const modifiedVariable of this.modifiedVariables) {
+                        if (!other.modifiedVariables.has(modifiedVariable)) {
+                            differentCounter++;
+                        }
                     }
-                }
-                for (const variable of other.modifiedVariables) {
-                    if (!this.modifiedVariables.has(variable)) {
-                        differentCounter++;
+                    for (const otherModifiedVariable of other.modifiedVariables) {
+                        if (!this.modifiedVariables.has(otherModifiedVariable)) {
+                            differentCounter++;
+                        }
                     }
+                    modifiedVariablesComparisonValue = differentCounter / maxSize;
                 }
-                let compValue = differentCounter / (2 * total);
-                return compValue;
+
+                maxSize = Math.max(this.readVariables.size, other.readVariables.size);
+
+                let readVariablesComparisonValue;
+                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
+                if(maxSize === 0) {
+                    readVariablesComparisonValue = modifiedVariablesComparisonValue;
+                } else {
+                    let differentCounter = 0;
+                    for (const readVariable of this.readVariables) {
+                        if (!other.readVariables.has(readVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    for (const otherReadVariable of other.readVariables) {
+                        if (!this.readVariables.has(otherReadVariable)) {
+                            differentCounter++;
+                        }
+                    }
+                    readVariablesComparisonValue = differentCounter / maxSize;
+                }
+
+                return 0.7 * modifiedVariablesComparisonValue + 0.3 * readVariablesComparisonValue;
             }
 
             case "parallel": {
@@ -521,11 +550,11 @@ class CpeeNode extends Serializable {
             case CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
                 return this.label + "[" + this.typeIndex + "]";
             case CpeeNode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
-                const strArr = this.path.map(n => n.toString("label-with-type-index"));
+                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX));
                 return strArr.join("/");
             }
             case CpeeNode.STRING_OPTIONS.PATH: {
-                const strArr = this.path.map(n => n.toString("label"));
+                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL));
                 return strArr.join("/");
             }
             case CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY: {

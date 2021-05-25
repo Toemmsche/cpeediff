@@ -35,8 +35,6 @@ class EditScriptGenerator {
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
         const editScript = new EditScript(oldModel);
-        const newToOldMap = matching.newToOldMap;
-        const oldToNewMap = matching.oldToNewMap;
 
         const oldPostOrderArray = oldModel.toPostOrderArray();
         const newPreOrderArray = newModel.toPreOrderArray();
@@ -45,10 +43,10 @@ class EditScriptGenerator {
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two CPEE models
             if (newNode.parent == null) continue;
-            const matchOfParent = newToOldMap.get(newNode.parent)[0];
-            if (newToOldMap.has(newNode)) {
+            const matchOfParent = matching.getNewSingle(newNode.parent);
+            if (matching.hasNew(newNode)) {
                 //new Node has a match in the old model
-                const match = newToOldMap.get(newNode)[0];
+                const match = matching.getNewSingle(newNode);
                 if (matchOfParent !== match.parent) {
                     //move match to matchOfParent
                     const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
@@ -74,15 +72,14 @@ class EditScriptGenerator {
                 matchOfParent.insertChild(copy, newNode.childIndex);
                 const newPath = copy.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                 const newData = copy.convertToJson();
-                //insertions are always mapped back to the original node
-                newToOldMap.set(newNode, [copy]);
-                oldToNewMap.set(copy, [newNode]);
+                //insertions always correspond to a new mapping
+                matching.matchNew(newNode, copy);
                 editScript.appendChange(Change.insert(newPath, newData));
             }
         }
         const oldDeletedNodes = [];
         for (const oldNode of oldPostOrderArray) {
-            if (!oldToNewMap.has(oldNode)) {
+            if (!matching.hasOld(oldNode)) {
                 //delete node
                 //TODO document that removeFromParent() does not change the parent attributes
                 oldNode.removeFromParent();
@@ -91,7 +88,6 @@ class EditScriptGenerator {
         }
         //second pass to detect the largest subtrees that are fully deleted
         while (oldDeletedNodes.length > 0) {
-
             let node = oldDeletedNodes[0];
             //parent is also fully deleted
             while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
@@ -135,7 +131,7 @@ class EditScriptGenerator {
                 //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
                 //map each old child node to the child index of its matching partner
-                const arr = oldNode.childNodes.map(n => oldToNewMap.get(n)[0].childIndex);
+                const arr = oldNode.childNodes.map(n => matching.getOldSingle(n).childIndex);
 
                 //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
                 //dp[i] contains the length of the longest sequence that ends at i
@@ -167,11 +163,11 @@ class EditScriptGenerator {
                 }
 
                 for (const node of reshuffle) {
-                    const match = oldToNewMap.get(node)[0];
+                    const match = matching.getOldSingle(node);
                     const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     node.changeChildIndex(match.childIndex);
                     const newPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    //editScript.appendChange(Change.move(oldPath, newPath));
+                    editScript.appendChange(Change.move(oldPath, newPath));
                 }
             }
         }

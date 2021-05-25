@@ -1,5 +1,6 @@
 //TODO features
 //      IMPROTANT path string separate method
+//      changed and placholder node as subclasses
 //      preserve deleted nodes for tree output
 //      export set and map similarity calculations
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
@@ -10,6 +11,7 @@
 //      use custom comparators (differnet performance, granularity)
 
 //TODO new algos
+//      q-gram distance for script comparison
 //      fast match by Chawathe et al.
 //      Simple match by Chawathe et al.
 //      optimize matching
@@ -57,6 +59,7 @@
 //      use constructor for node comparison
 //      move node boolean flags into cpeemodel to keep semantic parsing in one place
 //      rename root to node in model
+//      all numerical constants in a config file (goes against stateless idea)
 
 /*
 Merge Ideas:

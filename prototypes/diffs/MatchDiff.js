@@ -15,7 +15,7 @@
 */
 
 const {CpeeModel} = require("../CPEE/CpeeModel");
-const {Matching} = require("../matchings/Matching");
+const {Matching} = require("../matching/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 

@@ -35,14 +35,10 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2
      */
-    static match(oldModel, newModel, existingMatching = new Matching(), t = 0.1) {
-        //The two mappings from old to new and new told nodes respectively
-        const oldToNewMap = existingMatching.newToOldMap;
-        const newToOldMap = existingMatching.oldToNewMap;
-
+    static match(oldModel, newModel, matching = new Matching(), t = 0.1) {
         const topDown = (oldNode, newNode) => {
             if (oldNode.compareTo(newNode) <= t) {
-                newToOldMap.set(newNode, [oldNode]);
+                matching.matchNew(newNode, oldNode);
                 //If two nodes match exactly, we try to match their children recursively, too.
                 //TODO don't map when keyword appears mukltiple times
                 //That's it.
@@ -53,17 +49,8 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
                 }
             }
         }
-
         topDown(oldModel.root, newModel.root);
-        for (const [newNode, matchArray] of newToOldMap) {
-            const oldNode = matchArray[0];
-            if (!oldToNewMap.has(oldNode)) {
-                oldToNewMap.set(oldNode, []);
-            }
-            oldToNewMap.get(oldNode).push(newNode);
-        }
-
-        return new Matching(oldToNewMap, newToOldMap);
+        return matching;
     }
 }
 

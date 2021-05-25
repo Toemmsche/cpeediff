@@ -20,8 +20,8 @@
 const yargs = require("yargs");
 const fs = require("fs");
 const {CpeeModel} = require("./CPEE/CpeeModel");
-const {KyongHoMatching} = require("./matchings/KyongHoMatching");
-const {TopDownMatching} = require("./matchings/TopDownMatching");
+const {KyongHoMatching} = require("./matching/KyongHoMatching");
+const {TopDownMatching} = require("./matching/TopDownMatching");
 const {MatchDiff} = require("./diffs/MatchDiff");
 
 

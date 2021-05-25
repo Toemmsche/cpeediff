@@ -17,8 +17,8 @@
 const fs = require("fs");
 const {Change} = require("../editscript/Change");
 const {CpeeModel} = require("../CPEE/CpeeModel");
-const {KyongHoMatching} = require("../matchings/KyongHoMatching");
-const {TopDownMatching} = require("../matchings/TopDownMatching");
+const {KyongHoMatching} = require("../matching/KyongHoMatching");
+const {TopDownMatching} = require("../matching/TopDownMatching");
 const {CpeeNode} = require("../CPEE/CpeeNode");
 const {MatchDiff} = require("../diffs/MatchDiff");
 
