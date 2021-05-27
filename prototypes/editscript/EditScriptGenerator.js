@@ -15,6 +15,7 @@
 */
 
 
+const {Placeholder} = require("../CPEE/Placeholder");
 const {Change} = require("./Change");
 const {CpeeModel} = require("../CPEE/CpeeModel");
 const {CpeeNode} = require("../CPEE/CpeeNode");
@@ -40,6 +41,7 @@ class EditScriptGenerator {
         const newPreOrderArray = newModel.toPreOrderArray();
 
         //iterate in pre order through new model
+        let placeholderCount = 0;
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two CPEE models
             if (newNode.parent == null) continue;
@@ -48,10 +50,10 @@ class EditScriptGenerator {
                 //new Node has a match in the old model
                 const match = matching.getNewSingle(newNode);
                 if (matchOfParent !== match.parent) {
-                    //move match to matchOfParent
                     const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    //move match to matchOfParent
                     match.removeFromParent();
-                    matchOfParent.insertChild(match, newNode.childIndex);
+                    matchOfParent.insertChild(newNode.childIndex, match);
                     const newPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     editScript.appendChange(Change.move(oldPath, newPath));
                 }
@@ -69,7 +71,7 @@ class EditScriptGenerator {
                 //perform insert operation at match of the parent node
                 const copy = newNode.copy()
                 copy.childNodes = []; //reset child nodes
-                matchOfParent.insertChild(copy, newNode.childIndex);
+                matchOfParent.insertChild(newNode.childIndex, copy);
                 const newPath = copy.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                 const newData = copy.convertToJson();
                 //insertions always correspond to a new mapping
@@ -174,6 +176,8 @@ class EditScriptGenerator {
 
         return editScript;
     }
+
+
 }
 
 exports.EditScriptGenerator = EditScriptGenerator;

@@ -22,7 +22,8 @@ class Change extends Serializable {
         INSERTION: "Insertion",
         DELETION: "Deletion",
         MOVE: "Move",
-        UPDATE: "Update"
+        UPDATE: "Update",
+        NIL: "Nil"
     }
 
     changeType;

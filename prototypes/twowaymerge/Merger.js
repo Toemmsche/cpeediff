@@ -15,6 +15,7 @@
 */
 
 const fs = require("fs");
+const {Placeholder} = require("../CPEE/Placeholder");
 const {Change} = require("../editscript/Change");
 const {CpeeModel} = require("../CPEE/CpeeModel");
 const {KyongHoMatching} = require("../matching/KyongHoMatching");
@@ -43,7 +44,7 @@ class Merger {
                     const childIndex = indexArr.pop();
                     const parent = Merger.findNode(model1, indexArr);
                     const child = CpeeNode.parseFromJson(change.newNode);
-                    parent.insertChild(child, childIndex);
+                    parent.insertChild(childIndex, child);
                     child.changeType = change.changeType;
                     break;
                 }
@@ -51,15 +52,12 @@ class Merger {
                     //TODO deletions can mess with reshuffles
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = Merger.findNode(model1, nodeIndexArr);
-                    if(node.parent.placeholders === undefined) {
-                        node.parent.placeholders = []
-                    }
-                    node.parent.placeholders.push(node.childIndex);
+                    node.parent._placeholders.push(new Placeholder(placeHolderCount++, node.childIndex));
                     node.removeFromParent();
                     const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
                     const targetIndex = parentIndexArr.pop();
                     const parent = Merger.findNode(model1, parentIndexArr);
-                    parent.insertChild(node, targetIndex);
+                    parent.insertChild(targetIndex, node);
                     node.changeType = change.changeType;
                     break;
                 }

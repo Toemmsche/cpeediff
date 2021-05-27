@@ -16,9 +16,9 @@
 
 
 /**
- * Measure the similarity between to sequences using the Longest Common Subsequence (LCS)
+ * Measure the similarity between to sequences using the Longest Common Subsequence (LongestCommonSubsequence)
  */
-class LCSSimilarity {
+class LongestCommonSubsequence {
 
     /**
      * Uses the built-in comparator ("===")
@@ -32,7 +32,7 @@ class LCSSimilarity {
             dp[i] = new Array(seqB.length + 1);
         }
 
-        //the LCS of any sequence with a sequence of length zero also has length zero
+        //the LongestCommonSubsequence of any sequence with a sequence of length zero also has length zero
         for (let i = 0; i < seqA.length + 1; i++) {
             dp[i][0] = 0;
         }
@@ -58,12 +58,12 @@ class LCSSimilarity {
         //Utilizing a top-down approach can save computation cost
         dp_fill(seqA.length, seqB.length);
 
-        //the dp array only gives the length of the LCS, we still need to compute the actual sequence
+        //the dp array only gives the length of the LongestCommonSubsequence, we still need to compute the actual sequence
         let indexA = seqA.length;
         let indexB = seqB.length;
         const LCS = []
         while (indexA > 0 && indexB > 0) {
-            //if we took a diagonal step in the dp array, this item is part of the LCS
+            //if we took a diagonal step in the dp array, this item is part of the LongestCommonSubsequence
             if (dp[indexA - 1][indexB - 1] != null && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
                 //prepending instead of appending preserves sorting order
                 LCS.unshift(seqA[indexA - 1]);
@@ -80,4 +80,4 @@ class LCSSimilarity {
 
 }
 
-exports.LCSSimilarity = LCSSimilarity;
+exports.LCSSimilarity = LongestCommonSubsequence;

@@ -14,7 +14,8 @@
    limitations under the License.
 */
 
-const {LCSSimilarity} = require("../utils/LCSSimilarity");
+const {Change} = require("../editscript/Change");
+const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
 const {Serializable} = require("../utils/Serializable");
 
 class CpeeNode extends Serializable {
@@ -50,7 +51,6 @@ class CpeeNode extends Serializable {
      */
     data;
 
-    //private
     /**
      * @type Set<CpeeNode>
      */
@@ -59,6 +59,10 @@ class CpeeNode extends Serializable {
      * @type Set<CpeeNode>
      */
     readVariables;
+
+    //private
+    //diff related information
+    _changeType;
 
     //structural information
     /**
@@ -84,6 +88,8 @@ class CpeeNode extends Serializable {
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
         this.data = "";
+
+        this._changeType = Change.CHANGE_TYPES.NIL;
 
         this._childNodes = [];
         this._parent = null;
@@ -246,18 +252,18 @@ class CpeeNode extends Serializable {
                 const endPointLcsSimilarity = LCSSimilarity.getLCS(thisEndpoint, otherEndpoint).length
                     / Math.max(thisEndpoint.length, otherEndpoint.length);
                 let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
-                if(this.attributes.get("./parameters/label") === other.attributes.get("./parameters/label")) {
+                if (this.attributes.get("./parameters/label") === other.attributes.get("./parameters/label")) {
                     //TODO maybe use LCS, too
                     endPointComparisonValue *= 0.5;
                 }
-                if(this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
-                    endPointComparisonValue = Math.min(1.5*endPointComparisonValue, 1);
+                if (this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
+                    endPointComparisonValue = Math.min(1.5 * endPointComparisonValue, 1);
                 }
 
                 let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
                 let modifiedVariablesComparisonValue;
                 //if modifiedVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if(maxSize === 0) {
+                if (maxSize === 0) {
                     modifiedVariablesComparisonValue = endPointComparisonValue;
                 } else {
                     let differentCounter = 0;
@@ -278,7 +284,7 @@ class CpeeNode extends Serializable {
 
                 let readVariablesComparisonValue;
                 //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if(maxSize === 0) {
+                if (maxSize === 0) {
                     readVariablesComparisonValue = endPointComparisonValue;
                 } else {
                     let differentCounter = 0;
@@ -303,13 +309,13 @@ class CpeeNode extends Serializable {
                 if (this.label !== other.label) {
                     return 1;
                 }
-              /*
-              Comparison of two scripts is identical to comparison of two service calls minus the endpoint comparison
-               */
+                /*
+                Comparison of two scripts is identical to comparison of two service calls minus the endpoint comparison
+                 */
                 let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
                 let modifiedVariablesComparisonValue;
                 //if modifiedVariables is empty, we must return a pessimistic estimate
-                if(maxSize === 0) {
+                if (maxSize === 0) {
                     modifiedVariablesComparisonValue = 1;
                 } else {
                     let differentCounter = 0;
@@ -330,7 +336,7 @@ class CpeeNode extends Serializable {
 
                 let readVariablesComparisonValue;
                 //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if(maxSize === 0) {
+                if (maxSize === 0) {
                     readVariablesComparisonValue = modifiedVariablesComparisonValue;
                 } else {
                     let differentCounter = 0;
@@ -464,7 +470,6 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     containsCode() {
-        //TODO replace with check of has()
         return this.label === "manipulate"
             || this.attributes.has("./code/finalize")
             || this.attributes.has("./code/prepare")
@@ -490,10 +495,10 @@ class CpeeNode extends Serializable {
 
     /**
      *
-     * @param {CpeeNode} node
      * @param {Number} index
+     * @param {CpeeNode} node
      */
-    insertChild(node, index) {
+    insertChild(index, node) {
         this._childNodes.splice(index, 0, node);
         node.parent = this;
         this._fixChildIndices();
@@ -571,6 +576,7 @@ class CpeeNode extends Serializable {
         }
     }
 
+
     //TODO beautify... (and optimize)
     //similar to unix tree command
     /**
@@ -580,12 +586,6 @@ class CpeeNode extends Serializable {
      * @returns {String}
      */
     toTreeString(barList, stringOption) {
-        //TODO
-        if (this.placeholders !== undefined) {
-            for (const index of this.placeholders) {
-                this.insertChild(new CpeeNode("<Placeholder>"), index);
-            }
-        }
         const isLast = this._parent != null && this._childIndex === this._parent._childNodes.length - 1;
         let line = "";
         for (let i = 0; i < barList.length; i++) {
@@ -680,13 +680,13 @@ class CpeeNode extends Serializable {
         function reviver(key, value) {
             if (value instanceof Object) {
                 //all maps are marked
-                if ("dataType" in value && value.dataType === "Map") {
+                if (value.dataType !== undefined  && value.dataType === "Map") {
                     return new Map(value.value);
-                } else if ("dataType" in value && value.dataType === "Set") {
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
                     return new Set(value.value);
                 }
-                if ("label" in value) {
-                    const node = new CpeeNode(value["label"]);
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
                     for (const property in value) {
                         node[property] = value[property];
                     }
@@ -706,6 +706,7 @@ class CpeeNode extends Serializable {
     copy() {
         return CpeeNode.parseFromJson(this.convertToJson());
     }
+
 }
 
 exports.CpeeNode = CpeeNode;

@@ -1,6 +1,8 @@
 //TODO features
+//      changeType set automatically
+//      longest substring compare for scripts
 //      IMPROTANT path string separate method
-//      changed and placholder node as subclasses
+//      placholder node as subclasses
 //      preserve deleted nodes for tree output
 //      export set and map similarity calculations
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
@@ -9,6 +11,9 @@
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
 //      use custom comparators (differnet performance, granularity)
+//      reshuffles before deletions
+//      patch context
+//      make data path ./
 
 //TODO new algos
 //      q-gram distance for script comparison
@@ -18,6 +23,8 @@
 //      matchSimilarUnmatched() by 3DM
 
 //TODO semi-features
+//      differentiate between printing string and internal string
+//      mapping between declared variables
 //      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
 //      make placeholder a node type and changeType private variables that are not serialized or compared

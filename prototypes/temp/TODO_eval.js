@@ -6,3 +6,4 @@
 //      comparison counters and running time framework
 //      eval edit distance
 //      decompose by stage (mapping vs edit script generation vs merging etc)
+//      run profiler and write tests

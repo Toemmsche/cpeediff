@@ -23,7 +23,7 @@ class MatchDiff extends AbstractDiff {
 
     static diff(oldModel, newModel, ...matchingAlgorithms) {
         //this will modify the old model, hence a copy is used
-        const copyOfOld = new CpeeModel(oldModel.root.copy());
+        const copyOfOld = oldModel.copy();
         let m = new Matching();
         for(const matchingAlgorithm of matchingAlgorithms) {
             m = matchingAlgorithm.match(copyOfOld, newModel, m);

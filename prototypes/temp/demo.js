@@ -16,6 +16,10 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {DeltaTreeGenerator} = require("../patch/DeltaTreeGenerator");
+const {MatchDiff} = require("../diffs/MatchDiff");
+const {KyongHoMatching} = require("../matching/KyongHoMatching");
+const {TopDownMatching} = require("../matching/TopDownMatching");
 const {Parser} = require("../parse/Parser");
 const {Merger} = require("../twowaymerge/Merger");
 const {CpeeNode} = require("../CPEE/CpeeNode");
@@ -38,5 +42,5 @@ console.log(model2.toTreeString());
 const json = model1.root.convertToJson();
 const node = CpeeNode.parseFromJson(json);
 
-Merger.merge(model1, model2)
-
+const delta = MatchDiff.diff(model1, model2, TopDownMatching, KyongHoMatching);
+console.log(DeltaTreeGenerator.deltaTree(model1, delta).toTreeString(CpeeNode.STRING_OPTIONS.CHANGE));

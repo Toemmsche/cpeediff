@@ -15,6 +15,7 @@
 */
 
 //TODO doc
+const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 
 class CpeeModel {
@@ -33,6 +34,13 @@ class CpeeModel {
         this.declaredVariables = declaredVariables;
     }
 
+    copy() {
+        return new CpeeModel(this.root.copy());
+    }
+
+    deltaCopy() {
+        return new CpeeModel(DeltaNode.parseFromJson(this.root.convertToJson()));
+    }
 
     toPreOrderArray() {
         return this.root.toPreOrderArray();
