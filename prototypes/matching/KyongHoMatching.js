@@ -103,15 +103,16 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             //index in newPath where last matching occurred
             let j = 0;
             for (let i = 0; i < oldPath.length; i++) {
-                for (let k = 0; k < newPath.length; k++) {
+                for (let k = j; k < newPath.length; k++) {
                     //does there already exist a match between the two paths?
                     if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNewSingle(newPath[k]))) {
-                        //If so, we terminate to preserve ancestor order
+                        //If so, we terminate to preserve ancestor order within the path
                         return;
                     } else if (newPath[k].compareTo(oldPath[i]) < Globals.INNER_NODE_SIMILARITY_THRESHOLD) {
                         matching.matchNew(newPath[k], oldPath[i]);
                         //update last matching index to avoid a false positive of the first if branch in subsequent iterations
                         j = k + 1;
+                        break;
                     }
                 }
             }
@@ -153,6 +154,12 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             }
 
             return commonSize / oldSubTreePreOrder.length;
+        }
+
+        //TODO reduceold
+
+        if(!matching.hasNew(newModel.root)) {
+            matching.matchNew(newModel.root, oldModel.root);
         }
 
         return matching;

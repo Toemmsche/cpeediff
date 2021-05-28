@@ -57,7 +57,7 @@
                     </code>
                 </call>
             </parallel_branch>
-            <manipulate id="a3">data.persons -= 1; data.value++; abc = 5</manipulate>
+            <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
     <choose mode="inclusive">

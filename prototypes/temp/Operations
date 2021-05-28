@@ -17,4 +17,5 @@ Goals
 Overview over existing diff algorithms and appraoches (runtime, limitations, goals)
 limitations of the chosen appraoch
 Future work
-
+Why you chose a certain algorithm (demonstrate why others didnt work)
+why you chose a certain comparison method

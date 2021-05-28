@@ -62,7 +62,6 @@ class CpeeNode extends Serializable {
 
     //private
     //diff related information
-    _changeType;
 
     //structural information
     /**
@@ -88,8 +87,6 @@ class CpeeNode extends Serializable {
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
         this.data = "";
-
-        this._changeType = Change.CHANGE_TYPES.NIL;
 
         this._childNodes = [];
         this._parent = null;
@@ -117,6 +114,9 @@ class CpeeNode extends Serializable {
         let node = this;
         const isPropertyNode = this.isPropertyNode();
         while (node != null && (!isPropertyNode || node.isPropertyNode())) {
+            if(pathArr.includes(node)) {
+                console.log("up")
+            }
             pathArr.push(node);
             node = node._parent;
         }
@@ -570,7 +570,7 @@ class CpeeNode extends Serializable {
                 if (this.changeType !== undefined) {
                     return this.label + " <" + this.changeType + ">";
                 }
-                return this.label;
+                return this.label ;
             default:
                 return this.label;
         }
@@ -650,7 +650,7 @@ class CpeeNode extends Serializable {
         function replacer(key, value) {
             if (key === "_parent" || key === "_childIndex") {
                 return undefined;
-            } else if (value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
+            } else if (value === null || value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
             } else if (value instanceof Map) {
                 return {

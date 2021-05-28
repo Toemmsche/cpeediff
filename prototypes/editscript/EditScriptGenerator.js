@@ -35,7 +35,7 @@ class EditScriptGenerator {
      * @return {EditScript}
      */
     static generateEditScript(oldModel, newModel, matching, options = []) {
-        const editScript = new EditScript(oldModel);
+        const editScript = new EditScript();
 
         const oldPostOrderArray = oldModel.toPostOrderArray();
         const newPreOrderArray = newModel.toPreOrderArray();
@@ -145,7 +145,7 @@ class EditScriptGenerator {
                 //Simple O(n²) algorithm to compute the LIS
                 for (let i = 0; i < dp.length; i++) {
                     dp[i] = 1;
-                    parent[0] = -1;
+                    parent[i] = -1;
                     for (let j = 0; j < i; j++) {
                         if (arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
                             dp[i] = dp[j] + 1;

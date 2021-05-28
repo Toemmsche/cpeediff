@@ -16,6 +16,11 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {SimilarityMatching} = require("../matching/SimilarityMatching");
+const {BottomUpMatching} = require("../matching/BottomUpMatching");
+const {Patcher} = require("../patch/Patcher");
+const {CpeeModel} = require("../CPEE/CpeeModel");
+const {ModelGenerator} = require("../gen/ModelGenerator");
 const {DeltaTreeGenerator} = require("../patch/DeltaTreeGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const {KyongHoMatching} = require("../matching/KyongHoMatching");
@@ -31,16 +36,46 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const model1 = Parser.fromCpee(xmlA);
-const model2 = Parser.fromCpee(xmlB);
+const gen = new ModelGenerator(50, 34, 234, 23);
 /*
+const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
+const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));
+*/
+ const g1 = gen.randomModel();
+ const g2 = gen.randomModel();
+
+
+let model1 = Parser.fromCpee(xmlA);
+let model2 = Parser.fromCpee(xmlB);
+
+
+
+
 console.log(model1.toTreeString());
 console.log("\n VS \n")
 console.log(model2.toTreeString());
- */
+
 
 const json = model1.root.convertToJson();
 const node = CpeeNode.parseFromJson(json);
 
-const delta = MatchDiff.diff(model1, model2, TopDownMatching, KyongHoMatching);
-console.log(DeltaTreeGenerator.deltaTree(model1, delta).toTreeString(CpeeNode.STRING_OPTIONS.CHANGE));
+function Sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+
+const start = new Date().getTime();
+const delta = MatchDiff.diff(model1, model2, KyongHoMatching);
+const end = new Date().getTime();
+console.log("diff took " + (end - start) + "ms");
+console.log(delta.toString());
+Patcher.patch(model1, delta)
+if(model1.toTreeString() !== model2.toTreeString()) {
+    console.log(model1.toTreeString());
+    throw new Error("no equality");
+}
+//console.log(model1.toTreeString());
+
+
+
+

@@ -23,6 +23,7 @@ class Parser {
     static fromCpee(xml, options = []) {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
+        const endpointToURL = new Map();
         if (doc.tagName === "properties") {
             const declaredVariables = new Set();
             let root;
@@ -39,6 +40,17 @@ class Parser {
                     let j = 0;
                     while (childTNode.childNodes.item(j).tagName !== "description") j++;
                     root = constructRecursive(childTNode.childNodes.item(j));
+                }
+
+                //TODO test
+                if(childTNode.tagName === "endpoints") {
+                    for (let j = 0; j < childTNode.childNodes.length; j++) {
+                        const endpoint = childTNode.childNodes.item(j);
+                        if (endpoint.nodeType === 1) { //Element, not Text
+                            const url = endpoint.childNodes.item(0).data;
+                            endpointToURL.set(endpoint, url);
+                        }
+                    }
                 }
             }
             return new CpeeModel(root, declaredVariables);
@@ -96,7 +108,18 @@ class Parser {
             //parse attributes
             for (let i = 0; i < tNode.attributes.length; i++) {
                 const attrNode = tNode.attributes.item(i);
-                root.attributes.set(attrNode.name, attrNode.value);
+                //replace endpoint
+                let value;
+                //replace endpoint identifier with actual endpoint URL (if it exists)
+                if(attrNode.name === "endpoint" && endpointToURL.has(attrNode.value)) {
+                     value = endpointToURL.get(attrNode.value);
+                } else if (attrNode.name === "endpoint" && attrNode.value == "") {
+                  value =  Math.floor(Math.random * 1000000).toString();
+                } else {
+                    value = attrNode.value;
+                }
+                root.attributes.set(attrNode.name, value);
+
             }
 
             //extract modified variables from code and read variables from call to endpoint

@@ -39,6 +39,16 @@ class Matching {
         this._needsPropagation = true;
         if(!this.newToOldMap.has(newNode)) {
             this.newToOldMap.set(newNode, new Set());
+        } else {
+            const path = newNode.path;
+            for(const p1 of path) {
+                for(const c of oldNode.toPreOrderArray().slice(1)) {
+                    if(this.hasNew(p1) && this.getNew(p1).has(c)) {
+                        throw new Error("cycl");
+                        console.log("cyclical matching");
+                    }
+                }
+            }
         }
         if(!this.newToOldMap.get(newNode).has(oldNode)) {
             this.newToOldMap.get(newNode).add(oldNode);
@@ -107,6 +117,7 @@ class Matching {
                 }
             }
         }
+        this._needsPropagation = true;
     }
 
     [Symbol.iterator]() {

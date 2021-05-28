@@ -13,14 +13,15 @@
 //      use custom comparators (differnet performance, granularity)
 //      reshuffles before deletions
 //      patch context
-//      make data path ./
+//      ?? make data path ./
+//      use LCS in KyongHoMatching to match path
 
 //TODO new algos
 //      q-gram distance for script comparison
 //      fast match by Chawathe et al.
 //      Simple match by Chawathe et al.
 //      optimize matching
-//      matchSimilarUnmatched() by 3DM
+//      matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO semi-features
 //      differentiate between printing string and internal string
@@ -67,6 +68,7 @@
 //      move node boolean flags into cpeemodel to keep semantic parsing in one place
 //      rename root to node in model
 //      all numerical constants in a config file (goes against stateless idea)
+//      shorten some names (variables -> vars e..g)
 
 /*
 Merge Ideas:

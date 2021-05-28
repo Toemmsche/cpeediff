@@ -19,6 +19,7 @@
 
 const yargs = require("yargs");
 const fs = require("fs");
+const {Parser} = require("./parse/Parser");
 const {CpeeModel} = require("./CPEE/CpeeModel");
 const {KyongHoMatching} = require("./matching/KyongHoMatching");
 const {TopDownMatching} = require("./matching/TopDownMatching");
@@ -65,9 +66,12 @@ const argv = yargs
             })
         ;
     }, (argv) => {
-        const oldModel = CpeeModel.fromCPEE(fs.readFileSync(argv.oldFile).toString());
-        const newModel = CpeeModel.fromCPEE(fs.readFileSync(argv.newFile).toString());
+        const oldModel = Parser.fromCpee(fs.readFileSync(argv.oldFile).toString());
+        const newModel = Parser.fromCpee(fs.readFileSync(argv.newFile).toString());
+        const start = new Date().getTime();
         const editScript = MatchDiff.diff(oldModel, newModel, TopDownMatching, KyongHoMatching);
+        const end = new Date().getTime();
         console.log(editScript.toString("lines"));
+        console.log("diff took " + (end - start) + "ms");
     }).argv;
 

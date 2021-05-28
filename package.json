@@ -14,5 +14,8 @@
     "vkbeautify": "^0.99.3",
     "xmldom": "^0.6.0",
     "yargs": "^17.0.1"
+  },
+  "devDependencies": {
+    "munkres-js": "^1.2.2"
   }
 }

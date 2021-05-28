@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {Globals} = require("../Global");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
 const {CpeeModel} = require("../CPEE/CpeeModel");
@@ -35,23 +36,58 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2
      */
-    static match(oldModel, newModel, matching = new Matching(), t = 0.1) {
-        const topDown = (oldNode, newNode) => {
-            if (oldNode.compareTo(newNode) <= t) {
-                matching.matchNew(newNode, oldNode);
-                //If two nodes match exactly, we try to match their children recursively, too.
-                //TODO don't map when keyword appears mukltiple times
-                //That's it.
-                for (const oldChild of oldNode) {
-                    for (const newChild of newNode.childNodes) {
-                        topDown(oldChild, newChild);
+    static match(oldModel, newModel, matching = new Matching()) {
+        if(!matching.hasNew(newModel.root)) {
+            matching.matchNew(newModel.root, oldModel.root);
+        }
+
+        for(const newNode of newModel.toPreOrderArray()) {
+            if(matching.hasNew(newNode)) {
+                topDown(newNode, matching.getNewSingle(newNode));
+            }
+        }
+
+        return matching;
+
+        function topDown(oldNode, newNode) {
+            //If two nodes match exactly, we try to match their children recursively, too.
+            //TODO efficiency
+            //That's it.
+            const oldOccurrenceMap = new Map();
+            const newOccurrenceMap = new Map();
+            for (const oldChild of oldNode) {
+                if (!matching.hasOld(oldChild)) {
+                    let oldVal = oldOccurrenceMap.get(oldChild.label);
+                    if (oldVal === null || oldVal === undefined) {
+                        oldVal = 0;
+                    }
+                    oldOccurrenceMap.set(oldChild.label, oldVal + 1);
+                }
+            }
+            for (const newChild of newNode) {
+                if (!matching.hasNew(newChild)) {
+                    let oldVal = newOccurrenceMap.get(newChild.label);
+                    if (oldVal === null || oldVal === undefined) {
+                        oldVal = 0;
+                    }
+                    newOccurrenceMap.set(newChild.label, oldVal + 1);
+                }
+            }
+
+            for (const oldChild of oldNode) {
+                //only match nodes with unique labels in both parents
+                if (matching.hasOld(oldChild) || oldOccurrenceMap.get(oldChild.label) > 1 || newOccurrenceMap.get(oldChild.label) > 1) {
+                    continue;
+                }
+                for (const newChild of newNode) {
+                    if (!matching.hasNew(newChild) && oldChild.compareTo(newChild) <= Globals.LEAF_SIMILARITY_THRESHOLD) {
+                        matching.matchNew(newChild, oldChild)
                     }
                 }
             }
         }
-        topDown(oldModel.root, newModel.root);
-        return matching;
     }
+
 }
 
 exports.TopDownMatching = TopDownMatching;

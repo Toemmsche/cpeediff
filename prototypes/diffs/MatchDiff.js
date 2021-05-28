@@ -25,9 +25,12 @@ class MatchDiff extends AbstractDiff {
         //this will modify the old model, hence a copy is used
         const copyOfOld = oldModel.copy();
         let m = new Matching();
+        const start = new Date().getTime();
         for(const matchingAlgorithm of matchingAlgorithms) {
             m = matchingAlgorithm.match(copyOfOld, newModel, m);
         }
+        const end = new Date().getTime();
+        console.log("diff took " + (end - start) + "ms");
         //generate edit script
         return EditScriptGenerator.generateEditScript(copyOfOld, newModel, m);
     }

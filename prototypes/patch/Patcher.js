@@ -24,24 +24,24 @@ class Patcher {
                 case Change.CHANGE_TYPES.INSERTION: {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
-                    const parent = this._findNodeByIndexArr(model, indexArr);
+                    const parent = findNodeByIndexArr(model, indexArr);
                     const child = CpeeNode.parseFromJson(change.newNode);
                     parent.insertChild(childIndex, child);
                     break;
                 }
                 case Change.CHANGE_TYPES.MOVE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    const node = this._findNodeByIndexArr(model, nodeIndexArr);
+                    const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();
                     const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
                     const targetIndex = parentIndexArr.pop();
-                    const parent = this._findNodeByIndexArr(model, parentIndexArr);
+                    const parent = findNodeByIndexArr(model, parentIndexArr);
                     parent.insertChild(targetIndex, node);
                     break;
                 }
                 case Change.CHANGE_TYPES.UPDATE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    const node = this._findNodeByIndexArr(model, nodeIndexArr);
+                    const node = findNodeByIndexArr(model, nodeIndexArr);
                     const newNode = CpeeNode.parseFromJson(change.newNode);
                     for (const property in newNode) {
                         //preserve structural information
@@ -53,23 +53,22 @@ class Patcher {
                 }
                 case Change.CHANGE_TYPES.DELETION: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    const node = this._findNodeByIndexArr(model, nodeIndexArr);
+                    const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();
                 }
             }
         }
-    }
-
-    static _findNodeByIndexArr(model, indexArr) {
-        let currNode = model.root;
-        for (let index of indexArr) {
-            if (index >= currNode.numChildren()) {
-                throw new Error("Edit script not applicable to model");
+        function findNodeByIndexArr(model, indexArr) {
+            let currNode = model.root;
+            for (let index of indexArr) {
+                if (index >= currNode.numChildren()) {
+                    throw new Error("Edit script not applicable to model");
+                }
+                currNode = currNode.getChild(index);
             }
-            currNode = currNode.getChild(index);
+            return currNode;
         }
-        return currNode;
     }
 }
 
-exports.this = this;
+exports.Patcher = Patcher;

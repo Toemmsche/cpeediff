@@ -15,15 +15,14 @@
 */
 
 const fs = require("fs");
+const {Serializable} = require("../utils/Serializable");
 
-class EditScript {
+class EditScript extends Serializable{
 
-    deltaTree;
     changes;
 
-    constructor(oldModifiedModel) {
-        //the old model is modified during edit script generation and will serve as basis for our delta tree
-        this.deltaTree= oldModifiedModel;
+    constructor() {
+        super();
         this.changes = [];
     }
 
@@ -40,8 +39,12 @@ class EditScript {
     }
 
 
-    convertToJSON() {
+    convertToJson() {
+        return JSON.stringify(this);
+    }
 
+    static parseFromJson(str) {
+        return JSON.parse(str);
     }
 
     [Symbol.iterator]() {
