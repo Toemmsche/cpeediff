@@ -21,7 +21,7 @@ const yargs = require("yargs");
 const fs = require("fs");
 const {Parser} = require("./parse/Parser");
 const {CpeeModel} = require("./CPEE/CpeeModel");
-const {KyongHoMatching} = require("./matching/KyongHoMatching");
+const {KyongHoMatching} = require("./matching/PathMatching");
 const {TopDownMatching} = require("./matching/TopDownMatching");
 const {MatchDiff} = require("./diffs/MatchDiff");
 

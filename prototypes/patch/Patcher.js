@@ -58,6 +58,7 @@ class Patcher {
                 }
             }
         }
+
         function findNodeByIndexArr(model, indexArr) {
             let currNode = model.root;
             for (let index of indexArr) {

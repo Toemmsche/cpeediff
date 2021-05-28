@@ -6,7 +6,8 @@
 //      preserve deleted nodes for tree output
 //      export set and map similarity calculations
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
-//      conflict groups for reshuffling
+//      conflict groups for reshuffling (toggleable)
+//      make exact edit script toggleable
 //      add reshuffling in merger
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
@@ -15,6 +16,7 @@
 //      patch context
 //      ?? make data path ./
 //      use LCS in KyongHoMatching to match path
+//      use name spaces for delta tree conversion to XML
 
 //TODO new algos
 //      q-gram distance for script comparison
@@ -28,9 +30,7 @@
 //      mapping between declared variables
 //      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
-//      make placeholder a node type and changeType private variables that are not serialized or compared
 //      output path instead of attributes
-//      constant values such as t in matchdiff should be options
 //      add verbose function
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
@@ -70,6 +70,9 @@
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
 
+
+//TODO REWRITE
+//      use underscores
 /*
 Merge Ideas:
 2way: Find conflicts between unmatched nodes

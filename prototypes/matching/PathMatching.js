@@ -21,7 +21,7 @@ const {Matching} = require("./Matching");
 const {CpeeModel} = require("../CPEE/CpeeModel");
 
 
-class KyongHoMatching extends AbstractMatchingAlgorithm {
+class PathMatching extends AbstractMatchingAlgorithm {
 
     /**
      * Matches nodes in the two process models according to the matching algorithm
@@ -65,7 +65,6 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         /*
         Step 2: Transform one-to-many (new to old) leaf node matching  into one-to-one matching
          */
-
         matching.reduceNew((newLeafNode, matchSet) => {
             //turn into one-to-one matching according to matching criterion 2
             //compute LCS of paths
@@ -92,7 +91,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
         for (const [newLeafNode, matchSet] of matching) {
-            matchPath(matchSet[Symbol.iterator]().next().value, newLeafNode);
+            matchPathExperimental(matchSet[Symbol.iterator]().next().value, newLeafNode);
         }
 
         function matchPath(oldLeafNode, newLeafNode) {
@@ -114,6 +113,23 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
                         j = k + 1;
                         break;
                     }
+                }
+            }
+        }
+        function matchPathExperimental(oldLeafNode, newLeafNode) {
+            //copy paths, reverse them and remove first element
+            const newPath = newLeafNode.path.slice().reverse().slice(1);
+            const oldPath = oldLeafNode.path.slice().reverse().slice(1);
+
+            const lcs = LCSSimilarity.getLCS(newPath, oldPath, (a, b) => a.label === b.label, true);
+
+            const newLcs = lcs.get(0);
+            const oldLcs = lcs.get(1);
+
+            //index in newPath where last matching occurred
+            for (let i = 0; i <newLcs.length ; i++) {
+                if(newLcs[i].compareTo(oldLcs[i]) <= Globals.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
+                    matching.matchNew(newLcs[i], oldLcs[i]);
                 }
             }
         }
@@ -156,7 +172,7 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
             return commonSize / oldSubTreePreOrder.length;
         }
 
-        //TODO reduceold
+        //TODO reduceold, maybe in generate edit script
 
         if(!matching.hasNew(newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
@@ -166,4 +182,4 @@ class KyongHoMatching extends AbstractMatchingAlgorithm {
     }
 }
 
-exports.KyongHoMatching = KyongHoMatching;
+exports.PathMatching = PathMatching;

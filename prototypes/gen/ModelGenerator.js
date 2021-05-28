@@ -23,16 +23,21 @@ class ModelGenerator {
     static INNER_NODES = ["parallel", "parallel_branch", "alternative", "otherwise", "critical", "loop", "choose"];
     static LEAF_NODES = ["call", "manipulate", "stop", "escape", "terminate"];
 
+    variables = ["aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg"];
+    endpoints = ["bookAir", "bookHotel"];
+    labels = ["Book Airline", "Book Hotel"];
+    method = [":get", ":post", ":put", ":patch", ":delete"];
+
     size;
     maxDepth;
     maxWidth;
-    numVars;
+    maxVars;
 
-    constructor(size, maxDepth, maxWidth, numVars) {
+    constructor(size, maxDepth, maxWidth, maxVars) {
         this.size = size;
         this.maxDepth = maxDepth;
         this.maxWidth = maxWidth;
-        this.numVars = numVars;
+        this.maxVars = maxVars;
     }
 
     //use prototype nodes
@@ -66,6 +71,35 @@ class ModelGenerator {
         return new CpeeNode(label);
     }
 
+    randomFrom(collection, amount = 1, destination = null) {
+        if (amount === 1 && destination === null) {
+            let randIndex;
+            if (collection.constructor === Set) {
+                randIndex = this.randInt(collection.size);
+                let i = 0;
+                for (const element of collection) {
+                    if (randIndex === i) return element;
+                    i++;
+                }
+            } else if (collection.constructor === Array) {
+                randIndex = this.randInt(collection.size);
+                return collection[randIndex];
+            }
+        } else {
+            if (destination.constructor === Set) {
+                for (let i = 0; i < amount; i++) {
+                    destination.add(this.randomFrom(collection));
+                }
+            } else if (destination.constructor === Array) {
+                for (let i = 0; i < amount; i++) {
+                    destination.push(this.randomFrom(collection));
+                }
+            }
+        }
+
+    }
+
+
     randInt(max) {
         return Math.floor(Math.random() * max);
     }
@@ -84,11 +118,17 @@ class ModelGenerator {
     randomLeafNode() {
         const label = ModelGenerator.LEAF_NODES[this.randInt(ModelGenerator.LEAF_NODES.length)];
         const node = new CpeeNode(label);
-        if (label === "call") {
-            node.attributes.set("endpoint", this.makeid(this.randInt(this.numVars) + 1))
-        }
         return node;
     };
+
+    randomCall() {
+        const node = new CpeeNode("call");
+        node.attributes.set("endpoint", this.randomFrom(this.endpoints));
+        node.attributes.set("./parameters/label", this.randomFrom(this.labels));
+        node.attributes.set("./parameters/method", this.randomFrom(this.method));
+        this.randomFrom(this.variables, this.randInt(this.maxVars), node.readVariables);
+        this.randomFrom(this.variables, this.randInt(this.maxVars), node.modifiedVariables);
+    }
 }
 
 exports.ModelGenerator = ModelGenerator;

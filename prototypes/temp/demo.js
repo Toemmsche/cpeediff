@@ -23,7 +23,7 @@ const {CpeeModel} = require("../CPEE/CpeeModel");
 const {ModelGenerator} = require("../gen/ModelGenerator");
 const {DeltaTreeGenerator} = require("../patch/DeltaTreeGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
-const {KyongHoMatching} = require("../matching/KyongHoMatching");
+const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
 const {Parser} = require("../parse/Parser");
 const {Merger} = require("../twowaymerge/Merger");
@@ -36,7 +36,7 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const gen = new ModelGenerator(50, 34, 234, 23);
+const gen = new ModelGenerator(4000, 34, 234, 23);
 /*
 const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
 const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));
@@ -48,6 +48,8 @@ const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp
 let model1 = Parser.fromCpee(xmlA);
 let model2 = Parser.fromCpee(xmlB);
 
+model1 = g1
+model2 = g1.copy()
 
 
 
@@ -65,13 +67,13 @@ function Sleep(milliseconds) {
 
 
 const start = new Date().getTime();
-const delta = MatchDiff.diff(model1, model2, KyongHoMatching);
+const delta = MatchDiff.diff(model1, model2, PathMatching);
 const end = new Date().getTime();
 console.log("diff took " + (end - start) + "ms");
-console.log(delta.toString());
+//console.log(delta.toString());
 Patcher.patch(model1, delta)
 if(model1.toTreeString() !== model2.toTreeString()) {
-    console.log(model1.toTreeString());
+    //console.log(model1.toTreeString());
     throw new Error("no equality");
 }
 //console.log(model1.toTreeString());

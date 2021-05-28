@@ -24,8 +24,9 @@ class LongestCommonSubsequence {
      * Uses the built-in comparator ("===")
      * @param seqA
      * @param seqB
+     * @param compare
      */
-    static getLCS(seqA, seqB) {
+    static getLCS(seqA, seqB, compare = (a, b) => a === b, retBoth = false) {
         //initial 2D array of size (m + 1) * (n + 1)
         const dp = new Array(seqA.length + 1);
         for (let i = 0; i < seqA.length + 1; i++) {
@@ -46,7 +47,7 @@ class LongestCommonSubsequence {
             //result may have been computed already
             if (dp[i][j] === undefined) {
                 //dp matrix size is larger by one
-                if (seqA[i - 1] === seqB[j - 1]) {
+                if (compare(seqA[i - 1], seqB[j - 1])) {
                     dp[i][j] = dp_fill(i - 1, j - 1) + 1;
                 } else {
                     dp[i][j] = Math.max(dp_fill(i - 1, j), dp_fill(i, j - 1));
@@ -61,12 +62,25 @@ class LongestCommonSubsequence {
         //the dp array only gives the length of the LongestCommonSubsequence, we still need to compute the actual sequence
         let indexA = seqA.length;
         let indexB = seqB.length;
-        const LCS = []
+        let lcs;
+        if(retBoth) {
+            lcs = new Map();
+            lcs.set(0, []);
+            lcs.set(1, []);
+        } else {
+            lcs = []
+        }
         while (indexA > 0 && indexB > 0) {
             //if we took a diagonal step in the dp array, this item is part of the LongestCommonSubsequence
             if (dp[indexA - 1][indexB - 1] != null && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
                 //prepending instead of appending preserves sorting order
-                LCS.unshift(seqA[indexA - 1]);
+                if(retBoth) {
+                    lcs.get(0).unshift(seqA[indexA - 1]);
+                    lcs.get(1).unshift(seqB[indexB - 1]);
+                } else {
+                    lcs.unshift(seqA[indexA - 1]);
+                }
+
                 indexA--;
                 indexB--;
             } else if (dp[indexA - 1][indexB] != null&& dp[indexA][indexB] === dp[indexA - 1][indexB]) {
@@ -75,7 +89,7 @@ class LongestCommonSubsequence {
                 indexB--;
             }
         }
-        return LCS;
+        return lcs;
     }
 
 }
