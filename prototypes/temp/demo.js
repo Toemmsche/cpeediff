@@ -36,7 +36,7 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const gen = new ModelGenerator(4000, 34, 234, 23);
+const gen = new ModelGenerator(50000, 10, 20, 23);
 /*
 const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
 const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));
@@ -49,13 +49,16 @@ let model1 = Parser.fromCpee(xmlA);
 let model2 = Parser.fromCpee(xmlB);
 
 model1 = g1
-model2 = g1.copy()
+model2 = g2
 
 
 
 console.log(model1.toTreeString());
 console.log("\n VS \n")
 console.log(model2.toTreeString());
+
+console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length + " i: " + (model1.toPostOrderArray().length - model1.leafNodes().length));
+console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
 
 const json = model1.root.convertToJson();

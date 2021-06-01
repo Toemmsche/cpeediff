@@ -20,21 +20,26 @@ const {Serializable} = require("../utils/Serializable");
 
 class ModelGenerator {
 
-    static INNER_NODES = ["parallel", "parallel_branch", "alternative", "otherwise", "critical", "loop", "choose"];
+    static INNER_NODES = ["parallel", "critical", "loop", "choose"];
     static LEAF_NODES = ["call", "manipulate", "stop", "escape", "terminate"];
+
+    static ENDPOINT_METHODS = [":get", ":post", ":put", ":patch", ":delete"];
+    static CHOOSE_MODES = ["inclusive", "exclusive"];
 
     variables = ["aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg"];
     endpoints = ["bookAir", "bookHotel"];
     labels = ["Book Airline", "Book Hotel"];
-    method = [":get", ":post", ":put", ":patch", ":delete"];
 
-    size;
+
     maxDepth;
     maxWidth;
     maxVars;
 
-    constructor(size, maxDepth, maxWidth, maxVars) {
-        this.size = size;
+    _currSize;
+    _currDepth;
+
+    constructor(maxSize, maxDepth, maxWidth, maxVars) {
+        this.maxSize = maxSize;
         this.maxDepth = maxDepth;
         this.maxWidth = maxWidth;
         this.maxVars = maxVars;
@@ -43,68 +48,41 @@ class ModelGenerator {
     //use prototype nodes
 
     randomModel() {
-        const allInnerNodes = [new CpeeNode("description")];
-        for (let i = 0; i < this.size; i++) {
-            const parent = allInnerNodes[this.randInt(allInnerNodes.length)];
-            const index = this.randInt(parent.numChildren())
-            if (Math.random() >= 0.5) {
-                const node = this.randomInnerNode();
-                allInnerNodes.push(node);
-                node.attributes.set("id", i);
-                parent.insertChild(index, node);
-            } else {
-                const node = this.randomLeafNode();
-                node.attributes.set("id", i);
-                parent.insertChild(index, node);
+        this._currDepth = 0;
+        this._currSize = 0;
+        return new CpeeModel(this.randomRoot(), new Set(this.variables))
+    }
+
+    randomFrom(collection,) {
+        let randIndex;
+        if (collection.constructor === Set) {
+            randIndex = this.randInt(collection.size);
+            let i = 0;
+            for (const element of collection) {
+                if (randIndex === i) return element;
+                i++;
             }
+        } else if (collection.constructor === Array) {
+            randIndex = this.randInt(collection.length);
+            return collection[randIndex];
         }
-
-        return new CpeeModel(allInnerNodes[0]);
-
-        //TODO use empty node list and object.assign()
-
-
     }
 
-    randomInnerNode() {
-        const label = ModelGenerator.INNER_NODES[this.randInt(ModelGenerator.INNER_NODES.length)];
-        return new CpeeNode(label);
-    }
-
-    randomFrom(collection, amount = 1, destination = null) {
-        if (amount === 1 && destination === null) {
-            let randIndex;
-            if (collection.constructor === Set) {
-                randIndex = this.randInt(collection.size);
-                let i = 0;
-                for (const element of collection) {
-                    if (randIndex === i) return element;
-                    i++;
-                }
-            } else if (collection.constructor === Array) {
-                randIndex = this.randInt(collection.size);
-                return collection[randIndex];
-            }
-        } else {
+    randomInto(source, destination, amount) {
+        for (let i = 0; i < amount; i++) {
             if (destination.constructor === Set) {
-                for (let i = 0; i < amount; i++) {
-                    destination.add(this.randomFrom(collection));
-                }
-            } else if (destination.constructor === Array) {
-                for (let i = 0; i < amount; i++) {
-                    destination.push(this.randomFrom(collection));
-                }
+                destination.add(this.randomFrom(source));
+            } else {
+                destination.push(this.randomFrom(source));
             }
         }
-
     }
-
 
     randInt(max) {
         return Math.floor(Math.random() * max);
     }
 
-    makeid(length) {
+    randomString(length = this.randInt(100)) {
         const result = [];
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         const charactersLength = characters.length;
@@ -115,20 +93,169 @@ class ModelGenerator {
         return result.join('');
     }
 
-    randomLeafNode() {
-        const label = ModelGenerator.LEAF_NODES[this.randInt(ModelGenerator.LEAF_NODES.length)];
-        const node = new CpeeNode(label);
+    randomRoot() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.ROOT);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
         return node;
-    };
+    }
+
+    randomNode() {
+        this._currSize++;
+        if (this._currSize >= this.maxSize || this.randInt(2) === 1 || Math.random() <= this._currDepth / this.maxDepth) {
+            return this.randomLeafNode();
+        } else {
+            this._currDepth++;
+            const node = this.randomInnerNode();
+            this._currDepth--;
+            return node;
+        }
+    }
+
+    randomLeafNode() {
+        const r = this.randomFrom(ModelGenerator.LEAF_NODES);
+        switch (this.randomFrom(ModelGenerator.LEAF_NODES)) {
+            case CpeeNode.KEYWORDS.CALL:
+                return this.randomCall();
+            case CpeeNode.KEYWORDS.MANIPULATE:
+                return this.randomManipulate();
+            case CpeeNode.KEYWORDS.STOP:
+                return this.randomStop();
+            case CpeeNode.KEYWORDS.ESCAPE:
+                return this.randomEscape();
+            case CpeeNode.KEYWORDS.TERMINATE:
+                return this.randomTerminate();
+            default:
+                return this.randomCall();
+        }
+    }
+
+
+    randomInnerNode() {
+        switch (this.randomFrom(ModelGenerator.INNER_NODES)) {
+            case CpeeNode.KEYWORDS.LOOP:
+                return this.randomLoop();
+            case CpeeNode.KEYWORDS.CHOOSE:
+                return this.randomChoose();
+            case CpeeNode.KEYWORDS.PARALLEL:
+                return this.randomParallel();
+            case CpeeNode.KEYWORDS.CRITICAL:
+                return this.randomCritical();
+            default:
+                return this.randomLoop();
+        }
+    }
 
     randomCall() {
-        const node = new CpeeNode("call");
+        const node = new CpeeNode(CpeeNode.KEYWORDS.CALL);
         node.attributes.set("endpoint", this.randomFrom(this.endpoints));
         node.attributes.set("./parameters/label", this.randomFrom(this.labels));
-        node.attributes.set("./parameters/method", this.randomFrom(this.method));
-        this.randomFrom(this.variables, this.randInt(this.maxVars), node.readVariables);
-        this.randomFrom(this.variables, this.randInt(this.maxVars), node.modifiedVariables);
+        node.attributes.set("./parameters/method", this.randomFrom(ModelGenerator.ENDPOINT_METHODS));
+
+        node.attributes.set("./code/prepare", this.randomString());
+        node.attributes.set("./code/finalize", this.randomString());
+        node.attributes.set("./code/update", this.randomString());
+        node.attributes.set("./code/rescue", this.randomString());
+
+        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        this.randomInto(this.variables, node.modifiedVariables, this.randInt(this.maxVars));
+        return node;
     }
+
+    randomManipulate() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.MANIPULATE);
+        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        this.randomInto(this.variables, node.modifiedVariables, this.randInt(this.maxVars));
+        return node;
+    }
+
+    randomStop() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.STOP);
+        return node;
+    }
+
+    randomEscape() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.ESCAPE);
+        return node;
+    }
+
+    randomTerminate() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.TERMINATE);
+        return node;
+    }
+
+    randomParallel() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.PARALLEL);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomParallelBranch());
+        }
+        return node;
+    }
+
+    randomParallelBranch() {
+        this._currDepth++;
+        const node = new CpeeNode(CpeeNode.KEYWORDS.PARALLEL_BRANCH);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
+        this._currDepth--;
+        return node;
+    }
+
+    randomChoose() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.CHOOSE);
+        node.attributes.set("mode", this.randomFrom(ModelGenerator.CHOOSE_MODES));
+
+        let i;
+        for (i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomAlternative());
+        }
+        node.insertChild(this.randInt(i), this.randomOtherwise());
+
+        return node;
+    }
+
+    randomAlternative() {
+        this._currDepth++;
+        const node = new CpeeNode(CpeeNode.KEYWORDS.ALTERNATIVE);
+        node.attributes.set("condition", this.randomString());
+        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
+        this._currDepth--;
+        return node;
+    }
+
+    randomOtherwise() {
+        this._currDepth++;
+        const node = new CpeeNode(CpeeNode.KEYWORDS.OTHERWISE);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
+        this._currDepth--;
+        return node;
+    }
+
+    randomLoop() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.LOOP);
+        node.attributes.set("condition", this.randomString());
+        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
+        return node;
+    }
+
+    randomCritical() {
+        const node = new CpeeNode(CpeeNode.KEYWORDS.CRITICAL);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            node.insertChild(this.randInt(i), this.randomNode());
+        }
+        return node;
+    }
+
 }
 
 exports.ModelGenerator = ModelGenerator;

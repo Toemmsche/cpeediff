@@ -30,7 +30,7 @@ class MatchDiff extends AbstractDiff {
             m = matchingAlgorithm.match(copyOfOld, newModel, m);
         }
         const end = new Date().getTime();
-        console.log("diff took " + (end - start) + "ms");
+        console.log("matchtook " + (end - start) + "ms");
         //generate edit script
         return EditScriptGenerator.generateEditScript(copyOfOld, newModel, m);
     }

@@ -27,6 +27,7 @@ class DeltaTreeGenerator {
         let placeholderCount = 0;
         for (const change of editScript) {
             switch (change.changeType) {
+                //Which path (new vs old) represents the anchor depends on the change operation
                 case Change.CHANGE_TYPES.INSERTION: {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();

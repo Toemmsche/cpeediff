@@ -1,13 +1,10 @@
 //TODO features
-//      changeType set automatically
 //      longest substring compare for scripts
 //      IMPROTANT path string separate method
-//      placholder node as subclasses
-//      preserve deleted nodes for tree output
-//      export set and map similarity calculations
+//      export set and map similarity calculation
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
 //      conflict groups for reshuffling (toggleable)
-//      make exact edit script toggleable
+//      IMPORTANT make exact edit script toggleable
 //      add reshuffling in merger
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
@@ -15,7 +12,6 @@
 //      reshuffles before deletions
 //      patch context
 //      ?? make data path ./
-//      use LCS in KyongHoMatching to match path
 //      use name spaces for delta tree conversion to XML
 
 //TODO new algos

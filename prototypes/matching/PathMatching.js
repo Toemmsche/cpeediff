@@ -44,6 +44,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
         Step 1: Match leaf nodes.
         */
 
+        let start = new Date().getTime();
         //The treshold t dictates how similar two leaf nodes have to be in order to be matched (Matching Criterion 1)
         for (const newLeafNode of newLeafNodes) {
             //the minimum compare value
@@ -61,13 +62,20 @@ class PathMatching extends AbstractMatchingAlgorithm {
                 }
             }
         }
+        let end = new Date().getTime();
 
+        console.log("matching leaves took " + (end - start) + "ms");
+
+        console.log("leaves matched: " + matching.newToOldMap.size);
         /*
         Step 2: Transform one-to-many (new to old) leaf node matching  into one-to-one matching
          */
+        start = new Date().getTime();
+
         matching.reduceNew((newLeafNode, matchSet) => {
             //turn into one-to-one matching according to matching criterion 2
             //compute LCS of paths
+            console.log(newLeafNode.label);
             const newPathArr = newLeafNode.path.map(n => n.label);
             let longestLCS = -1;
             let bestMatch = null;
@@ -84,15 +92,24 @@ class PathMatching extends AbstractMatchingAlgorithm {
             matchSet.add(bestMatch);
         });
 
+        end = new Date().getTime();
+
+        console.log("first reduce took " + (end - start) + "ms");
+
         /*
         Step 3: Match inner nodes.
          */
 
+        start = new Date().getTime();
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
         for (const [newLeafNode, matchSet] of matching) {
             matchPathExperimental(matchSet[Symbol.iterator]().next().value, newLeafNode);
         }
+
+        end = new Date().getTime();
+
+        console.log("matching paths took " + (end - start) + "ms");
 
         function matchPath(oldLeafNode, newLeafNode) {
             //copy paths, reverse them and remove first element
@@ -116,6 +133,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
                 }
             }
         }
+
+
         function matchPathExperimental(oldLeafNode, newLeafNode) {
             //copy paths, reverse them and remove first element
             const newPath = newLeafNode.path.slice().reverse().slice(1);
