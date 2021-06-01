@@ -51,50 +51,20 @@ class PathMatching extends AbstractMatchingAlgorithm {
             let minCompareValue = 2;
             for (const oldLeafNode of oldLeafNodes) {
                 const compareValue = newLeafNode.compareTo(oldLeafNode);
-                if (compareValue < minCompareValue && compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
+                let longestLCS = -1;
+                if (compareValue < minCompareValue
+                    && compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
                     minCompareValue = compareValue;
+                   // longestLCS = LCSSimilarity.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
                     //Discard all matching with a higher comparison value
                     matching.unMatchNew(newLeafNode);
-                }
-                if (compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
-                    //Matching is as as good as previous best, save for now
-                    matching.matchNew(newLeafNode, oldLeafNode);
+                    matching.matchNew(newLeafNode, oldLeafNode)
                 }
             }
         }
         let end = new Date().getTime();
-
         console.log("matching leaves took " + (end - start) + "ms");
-
         console.log("leaves matched: " + matching.newToOldMap.size);
-        /*
-        Step 2: Transform one-to-many (new to old) leaf node matching  into one-to-one matching
-         */
-        start = new Date().getTime();
-
-        matching.reduceNew((newLeafNode, matchSet) => {
-            //turn into one-to-one matching according to matching criterion 2
-            //compute LCS of paths
-            console.log(newLeafNode.label);
-            const newPathArr = newLeafNode.path.map(n => n.label);
-            let longestLCS = -1;
-            let bestMatch = null;
-            for (const oldLeafNode of matchSet) {
-                const oldPathArr = oldLeafNode.path.map(n => n.label);
-                const lcs = LCSSimilarity.getLCS(newPathArr, oldPathArr);
-                //TODO more sophisticated similarity measure. LCS is not great
-                if (lcs.length > longestLCS) {
-                    bestMatch = oldLeafNode;
-                    longestLCS = lcs.length;
-                }
-            }
-            matchSet.clear();
-            matchSet.add(bestMatch);
-        });
-
-        end = new Date().getTime();
-
-        console.log("first reduce took " + (end - start) + "ms");
 
         /*
         Step 3: Match inner nodes.

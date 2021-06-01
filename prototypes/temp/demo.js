@@ -36,7 +36,7 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const gen = new ModelGenerator(50000, 10, 20, 23);
+const gen = new ModelGenerator(5000, 100, 20, 23);
 /*
 const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
 const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));

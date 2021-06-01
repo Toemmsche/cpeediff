@@ -13,6 +13,7 @@
 //      patch context
 //      ?? make data path ./
 //      use name spaces for delta tree conversion to XML
+//      leaf matching: Find easy matches using hashing (or buckets), then match leftover nodes
 
 //TODO new algos
 //      q-gram distance for script comparison

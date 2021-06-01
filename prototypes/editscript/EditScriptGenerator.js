@@ -51,11 +51,11 @@ class EditScriptGenerator {
                 const match = matching.getNewSingle(newNode);
                 //is a copy?
                 const newMatches = matching.getOld(match);
-                if(newMatches.size > 1) {
+                if (newMatches.size > 1) {
                     //determine which node is NIL and which ones are copies, the latter are unmatched
                     //TODO actually compute best NIL
-                    for(const newMatch of newMatches) {
-                        if(newMatch !== newNode) {
+                    for (const newMatch of newMatches) {
+                        if (newMatch !== newNode) {
                             matching.unMatchNew(newMatch);
                         }
                     }
@@ -89,6 +89,70 @@ class EditScriptGenerator {
                 matching.matchNew(newNode, copy);
                 editScript.appendChange(Change.insert(newPath, newData));
             }
+        }
+
+        //All nodes have the right parent and are matched or deleted later
+        //However, order of child nodes might not be right, we must verify that it matches the new model.
+        for (const oldNode of oldModel.toPreOrderArray()) {
+            if (oldNode.hasInternalOrdering()) {
+                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
+
+                const reshuffle = oldNode.childNodes.filter(n => matching.hasOld(n));
+                if(reshuffle.length === 0) {
+                    continue;
+                }
+
+                //map each old child node to the child index of its matching partner
+                const arr = reshuffle.map(n => matching.getOldSingle(n).childIndex);
+
+                //avoid expensive dynamic programming procedure if children are already ordered
+                let ascending = true;
+                for (let i = 1; i < arr.length; i++) {
+                    if(arr[i] <= arr[i - 1]) {
+                        ascending = false; break;
+                    }
+                }
+                if(ascending) {
+                    continue;
+                }
+
+                //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
+                //dp[i] contains the length of the longest sequence that ends at i
+                const dp = new Array(arr.length);
+                const parent = new Array(arr.length);
+
+                //best value
+                let max = 0;
+                //Simple O(n²) algorithm to compute the LIS
+                for (let i = 0; i < dp.length; i++) {
+                    dp[i] = 1;
+                    parent[i] = -1;
+                    for (let j = 0; j < i; j++) {
+                        if (arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
+                            dp[i] = dp[j] + 1;
+                            parent[i] = j;
+                        }
+                    }
+                    //update best value
+                    if (dp[i] > dp[max]) {
+                        max = i;
+                    }
+                }
+                //all nodes not part of the LIS have to be reordered
+                while (max !== -1) {
+                    reshuffle.splice(max, 1);
+                    max = parent[max];
+                }
+
+                for (const node of reshuffle) {
+                    const match = matching.getOldSingle(node);
+                    const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    node.changeChildIndex(match.childIndex);
+                    const newPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    editScript.appendChange(Change.move(oldPath, newPath));
+                }
+            }
+
         }
         const oldDeletedNodes = [];
         for (const oldNode of oldPostOrderArray) {
@@ -135,56 +199,6 @@ class EditScriptGenerator {
             }
         }
         */
-
-
-        //All nodes have the right path and are matched.
-        //However, order of child nodes might not be right, we must verify that it matches the new model.
-        for (const oldNode of oldModel.toPreOrderArray()) {
-            if (oldNode.hasInternalOrdering() && oldNode.hasChildren()) {
-                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
-
-                //map each old child node to the child index of its matching partner
-                const arr = oldNode.childNodes.map(n => matching.getOldSingle(n).childIndex);
-
-                //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
-                //dp[i] contains the length of the longest sequence that ends at i
-                const dp = new Array(arr.length);
-                const parent = new Array(arr.length);
-
-                //best value
-                let max = 0;
-                //Simple O(n²) algorithm to compute the LIS
-                for (let i = 0; i < dp.length; i++) {
-                    dp[i] = 1;
-                    parent[i] = -1;
-                    for (let j = 0; j < i; j++) {
-                        if (arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
-                            dp[i] = dp[j] + 1;
-                            parent[i] = j;
-                        }
-                    }
-                    //update best value
-                    if (dp[i] > dp[max]) {
-                        max = i;
-                    }
-                }
-                //all nodes not part of the LIS have to be reordered
-                const reshuffle = oldNode.childNodes.slice();
-                while (max !== -1) {
-                    reshuffle.splice(max, 1);
-                    max = parent[max];
-                }
-
-                for (const node of reshuffle) {
-                    const match = matching.getOldSingle(node);
-                    const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    node.changeChildIndex(match.childIndex);
-                    const newPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    editScript.appendChange(Change.move(oldPath, newPath));
-                }
-            }
-        }
-
         return editScript;
     }
 

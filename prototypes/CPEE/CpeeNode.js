@@ -515,6 +515,7 @@ class CpeeNode extends Serializable {
         this._parent.childNodes.splice(newIndex, 0, this);
         //adjust child indices
         this._parent._fixChildIndices();
+        console.log("kek");
     }
 
     removeFromParent() {
