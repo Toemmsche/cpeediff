@@ -8,12 +8,11 @@
 //      add reshuffling in merger
 //      delta Tree with placeholders for move
 //      consistency check involving variables (e.g. condition variable is modified in loop), stops, criticals, loops
-//      use custom comparators (differnet performance, granularity)
-//      reshuffles before deletions
 //      patch context
 //      ?? make data path ./
 //      use name spaces for delta tree conversion to XML
-//      leaf matching: Find easy matches using hashing (or buckets), then match leftover nodes
+//      leaf matching: Find easy matches using hashing (or buckets grouped by label), then match leftover nodes
+//      IMPORTANT: compare path
 
 //TODO new algos
 //      q-gram distance for script comparison

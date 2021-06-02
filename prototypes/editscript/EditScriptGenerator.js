@@ -15,6 +15,7 @@
 */
 
 
+const {Config} = require("../Config");
 const {Placeholder} = require("../CPEE/Placeholder");
 const {Change} = require("./Change");
 const {CpeeModel} = require("../CPEE/CpeeModel");
@@ -74,7 +75,7 @@ class EditScriptGenerator {
                     const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
                     const oldData = match.convertToJson();
                     const newData = newNode.convertToJson();
-                    //TODO replace attributes
+                    //during edit script generation, we don't need to update all attributes of the matched node
                     match.label = newNode.label;
                     editScript.appendChange(Change.update(oldPath, oldData, newData))
                 }
@@ -94,7 +95,7 @@ class EditScriptGenerator {
         //All nodes have the right parent and are matched or deleted later
         //However, order of child nodes might not be right, we must verify that it matches the new model.
         for (const oldNode of oldModel.toPreOrderArray()) {
-            if (oldNode.hasInternalOrdering()) {
+            if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
                 //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
                 const reshuffle = oldNode.childNodes.filter(n => matching.hasOld(n));
@@ -115,6 +116,9 @@ class EditScriptGenerator {
                 if(ascending) {
                     continue;
                 }
+
+                //find conflict groups based on read and modified variables
+
 
                 //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
                 //dp[i] contains the length of the longest sequence that ends at i

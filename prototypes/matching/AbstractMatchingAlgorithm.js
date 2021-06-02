@@ -26,30 +26,16 @@ class AbstractMatchingAlgorithm {
      * @type {String[]}
      */
     options;
-    /**
-     * All the options available for this matching algorithm
-     * @type {Object}
-     */
-    AVAILABLE_OPTIONS;
 
     /**
      * Instantiate an AbstractMatchingAlgorithm object with the given options.
-     * @param {String[]} options Additional options for the matching algorithm
-     * @param {String[]} availableOptions All the options avaiable for this matching algorithm
      * @throws {Error} If not called from within a subclass
      */
-    constructor(options= [], availableOptions = []) {
+    constructor() {
         if (this.constructor === AbstractMatchingAlgorithm) {
             throw new Error("Instantiation of Abstract class 'AbstractDiff'");
         }
-        this.AVAILABLE_OPTIONS = availableOptions;
-        //validate options
-        for(const option of options) {
-            if(!this.AVAILABLE_OPTIONS.includes(option)) {
-                throw Error("Unrecognized option " + option);
-            }
-        }
-        this.options = options;
+
     }
 
     /**
@@ -58,9 +44,10 @@ class AbstractMatchingAlgorithm {
      * @param {CpeeModel} newModel The new process model
      * @param {Matching} existingMatching An existing matching that is extended.
      *                                    The order the matching algorithms are applied in matters.
+     * @param comparator
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2
      */
-    static match(oldModel, newModel,existingMatching) {}
+    static match(oldModel, newModel,existingMatching, comparator) {}
 }
 
 exports.AbstractMatchingAlgorithm = AbstractMatchingAlgorithm;

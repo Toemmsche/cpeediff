@@ -16,6 +16,7 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {StandardComparator} = require("../compare/StandardComparator");
 const {SimilarityMatching} = require("../matching/SimilarityMatching");
 const {BottomUpMatching} = require("../matching/BottomUpMatching");
 const {Patcher} = require("../patch/Patcher");
@@ -36,7 +37,7 @@ let file2 = process.argv[3];
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 
-const gen = new ModelGenerator(5000, 100, 20, 23);
+const gen = new ModelGenerator(5000, 10, 20, 23);
 /*
 const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
 const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));
@@ -48,9 +49,9 @@ const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp
 let model1 = Parser.fromCpee(xmlA);
 let model2 = Parser.fromCpee(xmlB);
 
+
 model1 = g1
 model2 = g2
-
 
 
 console.log(model1.toTreeString());
@@ -68,10 +69,10 @@ function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-
 const start = new Date().getTime();
 const delta = MatchDiff.diff(model1, model2, PathMatching);
 const end = new Date().getTime();
+
 console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
 Patcher.patch(model1, delta)

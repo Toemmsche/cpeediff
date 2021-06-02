@@ -114,7 +114,7 @@ class Parser {
                 if(attrNode.name === "endpoint" && endpointToURL.has(attrNode.value)) {
                      value = endpointToURL.get(attrNode.value);
                 } else if (attrNode.name === "endpoint" && attrNode.value == "") {
-                  value =  Math.floor(Math.random * 1000000).toString();
+                  value =  Math.floor(Math.random * 1000000).toString(); //random endpoint
                 } else {
                     value = attrNode.value;
                 }
@@ -124,38 +124,32 @@ class Parser {
 
             //extract modified variables from code and read variables from call to endpoint
             if (root.containsCode()) {
-                const modifiedVariables = new Set();
                 //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
                 const matches = root.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
                 if (matches !== null) {
                     for (const variable of matches) {
                         //match only variable name and remove data. prefix
-                        modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                        root.modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
                     }
                 }
-                root.modifiedVariables = modifiedVariables;
 
-                const readVariables = new Set();
                 for (const [key, value] of root.attributes) {
                     if (key.startsWith("./parameters/arguments/")) {
-                        readVariables.add(value.replace(/data\./, ""));
+                        root.readVariables.add(value.replace(/data\./, ""));
                     }
                 }
-                root.readVariables = readVariables;
             }
 
             //extract read Variables from condition
             if (root.containsCondition()) {
                 const condition = root.attributes.get("condition");
-                const readVariables = new Set();
                 const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
                 if (matches !== null) {
                     for (const variable of matches) {
                         //match only variable name and remove data. prefix
-                        readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                        root.readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
                     }
                 }
-                root.readVariables = readVariables;
             }
 
             return root;

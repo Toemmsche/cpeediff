@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-const {Globals} = require("../Global");
-const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
+const {Lcs} = require("../utils/LongestCommonSubsequence");
+const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
 const {CpeeModel} = require("../CPEE/CpeeModel");
@@ -29,12 +29,12 @@ class PathMatching extends AbstractMatchingAlgorithm {
      * Kyong-Ho et al., "An Efficient Algorithm to Compute Differences between Structured Documents", 2004
      * @param {CpeeModel} oldModel The old process model
      * @param {CpeeModel} newModel The new process model
-     * @param {Matching} existingMatching An existing matching that is extended.
+     * @param matching
+     * @param comparator
      *                                    The order the matching algorithms are applied in matters.
-     * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    static match(oldModel, newModel, matching = new Matching()) {
+    static match(oldModel, newModel, matching = new Matching(), comparator) {
         //get all nodes, leaf nodes and inner nodes of the models
         const oldLeafNodes = oldModel.leafNodes();
         const newLeafNodes = newModel.leafNodes();
@@ -50,12 +50,12 @@ class PathMatching extends AbstractMatchingAlgorithm {
             //the minimum compare value
             let minCompareValue = 2;
             for (const oldLeafNode of oldLeafNodes) {
-                const compareValue = newLeafNode.compareTo(oldLeafNode);
+                const compareValue = comparator.compare(newLeafNode, oldLeafNode);
                 let longestLCS = -1;
                 if (compareValue < minCompareValue
-                    && compareValue <= Globals.LEAF_SIMILARITY_THRESHOLD) {
+                    && compareValue <= Config.LEAF_SIMILARITY_THRESHOLD) {
                     minCompareValue = compareValue;
-                   // longestLCS = LCSSimilarity.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
+                   // longestLCS = Lcs.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
                     //Discard all matching with a higher comparison value
                     matching.unMatchNew(newLeafNode);
                     matching.matchNew(newLeafNode, oldLeafNode)
@@ -94,7 +94,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
                     if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNewSingle(newPath[k]))) {
                         //If so, we terminate to preserve ancestor order within the path
                         return;
-                    } else if (newPath[k].compareTo(oldPath[i]) < Globals.INNER_NODE_SIMILARITY_THRESHOLD) {
+                    } else if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
                         matching.matchNew(newPath[k], oldPath[i]);
                         //update last matching index to avoid a false positive of the first if branch in subsequent iterations
                         j = k + 1;
@@ -110,14 +110,14 @@ class PathMatching extends AbstractMatchingAlgorithm {
             const newPath = newLeafNode.path.slice().reverse().slice(1);
             const oldPath = oldLeafNode.path.slice().reverse().slice(1);
 
-            const lcs = LCSSimilarity.getLCS(newPath, oldPath, (a, b) => a.label === b.label, true);
+            const lcs = Lcs.getLCS(newPath, oldPath, (a, b) => a.label === b.label, true);
 
             const newLcs = lcs.get(0);
             const oldLcs = lcs.get(1);
 
             //index in newPath where last matching occurred
             for (let i = 0; i <newLcs.length ; i++) {
-                if(newLcs[i].compareTo(oldLcs[i]) <= Globals.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
+                if(comparator.compare(newLcs[i], oldLcs[i]) <= Config.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
                     matching.matchNew(newLcs[i], oldLcs[i]);
                 }
             }
@@ -160,8 +160,6 @@ class PathMatching extends AbstractMatchingAlgorithm {
 
             return commonSize / oldSubTreePreOrder.length;
         }
-
-        //TODO reduceold, maybe in generate edit script
 
         if(!matching.hasNew(newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);

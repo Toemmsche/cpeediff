@@ -52,11 +52,11 @@ class CpeeNode extends Serializable {
     data;
 
     /**
-     * @type Set<CpeeNode>
+     * @type Set<String>
      */
     modifiedVariables;
     /**
-     * @type Set<CpeeNode>
+     * @type Set<String>
      */
     readVariables;
 
@@ -230,150 +230,11 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     *
      * @param {CpeeNode} other
-     * @returns {number}
+     * @returns {boolean}
      */
-    compareTo(other) {
-        switch (this.label) {
-            case "call": {
-                //we cannot possibly match a call with another node type
-                if (this.label !== other.label) return 1.0;
-                /*
-                To compare call nodes, a fixed number of separate comparison groups are defined.
-                If two nodes exhibit differences in almost all of the groups, a high comparison value (= low similarity) will be returned.
-                If two nodes are identical in many of the groups, a low comparison value (= high similarity) will be returned.
-                The preliminary comparison groups are focussed around the endpoint (endPoint descriptor and method),
-                the variables modified in the code, and the variables read in the code or as parameters for the call.
-                 */
-
-                const thisEndpoint = this.attributes.get("endpoint");
-                const otherEndpoint = other.attributes.get("endpoint");
-                const endPointLcsSimilarity = LCSSimilarity.getLCS(thisEndpoint, otherEndpoint).length
-                    / Math.max(thisEndpoint.length, otherEndpoint.length);
-                let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
-                if (this.attributes.get("./parameters/label") === other.attributes.get("./parameters/label")) {
-                    //TODO maybe use LCS, too
-                    endPointComparisonValue *= 0.5;
-                }
-                if (this.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
-                    endPointComparisonValue = Math.min(1.5 * endPointComparisonValue, 1);
-                }
-
-                let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
-                let modifiedVariablesComparisonValue;
-                //if modifiedVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    modifiedVariablesComparisonValue = endPointComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const modifiedVariable of this.modifiedVariables) {
-                        if (!other.modifiedVariables.has(modifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherModifiedVariable of other.modifiedVariables) {
-                        if (!this.modifiedVariables.has(otherModifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    modifiedVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                maxSize = Math.max(this.readVariables.size, other.readVariables.size);
-
-                let readVariablesComparisonValue;
-                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    readVariablesComparisonValue = endPointComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const readVariable of this.readVariables) {
-                        if (!other.readVariables.has(readVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherReadVariable of other.readVariables) {
-                        if (!this.readVariables.has(otherReadVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    readVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                //endpoint and modified variables have higher weights
-                return endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
-            }
-
-            case "manipulate": {
-                if (this.label !== other.label) {
-                    return 1;
-                }
-                /*
-                Comparison of two scripts is identical to comparison of two service calls minus the endpoint comparison
-                 */
-                let maxSize = Math.max(this.modifiedVariables.size, other.modifiedVariables.size);
-                let modifiedVariablesComparisonValue;
-                //if modifiedVariables is empty, we must return a pessimistic estimate
-                if (maxSize === 0) {
-                    modifiedVariablesComparisonValue = 1;
-                } else {
-                    let differentCounter = 0;
-                    for (const modifiedVariable of this.modifiedVariables) {
-                        if (!other.modifiedVariables.has(modifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherModifiedVariable of other.modifiedVariables) {
-                        if (!this.modifiedVariables.has(otherModifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    modifiedVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                maxSize = Math.max(this.readVariables.size, other.readVariables.size);
-
-                let readVariablesComparisonValue;
-                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    readVariablesComparisonValue = modifiedVariablesComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const readVariable of this.readVariables) {
-                        if (!other.readVariables.has(readVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherReadVariable of other.readVariables) {
-                        if (!this.readVariables.has(otherReadVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    readVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                return 0.7 * modifiedVariablesComparisonValue + 0.3 * readVariablesComparisonValue;
-            }
-
-            case "parallel": {
-                if (this.label !== other.label) {
-                    return 1;
-                }
-                let compareValue = 0;
-                //wait attribute dictates the number of branches that have to finish until execution proceeds
-                if (this.attributes.has("wait") && this.attributes.get("wait") !== other.attributes.get("wait")) {
-                    compareValue += 0.2;
-                }
-                return compareValue;
-            }
-
-            default: {
-                //all-or-nothing comparison
-                if (this.nodeEquals(other)) return 0;
-                else return 1;
-            }
-        }
+    nodeTypeEquals(other) {
+        return this.label === other.label;
     }
 
     /**
@@ -515,7 +376,6 @@ class CpeeNode extends Serializable {
         this._parent.childNodes.splice(newIndex, 0, this);
         //adjust child indices
         this._parent._fixChildIndices();
-        console.log("kek");
     }
 
     removeFromParent() {

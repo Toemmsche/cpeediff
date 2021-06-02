@@ -15,7 +15,7 @@
 */
 
 const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
-const {Globals} = require("../Global");
+const {Globals} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
 const {CpeeModel} = require("../CPEE/CpeeModel");

@@ -18,7 +18,7 @@
 /**
  * Measure the similarity between to sequences using the Longest Common Subsequence (LongestCommonSubsequence)
  */
-class LongestCommonSubsequence {
+class Lcs {
 
     /**
      * Uses the built-in comparator ("===")
@@ -94,4 +94,4 @@ class LongestCommonSubsequence {
 
 }
 
-exports.LCSSimilarity = LongestCommonSubsequence;
+exports.Lcs = Lcs;

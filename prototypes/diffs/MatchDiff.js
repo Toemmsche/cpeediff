@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {StandardComparator} = require("../compare/StandardComparator");
 const {CpeeModel} = require("../CPEE/CpeeModel");
 const {Matching} = require("../matching/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
@@ -27,7 +28,7 @@ class MatchDiff extends AbstractDiff {
         let m = new Matching();
         const start = new Date().getTime();
         for(const matchingAlgorithm of matchingAlgorithms) {
-            m = matchingAlgorithm.match(copyOfOld, newModel, m);
+            m = matchingAlgorithm.match(copyOfOld, newModel, m, new StandardComparator());
         }
         const end = new Date().getTime();
         console.log("matchtook " + (end - start) + "ms");
