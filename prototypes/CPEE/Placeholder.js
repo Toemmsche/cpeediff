@@ -14,15 +14,14 @@
    limitations under the License.
 */
 
+const {CpeeNode} = require("./CpeeNode");
 
-const {DeltaNode} = require("./DeltaNode");
-
-class Placeholder extends DeltaNode {
+class Placeholder extends CpeeNode {
 
     index;
 
     constructor(id, index) {
-        super("m" + id + "m", "MOVE_FROM");
+        super("m" + id + "m");
         this.index = index;
     }
 }

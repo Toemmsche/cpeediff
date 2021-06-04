@@ -42,7 +42,6 @@ class EditScriptGenerator {
         const newPreOrderArray = newModel.toPreOrderArray();
 
         //iterate in pre order through new model
-        let placeholderCount = 0;
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two CPEE models
             if (newNode.parent == null) continue;
@@ -73,9 +72,11 @@ class EditScriptGenerator {
                 if (!newNode.contentEquals(match)) {
                     //modify node
                     const oldPath = match.toChildIndexPathString();
+                    const oldData = match.convertToJson(false);
+                    const newData = newNode.convertToJson(false);
                     //during edit script generation, we don't need to update all attributes of the matched node
                     match.label = newNode.label;
-                    editScript.appendChange(Change.update(oldPath, null, null))
+                    editScript.appendChange(Change.update(oldPath, oldData, newData))
                 }
             } else {
                 //perform insert operation at match of the parent node

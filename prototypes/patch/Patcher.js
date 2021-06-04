@@ -55,6 +55,7 @@ class Patcher {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();
+                    break;
                 }
             }
         }

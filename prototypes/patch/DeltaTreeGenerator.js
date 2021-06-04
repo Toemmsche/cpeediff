@@ -23,7 +23,7 @@ const {Change} = require("../editscript/Change");
 class DeltaTreeGenerator {
     static deltaTree(model, editScript) {
         //copy model
-        model = model.deltaCopy();
+        model = model.copy();
         let placeholderCount = 0;
         for (const change of editScript) {
             switch (change.changeType) {
@@ -35,6 +35,9 @@ class DeltaTreeGenerator {
                     const child = CpeeNode.parseFromJson(change.newNode);
                     parent.insertChild(childIndex, child);
                     child.changeType = change.changeType;
+                    if (child.isPropertyNode()) {
+                        child.getParentLeaf().updates = [];
+                    }
                     break;
                 }
                 case Change.CHANGE_TYPES.MOVE: {
@@ -42,7 +45,7 @@ class DeltaTreeGenerator {
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();
                     //Insert placeholder at old position
-                    if(node.parent.placeholders === undefined) {
+                    if (node.parent.placeholders === undefined) {
                         node.parent.placeholders = [];
                     }
                     node.parent.placeholders.push(new Placeholder(placeholderCount, node.childIndex));
@@ -52,6 +55,9 @@ class DeltaTreeGenerator {
                     parent.insertChild(targetIndex, node);
                     //TODO move id
                     node.changeType = change.changeType;
+                    if (node.isPropertyNode()) {
+                        node.getParentLeaf().updates = [];
+                    }
                     break;
                 }
                 case Change.CHANGE_TYPES.UPDATE: {
@@ -65,27 +71,35 @@ class DeltaTreeGenerator {
                         }
                     }
                     node.updated = true;
+                    if (node.isPropertyNode()) {
+                        node.getParentLeaf().updates = [];
+
+                    }
                     break;
                 }
                 case Change.CHANGE_TYPES.DELETION: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
-                    for(const descendant of node.toPreOrderArray()) {
+                    for (const descendant of node.toPreOrderArray()) {
                         //Do not actually delete the node, we want to show the delta
                         descendant.changeType = change.changeType;
                     }
+                    if(node.isPropertyNode()) {
+                        node.getParentLeaf().updates = [];
+                    }
+                    break;
                 }
             }
         }
-        
+
         function findNodeByIndexArr(model, indexArr) {
             let currNode = model.root;
             indexLoop: for (let index of indexArr) {
                 for (let i = 0; i < currNode.numChildren(); i++) {
-                    if(currNode.getChild(i).changeType === Change.CHANGE_TYPES.DELETION) {
+                    if (currNode.getChild(i).changeType === Change.CHANGE_TYPES.DELETION) {
                         index++;
                     }
-                    if(index === i) {
+                    if (index === i) {
                         currNode = currNode.getChild(index);
                         continue indexLoop;
                     }
@@ -95,17 +109,17 @@ class DeltaTreeGenerator {
             return currNode;
         }
 
-        for(const oldNode of model.toPreOrderArray()) {
-            if("placeholders" in oldNode) {
+        for (const oldNode of model.toPreOrderArray()) {
+            if ("placeholders" in oldNode) {
                 //reverse placeholder array to preserve sibling order
-                for(const placeholder of oldNode.placeholders.reverse()) {
+                for (const placeholder of oldNode.placeholders.reverse()) {
                     oldNode.insertChild(placeholder.index, placeholder);
                 }
                 //avoid delete
-               oldNode.placeholders = undefined;
+                oldNode.placeholders = undefined;
             }
         }
-        
+
         return model;
     }
 

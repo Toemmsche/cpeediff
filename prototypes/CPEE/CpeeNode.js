@@ -38,6 +38,17 @@ class CpeeNode extends Serializable {
     }
 
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
+    /**
+     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     */
+    static STRING_OPTIONS = {
+        LABEL: 1,
+        LABEL_WITH_TYPE_INDEX: 2,
+        PATH: 3,
+        PATH_WITH_TYPE_INDEX: 4,
+        CHILD_INDEX_ONLY: 5,
+        CHANGE: 6
+    }
     //CPEE information
     /**
      * @type String
@@ -51,36 +62,22 @@ class CpeeNode extends Serializable {
      * @type String
      */
     data;
-
     /**
      * @type Set<String>
      */
     modifiedVariables;
+
+    //private
     /**
      * @type Set<String>
      */
     readVariables;
-
-    //private
     //diff related information
-
-    //structural information
     /**
-     * @type CpeeNode
-     * @private
+     * @type String
      */
-    _parent;
-    /**
-     * @type Number
-     * @private
-     */
-    _childIndex;
-    /**
-     * @type CpeeNode[]
-     * @private
-     */
-    _childNodes;
-
+    changeType;
+    updates;
 
     constructor(label) {
         super();
@@ -88,11 +85,78 @@ class CpeeNode extends Serializable {
         this.attributes = new Map();
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
-        this.data = "";
+        this.data = null;
+
+        this.changeType = null;
+        this.updates = null;
 
         this._childNodes = [];
         this._parent = null;
-        this._childIndex = 0;
+        this._childIndex = null;
+    }
+
+    //structural information
+    /**
+     * @type CpeeNode
+     * @private
+     */
+    _parent;
+
+    /**
+     * @returns {CpeeNode}
+     */
+    get parent() {
+        return this._parent;
+    }
+
+    /**
+     *
+     * @param {CpeeNode} parentNode
+     */
+    set parent(parentNode) {
+        this._parent = parentNode;
+    }
+
+    /**
+     * @type Number
+     * @private
+     */
+    _childIndex;
+
+    /**
+     * @returns {Number}
+     */
+    get childIndex() {
+        return this._childIndex;
+    }
+
+    /**
+     *
+     * @param {Number} childIndex
+     */
+    set childIndex(childIndex) {
+        this._childIndex = childIndex;
+    }
+
+    /**
+     * @type CpeeNode[]
+     * @private
+     */
+    _childNodes;
+
+    /**
+     * @returns {CpeeNode[]}
+     */
+    get childNodes() {
+        return this._childNodes;
+    }
+
+    /**
+     *
+     * @param {CpeeNode[]} newChildNodes
+     */
+    set childNodes(childNodes) {
+        this._childNodes = childNodes;
     }
 
     /**
@@ -116,7 +180,7 @@ class CpeeNode extends Serializable {
         let node = this;
         const isPropertyNode = this.isPropertyNode();
         while (node != null && (!isPropertyNode || node.isPropertyNode())) {
-            if(pathArr.includes(node)) {
+            if (pathArr.includes(node)) {
                 console.log("up")
             }
             pathArr.push(node);
@@ -126,48 +190,35 @@ class CpeeNode extends Serializable {
     }
 
     /**
+     *
+     * @override
      * @returns {CpeeNode}
      */
-    get parent() {
-        return this._parent;
-    }
+    static parseFromJson(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if (value.dataType !== undefined && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
 
-    /**
-     *
-     * @param {CpeeNode} parentNode
-     */
-    set parent(parentNode) {
-        this._parent = parentNode;
-    }
-
-    /**
-     * @returns {CpeeNode[]}
-     */
-    get childNodes() {
-        return this._childNodes;
-    }
-
-    /**
-     *
-     * @param {CpeeNode[]} newChildNodes
-     */
-    set childNodes(childNodes) {
-        this._childNodes = childNodes;
-    }
-
-    /**
-     * @returns {Number}
-     */
-    get childIndex() {
-        return this._childIndex;
-    }
-
-    /**
-     *
-     * @param {Number} childIndex
-     */
-    set childIndex(childIndex) {
-        this._childIndex = childIndex;
+        return JSON.parse(str, reviver)
     }
 
     /**
@@ -240,7 +291,7 @@ class CpeeNode extends Serializable {
         for (const [key, value] of this.attributes) {
             if (other.attributes.get(key) !== value) return false;
         }
-        if(this.data != other.data) return false;
+        if (this.data != other.data) return false;
         return true;
     }
 
@@ -407,23 +458,26 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     *
+     * @returns {CpeeNode}
      */
-    static STRING_OPTIONS = {
-        LABEL: 1,
-        LABEL_WITH_TYPE_INDEX: 2,
-        PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4,
-        CHILD_INDEX_ONLY: 5,
-        CHANGE: 6
+    getParentLeaf() {
+        if (!this.isPropertyNode()) {
+            throw new Error("Non-property node does not have a parent leaf node");
+        }
+        let node = this;
+        while (node.isPropertyNode()) {
+            node = node._parent;
+        }
+        return node;
     }
 
     toChildIndexPathString() {
         let res = []
         let node = this;
-        while(node.parent != null) {
+        while (node._parent != null) {
             res.push(node.childIndex);
-            node = node.parent;
+            node = node._parent;
         }
         return res.reverse().join("/");
     }
@@ -452,10 +506,7 @@ class CpeeNode extends Serializable {
                 return strArr.slice(1).join("/"); //drop root child index (always 0)
             }
             case CpeeNode.STRING_OPTIONS.CHANGE:
-                if (this.changeType !== undefined) {
-                    return this.label + " <" + this.changeType + ">";
-                }
-                return this.label ;
+                return this.label + " <" + (this.changeType != null ? this.changeType : "") + (this.updates != null ? "-UPD" : "") + ">";
             default:
                 return this.label;
         }
@@ -514,38 +565,6 @@ class CpeeNode extends Serializable {
         }
 
         return JSON.stringify(this, replacer);
-    }
-
-    /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
-    static parseFromJson(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if (value.dataType !== undefined  && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if (value.dataType !== undefined && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if (value.label !== undefined) {
-                    const node = new CpeeNode(value.label);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (let i = 0; i < node._childNodes.length; i++) {
-                        node._childNodes[i].parent = node;
-                        node._childNodes[i].childIndex = i;
-                    }
-                    return node;
-                }
-            }
-            return value;
-        }
-
-        return JSON.parse(str, reviver)
     }
 
     copy(includeChildNodes = false) {

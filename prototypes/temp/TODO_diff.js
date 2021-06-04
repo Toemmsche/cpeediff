@@ -77,7 +77,9 @@
 //      property tree as attribute:
 //          fix property trees in inner nodes (.properties() method)
 //          find a way around childattributes (property extractor) or clean up deletion in pathmatching
-//          updates data format
+//          updates data format as array of changes in cpeenode
+//         make subclass for property nodes
+
 /*
 Merge Ideas:
 2way: Find conflicts between unmatched nodes

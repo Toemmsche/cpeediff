@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {CpeeNode} = require("../CPEE/CpeeNode");
+
 class TreeStringSerializer {
     
     //similar to unix tree command
@@ -41,7 +43,7 @@ class TreeStringSerializer {
             }
             line += "─";
             const lineLength = line.length;
-            line += cpeeNode.toString() + "\n";
+            line += cpeeNode.toString(CpeeNode.STRING_OPTIONS.CHANGE) + "\n";
             if (cpeeNode.hasChildren()) {
                 barList.push(lineLength + 1);
                 for (const child of cpeeNode) {
