@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {Config} = require("../Config");
 const {CpeeNode} = require("../CPEE/CpeeNode");
 const {CpeeModel} = require("../CPEE/CpeeModel");
 const {DOMParser} = require("xmldom");
@@ -24,26 +25,26 @@ class Parser {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
         const endpointToURL = new Map();
-        if (doc.tagName === "properties") {
+        if (doc.localName === "properties") {
             const declaredVariables = new Set();
             let root;
             for (let i = 0; i < doc.childNodes.length; i++) {
                 const childTNode = doc.childNodes.item(i);
-                if (childTNode.tagName === "dataelements") {
+                if (childTNode.localName === "dataelements") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const variable = childTNode.childNodes.item(j);
                         if (variable.nodeType === 1) { //Element, not Text
-                            declaredVariables.add(variable.tagName);
+                            declaredVariables.add(variable.localName);
                         }
                     }
-                } else if (childTNode.tagName === "dslx") {
+                } else if (childTNode.localName === "dslx") {
                     let j = 0;
-                    while (childTNode.childNodes.item(j).tagName !== "description") j++;
+                    while (childTNode.childNodes.item(j).localName !== "description") j++;
                     root = constructRecursive(childTNode.childNodes.item(j));
                 }
 
                 //TODO test
-                if(childTNode.tagName === "endpoints") {
+                if(childTNode.localName === "endpoints") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
@@ -60,7 +61,7 @@ class Parser {
         }
 
         function constructRecursive(tNode) {
-            let root = new CpeeNode(tNode.tagName);
+            let root = new CpeeNode(tNode.localName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -108,6 +109,10 @@ class Parser {
             //parse attributes
             for (let i = 0; i < tNode.attributes.length; i++) {
                 const attrNode = tNode.attributes.item(i);
+                //ignore semantically useless
+                if(Config.PROPERTY_IGNORE_LIST.includes(attrNode.name)) {
+                    continue;
+                }
                 //replace endpoint
                 let value;
                 //replace endpoint identifier with actual endpoint URL (if it exists)

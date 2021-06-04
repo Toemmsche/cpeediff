@@ -53,10 +53,6 @@ class CpeeModel {
     leafNodes() {
         return this.toPreOrderArray().filter(n => !n.hasChildren());
     }
-
-    toTreeString(stringOption = CpeeNode.STRING_OPTIONS.LABEL) {
-        return this.root.toTreeString([], stringOption);
-    }
 }
 
 exports.CpeeModel = CpeeModel;

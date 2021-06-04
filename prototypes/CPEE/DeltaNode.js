@@ -21,8 +21,10 @@ class DeltaNode extends CpeeNode {
     changeType;
     updated;
 
-    constructor(label) {
+    constructor(label, changeType = null, updated = null) {
         super(label);
+        this.changeType = "NIL";
+        this.updated = updated;
     }
 
     /**

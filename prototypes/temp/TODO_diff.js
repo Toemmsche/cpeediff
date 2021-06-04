@@ -40,6 +40,7 @@
 //      pretty output vs machine readable (JSON vs treestring)
 //      readVariables considers Code, too
 //      read and modified Variables as Getter???
+//      convert property nodes in delta tree generator
 
 
 //TODO tidy
@@ -47,7 +48,6 @@
 //      encapsulate handleInsert() in edit script generation
 //      diff() performes conversion to CpeeModel
 //      use arrow notation (or dont use private function)
-//      use patchbuilder
 //      turn path into method
 //      maybe mark clearly which nodes belong to which tree
 //      Deicision options in diff or class
@@ -58,17 +58,22 @@
 //      replace label comparison with instanceof
 //      use multiple inheritance for call otherwise etc.
 //      find cleaner way to get node attributes (e.g. is property node)
-//      use scientific names for variables
+//      use scientific names for variables (elementIndex instead of type index (XPATH),
+//      use xpath like syntax
 //      maybe change member variable declaration and initiliazation
 //      use constructor for node comparison
 //      move node boolean flags into cpeemodel to keep semantic parsing in one place
 //      rename root to node in model
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
+//      change TNode name (maybe element or text)
+//      automate namespaces and changetype attributes
 
 
 //TODO REWRITE
 //      use underscores
+//      all constants (even attribute id strings into config, maybe split into config and DSL);
+//      property tree as attribute
 /*
 Merge Ideas:
 2way: Find conflicts between unmatched nodes

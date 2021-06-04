@@ -19,11 +19,11 @@ const {Serializable} = require("../utils/Serializable");
 class Change extends Serializable {
 
     static CHANGE_TYPES = {
-        INSERTION: "Insertion",
-        DELETION: "Deletion",
-        MOVE: "Move",
-        UPDATE: "Update",
-        NIL: "Nil"
+        INSERTION: "INSERT",
+        DELETION: "DELETE",
+        MOVE: "MOVE_TO",
+        UPDATE: "UPDATE",
+        NIL: "NIL"
     }
 
     changeType;

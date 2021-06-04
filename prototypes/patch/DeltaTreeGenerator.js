@@ -50,7 +50,8 @@ class DeltaTreeGenerator {
                     const targetIndex = parentIndexArr.pop();
                     const parent = findNodeByIndexArr(model, parentIndexArr);
                     parent.insertChild(targetIndex, node);
-                    node.changeType = change.changeType + " " + placeholderCount++;
+                    //TODO move id
+                    node.changeType = change.changeType;
                     break;
                 }
                 case Change.CHANGE_TYPES.UPDATE: {

@@ -196,7 +196,6 @@ class StandardComparator extends AbstractComparator {
     }
 
     compare(node,other) {
-        console.log(0.9 * this._contentCompare(node, other) + 0.1 * this._structCompare(node, other));
         return 0.9 * this._contentCompare(node, other) + 0.1 * this._structCompare(node, other);
     }
 }

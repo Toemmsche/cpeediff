@@ -19,6 +19,25 @@ class Config {
     static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
 
     static EXACT_EDIT_SCRIPT = false;
+
+
+    static NAMESPACES = {
+        DEFAULT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0",
+        NIL_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/nil",
+        NIL_NAMESPACE_PREFIX: "nil",
+        INSERT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/insert",
+        INSERT_NAMESPACE_PREFIX: "ins",
+        DELETE_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/delete",
+        DELETE_NAMESPACE_PREFIX: "del",
+        MOVE_FROM_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/move-from",
+        MOVE_FROM_NAMESPACE_PREFIX: "movfr",
+        MOVE_TO_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/move-to",
+        MOVE_TO_NAMESPACE_PREFIX: "movto",
+        UPDATE_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/update",
+        UPDATE_NAMESPACE_PREFIX: "upd"
+    }
+
+    static PROPERTY_IGNORE_LIST = ["id", "description"];
 }
 
 exports.Config = Config;

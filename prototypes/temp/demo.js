@@ -16,6 +16,8 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
+const {XmlSerializer} = require("../serialize/XmlSerializer");
 const {StandardComparator} = require("../compare/StandardComparator");
 const {SimilarityMatching} = require("../matching/SimilarityMatching");
 const {BottomUpMatching} = require("../matching/BottomUpMatching");
@@ -50,14 +52,6 @@ let model1 = Parser.fromCpee(xmlA);
 let model2 = Parser.fromCpee(xmlB);
 
 
-model1 = g1
-model2 = g2
-
-
-console.log(model1.toTreeString());
-console.log("\n VS \n")
-console.log(model2.toTreeString());
-
 console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length + " i: " + (model1.toPostOrderArray().length - model1.leafNodes().length));
 console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
@@ -75,13 +69,9 @@ const end = new Date().getTime();
 
 console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
-Patcher.patch(model1, delta)
-if(model1.toTreeString() !== model2.toTreeString()) {
-    //console.log(model1.toTreeString());
-    throw new Error("no equality");
-}
-//console.log(model1.toTreeString());
-
-
+const dt = DeltaTreeGenerator.deltaTree(model1, delta);
+//console.log(XmlSerializer.serializeDeltaTree(dt));
+console.log(XmlSerializer.serializeDeltaTree(dt));
+console.log(TreeStringSerializer.serializeModel(model1));
 
 

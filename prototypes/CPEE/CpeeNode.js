@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {Config} = require("../Config");
 const {Change} = require("../editscript/Change");
 const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
 const {Serializable} = require("../utils/Serializable");
@@ -321,9 +322,8 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isDocumentation() {
-        return this.label === "description"
-            && !this.hasChildren()
-            && !this.hasAttributes();
+        return Config.PROPERTY_IGNORE_LIST.includes(this.label)
+            && !this.hasChildren();
     }
 
     /**
@@ -435,46 +435,6 @@ class CpeeNode extends Serializable {
             default:
                 return this.label;
         }
-    }
-
-
-    //TODO beautify... (and optimize)
-    //similar to unix tree command
-    /**
-     *
-     * @param {Number[]} barList
-     * @param {Number} stringOption
-     * @returns {String}
-     */
-    toTreeString(barList, stringOption) {
-        const isLast = this._parent != null && this._childIndex === this._parent._childNodes.length - 1;
-        let line = "";
-        for (let i = 0; i < barList.length; i++) {
-            const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
-            line += " ".repeat(spaceCount);
-            if (i === barList.length - 1) {
-                if (isLast) {
-                    line += "└";
-                } else {
-                    line += "├";
-                }
-            } else {
-                line += "│";
-            }
-        }
-        if (isLast) {
-            barList.pop();
-        }
-        line += "─";
-        const lineLength = line.length;
-        line += this.toString(stringOption) + "\n";
-        if (this.hasChildren()) {
-            barList.push(lineLength + 1);
-            for (const child of this) {
-                line += child.toTreeString(barList, stringOption);
-            }
-        }
-        return line;
     }
 
     /**
