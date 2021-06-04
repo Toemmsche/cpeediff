@@ -81,6 +81,7 @@ class CpeeNode extends Serializable {
      */
     _childNodes;
 
+
     constructor(label) {
         super();
         this.label = label;
@@ -227,6 +228,19 @@ class CpeeNode extends Serializable {
                 }
             }
         }
+        return true;
+    }
+
+    /**
+     *
+     * @param {CpeeNode} other
+     */
+    contentEquals(other) {
+        if (this.attributes.size !== other.attributes.size) return false;
+        for (const [key, value] of this.attributes) {
+            if (other.attributes.get(key) !== value) return false;
+        }
+        if(this.data != other.data) return false;
         return true;
     }
 
@@ -404,12 +418,22 @@ class CpeeNode extends Serializable {
         CHANGE: 6
     }
 
+    toChildIndexPathString() {
+        let res = []
+        let node = this;
+        while(node.parent != null) {
+            res.push(node.childIndex);
+            node = node.parent;
+        }
+        return res.reverse().join("/");
+    }
+
     /**
      *
      * @param {Number} displayType
      * @returns {String}
      */
-    toString(displayType = CpeeNode.STRING_OPTIONS.LABEL) {
+    toString(displayType = CpeeNode.STRING_OPTIONS.CHANGE) {
         switch (displayType) {
             case CpeeNode.STRING_OPTIONS.LABEL:
                 return this.label;
@@ -467,9 +491,9 @@ class CpeeNode extends Serializable {
      *  @override
      * @returns {String}
      */
-    convertToJson() {
+    convertToJson(includeChildNodes = true) {
         function replacer(key, value) {
-            if (key === "_parent" || key === "_childIndex") {
+            if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
                 return undefined;
             } else if (value === null || value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
@@ -524,8 +548,8 @@ class CpeeNode extends Serializable {
         return JSON.parse(str, reviver)
     }
 
-    copy() {
-        return CpeeNode.parseFromJson(this.convertToJson());
+    copy(includeChildNodes = false) {
+        return CpeeNode.parseFromJson(this.convertToJson(includeChildNodes));
     }
 
 }

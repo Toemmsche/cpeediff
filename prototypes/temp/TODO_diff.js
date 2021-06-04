@@ -68,12 +68,16 @@
 //      shorten some names (variables -> vars e..g)
 //      change TNode name (maybe element or text)
 //      automate namespaces and changetype attributes
+//      resolve naming conflicts (call as argunment)
 
 
 //TODO REWRITE
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
-//      property tree as attribute
+//      property tree as attribute:
+//          fix property trees in inner nodes (.properties() method)
+//          find a way around childattributes (property extractor) or clean up deletion in pathmatching
+//          updates data format
 /*
 Merge Ideas:
 2way: Find conflicts between unmatched nodes

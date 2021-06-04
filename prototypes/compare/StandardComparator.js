@@ -24,6 +24,7 @@ class StandardComparator extends AbstractComparator {
     }
 
     _contentCompare(node, other) {
+
         switch (node.label) {
             case "call": {
                 //we cannot possibly match a call with another node type

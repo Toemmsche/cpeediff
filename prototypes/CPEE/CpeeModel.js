@@ -34,12 +34,12 @@ class CpeeModel {
         this.declaredVariables = declaredVariables;
     }
 
-    copy() {
-        return new CpeeModel(this.root.copy());
+    copy(includeChildNodes = true) {
+        return new CpeeModel(this.root.copy(includeChildNodes));
     }
 
-    deltaCopy() {
-        return new CpeeModel(DeltaNode.parseFromJson(this.root.convertToJson()));
+    deltaCopy(includeChildNodes = true) {
+        return new CpeeModel(DeltaNode.parseFromJson(this.root.convertToJson(includeChildNodes)));
     }
 
     toPreOrderArray() {
@@ -51,7 +51,7 @@ class CpeeModel {
     }
 
     leafNodes() {
-        return this.toPreOrderArray().filter(n => !n.hasChildren());
+        return this.toPreOrderArray().filter(n => n.isControlFlowLeafNode());
     }
 }
 

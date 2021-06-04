@@ -70,8 +70,10 @@ class DeltaTreeGenerator {
                 case Change.CHANGE_TYPES.DELETION: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
-                    node.changeType = change.changeType;
-                    //Do not actually delete the node, we want to show the delta
+                    for(const descendant of node.toPreOrderArray()) {
+                        //Do not actually delete the node, we want to show the delta
+                        descendant.changeType = change.changeType;
+                    }
                 }
             }
         }

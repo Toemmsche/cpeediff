@@ -29,7 +29,6 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
 const {Parser} = require("../parse/Parser");
-const {Merger} = require("../twowaymerge/Merger");
 const {CpeeNode} = require("../CPEE/CpeeNode");
 
 
@@ -56,22 +55,19 @@ console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length
 console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
 
-const json = model1.root.convertToJson();
-const node = CpeeNode.parseFromJson(json);
+model1 = model1.copy(true);
 
-function Sleep(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
 
 const start = new Date().getTime();
 const delta = MatchDiff.diff(model1, model2, PathMatching);
 const end = new Date().getTime();
+console.log(delta.toString());
 
 console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
 const dt = DeltaTreeGenerator.deltaTree(model1, delta);
 //console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(TreeStringSerializer.serializeModel(model1));
+//console.log(XmlSerializer.serializeDeltaTree(dt));
+console.log(TreeStringSerializer.serializeModel(dt));
 
 

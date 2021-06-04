@@ -36,7 +36,7 @@ class TopDownMatching extends AbstractMatchingAlgorithm {
      * @param {number} t The comparison threshold. A higher threshold will lead to more, but potentially wrong matches
      * @return {Matching} A matching containing a mapping of nodes from model1 to model2
      */
-    static match(oldModel, newModel, matching = new Matching()) {
+    static match(oldModel, newModel, matching = new Matching(), comparator) {
         if(!matching.hasNew(newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
         }

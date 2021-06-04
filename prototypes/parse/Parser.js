@@ -82,9 +82,8 @@ class Parser {
                             //remove unnecessary path
                             //first ancestor is parent of first entry in path
                             buildChildAttributeMap(child, root.attributes);
-                        } else {
-                            root.appendChild(child);
                         }
+                        root.appendChild(child);
                     }
                 }
             }

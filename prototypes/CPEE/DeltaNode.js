@@ -21,9 +21,9 @@ class DeltaNode extends CpeeNode {
     changeType;
     updated;
 
-    constructor(label, changeType = null, updated = null) {
+    constructor(label, changeType = "NIL", updated = false) {
         super(label);
-        this.changeType = "NIL";
+        this.changeType = changeType;
         this.updated = updated;
     }
 
@@ -57,6 +57,10 @@ class DeltaNode extends CpeeNode {
         }
 
         return JSON.parse(str, reviver)
+    }
+
+    toString() {
+        return this.label + " <" + this.changeType + (this.updated ? "-UPD" : "") + ">";
     }
 }
 

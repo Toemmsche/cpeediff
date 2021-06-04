@@ -62,29 +62,26 @@ class EditScriptGenerator {
                     }
                 }
                 if (matchOfParent !== match.parent) {
-                    const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldPath = match.toChildIndexPathString();
                     //move match to matchOfParent
                     match.removeFromParent();
                     matchOfParent.insertChild(newNode.childIndex, match);
-                    const newPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const newPath = match.toChildIndexPathString();
                     editScript.appendChange(Change.move(oldPath, newPath));
                 }
 
-                if (!newNode.nodeEquals(match)) {
+                if (!newNode.contentEquals(match)) {
                     //modify node
-                    const oldPath = match.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
-                    const oldData = match.convertToJson();
-                    const newData = newNode.convertToJson();
+                    const oldPath = match.toChildIndexPathString();
                     //during edit script generation, we don't need to update all attributes of the matched node
                     match.label = newNode.label;
-                    editScript.appendChange(Change.update(oldPath, oldData, newData))
+                    editScript.appendChange(Change.update(oldPath, null, null))
                 }
             } else {
                 //perform insert operation at match of the parent node
-                const copy = newNode.copy()
-                copy.childNodes = []; //reset child nodes
+                const copy = newNode.copy(false)
                 matchOfParent.insertChild(newNode.childIndex, copy);
-                const newPath = copy.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                const newPath = copy.toChildIndexPathString();
                 const newData = copy.convertToJson();
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
@@ -150,9 +147,9 @@ class EditScriptGenerator {
 
                 for (const node of reshuffle) {
                     const match = matching.getOldSingle(node);
-                    const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const oldPath = node.toChildIndexPathString();
                     node.changeChildIndex(match.childIndex);
-                    const newPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+                    const newPath = node.toChildIndexPathString();
                     editScript.appendChange(Change.move(oldPath, newPath));
                 }
             }
@@ -177,7 +174,7 @@ class EditScriptGenerator {
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             oldDeletedNodes.splice(0, subTreeSize);
-            const oldPath = node.toString(CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY);
+            const oldPath = node.toChildIndexPathString();
             editScript.appendChange(Change.delete(oldPath));
         }
 
