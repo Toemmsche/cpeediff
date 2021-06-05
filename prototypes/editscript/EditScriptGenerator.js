@@ -72,11 +72,35 @@ class EditScriptGenerator {
                 if (!newNode.contentEquals(match)) {
                     //modify node
                     const oldPath = match.toChildIndexPathString();
-                    const oldData = match.convertToJson(false);
-                    const newData = newNode.convertToJson(false);
-                    //during edit script generation, we don't need to update all attributes of the matched node
-                    match.label = newNode.label;
-                    editScript.appendChange(Change.update(oldPath, oldData, newData))
+                    //lossy comparison
+                    const oldData = new CpeeNode("");
+                    const newData = new CpeeNode("");
+                    if (newNode.data !== match.data) {
+                        oldData.data = match.data;
+                        newData.data = newNode.data;
+                    }
+                    //detected updated and inserted attributes
+                    for (const [key, value] of newNode.attributes) {
+                        if (match.attributes.has(key)) {
+                            if (match.attributes.get(key) !== value) {
+                                oldData.attributes.set(key, match.attributes.get(key));
+                                newData.attributes.set(key, value);
+                            }
+                        } else {
+                            oldData.attributes.set(key, null);
+                            newData.attributes.set(key, value);
+                        }
+                    }
+                    //detect deleted attributes
+                    for (const [key, value] of match.attributes) {
+                        if (!newNode.attributes.has(key)) {
+                            oldData.attributes.set(key, value);
+                            newData.attributes.set(key, null);
+                        }
+                    }
+
+                    //during edit script generation, we don't need to update the data/attributes of the match
+                    editScript.appendChange(Change.update(oldPath, oldData.convertToJson(false), newData.convertToJson(false)));
                 }
             } else {
                 //perform insert operation at match of the parent node
@@ -97,7 +121,7 @@ class EditScriptGenerator {
                 //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
                 const reshuffle = oldNode.childNodes.filter(n => matching.hasOld(n));
-                if(reshuffle.length === 0) {
+                if (reshuffle.length === 0) {
                     continue;
                 }
 
@@ -107,11 +131,12 @@ class EditScriptGenerator {
                 //avoid expensive dynamic programming procedure if children are already ordered
                 let ascending = true;
                 for (let i = 1; i < arr.length; i++) {
-                    if(arr[i] <= arr[i - 1]) {
-                        ascending = false; break;
+                    if (arr[i] <= arr[i - 1]) {
+                        ascending = false;
+                        break;
                     }
                 }
-                if(ascending) {
+                if (ascending) {
                     continue;
                 }
 

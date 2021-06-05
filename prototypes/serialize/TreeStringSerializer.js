@@ -43,7 +43,7 @@ class TreeStringSerializer {
             }
             line += "─";
             const lineLength = line.length;
-            line += cpeeNode.toString(CpeeNode.STRING_OPTIONS.CHANGE) + "\n";
+            line += cpeeNode.toString() + "\n";
             if (cpeeNode.hasChildren()) {
                 barList.push(lineLength + 1);
                 for (const child of cpeeNode) {

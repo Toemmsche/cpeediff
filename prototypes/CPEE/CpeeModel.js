@@ -15,6 +15,7 @@
 */
 
 //TODO doc
+const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 
 class CpeeModel {
@@ -35,6 +36,10 @@ class CpeeModel {
 
     copy(includeChildNodes = true) {
         return new CpeeModel(this.root.copy(includeChildNodes));
+    }
+
+    deltaCopy(includeChildNodes = true) {
+        return new CpeeModel(DeltaNode.parseFromJson(this.root.convertToJson(includeChildNodes)));
     }
 
     toPreOrderArray() {

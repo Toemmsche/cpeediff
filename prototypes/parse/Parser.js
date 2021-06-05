@@ -91,7 +91,7 @@ class Parser {
             function buildChildAttributeMap(node, map) {
                 if (node.data != null) { //lossy comparison
                     //retain full (relative) structural information in the nodes
-                    map.set("./" + node.toString(CpeeNode.STRING_OPTIONS.PATH), node.data);
+                    map.set("./" + node.toPropertyPathString(), node.data);
                 }
 
                 //copy all values into new map

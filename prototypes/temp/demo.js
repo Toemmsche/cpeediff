@@ -67,7 +67,7 @@ console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
 const dt = DeltaTreeGenerator.deltaTree(model1, delta);
 //console.log(XmlSerializer.serializeDeltaTree(dt));
-//console.log(XmlSerializer.serializeDeltaTree(dt));
+console.log(XmlSerializer.serializeDeltaTree(dt));
 console.log(TreeStringSerializer.serializeModel(dt));
 
 

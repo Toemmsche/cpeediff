@@ -21,7 +21,8 @@ class Placeholder extends CpeeNode {
     index;
 
     constructor(id, index) {
-        super("m" + id + "m");
+        super("MOVE_FROM" + id);
+        this.changeType = Change.CHANGE_TYPES.MOVE_
         this.index = index;
     }
 }

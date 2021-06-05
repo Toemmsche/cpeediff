@@ -40,7 +40,7 @@ class StandardComparator extends AbstractComparator {
                     endPointComparisonValue *= 0.5;
                 }
                 if (node.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
-                    endPointComparisonValue = Math.min(1.5 * endPointComparisonValue, 1);
+                    endPointComparisonValue = Math.min( endPointComparisonValue + 0.1, 1);
                 }
 
                 let maxSize = Math.max(node.modifiedVariables.size, other.modifiedVariables.size);

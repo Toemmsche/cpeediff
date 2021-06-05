@@ -25,7 +25,7 @@ class Patcher {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
                     const parent = findNodeByIndexArr(model, indexArr);
-                    const child = CpeeNode.parseFromJson(change.newNode);
+                    const child = CpeeNode.parseFromJson(change.newData);
                     parent.insertChild(childIndex, child);
                     break;
                 }
@@ -42,11 +42,16 @@ class Patcher {
                 case Change.CHANGE_TYPES.UPDATE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
-                    const newNode = CpeeNode.parseFromJson(change.newNode);
-                    for (const property in newNode) {
-                        //preserve structural information
-                        if (!property.startsWith("_")) {
-                            node[property] = newNode[property]
+                    const newData = CpeeNode.parseFromJson(change.newData);
+
+                    node.data = newData.data;
+                    if(newData.attributes !== undefined) {
+                        for(const [key, value] of newData.attributes) {
+                            if(value === null) {
+                                node.attributes.delete(key);
+                            } else {
+                                node.attributes.set(key, value);
+                            }
                         }
                     }
                     break;

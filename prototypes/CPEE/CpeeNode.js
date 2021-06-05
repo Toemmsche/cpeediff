@@ -14,9 +14,8 @@
    limitations under the License.
 */
 
-const {Config} = require("../Config");
 const {Change} = require("../editscript/Change");
-const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
+const {Config} = require("../Config");
 const {Serializable} = require("../utils/Serializable");
 
 class CpeeNode extends Serializable {
@@ -38,17 +37,7 @@ class CpeeNode extends Serializable {
     }
 
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
-    /**
-     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
-     */
-    static STRING_OPTIONS = {
-        LABEL: 1,
-        LABEL_WITH_TYPE_INDEX: 2,
-        PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4,
-        CHILD_INDEX_ONLY: 5,
-        CHANGE: 6
-    }
+
     //CPEE information
     /**
      * @type String
@@ -72,12 +61,6 @@ class CpeeNode extends Serializable {
      * @type Set<String>
      */
     readVariables;
-    //diff related information
-    /**
-     * @type String
-     */
-    changeType;
-    updates;
 
     constructor(label) {
         super();
@@ -87,8 +70,7 @@ class CpeeNode extends Serializable {
         this.readVariables = new Set();
         this.data = null;
 
-        this.changeType = null;
-        this.updates = null;
+
 
         this._childNodes = [];
         this._parent = null;
@@ -178,47 +160,14 @@ class CpeeNode extends Serializable {
     get path() {
         const pathArr = [];
         let node = this;
-        const isPropertyNode = this.isPropertyNode();
-        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
+        while (node != null ) {
             if (pathArr.includes(node)) {
                 console.log("up")
             }
             pathArr.push(node);
             node = node._parent;
         }
-        return pathArr.reverse();
-    }
-
-    /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
-    static parseFromJson(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if (value.dataType !== undefined && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if (value.dataType !== undefined && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if (value.label !== undefined) {
-                    const node = new CpeeNode(value.label);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (let i = 0; i < node._childNodes.length; i++) {
-                        node._childNodes[i].parent = node;
-                        node._childNodes[i].childIndex = i;
-                    }
-                    return node;
-                }
-            }
-            return value;
-        }
-
-        return JSON.parse(str, reviver)
+        return pathArr.reverse().slice(1);
     }
 
     /**
@@ -473,43 +422,36 @@ class CpeeNode extends Serializable {
     }
 
     toChildIndexPathString() {
-        let res = []
+        //discard root node
+        return this.path.map(n => n.childIndex).join("/");
+    }
+
+    toLabelPathString() {
+        return this.path.map(n => n.label).join("/");
+    }
+
+    toPropertyPathString() {
+        const pathArr = [];
         let node = this;
-        while (node._parent != null) {
-            res.push(node.childIndex);
+        const isPropertyNode = this.isPropertyNode();
+        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
+            if (pathArr.includes(node)) {
+                console.log("up")
+            }
+            pathArr.push(node);
             node = node._parent;
         }
-        return res.reverse().join("/");
+        return pathArr.reverse().slice(1).map(n => n.label);
     }
 
     /**
-     *
-     * @param {Number} displayType
-     * @returns {String}
+     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
      */
-    toString(displayType = CpeeNode.STRING_OPTIONS.CHANGE) {
-        switch (displayType) {
-            case CpeeNode.STRING_OPTIONS.LABEL:
-                return this.label;
-            case CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
-                return this.label + "[" + this.typeIndex + "]";
-            case CpeeNode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
-                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX));
-                return strArr.join("/");
-            }
-            case CpeeNode.STRING_OPTIONS.PATH: {
-                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL));
-                return strArr.join("/");
-            }
-            case CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY: {
-                const strArr = this.path.map(n => n.childIndex);
-                return strArr.slice(1).join("/"); //drop root child index (always 0)
-            }
-            case CpeeNode.STRING_OPTIONS.CHANGE:
-                return this.label + " <" + (this.changeType != null ? this.changeType : "") + (this.updates != null ? "-UPD" : "") + ">";
-            default:
-                return this.label;
-        }
+    static STRING_OPTIONS = {
+        LABEL: 1,
+        LABEL_WITH_TYPE_INDEX: 2,
+        PATH: 3,
+        PATH_WITH_TYPE_INDEX: 4
     }
 
     /**
@@ -546,7 +488,7 @@ class CpeeNode extends Serializable {
         function replacer(key, value) {
             if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
                 return undefined;
-            } else if (value === null || value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
+            } else if (value === null || value == "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Change.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
             } else if (value instanceof Map) {
                 return {
@@ -565,6 +507,38 @@ class CpeeNode extends Serializable {
         }
 
         return JSON.stringify(this, replacer);
+    }
+
+    /**
+     *
+     * @override
+     * @returns {CpeeNode}
+     */
+    static parseFromJson(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if (value.dataType !== undefined && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver);
     }
 
     copy(includeChildNodes = false) {

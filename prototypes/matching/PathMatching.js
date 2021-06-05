@@ -65,18 +65,6 @@ class PathMatching extends AbstractMatchingAlgorithm {
         console.log("matching leaves took " + (end - start) + "ms");
         console.log("leaves matched: " + matching.newToOldMap.size);
 
-        //TODO clear childattributes
-        for(const oldLeaf of oldLeaves) {
-            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
-                return !e[0].startsWith("./");
-            }));
-        }
-        for(const oldLeaf of newLeaves) {
-            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
-                return !e[0].startsWith("./");
-            }));
-        }
-
         /*
         Step 3: Match inner nodes.
          */

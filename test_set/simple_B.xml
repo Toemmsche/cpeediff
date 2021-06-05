@@ -1,87 +1,23 @@
-<description
-        xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a3" endpoint="DUMMY">
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <parallel>
+        <loop mode="pre_test" condition="data.persons > 0">
+            <parallel_branch pass="data.persons" local="p">
+                <stop id="SADfsa"></stop>
+            </parallel_branch>
+            <manipulate id="a3">data.persons -= 1</manipulate>
+        </loop>
+    </parallel>
+    <call id="a2" endpoint="bookHotel">
         <parameters>
-            <label>ADDEDTASK</label>
-            <method>:get</method>
-            <arguments/>
-            <report>
-                <url/>
-            </report>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
+            <label>Book Hot</label>
+            <arguments>
+                <to>data.to</to>
+                <why attr="val">data.why</why>
+            </arguments>
         </parameters>
-        <annotations keke="asdlfsajfsldfjsdlfjsdflsdfjsdlf">
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-    </call>
-    <call id="a1" endpoint="">
         <code>
-            <prepare/>
-            <finalize output="result"/>
-            <update output="result"/>
-            <rescue output="result"/>
+            <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
         </code>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-        <code>
-            <description/>
-        </code>
-    </call>
-    <call id="a2" endpoint="">
-        <parameters>
-            <label/>
-            <method>:post</method>
-            <arguments/>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
-            <report>
-                <url/>
-            </report>
-        </parameters>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
+        <description>SDFLJSDFLSDFJSLDFJSJDFLLDFKS</description>
     </call>
 </description>
