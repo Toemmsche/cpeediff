@@ -64,7 +64,18 @@ class EditScriptGenerator {
                     const oldPath = match.toChildIndexPathString();
                     //move match to matchOfParent
                     match.removeFromParent();
-                    matchOfParent.insertChild(newNode.childIndex, match);
+
+                    //find appropriate insertion index
+                    let insertionIndex;
+                    if(newNode.childIndex > 0) {
+                        const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+                        //left sibling has a match
+                        insertionIndex = matching.getNewSingle(leftSibling).childIndex + 1;
+                    } else {
+                        insertionIndex = 0;
+                    }
+
+                    matchOfParent.insertChild(insertionIndex, match);
                     const newPath = match.toChildIndexPathString();
                     editScript.appendChange(Change.move(oldPath, newPath));
                 }
@@ -103,15 +114,50 @@ class EditScriptGenerator {
                     editScript.appendChange(Change.update(oldPath, oldData.convertToJson(false), newData.convertToJson(false)));
                 }
             } else {
-                //perform insert operation at match of the parent node
+                //do not copy child nodes
                 const copy = newNode.copy(false)
-                matchOfParent.insertChild(newNode.childIndex, copy);
+
+                //find appropriate insertion index
+                let insertionIndex;
+                if(newNode.childIndex > 0) {
+                    const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+                    //left sibling has a match
+                    insertionIndex = matching.getNewSingle(leftSibling).childIndex + 1;
+                } else {
+                    insertionIndex = 0;
+                }
+
+                //perform insert operation at match of the parent node
+                matchOfParent.insertChild(insertionIndex, copy);
                 const newPath = copy.toChildIndexPathString();
                 const newData = copy.convertToJson();
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
                 editScript.appendChange(Change.insert(newPath, newData));
             }
+        }
+
+        const oldDeletedNodes = [];
+        for (const oldNode of oldPostOrderArray) {
+            if (!matching.hasOld(oldNode)) {
+                //delete node
+                oldDeletedNodes.push(oldNode);
+            }
+        }
+        //second pass to detect the largest subtrees that are fully deleted
+        while (oldDeletedNodes.length > 0) {
+            let node = oldDeletedNodes[0];
+            //parent is also fully deleted
+            while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
+                node = node.parent;
+            }
+            //all nodes from index 0 to node are deleted in a single subtree deletion
+            const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
+            oldDeletedNodes.splice(0, subTreeSize);
+            const oldPath = node.toChildIndexPathString();
+            //TODO document that removeFromParent() does not change the parent attributes
+            node.removeFromParent();
+            editScript.appendChange(Change.delete(oldPath));
         }
 
         //All nodes have the right parent and are matched or deleted later
@@ -140,6 +186,7 @@ class EditScriptGenerator {
                     continue;
                 }
 
+                //TODO
                 //find conflict groups based on read and modified variables
 
 
@@ -181,31 +228,9 @@ class EditScriptGenerator {
             }
 
         }
-        const oldDeletedNodes = [];
-        for (const oldNode of oldPostOrderArray) {
-            if (!matching.hasOld(oldNode)) {
-                //delete node
-                //TODO document that removeFromParent() does not change the parent attributes
-                oldNode.removeFromParent();
-                oldDeletedNodes.push(oldNode);
-            }
-        }
-        //second pass to detect the largest subtrees that are fully deleted
-        while (oldDeletedNodes.length > 0) {
-            let node = oldDeletedNodes[0];
-            //parent is also fully deleted
-            while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
-                node = node.parent;
-            }
-            //all nodes from index 0 to node are deleted in a single subtree deletion
-            const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
-            oldDeletedNodes.splice(0, subTreeSize);
-            const oldPath = node.toChildIndexPathString();
-            editScript.appendChange(Change.delete(oldPath));
-        }
 
         /*
-        //TODO
+        //TODO fix
 
         //detect subtree insertions
         for (let i = 0; i < editScript.changes.length; i++) {

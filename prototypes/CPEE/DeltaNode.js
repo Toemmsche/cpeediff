@@ -34,21 +34,6 @@ class DeltaNode extends CpeeNode {
         this.placeholders = [];
     }
 
-    isUpdated() {
-        return this.updates.length > 0;
-    }
-
-    toString() {
-        let res = this.label;
-        res += " <" + this.changeType + (this.isUpdated() ? "-UPD" : "") + ">";
-        if(this.isUpdated()) {
-            for(const update of this.updates) {
-                res += " " + update[0] + ": [" + update[1] + "] -> [" + update[2] + "]";
-            }
-        }
-        return res;
-    }
-
     static parseFromJson(str) {
         function reviver(key, value) {
             if (value instanceof Object) {
@@ -74,6 +59,31 @@ class DeltaNode extends CpeeNode {
         }
 
         return JSON.parse(str, reviver);
+    }
+
+    removeFromParent() {
+        //adjust parent placeholders
+        for (const placeholder of this._parent.placeholders) {
+            if (placeholder.index > this._childIndex) {
+                placeholder.index--;
+            }
+        }
+        super.removeFromParent();
+    }
+
+    isUpdated() {
+        return this.updates.length > 0;
+    }
+
+    toString() {
+        let res = this.label;
+        res += " <" + this.changeType + (this.isUpdated() ? "-UPD" : "") + ">";
+        if (this.isUpdated()) {
+            for (const update of this.updates) {
+                res += " " + update[0] + ": [" + update[1] + "] -> [" + update[2] + "]";
+            }
+        }
+        return res;
     }
 
     copy(includeChildNodes = true) {

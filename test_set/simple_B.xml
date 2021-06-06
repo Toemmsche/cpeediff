@@ -1,23 +1,16 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
+    <escape></escape>
     <parallel>
-        <loop mode="pre_test" condition="data.persons > 0">
-            <parallel_branch pass="data.persons" local="p">
-                <stop id="SADfsa"></stop>
-            </parallel_branch>
-            <manipulate id="a3">data.persons -= 1</manipulate>
-        </loop>
+        <stop></stop>
     </parallel>
-    <call id="a2" endpoint="bookHotel">
-        <parameters>
-            <label>Book Hot</label>
-            <arguments>
-                <to>data.to</to>
-                <why attr="val">data.why</why>
-            </arguments>
-        </parameters>
-        <code>
-            <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
-        </code>
-        <description>SDFLJSDFLSDFJSLDFJSJDFLLDFKS</description>
-    </call>
+    <choose>
+        <otherwise>
+            <manipulate>data.time++;</manipulate>
+        </otherwise>
+    </choose>
+    <alternative condition="data.costs < 0">
+        <loop condition="data.persons > 0">
+            <terminate></terminate>
+        </loop>
+    </alternative>
 </description>

@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaNode} = require("../CPEE/DeltaNode");
 const {Placeholder} = require("../CPEE/Placeholder");
 const {CpeeNode} = require("../CPEE/CpeeNode");
@@ -28,6 +29,7 @@ class DeltaTreeGenerator {
 
         let placeholderCount = 0;
         const moveMap = new Map();
+        const placeholderMap = new Map();
 
         for (const change of editScript) {
             switch (change.changeType) {
@@ -40,7 +42,7 @@ class DeltaTreeGenerator {
                     child.changeType = change.changeType;
                     parent.insertChild(childIndex, child);
 
-                    if(movfrParent !== null) {
+                    if (movfrParent !== null) {
                         const movfrChild = child.copy();
                         movfrParent.insertChild(childIndex, movfrChild);
                         movfrChild.changeType = change.changeType;
@@ -54,35 +56,36 @@ class DeltaTreeGenerator {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     let [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
 
-                    //find parent
-                    const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
-                    const targetIndex = parentIndexArr.pop();
-                    let [parent, movfrParent] = findNodeByIndexArr( parentIndexArr);
-
-                    if(movfrParent === null) {
-                        movfrParent = node.parent;
-                    }
-                    if(movfrNode === null) {
+                    //configure move_from placeholder node
+                    let movfrParent;
+                    if (movfrNode === null) {
                         movfrNode = node.copy();
+                        movfrParent = node.parent;
+                    } else {
+                        movfrParent = movfrNode.parent;
+                        movfrNode.removeFromParent();
+
                     }
                     //save index for placeholder
                     movfrNode.index = node.childIndex;
-                    
+
                     //detach node
                     node.removeFromParent();
+
+                    //find new parent
+                    const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
+                    const targetIndex = parentIndexArr.pop();
+                    const [parent] = findNodeByIndexArr(parentIndexArr);
+
                     //insert node
                     parent.insertChild(targetIndex, node);
                     node.changeType = change.changeType;
-                    
+
                     //TODO proper move id
                     //Insert placeholder at old position
-                    movfrNode.label = "MOVE_FROM" + placeholderCount++;
+                    movfrNode.label += " MOVE_FROM" + placeholderCount++;
                     movfrNode.changeType = Change.CHANGE_TYPES.MOVE_FROM;
 
-                    //append placeholder
-                    if(movfrParent === null) {
-                        movfrParent = parent;
-                    }
                     movfrParent.placeholders.push(movfrNode);
                     //create entry in move map
                     moveMap.set(node, movfrNode);
@@ -107,8 +110,8 @@ class DeltaTreeGenerator {
                             }
                         }
                     }
-                    
-                    if(movfrNode !== null) {
+
+                    if (movfrNode !== null) {
                         //update data and attributes
                         movfrNode.updates.push(["data", movfrNode.data, newData.data]);
                         movfrNode.data = newData.data;
@@ -130,15 +133,19 @@ class DeltaTreeGenerator {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
                     for (const descendant of node.toPreOrderArray()) {
-                        //Do not actually delete the node, we want to show the delta
                         descendant.changeType = change.changeType;
                     }
 
-                    if(movfrNode !== null) {
+                    node.removeFromParent();
+                    node.parent.placeholders.push(node);
+
+                    if (movfrNode !== null) {
                         for (const descendant of movfrNode.toPreOrderArray()) {
-                            //Do not actually delete the node, we want to show the delta
                             descendant.changeType = change.changeType;
                         }
+
+                        movfrNode.removeFromParent();
+                        movfrNode.parent.placeholders.push(movfrNode);
                     }
                     break;
                 }
@@ -152,24 +159,28 @@ class DeltaTreeGenerator {
                 if (index > currNode.numChildren()) {
                     throw new Error("Edit script not applicable to model");
                 }
-                if(moveFromPlaceHolder !== null) {
+                if (moveFromPlaceHolder !== null) {
                     moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
                 }
                 currNode = currNode.getChild(index);
-                if(moveMap.has(currNode)) {
+                if (moveMap.has(currNode)) {
                     moveFromPlaceHolder = moveMap.get(currNode);
                 }
             }
             return [currNode, moveFromPlaceHolder];
         }
 
-        function resolvePlaceholders(node) {
-            for(const child of node) {
-                resolvePlaceholders(child);
+        console.log(TreeStringSerializer.serializeModel(model));
+
+        function resolvePlaceholders(node, isMoveTo = false) {
+            for (const child of node) {
+                resolvePlaceholders(child, isMoveTo || child.changeType === Change.CHANGE_TYPES.MOVE_TO);
             }
-            for(const placeholder of node.placeholders) {
-                resolvePlaceholders(placeholder);
-                node.insertChild(placeholder.index, placeholder);
+            for (const placeholder of node.placeholders) {
+                resolvePlaceholders(placeholder, isMoveTo || node.changeType === Change.CHANGE_TYPES.MOVE_TO);
+                if (!isMoveTo || !placeholder.changeType === Change.CHANGE_TYPES.MOVE_FROM) {
+                    node.insertChild(placeholder.index, placeholder);
+                }
             }
             node.placeholders = [];
         }

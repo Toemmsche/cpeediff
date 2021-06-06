@@ -29,7 +29,7 @@ class Patcher {
                     parent.insertChild(childIndex, child);
                     break;
                 }
-                case Change.CHANGE_TYPES.MOVE: {
+                case Change.CHANGE_TYPES.MOVE_TO: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();

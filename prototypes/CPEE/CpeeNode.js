@@ -326,7 +326,7 @@ class CpeeNode extends Serializable {
      */
     isEmpty() {
         return !this.isControlFlowLeafNode()
-            && this.data == ""
+            && (this.data === "" || this.data == null)
             && !this.hasAttributes()
             && !this.hasChildren();
     }
@@ -452,6 +452,10 @@ class CpeeNode extends Serializable {
         LABEL_WITH_TYPE_INDEX: 2,
         PATH: 3,
         PATH_WITH_TYPE_INDEX: 4
+    }
+
+    toString() {
+        return this.label;
     }
 
     /**

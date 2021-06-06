@@ -47,6 +47,7 @@
                     </arguments>
                 </parameters>
             </call>
+            <escape id="asddf"></escape>
         </alternative>
     </choose>
     <stop id="a6"/>

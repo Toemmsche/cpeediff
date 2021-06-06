@@ -57,6 +57,8 @@ console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length 
 
 model1 = model1.copy(true);
 
+console.log(TreeStringSerializer.serializeModel(model1));
+console.log(TreeStringSerializer.serializeModel(model2));
 
 const start = new Date().getTime();
 const delta = MatchDiff.diff(model1, model2, PathMatching);
@@ -67,7 +69,9 @@ console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
 const dt = DeltaTreeGenerator.deltaTree(model1, delta);
 //console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(XmlSerializer.serializeDeltaTree(dt));
+//console.log(XmlSerializer.serializeDeltaTree(dt));
 console.log(TreeStringSerializer.serializeModel(dt));
+Patcher.patch(model1, delta);
+console.log(TreeStringSerializer.serializeModel(model1));
 
 

@@ -2,22 +2,25 @@
 //      longest substring compare for scripts
 //      export set and map similarity calculation
 //      add consistency check for data dependencies (variables are declared as data elements (all?)
-//      conflict groups for reshuffling (toggleable)
 //      IMPORTANT make exact edit script toggleable
 //      add reshuffling in merger
-//      delta Tree with placeholders for move (move from, move to);
 //      patch context
 //      leaf matching: Find easy matches using buckets grouped by label, then match leftover nodes
 //      IMPORTANT: compare path
 //      comparisons for remaining inner nodes
 //      fix model generator and implement change agent
+//      smart index search to avoid reshuffling
+//      IMPORTANT rewrite placeholder not as parent attribute
 
 //TODO new algos
 //      q-gram distance for script comparison
 //      fast match by Chawathe et al.
 //      Simple match by Chawathe et al.
 //      optimize matching
-//      matchSimilarUnmatched() by 3DM (optimize topdown matching)
+//      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
+
+//TODO maybe features
+//      conflict groups for reshuffling (toggleable)
 
 //TODO semi-features
 //      use custom class for attributes (maybe extension of map)
@@ -28,7 +31,6 @@
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
-//      use inner no0de matching to match leaf nodes in similar trees even when they're slightly different
 //      diff method is static
 //      pretty output vs machine readable (JSON vs treestring)
 //      readVariables considers Code, too
@@ -63,6 +65,7 @@
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      property-subtree
+//      MatchedNode subclass instead of matching class (with maxSimilarity, etc)
 //      VIZ only;
 //          fix property trees in inner nodes (.properties() method)
 //          find a way around childattributes (property extractor) or clean up deletion in pathmatching

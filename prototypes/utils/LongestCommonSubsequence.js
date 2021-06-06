@@ -41,6 +41,8 @@ class Lcs {
             dp[0][i] = 0;
         }
 
+        const parent = new Map();
+
         //fills the cell dp[indexA][indexB] with the length of the longest subsequence
         //between the subsequences of length i and j respectively
         function dp_fill(i, j) {
@@ -49,8 +51,12 @@ class Lcs {
                 //dp matrix size is larger by one
                 if (compare(seqA[i - 1], seqB[j - 1])) {
                     dp[i][j] = dp_fill(i - 1, j - 1) + 1;
+                } else if (dp_fill(i - 1, j) > dp_fill(i, j - 1)) {
+                    dp[i][j] = dp[i - 1][j];
+                    parent.set(i + "_" + j, "U");
                 } else {
-                    dp[i][j] = Math.max(dp_fill(i - 1, j), dp_fill(i, j - 1));
+                    dp[i][j] = dp[i][j - 1];
+                    parent.set(i + "_" + j, "L");
                 }
             }
             return dp[i][j];
@@ -59,11 +65,11 @@ class Lcs {
         //Utilizing a top-down approach can save computation cost
         dp_fill(seqA.length, seqB.length);
 
-        //the dp array only gives the length of the LongestCommonSubsequence, we still need to compute the actual sequence
+        //compute actual lcs using parent values
         let indexA = seqA.length;
         let indexB = seqB.length;
         let lcs;
-        if(retBoth) {
+        if (retBoth) {
             lcs = new Map();
             lcs.set(0, []);
             lcs.set(1, []);
@@ -71,22 +77,23 @@ class Lcs {
             lcs = []
         }
         while (indexA > 0 && indexB > 0) {
-            //if we took a diagonal step in the dp array, this item is part of the LongestCommonSubsequence
-            if (dp[indexA - 1][indexB - 1] != null && dp[indexA][indexB] === dp[indexA - 1][indexB - 1] + 1) {
-                //prepending instead of appending preserves sorting order
-                if(retBoth) {
-                    lcs.get(0).unshift(seqA[indexA - 1]);
-                    lcs.get(1).unshift(seqB[indexB - 1]);
-                } else {
-                    lcs.unshift(seqA[indexA - 1]);
-                }
-
-                indexA--;
-                indexB--;
-            } else if (dp[indexA - 1][indexB] != null&& dp[indexA][indexB] === dp[indexA - 1][indexB]) {
-                indexA--;
-            } else {
-                indexB--;
+            switch (parent.get(indexA + "_" + indexB)) {
+                case "U":
+                    indexA--;
+                    break;
+                case "L":
+                    indexB--;
+                    break;
+                default:
+                    if (retBoth) {
+                        lcs.get(0).unshift(seqA[indexA - 1]);
+                        lcs.get(1).unshift(seqB[indexB - 1]);
+                    } else {
+                        lcs.unshift(seqA[indexA - 1]);
+                    }
+                    indexA--;
+                    indexB--;
+                    break;
             }
         }
         return lcs;
