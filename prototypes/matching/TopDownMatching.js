@@ -17,7 +17,7 @@
 const {Globals} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 
 
 class TopDownMatching extends AbstractMatchingAlgorithm {

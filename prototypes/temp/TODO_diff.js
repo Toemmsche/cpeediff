@@ -9,7 +9,6 @@
 //      IMPORTANT: compare path
 //      comparisons for remaining inner nodes
 //      fix model generator and implement change agent
-//      smart index search to avoid reshuffling
 //      IMPORTANT rewrite placeholder not as parent attribute
 
 //TODO new algos
@@ -31,13 +30,14 @@
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
-//      diff method is static
-//      pretty output vs machine readable (JSON vs treestring)
 //      readVariables considers Code, too
 //      read and modified Variables as Getter???
 
 
 //TODO tidy
+//      no static methods
+//      move change static methods into editscript
+//      colors in delta output
 //      replace nodeequals with === where applicable
 //      encapsulate handleInsert() in edit script generation
 //      use arrow notation (or dont use private function)

@@ -19,27 +19,54 @@ const {AbstractComparator} = require("./AbstractComparator");
 
 class StandardComparator extends AbstractComparator {
 
+    _attributeMap;
+    
     constructor() {
         super();
+        this._attributeMap = new Map();
+    }
+    
+    _buildPropertyMap(node) {
+        if(!this._attributeMap.has(node)) {
+            const map = new Map(node.attributes.entries());
+            this._attributeMap.set(node, map);
+            buildRecursive(node);
+            
+            function buildRecursive(node) {
+                if (node.data != null) { //lossy comparison
+                    //retain full (relative) structural information in the nodes
+                    map.set("./" + node.toPropertyPathString(), node.data);
+                }
+
+                //copy all values into new map
+                for (const child of node.childNodes) {
+                    buildRecursive(child, map);
+                }
+            }
+        }
     }
 
     _contentCompare(node, other) {
-
+        this._buildPropertyMap(node);
+        this._buildPropertyMap(other);
+        const nodeAttributes = this._attributeMap.get(node);
+        const otherAttributes = this._attributeMap.get(other);
+        
         switch (node.label) {
             case "call": {
                 //we cannot possibly match a call with another node type
                 if (node.label !== other.label) return 1.0;
 
-                const thisEndpoint = node.attributes.get("endpoint");
-                const otherEndpoint = other.attributes.get("endpoint");
+                const thisEndpoint = nodeAttributes.get("endpoint");
+                const otherEndpoint = otherAttributes.get("endpoint");
                 const endPointLcsSimilarity = Lcs.getLCS(thisEndpoint, otherEndpoint).length
                     / Math.max(thisEndpoint.length, otherEndpoint.length);
                 let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
-                if (node.attributes.get("./parameters/label") === other.attributes.get("./parameters/label")) {
+                if (nodeAttributes.get("./parameters/label") === otherAttributes.get("./parameters/label")) {
                     //TODO maybe use LCS, too
                     endPointComparisonValue *= 0.5;
                 }
-                if (node.attributes.get("./parameters/method") !== other.attributes.get("./parameters/method")) {
+                if (nodeAttributes.get("./parameters/method") !== otherAttributes.get("./parameters/method")) {
                     endPointComparisonValue = Math.min( endPointComparisonValue + 0.1, 1);
                 }
 
@@ -145,7 +172,7 @@ class StandardComparator extends AbstractComparator {
                 }
                 let compareValue = 0;
                 //wait attribute dictates the number of branches that have to finish until execution proceeds
-                if (node.attributes.has("wait") && node.attributes.get("wait") !== other.attributes.get("wait")) {
+                if (nodeAttributes.has("wait") && nodeAttributes.get("wait") !== otherAttributes.get("wait")) {
                     compareValue += 0.2;
                 }
                 return compareValue;

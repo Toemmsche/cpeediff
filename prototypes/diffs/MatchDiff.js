@@ -15,7 +15,7 @@
 */
 
 const {StandardComparator} = require("../compare/StandardComparator");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {Matching} = require("../matching/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");

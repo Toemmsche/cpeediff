@@ -24,6 +24,7 @@ class DeltaNode extends CpeeNode {
      */
     changeType;
     updates;
+    moveIndex;
     placeholders;
 
     constructor(label) {
@@ -32,6 +33,7 @@ class DeltaNode extends CpeeNode {
         this.changeType = "NIL";
         this.updates = [];
         this.placeholders = [];
+        this.moveIndex = null;
     }
 
     static parseFromJson(str) {
@@ -77,7 +79,7 @@ class DeltaNode extends CpeeNode {
 
     toString() {
         let res = this.label;
-        res += " <" + this.changeType + (this.isUpdated() ? "-UPD" : "") + ">";
+        res += " <" + this.changeType + (this.isUpdated() ? "-UPD" : "") + (this.moveIndex !== null ? "_" + this.moveIndex : "") + ">";
         if (this.isUpdated()) {
             for (const update of this.updates) {
                 res += " " + update[0] + ": [" + update[1] + "] -> [" + update[2] + "]";

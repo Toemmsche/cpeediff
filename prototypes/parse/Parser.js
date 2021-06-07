@@ -14,9 +14,10 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
 const {Config} = require("../Config");
-const {CpeeNode} = require("../CPEE/CpeeNode");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeNode} = require("../cpee/CpeeNode");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {DOMParser} = require("xmldom");
 
 class Parser {
@@ -30,21 +31,11 @@ class Parser {
             let root;
             for (let i = 0; i < doc.childNodes.length; i++) {
                 const childTNode = doc.childNodes.item(i);
-                if (childTNode.localName === "dataelements") {
-                    for (let j = 0; j < childTNode.childNodes.length; j++) {
-                        const variable = childTNode.childNodes.item(j);
-                        if (variable.nodeType === 1) { //Element, not Text
-                            declaredVariables.add(variable.localName);
-                        }
-                    }
-                } else if (childTNode.localName === "dslx") {
+                if (childTNode.localName === "dslx") {
                     let j = 0;
                     while (childTNode.childNodes.item(j).localName !== "description") j++;
                     root = constructRecursive(childTNode.childNodes.item(j));
-                }
-
-                //TODO test
-                if(childTNode.localName === "endpoints") {
+                } else if (childTNode.localName === "endpoints") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
@@ -54,7 +45,7 @@ class Parser {
                     }
                 }
             }
-            return new CpeeModel(root, declaredVariables);
+            return new CpeeModel(root);
         } else {
             //no information about declared Variables available
             return new CpeeModel(constructRecursive(doc));
@@ -77,53 +68,38 @@ class Parser {
                     const child = constructRecursive(childTNode)
                     //empty control nodes are null values (see below)
                     if (child !== null) {
-                        //if this node has child properties, hoist them
-                        if (!root.isPropertyNode() && child.isPropertyNode()) {
-                            //remove unnecessary path
-                            //first ancestor is parent of first entry in path
-                            buildChildAttributeMap(child, root.attributes);
-                        }
                         root.appendChild(child);
                     }
                 }
             }
 
-            function buildChildAttributeMap(node, map) {
-                if (node.data != null) { //lossy comparison
-                    //retain full (relative) structural information in the nodes
-                    map.set("./" + node.toPropertyPathString(), node.data);
+            //parse attributes
+            for (let i = 0; i < tNode.attributes.length; i++) {
+                const attrNode = tNode.attributes.item(i);
+                //ignore semantically irrelevant properties
+                if (Config.PROPERTY_IGNORE_LIST.includes(attrNode.name)) {
+                    continue;
                 }
 
-                //copy all values into new map
-                for (const child of node.childNodes) {
-                    buildChildAttributeMap(child, map);
+                let value;
+                //replace endpoint identifier with actual endpoint URL (if it exists)
+                if (attrNode.name === "endpoint" && endpointToURL.has(attrNode.value)) {
+                    value = endpointToURL.get(attrNode.value);
+                } else if (attrNode.name === "endpoint" && attrNode.value == "") {
+                    value = Math.floor(Math.random * 1000000).toString(); //random endpoint
+                } else {
+                    value = attrNode.value;
                 }
+                root.attributes.set(attrNode.name, value);
+            }
+            //we need an endpoint for comparison purposes
+            if(root.label === Dsl.KEYWORDS.CALL && !root.attributes.has("endpoint")) {
+                root.attributes.set("endpoint", Math.floor(Math.random * 1000000).toString());
             }
 
             //if root cannot contain any semantic information, it is discarded
             if (root.isEmpty() || root.isDocumentation()) {
                 return null;
-            }
-
-            //parse attributes
-            for (let i = 0; i < tNode.attributes.length; i++) {
-                const attrNode = tNode.attributes.item(i);
-                //ignore semantically useless
-                if(Config.PROPERTY_IGNORE_LIST.includes(attrNode.name)) {
-                    continue;
-                }
-                //replace endpoint
-                let value;
-                //replace endpoint identifier with actual endpoint URL (if it exists)
-                if(attrNode.name === "endpoint" && endpointToURL.has(attrNode.value)) {
-                     value = endpointToURL.get(attrNode.value);
-                } else if (attrNode.name === "endpoint" && attrNode.value == "") {
-                  value =  Math.floor(Math.random * 1000000).toString(); //random endpoint
-                } else {
-                    value = attrNode.value;
-                }
-                root.attributes.set(attrNode.name, value);
-
             }
 
             //extract modified variables from code and read variables from call to endpoint

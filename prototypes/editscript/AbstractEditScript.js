@@ -38,7 +38,7 @@ class AbstractEditScript {
 
     /**
      * Merge the changes contained in this edit script with an existing process model
-     * @param {CpeeModel} model A CPEE process model
+     * @param {CpeeModel} model A cpee process model
      */
     merge(model) {}
 

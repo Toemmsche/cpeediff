@@ -14,14 +14,12 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
-const {DeltaNode} = require("../CPEE/DeltaNode");
-const {Placeholder} = require("../CPEE/Placeholder");
-const {CpeeNode} = require("../CPEE/CpeeNode");
-const {Change} = require("../editscript/Change");
+const {DeltaNode} = require("../cpee/DeltaNode");
+const {CpeeNode} = require("../cpee/CpeeNode");
 
-
-class DeltaTreeGenerator {
+class DeltaModelGenerator {
 
     static deltaTree(model, editScript) {
         //copy model
@@ -29,28 +27,34 @@ class DeltaTreeGenerator {
 
         let placeholderCount = 0;
         const moveMap = new Map();
-        const placeholderMap = new Map();
 
         for (const change of editScript) {
             switch (change.changeType) {
                 //Which path (new vs old) represents the anchor depends on the change operation
-                case Change.CHANGE_TYPES.INSERTION: {
+                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
+                case Dsl.CHANGE_TYPES.INSERTION: {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
                     const [parent, movfrParent] = findNodeByIndexArr(indexArr);
                     const child = DeltaNode.parseFromJson(change.newData);
-                    child.changeType = change.changeType;
+
                     parent.insertChild(childIndex, child);
+                    for(const descendant of child.toPreOrderArray()) {
+                       descendant.changeType = change.changeType;
+                    }
 
                     if (movfrParent !== null) {
                         const movfrChild = child.copy();
                         movfrParent.insertChild(childIndex, movfrChild);
-                        movfrChild.changeType = change.changeType;
+
+                        for(const descendant of movfrChild.toPreOrderArray()) {
+                            descendant.changeType = change.changeType;
+                        }
                     }
 
                     break;
                 }
-                case Change.CHANGE_TYPES.MOVE_TO: {
+                case Dsl.CHANGE_TYPES.MOVE_TO: {
 
                     //find moved node
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
@@ -64,7 +68,6 @@ class DeltaTreeGenerator {
                     } else {
                         movfrParent = movfrNode.parent;
                         movfrNode.removeFromParent();
-
                     }
                     //save index for placeholder
                     movfrNode.index = node.childIndex;
@@ -79,19 +82,20 @@ class DeltaTreeGenerator {
 
                     //insert node
                     parent.insertChild(targetIndex, node);
+                    node.moveIndex = ++placeholderCount;
                     node.changeType = change.changeType;
 
                     //TODO proper move id
                     //Insert placeholder at old position
-                    movfrNode.label += " MOVE_FROM" + placeholderCount++;
-                    movfrNode.changeType = Change.CHANGE_TYPES.MOVE_FROM;
+                    movfrNode.moveIndex =  placeholderCount;
+                    movfrNode.changeType = Dsl.CHANGE_TYPES.MOVE_FROM;
 
                     movfrParent.placeholders.push(movfrNode);
                     //create entry in move map
                     moveMap.set(node, movfrNode);
                     break;
                 }
-                case Change.CHANGE_TYPES.UPDATE: {
+                case Dsl.CHANGE_TYPES.UPDATE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
                     const newData = CpeeNode.parseFromJson(change.newData);
@@ -129,7 +133,8 @@ class DeltaTreeGenerator {
                     }
                     break;
                 }
-                case Change.CHANGE_TYPES.DELETION: {
+                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
+                case Dsl.CHANGE_TYPES.DELETION: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
                     for (const descendant of node.toPreOrderArray()) {
@@ -170,15 +175,13 @@ class DeltaTreeGenerator {
             return [currNode, moveFromPlaceHolder];
         }
 
-        console.log(TreeStringSerializer.serializeModel(model));
-
         function resolvePlaceholders(node, isMoveTo = false) {
             for (const child of node) {
-                resolvePlaceholders(child, isMoveTo || child.changeType === Change.CHANGE_TYPES.MOVE_TO);
+                resolvePlaceholders(child, isMoveTo || child.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
             }
             for (const placeholder of node.placeholders) {
-                resolvePlaceholders(placeholder, isMoveTo || node.changeType === Change.CHANGE_TYPES.MOVE_TO);
-                if (!isMoveTo || !placeholder.changeType === Change.CHANGE_TYPES.MOVE_FROM) {
+                resolvePlaceholders(placeholder, isMoveTo || node.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+                if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
                     node.insertChild(placeholder.index, placeholder);
                 }
             }
@@ -191,4 +194,4 @@ class DeltaTreeGenerator {
 
 }
 
-exports.DeltaTreeGenerator = DeltaTreeGenerator;
+exports.DeltaTreeGenerator = DeltaModelGenerator;

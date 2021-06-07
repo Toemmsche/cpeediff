@@ -18,7 +18,7 @@ const {Lcs} = require("../utils/LongestCommonSubsequence");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 
 
 class PathMatching extends AbstractMatchingAlgorithm {

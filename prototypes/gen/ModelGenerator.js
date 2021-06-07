@@ -14,8 +14,9 @@
    limitations under the License.
 */
 
-const {CpeeModel} = require("../CPEE/CpeeModel");
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {Dsl} = require("../Dsl");
+const {CpeeModel} = require("../cpee/CpeeModel");
+const {CpeeNode} = require("../cpee/CpeeNode");
 const {Serializable} = require("../utils/Serializable");
 
 class ModelGenerator {
@@ -94,7 +95,7 @@ class ModelGenerator {
     }
 
     randomRoot() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.ROOT);
+        const node = new CpeeNode(Dsl.KEYWORDS.ROOT);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -116,15 +117,15 @@ class ModelGenerator {
     randomLeafNode() {
         const r = this.randomFrom(ModelGenerator.LEAF_NODES);
         switch (this.randomFrom(ModelGenerator.LEAF_NODES)) {
-            case CpeeNode.KEYWORDS.CALL:
+            case Dsl.KEYWORDS.CALL:
                 return this.randomCall();
-            case CpeeNode.KEYWORDS.MANIPULATE:
+            case Dsl.KEYWORDS.MANIPULATE:
                 return this.randomManipulate();
-            case CpeeNode.KEYWORDS.STOP:
+            case Dsl.KEYWORDS.STOP:
                 return this.randomStop();
-            case CpeeNode.KEYWORDS.ESCAPE:
+            case Dsl.KEYWORDS.ESCAPE:
                 return this.randomEscape();
-            case CpeeNode.KEYWORDS.TERMINATE:
+            case Dsl.KEYWORDS.TERMINATE:
                 return this.randomTerminate();
             default:
                 return this.randomCall();
@@ -134,13 +135,13 @@ class ModelGenerator {
 
     randomInnerNode() {
         switch (this.randomFrom(ModelGenerator.INNER_NODES)) {
-            case CpeeNode.KEYWORDS.LOOP:
+            case Dsl.KEYWORDS.LOOP:
                 return this.randomLoop();
-            case CpeeNode.KEYWORDS.CHOOSE:
+            case Dsl.KEYWORDS.CHOOSE:
                 return this.randomChoose();
-            case CpeeNode.KEYWORDS.PARALLEL:
+            case Dsl.KEYWORDS.PARALLEL:
                 return this.randomParallel();
-            case CpeeNode.KEYWORDS.CRITICAL:
+            case Dsl.KEYWORDS.CRITICAL:
                 return this.randomCritical();
             default:
                 return this.randomLoop();
@@ -148,7 +149,7 @@ class ModelGenerator {
     }
 
     randomCall() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.CALL);
+        const node = new CpeeNode(Dsl.KEYWORDS.CALL);
         node.attributes.set("endpoint", this.randomFrom(this.endpoints));
         node.attributes.set("./parameters/label", this.randomFrom(this.labels));
         node.attributes.set("./parameters/method", this.randomFrom(ModelGenerator.ENDPOINT_METHODS));
@@ -164,29 +165,29 @@ class ModelGenerator {
     }
 
     randomManipulate() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.MANIPULATE);
+        const node = new CpeeNode(Dsl.KEYWORDS.MANIPULATE);
         this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
         this.randomInto(this.variables, node.modifiedVariables, this.randInt(this.maxVars));
         return node;
     }
 
     randomStop() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.STOP);
+        const node = new CpeeNode(Dsl.KEYWORDS.STOP);
         return node;
     }
 
     randomEscape() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.ESCAPE);
+        const node = new CpeeNode(Dsl.KEYWORDS.ESCAPE);
         return node;
     }
 
     randomTerminate() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.TERMINATE);
+        const node = new CpeeNode(Dsl.KEYWORDS.TERMINATE);
         return node;
     }
 
     randomParallel() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.PARALLEL);
+        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomParallelBranch());
         }
@@ -195,7 +196,7 @@ class ModelGenerator {
 
     randomParallelBranch() {
         this._currDepth++;
-        const node = new CpeeNode(CpeeNode.KEYWORDS.PARALLEL_BRANCH);
+        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -204,7 +205,7 @@ class ModelGenerator {
     }
 
     randomChoose() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.CHOOSE);
+        const node = new CpeeNode(Dsl.KEYWORDS.CHOOSE);
         node.attributes.set("mode", this.randomFrom(ModelGenerator.CHOOSE_MODES));
 
         let i;
@@ -218,7 +219,7 @@ class ModelGenerator {
 
     randomAlternative() {
         this._currDepth++;
-        const node = new CpeeNode(CpeeNode.KEYWORDS.ALTERNATIVE);
+        const node = new CpeeNode(Dsl.KEYWORDS.ALTERNATIVE);
         node.attributes.set("condition", this.randomString());
         this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
@@ -230,7 +231,7 @@ class ModelGenerator {
 
     randomOtherwise() {
         this._currDepth++;
-        const node = new CpeeNode(CpeeNode.KEYWORDS.OTHERWISE);
+        const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -239,7 +240,7 @@ class ModelGenerator {
     }
 
     randomLoop() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.LOOP);
+        const node = new CpeeNode(Dsl.KEYWORDS.LOOP);
         node.attributes.set("condition", this.randomString());
         this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
@@ -249,7 +250,7 @@ class ModelGenerator {
     }
 
     randomCritical() {
-        const node = new CpeeNode(CpeeNode.KEYWORDS.CRITICAL);
+        const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }

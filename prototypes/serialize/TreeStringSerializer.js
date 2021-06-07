@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {CpeeNode} = require("../cpee/CpeeNode");
 
 class TreeStringSerializer {
     
@@ -52,6 +52,10 @@ class TreeStringSerializer {
             }
             return line;
         }
+    }
+
+    static serializeDeltaTree(deltaTree) {
+        return this.serializeModel(deltaTree);
     }
 }
 

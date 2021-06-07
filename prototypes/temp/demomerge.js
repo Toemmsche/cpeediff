@@ -1,6 +1,6 @@
 const fs = require("fs");
 const {Merger} = require("../twowaymerge/Merger");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {EditScriptParser} = require("../twowaymerge/EditScriptParser");
 
 const changes = EditScriptParser.parseFromFile("./prototypes/temp/changes.json");

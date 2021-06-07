@@ -19,15 +19,17 @@
 
 const yargs = require("yargs");
 const fs = require("fs");
+const {XmlSerializer} = require("./serialize/XmlSerializer");
+const {TreeStringSerializer} = require("./serialize/TreeStringSerializer");
+const {DeltaTreeGenerator} = require("./patch/DeltaModelGenerator");
+const {Config} = require("./Config");
+const {PathMatching} = require("./matching/PathMatching");
 const {Parser} = require("./parse/Parser");
-const {CpeeModel} = require("./CPEE/CpeeModel");
-const {KyongHoMatching} = require("./matching/PathMatching");
-const {TopDownMatching} = require("./matching/TopDownMatching");
 const {MatchDiff} = require("./diffs/MatchDiff");
 
 
 const argv = yargs
-    .command("diff <oldFile> <newFile>", "Calculcates the difference between two CPEE process models", (yargs) => {
+    .command("diff <oldFile> <newFile>", "Calculcates and shows the difference between two CPEE process models", (yargs) => {
         yargs
             .positional("oldFile", {
                 description: "The original CPEE process model as an XML document",
@@ -49,29 +51,56 @@ const argv = yargs
                 type: "number",
                 default: 0.25
             })
-            .option("level", {
-                description: "Level of the matching granularity",
-                alias: "l",
-                type: "number",
-                default: 1
+            .option("format", {
+                description: "Output format",
+                alias: "f",
+                type: "string",
+                choices: ["operations", "deltaTree", "deltaXml"],
+                default: "operations"
             })
             .check(argv => {
-                if(!fs.existsSync(argv.oldFile)) {
+                if (!fs.existsSync(argv.oldFile)) {
                     throw new Error(argv.oldFile + " ist not a valid file path");
                 }
-                if(!fs.existsSync(argv.newFile)) {
+                if (!fs.existsSync(argv.newFile)) {
                     throw new Error(argv.newFile + " ist not a valid file path");
                 }
+
+                if (argv.leafThreshold < 0 || argv.leafThreshold > 1) {
+                    throw new Error("leafThreshold must be in [0,1]");
+                }
+                if (argv.innerThreshold < 0 || argv.innerThreshold > 1) {
+                    throw new Error("innerThreshold must be in [0,1]");
+                }
+
                 return true;
             })
         ;
     }, (argv) => {
+        Config.LEAF_SIMILARITY_THRESHOLD = argv.leafThreshold;
+        Config.INNER_NODE_SIMILARITY_THRESHOLD = argv.innerThreshold;
+
         const oldModel = Parser.fromCpee(fs.readFileSync(argv.oldFile).toString());
         const newModel = Parser.fromCpee(fs.readFileSync(argv.newFile).toString());
-        const start = new Date().getTime();
-        const editScript = MatchDiff.diff(oldModel, newModel, TopDownMatching, KyongHoMatching);
-        const end = new Date().getTime();
-        console.log(editScript.toString("lines"));
-        console.log("diff took " + (end - start) + "ms");
+
+        const editScript = MatchDiff.diff(oldModel, newModel, PathMatching);
+
+        switch (argv.format) {
+            case "deltaTree": {
+                const deltaTree = DeltaTreeGenerator.deltaTree(oldModel, editScript);
+                console.log(TreeStringSerializer.serializeDeltaTree(deltaTree));
+                break;
+            }
+            case "deltaXml": {
+                const deltaTree = DeltaTreeGenerator.deltaTree(oldModel, editScript);
+                console.log(XmlSerializer.serializeDeltaTree(deltaTree));
+                break;
+            }
+            case "operations":
+            default: {
+                console.log(editScript.toString());
+                break;
+            }
+        }
     }).argv;
 

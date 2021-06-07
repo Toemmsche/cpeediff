@@ -22,14 +22,14 @@ const {StandardComparator} = require("../compare/StandardComparator");
 const {SimilarityMatching} = require("../matching/SimilarityMatching");
 const {BottomUpMatching} = require("../matching/BottomUpMatching");
 const {Patcher} = require("../patch/Patcher");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {ModelGenerator} = require("../gen/ModelGenerator");
-const {DeltaTreeGenerator} = require("../patch/DeltaTreeGenerator");
+const {DeltaTreeGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
 const {Parser} = require("../parse/Parser");
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {CpeeNode} = require("../cpee/CpeeNode");
 
 
 let file1 = process.argv[2];
@@ -70,8 +70,8 @@ console.log("diff took " + (end - start) + "ms");
 const dt = DeltaTreeGenerator.deltaTree(model1, delta);
 //console.log(XmlSerializer.serializeDeltaTree(dt));
 //console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(TreeStringSerializer.serializeModel(dt));
-Patcher.patch(model1, delta);
-console.log(TreeStringSerializer.serializeModel(model1));
+console.log(XmlSerializer.serializeDeltaTree(dt));
+//Patcher.patch(model1, delta);
+//console.log(TreeStringSerializer.serializeModel(model1));
 
 

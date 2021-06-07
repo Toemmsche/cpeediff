@@ -14,18 +14,10 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
 const {Serializable} = require("../utils/Serializable");
 
 class Change extends Serializable {
-
-    static CHANGE_TYPES = {
-        INSERTION: "INSERT",
-        DELETION: "DELETE",
-        MOVE_TO: "MOVE_TO",
-        MOVE_FROM: "MOVE_FROM",
-        UPDATE: "UPDATE",
-        NIL: "NIL"
-    }
 
     changeType;
     oldPath;
@@ -42,20 +34,21 @@ class Change extends Serializable {
         this.newData = newData;
     }
 
-    static insert(newPath, newData) {
-        return new Change(this.CHANGE_TYPES.INSERTION, null, null, newPath, newData);
+    static insert(newPath, newData, subtree = false) {
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, null, newPath, newData);
     }
 
-    static delete(oldPath) {
-        return new Change(this.CHANGE_TYPES.DELETION, oldPath, null, null, null);
+    static delete(oldPath, subtree = false) {
+
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null, null, null);
     }
 
     static move(oldPath, newPath) {
-        return new Change(this.CHANGE_TYPES.MOVE_TO, oldPath, null, newPath);
+        return new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath, null, newPath);
     }
 
     static update(oldPath, oldData, newData) {
-        return new Change(this.CHANGE_TYPES.UPDATE, oldPath, oldData, null, newData);
+        return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, oldData, null, newData);
     }
 
     static parseFromJson(str) {

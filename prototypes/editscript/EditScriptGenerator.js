@@ -16,10 +16,9 @@
 
 
 const {Config} = require("../Config");
-const {Placeholder} = require("../CPEE/Placeholder");
 const {Change} = require("./Change");
-const {CpeeModel} = require("../CPEE/CpeeModel");
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {CpeeModel} = require("../cpee/CpeeModel");
+const {CpeeNode} = require("../cpee/CpeeNode");
 const {EditScript} = require("./EditScript");
 
 class EditScriptGenerator {
@@ -43,7 +42,7 @@ class EditScriptGenerator {
 
         //iterate in pre order through new model
         for (const newNode of newPreOrderArray) {
-            //We can safely skip the root node, as it will always be mapped between two CPEE models
+            //We can safely skip the root node, as it will always be mapped between two cpee models
             if (newNode.parent == null) continue;
             const matchOfParent = matching.getNewSingle(newNode.parent);
             if (matching.hasNew(newNode)) {
@@ -114,8 +113,19 @@ class EditScriptGenerator {
                     editScript.appendChange(Change.update(oldPath, oldData.convertToJson(false), newData.convertToJson(false)));
                 }
             } else {
-                //do not copy child nodes
-                const copy = newNode.copy(false)
+                //detect subtree insertions
+                function noMatch(newNode) {
+                    if(matching.hasNew(newNode)) {
+                        return false;
+                    }
+                    for(const child of newNode) {
+                        if(!noMatch(child)) {
+                            return false;
+                        }
+                    }
+                }
+                //if no descendant of newNode is matched, they all need to be inserted
+                const copy = newNode.copy(noMatch(newNode));
 
                 //find appropriate insertion index
                 let insertionIndex;
@@ -133,7 +143,7 @@ class EditScriptGenerator {
                 const newData = copy.convertToJson();
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
-                editScript.appendChange(Change.insert(newPath, newData));
+                editScript.appendChange(Change.insert(newPath, newData, copy.hasChildren()));
             }
         }
 
@@ -157,7 +167,7 @@ class EditScriptGenerator {
             const oldPath = node.toChildIndexPathString();
             //TODO document that removeFromParent() does not change the parent attributes
             node.removeFromParent();
-            editScript.appendChange(Change.delete(oldPath));
+            editScript.appendChange(Change.delete(oldPath, node.hasChildren()));
         }
 
         //All nodes have the right parent and are matched or deleted later
@@ -253,8 +263,6 @@ class EditScriptGenerator {
         */
         return editScript;
     }
-
-
 }
 
 exports.EditScriptGenerator = EditScriptGenerator;

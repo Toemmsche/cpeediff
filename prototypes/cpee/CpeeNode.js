@@ -14,31 +14,24 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
 const {Change} = require("../editscript/Change");
 const {Config} = require("../Config");
 const {Serializable} = require("../utils/Serializable");
 
 class CpeeNode extends Serializable {
 
-    static KEYWORDS = {
-        ROOT: "description",
-        CALL: "call",
-        MANIPULATE: "manipulate",
-        PARALLEL: "parallel",
-        PARALLEL_BRANCH: "parallel_branch",
-        CHOOSE: "choose",
-        ALTERNATIVE: "alternative",
-        OTHERWISE: "otherwise",
-        LOOP: "loop",
-        CRITICAL: "critical",
-        STOP: "stop",
-        ESCAPE: "escape",
-        TERMINATE: "terminate"
-    }
-
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
-
-    //CPEE information
+    /**
+     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     */
+    static STRING_OPTIONS = {
+        LABEL: 1,
+        LABEL_WITH_TYPE_INDEX: 2,
+        PATH: 3,
+        PATH_WITH_TYPE_INDEX: 4
+    }
+    //cpee information
     /**
      * @type String
      */
@@ -55,7 +48,6 @@ class CpeeNode extends Serializable {
      * @type Set<String>
      */
     modifiedVariables;
-
     //private
     /**
      * @type Set<String>
@@ -69,7 +61,6 @@ class CpeeNode extends Serializable {
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
         this.data = null;
-
 
 
         this._childNodes = [];
@@ -160,7 +151,7 @@ class CpeeNode extends Serializable {
     get path() {
         const pathArr = [];
         let node = this;
-        while (node != null ) {
+        while (node != null) {
             if (pathArr.includes(node)) {
                 console.log("up")
             }
@@ -168,6 +159,38 @@ class CpeeNode extends Serializable {
             node = node._parent;
         }
         return pathArr.reverse().slice(1);
+    }
+
+    /**
+     *
+     * @override
+     * @returns {CpeeNode}
+     */
+    static parseFromJson(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if (value.dataType !== undefined && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver);
     }
 
     /**
@@ -260,11 +283,12 @@ class CpeeNode extends Serializable {
             if (this.label === "manipulate") {
                 return this.data;
             } else {
-                const prepare = (this.attributes.has("./code/prepare") ? this.attributes.get("./code/prepare") : "");
-                const finalize = (this.attributes.has("./code/finalize") ? this.attributes.get("./code/finalize") : "");
-                const update = (this.attributes.has("./code/update") ? this.attributes.get("./code/update") : "");
-                const rescue = (this.attributes.has("./code/rescue") ? this.attributes.get("./code/rescue") : "");
-                return prepare + finalize + update + rescue;
+                let code = "";
+                const codeNode = this._childNodes.find(n => n.label === "code");
+                for (const child of codeNode) {
+                    code += child.data;
+                }
+                return code;
             }
         }
     }
@@ -289,12 +313,12 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [CpeeNode.KEYWORDS.LOOP,
-            CpeeNode.KEYWORDS.CRITICAL,
-            CpeeNode.KEYWORDS.ROOT,
-            CpeeNode.KEYWORDS.ALTERNATIVE,
-            CpeeNode.KEYWORDS.OTHERWISE,
-            CpeeNode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
+        return [Dsl.KEYWORDS.LOOP,
+            Dsl.KEYWORDS.CRITICAL,
+            Dsl.KEYWORDS.ROOT,
+            Dsl.KEYWORDS.ALTERNATIVE,
+            Dsl.KEYWORDS.OTHERWISE,
+            Dsl.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -302,11 +326,11 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [CpeeNode.KEYWORDS.CALL,
-            CpeeNode.KEYWORDS.MANIPULATE,
-            CpeeNode.KEYWORDS.TERMINATE,
-            CpeeNode.KEYWORDS.STOP,
-            CpeeNode.KEYWORDS.ESCAPE].includes(this.label);
+        return [Dsl.KEYWORDS.CALL,
+            Dsl.KEYWORDS.MANIPULATE,
+            Dsl.KEYWORDS.TERMINATE,
+            Dsl.KEYWORDS.STOP,
+            Dsl.KEYWORDS.ESCAPE].includes(this.label);
     }
 
     /**
@@ -314,8 +338,8 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isPropertyNode() {
-        for (const cpeeKeyWord in CpeeNode.KEYWORDS) {
-            if (this.label === CpeeNode.KEYWORDS[cpeeKeyWord]) return false;
+        for (const cpeeKeyWord in Dsl.KEYWORDS) {
+            if (this.label === Dsl.KEYWORDS[cpeeKeyWord]) return false;
         }
         return true;
     }
@@ -346,10 +370,7 @@ class CpeeNode extends Serializable {
      */
     containsCode() {
         return this.label === "manipulate"
-            || this.attributes.has("./code/finalize")
-            || this.attributes.has("./code/prepare")
-            || this.attributes.has("./code/rescue")
-            || this.attributes.has("./code/update");
+            || this._childNodes.some(n => n.label === "code");
     }
 
     /**
@@ -444,16 +465,6 @@ class CpeeNode extends Serializable {
         return pathArr.reverse().slice(1).map(n => n.label);
     }
 
-    /**
-     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
-     */
-    static STRING_OPTIONS = {
-        LABEL: 1,
-        LABEL_WITH_TYPE_INDEX: 2,
-        PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4
-    }
-
     toString() {
         return this.label;
     }
@@ -492,7 +503,7 @@ class CpeeNode extends Serializable {
         function replacer(key, value) {
             if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
                 return undefined;
-            } else if (value === null || value == "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Change.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
+            } else if (value === null || value == "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
             } else if (value instanceof Map) {
                 return {
@@ -511,38 +522,6 @@ class CpeeNode extends Serializable {
         }
 
         return JSON.stringify(this, replacer);
-    }
-
-    /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
-    static parseFromJson(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if (value.dataType !== undefined && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if (value.dataType !== undefined && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if (value.label !== undefined) {
-                    const node = new CpeeNode(value.label);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (let i = 0; i < node._childNodes.length; i++) {
-                        node._childNodes[i].parent = node;
-                        node._childNodes[i].childIndex = i;
-                    }
-                    return node;
-                }
-            }
-            return value;
-        }
-
-        return JSON.parse(str, reviver);
     }
 
     copy(includeChildNodes = false) {

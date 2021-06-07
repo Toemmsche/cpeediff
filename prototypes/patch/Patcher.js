@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {CpeeNode} = require("../cpee/CpeeNode");
 const {Change} = require("../editscript/Change");
 
 class Patcher {
     static patch(model, editScript) {
         for (const change of editScript) {
             switch (change.changeType) {
-                case Change.CHANGE_TYPES.INSERTION: {
+                case Dsl.CHANGE_TYPES.INSERTION: {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
                     const parent = findNodeByIndexArr(model, indexArr);
@@ -29,7 +29,7 @@ class Patcher {
                     parent.insertChild(childIndex, child);
                     break;
                 }
-                case Change.CHANGE_TYPES.MOVE_TO: {
+                case Dsl.CHANGE_TYPES.MOVE_TO: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();
@@ -39,7 +39,7 @@ class Patcher {
                     parent.insertChild(targetIndex, node);
                     break;
                 }
-                case Change.CHANGE_TYPES.UPDATE: {
+                case Dsl.CHANGE_TYPES.UPDATE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     const newData = CpeeNode.parseFromJson(change.newData);
@@ -56,7 +56,7 @@ class Patcher {
                     }
                     break;
                 }
-                case Change.CHANGE_TYPES.DELETION: {
+                case Dsl.CHANGE_TYPES.DELETION: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const node = findNodeByIndexArr(model, nodeIndexArr);
                     node.removeFromParent();

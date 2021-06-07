@@ -17,7 +17,7 @@
 const fs = require("fs");
 const {Serializable} = require("../utils/Serializable");
 
-class EditScript extends Serializable{
+class EditScript extends Serializable {
 
     changes;
 
@@ -26,25 +26,20 @@ class EditScript extends Serializable{
         this.changes = [];
     }
 
-    //TODO add string option enum
-    toString(displayType = "lines") {
-        switch(displayType) {
-            case "lines":
-                return this.changes.map(c => c.toString()).join("\n");
-        }
+    static parseFromJson(str) {
+        return JSON.parse(str);
+    }
+
+    toString() {
+        return this.changes.map(c => c.toString()).join("\n");
     }
 
     appendChange(change) {
         this.changes.push(change);
     }
 
-
     convertToJson() {
         return JSON.stringify(this);
-    }
-
-    static parseFromJson(str) {
-        return JSON.parse(str);
     }
 
     [Symbol.iterator]() {
