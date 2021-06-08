@@ -11,4 +11,5 @@
             <manipulate>data.time++;</manipulate>
         </otherwise>
     </choose>
+    <manipulate>data.val--</manipulate>
 </description>

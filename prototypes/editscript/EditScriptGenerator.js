@@ -93,24 +93,21 @@ class EditScriptGenerator {
                     for (const [key, value] of newNode.attributes) {
                         if (match.attributes.has(key)) {
                             if (match.attributes.get(key) !== value) {
-                                oldData.attributes.set(key, match.attributes.get(key));
                                 newData.attributes.set(key, value);
                             }
                         } else {
-                            oldData.attributes.set(key, null);
                             newData.attributes.set(key, value);
                         }
                     }
                     //detect deleted attributes
                     for (const [key, value] of match.attributes) {
                         if (!newNode.attributes.has(key)) {
-                            oldData.attributes.set(key, value);
                             newData.attributes.set(key, null);
                         }
                     }
 
                     //during edit script generation, we don't need to update the data/attributes of the match
-                    editScript.appendChange(Change.update(oldPath, oldData.convertToJson(false), newData.convertToJson(false)));
+                    editScript.appendChange(Change.update(oldPath, newData.convertToJson(false)));
                 }
             } else {
                 //detect subtree insertions
@@ -198,7 +195,6 @@ class EditScriptGenerator {
 
                 //TODO
                 //find conflict groups based on read and modified variables
-
 
                 //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
                 //dp[i] contains the length of the longest sequence that ends at i

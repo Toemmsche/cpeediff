@@ -40,7 +40,7 @@ class DeltaModelGenerator {
 
                     parent.insertChild(childIndex, child);
                     for(const descendant of child.toPreOrderArray()) {
-                       descendant.changeType = change.changeType;
+                       descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                     }
 
                     if (movfrParent !== null) {
@@ -48,7 +48,7 @@ class DeltaModelGenerator {
                         movfrParent.insertChild(childIndex, movfrChild);
 
                         for(const descendant of movfrChild.toPreOrderArray()) {
-                            descendant.changeType = change.changeType;
+                            descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                         }
                     }
 
@@ -69,8 +69,6 @@ class DeltaModelGenerator {
                         movfrParent = movfrNode.parent;
                         movfrNode.removeFromParent();
                     }
-                    //save index for placeholder
-                    movfrNode.index = node.childIndex;
 
                     //detach node
                     node.removeFromParent();
@@ -101,12 +99,15 @@ class DeltaModelGenerator {
                     const newData = CpeeNode.parseFromJson(change.newData);
 
                     //update data and attributes
-                    node.updates.push(["data", node.data, newData.data]);
-                    node.data = newData.data;
+                    if(newData.data !== undefined) {
+                        node.updates.push(["data", node.data, newData.data]);
+                        node.data = newData.data;
+                    }
+
 
                     if (newData.attributes !== undefined) {
                         for (const [key, value] of newData.attributes) {
-                            node.updates.push([key, node.attributes.get(key), value]);
+                            node.updates.push([key, node.attributes.has(key) ? node.attributes.get(key) : null, value]);
                             if (value === null) {
                                 node.attributes.delete(key);
                             } else {
@@ -116,13 +117,15 @@ class DeltaModelGenerator {
                     }
 
                     if (movfrNode !== null) {
-                        //update data and attributes
-                        movfrNode.updates.push(["data", movfrNode.data, newData.data]);
-                        movfrNode.data = newData.data;
+                        if(newData.data !== undefined) {
+                            //update data and attributes
+                            movfrNode.updates.push(["data", movfrNode.data, newData.data]);
+                            movfrNode.data = newData.data;
+                        }
 
                         if (newData.attributes !== undefined) {
                             for (const [key, value] of newData.attributes) {
-                                movfrNode.updates.push([key, movfrNode.attributes.get(key), value]);
+                                movfrNode.updates.push([key, movfrNode.attributes.has(key) ? movfrNode.attributes.get(key) : null, value]);
                                 if (value === null) {
                                     movfrNode.attributes.delete(key);
                                 } else {
@@ -138,7 +141,7 @@ class DeltaModelGenerator {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
                     for (const descendant of node.toPreOrderArray()) {
-                        descendant.changeType = change.changeType;
+                        descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
                     }
 
                     node.removeFromParent();
@@ -146,11 +149,12 @@ class DeltaModelGenerator {
 
                     if (movfrNode !== null) {
                         for (const descendant of movfrNode.toPreOrderArray()) {
-                            descendant.changeType = change.changeType;
+                            descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
                         }
 
                         movfrNode.removeFromParent();
                         movfrNode.parent.placeholders.push(movfrNode);
+
                     }
                     break;
                 }
@@ -182,7 +186,7 @@ class DeltaModelGenerator {
             for (const placeholder of node.placeholders) {
                 resolvePlaceholders(placeholder, isMoveTo || node.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
                 if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
-                    node.insertChild(placeholder.index, placeholder);
+                    node.insertChild(placeholder.childIndex, placeholder);
                 }
             }
             node.placeholders = [];

@@ -162,38 +162,6 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
-    static parseFromJson(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if (value.dataType !== undefined && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if (value.dataType !== undefined && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if (value.label !== undefined) {
-                    const node = new CpeeNode(value.label);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (let i = 0; i < node._childNodes.length; i++) {
-                        node._childNodes[i].parent = node;
-                        node._childNodes[i].childIndex = i;
-                    }
-                    return node;
-                }
-            }
-            return value;
-        }
-
-        return JSON.parse(str, reviver);
-    }
-
-    /**
      * @returns {IterableIterator<CpeeNode>}
      */
     [Symbol.iterator]() {
@@ -503,7 +471,7 @@ class CpeeNode extends Serializable {
         function replacer(key, value) {
             if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
                 return undefined;
-            } else if (value === null || value == "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
+            } else if (value == null || value === "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
             } else if (value instanceof Map) {
                 return {
@@ -522,6 +490,38 @@ class CpeeNode extends Serializable {
         }
 
         return JSON.stringify(this, replacer);
+    }
+
+    /**
+     *
+     * @override
+     * @returns {CpeeNode}
+     */
+    static parseFromJson(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if (value.dataType !== undefined && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver);
     }
 
     copy(includeChildNodes = false) {

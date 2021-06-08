@@ -21,34 +21,31 @@ class Change extends Serializable {
 
     changeType;
     oldPath;
-    oldData;
     newPath;
     newData;
 
-    constructor(changeType, oldPath = null, oldData = null, newPath = null, newData = null) {
+    constructor(changeType, oldPath = null, newPath = null, newData = null) {
         super();
         this.changeType = changeType;
         this.oldPath = oldPath;
         this.newPath = newPath;
-        this.oldData = oldData;
         this.newData = newData;
     }
 
     static insert(newPath, newData, subtree = false) {
-        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, null, newPath, newData);
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newData);
     }
 
     static delete(oldPath, subtree = false) {
-
-        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null, null, null);
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null,  null);
     }
 
     static move(oldPath, newPath) {
-        return new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath, null, newPath);
+        return new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath,  newPath);
     }
 
-    static update(oldPath, oldData, newData) {
-        return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, oldData, null, newData);
+    static update(oldPath, newData) {
+        return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData);
     }
 
     static parseFromJson(str) {
@@ -58,8 +55,7 @@ class Change extends Serializable {
     toString() {
         return this.changeType + " " +
             (this.oldPath !== null ? this.oldPath + " " : "") +
-            (this.oldData !== null ? this.oldData + " " : "") +
-            ((this.oldPath !== null || this.oldData !== null) && (this.newPath !== null || this.newData !== null) ? "-> " : "") +
+            (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
             (this.newPath !== null ? this.newPath + " " : "") +
             (this.newData !== null ? this.newData + " " : "");
     }
