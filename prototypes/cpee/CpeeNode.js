@@ -14,31 +14,24 @@
    limitations under the License.
 */
 
-const {Config} = require("../Config");
+const {Dsl} = require("../Dsl");
 const {Change} = require("../editscript/Change");
-const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
+const {Config} = require("../Config");
 const {Serializable} = require("../utils/Serializable");
 
 class CpeeNode extends Serializable {
 
-    static KEYWORDS = {
-        ROOT: "description",
-        CALL: "call",
-        MANIPULATE: "manipulate",
-        PARALLEL: "parallel",
-        PARALLEL_BRANCH: "parallel_branch",
-        CHOOSE: "choose",
-        ALTERNATIVE: "alternative",
-        OTHERWISE: "otherwise",
-        LOOP: "loop",
-        CRITICAL: "critical",
-        STOP: "stop",
-        ESCAPE: "escape",
-        TERMINATE: "terminate"
-    }
-
     //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
-    //CPEE information
+    /**
+     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     */
+    static STRING_OPTIONS = {
+        LABEL: 1,
+        LABEL_WITH_TYPE_INDEX: 2,
+        PATH: 3,
+        PATH_WITH_TYPE_INDEX: 4
+    }
+    //cpee information
     /**
      * @type String
      */
@@ -51,35 +44,15 @@ class CpeeNode extends Serializable {
      * @type String
      */
     data;
-
     /**
      * @type Set<String>
      */
     modifiedVariables;
+    //private
     /**
      * @type Set<String>
      */
     readVariables;
-
-    //private
-    //diff related information
-
-    //structural information
-    /**
-     * @type CpeeNode
-     * @private
-     */
-    _parent;
-    /**
-     * @type Number
-     * @private
-     */
-    _childIndex;
-    /**
-     * @type CpeeNode[]
-     * @private
-     */
-    _childNodes;
 
     constructor(label) {
         super();
@@ -87,11 +60,76 @@ class CpeeNode extends Serializable {
         this.attributes = new Map();
         this.modifiedVariables = new Set();
         this.readVariables = new Set();
-        this.data = "";
+        this.data = null;
+
 
         this._childNodes = [];
         this._parent = null;
-        this._childIndex = 0;
+        this._childIndex = null;
+    }
+
+    //structural information
+    /**
+     * @type CpeeNode
+     * @private
+     */
+    _parent;
+
+    /**
+     * @returns {CpeeNode}
+     */
+    get parent() {
+        return this._parent;
+    }
+
+    /**
+     *
+     * @param {CpeeNode} parentNode
+     */
+    set parent(parentNode) {
+        this._parent = parentNode;
+    }
+
+    /**
+     * @type Number
+     * @private
+     */
+    _childIndex;
+
+    /**
+     * @returns {Number}
+     */
+    get childIndex() {
+        return this._childIndex;
+    }
+
+    /**
+     *
+     * @param {Number} childIndex
+     */
+    set childIndex(childIndex) {
+        this._childIndex = childIndex;
+    }
+
+    /**
+     * @type CpeeNode[]
+     * @private
+     */
+    _childNodes;
+
+    /**
+     * @returns {CpeeNode[]}
+     */
+    get childNodes() {
+        return this._childNodes;
+    }
+
+    /**
+     *
+     * @param {CpeeNode[]} newChildNodes
+     */
+    set childNodes(childNodes) {
+        this._childNodes = childNodes;
     }
 
     /**
@@ -113,60 +151,14 @@ class CpeeNode extends Serializable {
     get path() {
         const pathArr = [];
         let node = this;
-        const isPropertyNode = this.isPropertyNode();
-        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
-            if(pathArr.includes(node)) {
+        while (node != null) {
+            if (pathArr.includes(node)) {
                 console.log("up")
             }
             pathArr.push(node);
             node = node._parent;
         }
-        return pathArr.reverse();
-    }
-
-    /**
-     * @returns {CpeeNode}
-     */
-    get parent() {
-        return this._parent;
-    }
-
-    /**
-     *
-     * @param {CpeeNode} parentNode
-     */
-    set parent(parentNode) {
-        this._parent = parentNode;
-    }
-
-    /**
-     * @returns {CpeeNode[]}
-     */
-    get childNodes() {
-        return this._childNodes;
-    }
-
-    /**
-     *
-     * @param {CpeeNode[]} newChildNodes
-     */
-    set childNodes(childNodes) {
-        this._childNodes = childNodes;
-    }
-
-    /**
-     * @returns {Number}
-     */
-    get childIndex() {
-        return this._childIndex;
-    }
-
-    /**
-     *
-     * @param {Number} childIndex
-     */
-    set childIndex(childIndex) {
-        this._childIndex = childIndex;
+        return pathArr.reverse().slice(1);
     }
 
     /**
@@ -231,6 +223,19 @@ class CpeeNode extends Serializable {
     }
 
     /**
+     *
+     * @param {CpeeNode} other
+     */
+    contentEquals(other) {
+        if (this.attributes.size !== other.attributes.size) return false;
+        for (const [key, value] of this.attributes) {
+            if (other.attributes.get(key) !== value) return false;
+        }
+        if (this.data != other.data) return false;
+        return true;
+    }
+
+    /**
      * @param {CpeeNode} other
      * @returns {boolean}
      */
@@ -246,11 +251,12 @@ class CpeeNode extends Serializable {
             if (this.label === "manipulate") {
                 return this.data;
             } else {
-                const prepare = (this.attributes.has("./code/prepare") ? this.attributes.get("./code/prepare") : "");
-                const finalize = (this.attributes.has("./code/finalize") ? this.attributes.get("./code/finalize") : "");
-                const update = (this.attributes.has("./code/update") ? this.attributes.get("./code/update") : "");
-                const rescue = (this.attributes.has("./code/rescue") ? this.attributes.get("./code/rescue") : "");
-                return prepare + finalize + update + rescue;
+                let code = "";
+                const codeNode = this._childNodes.find(n => n.label === "code");
+                for (const child of codeNode) {
+                    code += child.data;
+                }
+                return code;
             }
         }
     }
@@ -275,12 +281,12 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [CpeeNode.KEYWORDS.LOOP,
-            CpeeNode.KEYWORDS.CRITICAL,
-            CpeeNode.KEYWORDS.ROOT,
-            CpeeNode.KEYWORDS.ALTERNATIVE,
-            CpeeNode.KEYWORDS.OTHERWISE,
-            CpeeNode.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
+        return [Dsl.KEYWORDS.LOOP,
+            Dsl.KEYWORDS.CRITICAL,
+            Dsl.KEYWORDS.ROOT,
+            Dsl.KEYWORDS.ALTERNATIVE,
+            Dsl.KEYWORDS.OTHERWISE,
+            Dsl.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
     }
 
     /**
@@ -288,11 +294,11 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [CpeeNode.KEYWORDS.CALL,
-            CpeeNode.KEYWORDS.MANIPULATE,
-            CpeeNode.KEYWORDS.TERMINATE,
-            CpeeNode.KEYWORDS.STOP,
-            CpeeNode.KEYWORDS.ESCAPE].includes(this.label);
+        return [Dsl.KEYWORDS.CALL,
+            Dsl.KEYWORDS.MANIPULATE,
+            Dsl.KEYWORDS.TERMINATE,
+            Dsl.KEYWORDS.STOP,
+            Dsl.KEYWORDS.ESCAPE].includes(this.label);
     }
 
     /**
@@ -300,8 +306,8 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isPropertyNode() {
-        for (const cpeeKeyWord in CpeeNode.KEYWORDS) {
-            if (this.label === CpeeNode.KEYWORDS[cpeeKeyWord]) return false;
+        for (const cpeeKeyWord in Dsl.KEYWORDS) {
+            if (this.label === Dsl.KEYWORDS[cpeeKeyWord]) return false;
         }
         return true;
     }
@@ -312,7 +318,7 @@ class CpeeNode extends Serializable {
      */
     isEmpty() {
         return !this.isControlFlowLeafNode()
-            && this.data == ""
+            && (this.data === "" || this.data == null)
             && !this.hasAttributes()
             && !this.hasChildren();
     }
@@ -332,10 +338,7 @@ class CpeeNode extends Serializable {
      */
     containsCode() {
         return this.label === "manipulate"
-            || this.attributes.has("./code/finalize")
-            || this.attributes.has("./code/prepare")
-            || this.attributes.has("./code/rescue")
-            || this.attributes.has("./code/update");
+            || this._childNodes.some(n => n.label === "code");
     }
 
     /**
@@ -393,48 +396,45 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
+     *
+     * @returns {CpeeNode}
      */
-    static STRING_OPTIONS = {
-        LABEL: 1,
-        LABEL_WITH_TYPE_INDEX: 2,
-        PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4,
-        CHILD_INDEX_ONLY: 5,
-        CHANGE: 6
+    getParentLeaf() {
+        if (!this.isPropertyNode()) {
+            throw new Error("Non-property node does not have a parent leaf node");
+        }
+        let node = this;
+        while (node.isPropertyNode()) {
+            node = node._parent;
+        }
+        return node;
     }
 
-    /**
-     *
-     * @param {Number} displayType
-     * @returns {String}
-     */
-    toString(displayType = CpeeNode.STRING_OPTIONS.LABEL) {
-        switch (displayType) {
-            case CpeeNode.STRING_OPTIONS.LABEL:
-                return this.label;
-            case CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX:
-                return this.label + "[" + this.typeIndex + "]";
-            case CpeeNode.STRING_OPTIONS.PATH_WITH_TYPE_INDEX: {
-                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL_WITH_TYPE_INDEX));
-                return strArr.join("/");
+    toChildIndexPathString() {
+        //discard root node
+        return this.path.map(n => n.childIndex).join("/");
+    }
+
+    toLabelPathString() {
+        return this.path.map(n => n.label).join("/");
+    }
+
+    toPropertyPathString() {
+        const pathArr = [];
+        let node = this;
+        const isPropertyNode = this.isPropertyNode();
+        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
+            if (pathArr.includes(node)) {
+                console.log("up")
             }
-            case CpeeNode.STRING_OPTIONS.PATH: {
-                const strArr = this.path.map(n => n.toString(CpeeNode.STRING_OPTIONS.LABEL));
-                return strArr.join("/");
-            }
-            case CpeeNode.STRING_OPTIONS.CHILD_INDEX_ONLY: {
-                const strArr = this.path.map(n => n.childIndex);
-                return strArr.slice(1).join("/"); //drop root child index (always 0)
-            }
-            case CpeeNode.STRING_OPTIONS.CHANGE:
-                if (this.changeType !== undefined) {
-                    return this.label + " <" + this.changeType + ">";
-                }
-                return this.label ;
-            default:
-                return this.label;
+            pathArr.push(node);
+            node = node._parent;
         }
+        return pathArr.reverse().slice(1).map(n => n.label);
+    }
+
+    toString() {
+        return this.label;
     }
 
     /**
@@ -467,11 +467,11 @@ class CpeeNode extends Serializable {
      *  @override
      * @returns {String}
      */
-    convertToJson() {
+    convertToJson(includeChildNodes = true) {
         function replacer(key, value) {
-            if (key === "_parent" || key === "_childIndex") {
+            if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
                 return undefined;
-            } else if (value === null || value == "" || value.length === 0 || value.size === 0) {  //ignore empty strings, arrays, sets, and maps
+            } else if (value == null || value === "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
                 return undefined;
             } else if (value instanceof Map) {
                 return {
@@ -501,7 +501,7 @@ class CpeeNode extends Serializable {
         function reviver(key, value) {
             if (value instanceof Object) {
                 //all maps are marked
-                if (value.dataType !== undefined  && value.dataType === "Map") {
+                if (value.dataType !== undefined && value.dataType === "Map") {
                     return new Map(value.value);
                 } else if (value.dataType !== undefined && value.dataType === "Set") {
                     return new Set(value.value);
@@ -521,11 +521,11 @@ class CpeeNode extends Serializable {
             return value;
         }
 
-        return JSON.parse(str, reviver)
+        return JSON.parse(str, reviver);
     }
 
-    copy() {
-        return CpeeNode.parseFromJson(this.convertToJson());
+    copy(includeChildNodes = false) {
+        return CpeeNode.parseFromJson(this.convertToJson(includeChildNodes));
     }
 
 }

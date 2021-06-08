@@ -15,15 +15,15 @@
 */
 
 const {AbstractDiff} = require("../diffs/AbstractDiff");
-const {XMLTools} = require("../utils/XMLTools");
+const {XMLTools} = require("./XMLTools");
 const {DOMParser, XMLSerializer} = require("xmldom");
 
 class ComplexTreeDiff extends AbstractDiff {
 
     /**
      * Instantiate a ComplexTreeDiff object with the given models and options.
-     * @param {String} xml1 The original CPEE process model as an XML document
-     * @param {String} xml2 The changed CPEE process model as an XML document
+     * @param {String} xml1 The original cpee process model as an XML document
+     * @param {String} xml2 The changed cpee process model as an XML document
      * @param {String[]} options Additional options for the difference calculation
      */
     constructor(xml1, xml2, options = []) {

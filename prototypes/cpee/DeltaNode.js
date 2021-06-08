@@ -18,30 +18,34 @@ const {CpeeNode} = require("./CpeeNode");
 
 class DeltaNode extends CpeeNode {
 
+    //diff related information
+    /**
+     * @type String
+     */
     changeType;
-    updated;
+    updates;
+    moveIndex;
+    placeholders;
 
-    constructor(label, changeType = null, updated = null) {
+    constructor(label) {
         super(label);
+        //NIL change type indicates no change
         this.changeType = "NIL";
-        this.updated = updated;
+        this.updates = [];
+        this.placeholders = [];
+        this.moveIndex = null;
     }
 
-    /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
     static parseFromJson(str) {
         function reviver(key, value) {
             if (value instanceof Object) {
                 //all maps are marked
-                if ("dataType" in value && value.dataType === "Map") {
+                if (value.dataType !== undefined && value.dataType === "Map") {
                     return new Map(value.value);
-                } else if ("dataType" in value && value.dataType === "Set") {
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
                     return new Set(value.value);
                 }
-                if ("label" in value) {
+                if (value.label !== undefined) {
                     const node = new DeltaNode(value.label);
                     for (const property in value) {
                         node[property] = value[property];
@@ -56,7 +60,36 @@ class DeltaNode extends CpeeNode {
             return value;
         }
 
-        return JSON.parse(str, reviver)
+        return JSON.parse(str, reviver);
+    }
+
+    removeFromParent() {
+        //adjust parent placeholders
+        for (const placeholder of this._parent.placeholders) {
+            if (placeholder.index > this._childIndex) {
+                placeholder.index--;
+            }
+        }
+        super.removeFromParent();
+    }
+
+    isUpdated() {
+        return this.updates.length > 0;
+    }
+
+    toString() {
+        let res = this.label;
+        res += " <" + this.changeType + (this.isUpdated() ? "-UPD" : "") + (this.moveIndex !== null ? "_" + this.moveIndex : "") + ">";
+        if (this.isUpdated()) {
+            for (const update of this.updates) {
+                res += " " + update[0] + ": [" + update[1] + "] -> [" + update[2] + "]";
+            }
+        }
+        return res;
+    }
+
+    copy(includeChildNodes = true) {
+        return DeltaNode.parseFromJson(this.convertToJson(includeChildNodes));
     }
 }
 

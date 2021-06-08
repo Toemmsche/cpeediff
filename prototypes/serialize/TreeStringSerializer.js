@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {CpeeNode} = require("../cpee/CpeeNode");
+
 class TreeStringSerializer {
     
     //similar to unix tree command
@@ -50,6 +52,10 @@ class TreeStringSerializer {
             }
             return line;
         }
+    }
+
+    static serializeDeltaTree(deltaTree) {
+        return this.serializeModel(deltaTree);
     }
 }
 

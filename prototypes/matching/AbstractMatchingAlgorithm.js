@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 
 /**
  * Abstract super class for all matching algorithms.

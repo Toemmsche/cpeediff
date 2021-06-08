@@ -22,15 +22,14 @@ const {StandardComparator} = require("../compare/StandardComparator");
 const {SimilarityMatching} = require("../matching/SimilarityMatching");
 const {BottomUpMatching} = require("../matching/BottomUpMatching");
 const {Patcher} = require("../patch/Patcher");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {ModelGenerator} = require("../gen/ModelGenerator");
-const {DeltaTreeGenerator} = require("../patch/DeltaTreeGenerator");
+const {DeltaTreeGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
 const {Parser} = require("../parse/Parser");
-const {Merger} = require("../twowaymerge/Merger");
-const {CpeeNode} = require("../CPEE/CpeeNode");
+const {CpeeNode} = require("../cpee/CpeeNode");
 
 
 let file1 = process.argv[2];
@@ -56,22 +55,23 @@ console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length
 console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
 
-const json = model1.root.convertToJson();
-const node = CpeeNode.parseFromJson(json);
+model1 = model1.copy(true);
 
-function Sleep(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
+console.log(TreeStringSerializer.serializeModel(model1));
+console.log(TreeStringSerializer.serializeModel(model2));
 
 const start = new Date().getTime();
 const delta = MatchDiff.diff(model1, model2, PathMatching);
 const end = new Date().getTime();
+console.log(delta.toString());
 
 console.log("diff took " + (end - start) + "ms");
 //console.log(delta.toString());
 const dt = DeltaTreeGenerator.deltaTree(model1, delta);
 //console.log(XmlSerializer.serializeDeltaTree(dt));
+//console.log(XmlSerializer.serializeDeltaTree(dt));
 console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(TreeStringSerializer.serializeModel(model1));
+//Patcher.patch(model1, delta);
+//console.log(TreeStringSerializer.serializeModel(model1));
 
 

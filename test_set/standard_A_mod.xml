@@ -6,7 +6,7 @@
             <arguments>
                 <from>data.from</from>
                 <to>data.to</to>
-                <persons>data.persons</persons>
+                <why>data.why</why>
             </arguments>
         </parameters>
         <code>
@@ -18,7 +18,7 @@
             <parallel_branch pass="data.persons" local="p">
                 <call id="a2" endpoint="bookHotel">
                     <parameters>
-                        <label>Book Hotel</label>
+                        <label>Book Ho</label>
                         <method>:post</method>
                         <arguments>
                             <to>data.to</to>
@@ -33,5 +33,4 @@
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
-    <stop id="a6"/>
 </description>

@@ -30,8 +30,8 @@ class EDMDiff extends AbstractDiff {
 
     /**
      * Instantiate an EDMDiff object with the given models and options.
-     * @param {String} xml1 The original CPEE process model as an XML document
-     * @param {String} xml2 The changed CPEE process model as an XML document
+     * @param {String} xml1 The original cpee process model as an XML document
+     * @param {String} xml2 The changed cpee process model as an XML document
      * @param {String[]} options Additional options for the difference calculation
      */
     constructor(xml1, xml2, options) {
@@ -45,7 +45,7 @@ class EDMDiff extends AbstractDiff {
         /*
          * 1st Stage:   Repeated replacement of the longest common substring (LCStr) with a new character.
          *              Instead of characters, we consider lines of the sorted XML document representing
-         *              a CPEE process model.
+         *              a cpee process model.
          */
 
         //only order when "order" option is selected

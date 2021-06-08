@@ -14,7 +14,7 @@
                         <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
                     </code>
                 </call>
-                <call id="a1" endpoint="bookAirline">
+                <call id="a1" endpoint="bookAir">
                     <parameters>
                         <label>Book Airline</label>
                         <method>:post</method>
@@ -61,17 +61,6 @@
         </loop>
     </parallel>
     <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <call id="a4" endpoint="approve">
-                <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <costs>data.costs</costs>
-                    </arguments>
-                </parameters>
-            </call>
-        </alternative>
         <otherwise>
             <call id="a5" endpoint="reject">
                 <parameters>
@@ -110,6 +99,18 @@
                 <_probability_avg>123</_probability_avg>
             </_probability>
         </otherwise>
+        <escape id="asddf"></escape>
     </choose>
+    <alternative condition="data.costs > 700">
+        <call id="a4" endpoint="approve">
+            <parameters>
+                <label>Approve Hotel</label>
+                <method>:post</method>
+                <arguments>
+                    <costs>data.costs</costs>
+                </arguments>
+            </parameters>
+        </call>
+    </alternative>
     <terminate id="145"></terminate>
 </description>

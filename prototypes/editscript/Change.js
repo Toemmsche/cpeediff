@@ -14,52 +14,50 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
 const {Serializable} = require("../utils/Serializable");
 
 class Change extends Serializable {
 
-    static CHANGE_TYPES = {
-        INSERTION: "INSERT",
-        DELETION: "DELETE",
-        MOVE: "MOVE_TO",
-        UPDATE: "UPDATE",
-        NIL: "NIL"
-    }
-
     changeType;
     oldPath;
-    oldNode;
     newPath;
-    newNode;
+    newData;
 
-    constructor(changeType, oldPath = null, oldNode = null, newPath = null, newNode = null) {
+    constructor(changeType, oldPath = null, newPath = null, newData = null) {
         super();
         this.changeType = changeType;
         this.oldPath = oldPath;
         this.newPath = newPath;
-        this.oldNode = oldNode;
-        this.newNode = newNode;
+        this.newData = newData;
     }
 
-    static insert(newPath, newNode) {
-        return new Change(this.CHANGE_TYPES.INSERTION, null, null, newPath, newNode);
+    static insert(newPath, newData, subtree = false) {
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newData);
     }
-    static delete(oldPath) {
-        return new Change(this.CHANGE_TYPES.DELETION, oldPath, null,null, null);
+
+    static delete(oldPath, subtree = false) {
+        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null,  null);
     }
+
     static move(oldPath, newPath) {
-        return new Change(this.CHANGE_TYPES.MOVE, oldPath, null, newPath);
+        return new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath,  newPath);
     }
-    static update(oldPath, oldNode, newNode) {
-        return new Change(this.CHANGE_TYPES.UPDATE, oldPath, oldNode, null, newNode);
+
+    static update(oldPath, newData) {
+        return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData);
+    }
+
+    static parseFromJson(str) {
+        return Object.assign(new Change(), JSON.parse(str));
     }
 
     toString() {
         return this.changeType + " " +
             (this.oldPath !== null ? this.oldPath + " " : "") +
-            (this.oldNode !== null ? this.oldNode + " " : "") +
+            (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
             (this.newPath !== null ? this.newPath + " " : "") +
-            (this.newNode !== null ? this.newNode + " " : "");
+            (this.newData !== null ? this.newData + " " : "");
     }
 
     /**
@@ -68,16 +66,13 @@ class Change extends Serializable {
      */
     convertToJson() {
         function replacer(key, value) {
-            if(value == "") { //lossy comparison matches null
+            if (value == "") { //lossy comparison matches null
                 return undefined;
             }
             return value;
         }
-        return JSON.stringify(this, replacer);
-    }
 
-    static parseFromJson(str) {
-       return Object.assign(new Change(), JSON.parse(str));
+        return JSON.stringify(this, replacer);
     }
 }
 

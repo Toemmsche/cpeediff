@@ -15,7 +15,7 @@
 */
 
 const {AbstractDiff} = require("./AbstractDiff");
-const {CpeeModel} = require("./CPEE/CpeeModel");
+const {CpeeModel} = require("./cpee/CpeeModel");
 
 class MatchDiff extends AbstractDiff {
 

@@ -15,7 +15,7 @@
 */
 
 const {StandardComparator} = require("../compare/StandardComparator");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {Matching} = require("../matching/Matching");
 const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
@@ -32,6 +32,25 @@ class MatchDiff extends AbstractDiff {
         }
         const end = new Date().getTime();
         console.log("matchtook " + (end - start) + "ms");
+
+        //TODO clear childattributes
+        for(const oldLeaf of oldModel.toPreOrderArray()) {
+            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
+                return !e[0].startsWith("./");
+            }));
+        }
+        for(const oldLeaf of copyOfOld.toPreOrderArray()) {
+            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
+                return !e[0].startsWith("./");
+            }));
+        }
+        for(const oldLeaf of newModel.toPreOrderArray()) {
+            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
+                return !e[0].startsWith("./");
+            }));
+        }
+
+
         //generate edit script
         return EditScriptGenerator.generateEditScript(copyOfOld, newModel, m);
     }

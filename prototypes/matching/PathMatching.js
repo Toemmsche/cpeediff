@@ -18,7 +18,7 @@ const {Lcs} = require("../utils/LongestCommonSubsequence");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CpeeModel} = require("../CPEE/CpeeModel");
+const {CpeeModel} = require("../cpee/CpeeModel");
 
 
 class PathMatching extends AbstractMatchingAlgorithm {
@@ -36,9 +36,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
      */
     static match(oldModel, newModel, matching = new Matching(), comparator) {
         //get all nodes, leaf nodes and inner nodes of the models
-        const oldLeafNodes = oldModel.leafNodes();
-        const newLeafNodes = newModel.leafNodes();
-
+        const oldLeaves = oldModel.leafNodes();
+        const newLeaves = newModel.leafNodes();
 
         /*
         Step 1: Match leaf nodes.
@@ -46,16 +45,16 @@ class PathMatching extends AbstractMatchingAlgorithm {
 
         let start = new Date().getTime();
         //The treshold t dictates how similar two leaf nodes have to be in order to be matched (Matching Criterion 1)
-        for (const newLeafNode of newLeafNodes) {
+        for (const newLeafNode of newLeaves) {
             //the minimum compare value
             let minCompareValue = 2;
-            for (const oldLeafNode of oldLeafNodes) {
+            for (const oldLeafNode of oldLeaves) {
                 const compareValue = comparator.compare(newLeafNode, oldLeafNode);
                 let longestLCS = -1;
                 if (compareValue < minCompareValue
                     && compareValue <= Config.LEAF_SIMILARITY_THRESHOLD) {
                     minCompareValue = compareValue;
-                   // longestLCS = Lcs.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
+                    // longestLCS = Lcs.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
                     //Discard all matching with a higher comparison value
                     matching.unMatchNew(newLeafNode);
                     matching.matchNew(newLeafNode, oldLeafNode)
@@ -69,7 +68,6 @@ class PathMatching extends AbstractMatchingAlgorithm {
         /*
         Step 3: Match inner nodes.
          */
-
         start = new Date().getTime();
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
@@ -116,8 +114,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
             const oldLcs = lcs.get(1);
 
             //index in newPath where last matching occurred
-            for (let i = 0; i <newLcs.length ; i++) {
-                if(comparator.compare(newLcs[i], oldLcs[i]) <= Config.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
+            for (let i = 0; i < newLcs.length; i++) {
+                if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
                     matching.matchNew(newLcs[i], oldLcs[i]);
                 }
             }
@@ -161,8 +159,32 @@ class PathMatching extends AbstractMatchingAlgorithm {
             return commonSize / oldSubTreePreOrder.length;
         }
 
-        if(!matching.hasNew(newModel.root)) {
+        if (!matching.hasNew(newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
+        }
+
+
+        start = new Date().getTime();
+        //match properties of leaf nodes
+        for (const newLeaf of newLeaves) {
+            if (matching.hasNew(newLeaf)) {
+                matchProperties(newLeaf, matching.getNewSingle(newLeaf));
+            }
+        }
+        end = new Date().getTime();
+        console.log("matching properties took " + (end -start) + "ms");
+
+        function matchProperties(newNode, oldNode) {
+            //TODO bucket matching
+            for (const newChild of newNode) {
+                for (const oldChild of oldNode) {
+                    //label equality is sufficient
+                    if (newChild.label === oldChild.label) {
+                        matching.matchNew(newChild, oldChild);
+                        matchProperties(newChild, oldChild);
+                    }
+                }
+            }
         }
 
         return matching;

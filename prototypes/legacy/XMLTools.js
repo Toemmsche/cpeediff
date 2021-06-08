@@ -24,10 +24,10 @@ const vkbeautify = require("vkbeautify");
 class XMLTools {
 
     /**
-     * Sorts all child nodes lexicographically where permitted by the semantic of the CPEE syntax.
+     * Sorts all child nodes lexicographically where permitted by the semantic of the cpee syntax.
      * Also tidies up the XML formatting.
-     * @param {String} xml The unordered CPEE process model as an XML document.
-     * @return {string} The ordered and tidied CPEE process model as an XML document.
+     * @param {String} xml The unordered cpee process model as an XML document.
+     * @return {string} The ordered and tidied cpee process model as an XML document.
      */
     static sortXML(xml) {
         let doc = new DOMParser().parseFromString(xml.replaceAll("\n", ""), "text/xml");
@@ -46,7 +46,7 @@ class XMLTools {
                 }
             }
 
-            //Consider CPEE semantics! Only sort if child nodes can be sorted arbitrarily.
+            //Consider cpee semantics! Only sort if child nodes can be sorted arbitrarily.
             if (!CPEESyntax.hasInternalOrdering(tNode.nodeName)) {
                 childArr.sort((tNodeA, tNodeB) => tNodeA.nodeName.localeCompare(tNodeB.nodeName));
                 while (tNode.hasChildNodes()) {

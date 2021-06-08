@@ -1,87 +1,18 @@
-<description
-        xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a3" endpoint="DUMMY">
-        <parameters>
-            <label>ADDEDTASK</label>
-            <method>:get</method>
-            <arguments/>
-            <report>
-                <url/>
-            </report>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
-        </parameters>
-        <annotations keke="asdlfsajfsldfjsdlfjsdflsdfjsdlf">
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-    </call>
-    <call id="a1" endpoint="">
-        <code>
-            <prepare/>
-            <finalize output="result"/>
-            <update output="result"/>
-            <rescue output="result"/>
-        </code>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-        <code>
-            <description/>
-        </code>
-    </call>
-    <call id="a2" endpoint="">
-        <parameters>
-            <label/>
-            <method>:post</method>
-            <arguments/>
-            <stream>
-                <sensors/>
-                <ips/>
-            </stream>
-            <report>
-                <url/>
-            </report>
-        </parameters>
-        <annotations>
-            <_timing>
-                <_timing_weight/>
-                <_timing_avg/>
-                <explanations/>
-            </_timing>
-            <_notes>
-                <_notes_general/>
-            </_notes>
-        </annotations>
-        <input/>
-        <output/>
-        <implementation>
-            <description/>
-        </implementation>
-    </call>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <escape attr="val"></escape>
+    <parallel>
+        <loop>
+            <stop></stop>
+        </loop>
+    </parallel>
+    <choose>
+        <otherwise>
+            <manipulate>data.time++;</manipulate>
+        </otherwise>
+    </choose>
+    <alternative condition="data.costs < 0">
+        <loop condition="data.persons > 0">
+            <terminate></terminate>
+        </loop>
+    </alternative>
 </description>
