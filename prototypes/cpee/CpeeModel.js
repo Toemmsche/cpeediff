@@ -34,12 +34,12 @@ class CpeeModel {
         this.declaredVariables = declaredVariables;
     }
 
-    copy(includeChildNodes = true) {
-        return new CpeeModel(this.root.copy(includeChildNodes));
+    copy() {
+        return new CpeeModel(this.root.copy(true));
     }
 
-    deltaCopy(includeChildNodes = true) {
-        return new CpeeModel(DeltaNode.parseFromJson(this.root.convertToJson(includeChildNodes)));
+    deltaCopy() {
+        return new CpeeModel(DeltaNode.fromCpeeNode(this.root, true));
     }
 
     toPreOrderArray() {

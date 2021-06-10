@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const xmldom = require("xmldom");
+const vkbeautify = require("vkbeautify");
 const {Dsl} = require("../Dsl");
 const {Change} = require("../editscript/Change");
 const {Config} = require("../Config");
@@ -44,24 +46,12 @@ class CpeeNode extends Serializable {
      * @type String
      */
     data;
-    /**
-     * @type Set<String>
-     */
-    modifiedVariables;
-    //private
-    /**
-     * @type Set<String>
-     */
-    readVariables;
 
     constructor(label) {
         super();
         this.label = label;
         this.attributes = new Map();
-        this.modifiedVariables = new Set();
-        this.readVariables = new Set();
         this.data = null;
-
 
         this._childNodes = [];
         this._parent = null;
@@ -159,6 +149,36 @@ class CpeeNode extends Serializable {
             node = node._parent;
         }
         return pathArr.reverse().slice(1);
+    }
+
+    get modifiedVariables() {
+        const modifiedVariables= new Set();
+        if (this.containsCode()) {
+            //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
+            const matches = this.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+            if (matches !== null) {
+                for (const variable of matches) {
+                    //match only variable name and remove data. prefix
+                    modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                }
+            }
+        }
+        return modifiedVariables;
+    }
+
+    get readVariables() {
+        const readVariables = new Set();
+        if(this.attributes.has("condition")) {
+            const condition = this.attributes.get("condition");
+            const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
+            if (matches !== null) {
+                for (const variable of matches) {
+                    //match only variable name and remove data. prefix
+                   readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                }
+            }
+        }
+        return readVariables;
     }
 
     /**
@@ -463,69 +483,92 @@ class CpeeNode extends Serializable {
         return arr;
     }
 
-    /**
-     *  @override
-     * @returns {String}
-     */
-    convertToJson(includeChildNodes = true) {
-        function replacer(key, value) {
-            if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
-                return undefined;
-            } else if (value == null || value === "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
-                return undefined;
-            } else if (value instanceof Map) {
-                return {
-                    //preserve data type for correct parsing
-                    dataType: "Map",
-                    value: Array.from(value.entries())
-                };
-            } else if (value instanceof Set) {
-                return {
-                    //preserve data type for correct parsing
-                    dataType: "Set",
-                    value: Array.from(value.keys())
-                }
-            }
-            return value;
-        }
-
-        return JSON.stringify(this, replacer);
+    copy(includeChildNodes = true) {
+       const copy = new CpeeNode(this.label);
+       copy.data = this.data;
+       for(const [key, value] of this.attributes) {
+           copy.attributes.set(key, value);
+       }
+       if(includeChildNodes) {
+           for(const child of this) {
+               copy.appendChild(child.copy(true))
+           }
+       }
+       return copy;
     }
 
-    /**
-     *
-     * @override
-     * @returns {CpeeNode}
-     */
-    static parseFromJson(str) {
-        function reviver(key, value) {
-            if (value instanceof Object) {
-                //all maps are marked
-                if (value.dataType !== undefined && value.dataType === "Map") {
-                    return new Map(value.value);
-                } else if (value.dataType !== undefined && value.dataType === "Set") {
-                    return new Set(value.value);
-                }
-                if (value.label !== undefined) {
-                    const node = new CpeeNode(value.label);
-                    for (const property in value) {
-                        node[property] = value[property];
-                    }
-                    for (let i = 0; i < node._childNodes.length; i++) {
-                        node._childNodes[i].parent = node;
-                        node._childNodes[i].childIndex = i;
-                    }
-                    return node;
-                }
-            }
-            return value;
+    convertToXml( includeChildNodes = true, asXmlDom = false,) {
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+
+        const root = constructRecursive(this);
+
+        if(asXmlDom) {
+            return root;
+        } else {
+            doc.insertBefore(root, null);
+            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
         }
 
-        return JSON.parse(str, reviver);
+        function constructRecursive(cpeeNode) {
+            const node = doc.createElement(cpeeNode.label);
+
+            if (cpeeNode.label === Dsl.KEYWORDS.ROOT) {
+                node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+            }
+
+            for (const [key, value] of cpeeNode.attributes) {
+                node.setAttribute(key, value);
+            }
+
+            if(includeChildNodes) {
+                for (const child of cpeeNode) {
+                    node.appendChild(constructRecursive(child));
+                }
+            }
+
+            if(cpeeNode.data != null) {
+                node.appendChild(doc.createTextNode(cpeeNode.data))
+            }
+
+            return node;
+        }
     }
 
-    copy(includeChildNodes = false) {
-        return CpeeNode.parseFromJson(this.convertToJson(includeChildNodes));
+   static parseFromXml(str) {
+        const doc = new xmldom.DOMParser().parseFromString(str, "text/xml");
+
+        return constructRecursive(doc.firstChild);
+
+       function constructRecursive(tNode) {
+           let root = new CpeeNode(tNode.localName);
+           for (let i = 0; i < tNode.childNodes.length; i++) {
+               const childTNode = tNode.childNodes.item(i);
+               if (childTNode.nodeType === 3) { //text node
+                   //check if text node contains a non-empty payload
+                   if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
+                       //empty data, skip
+                       continue;
+                   } else {
+                       //relevant data, set as node data
+                       root.data = childTNode.data;
+                   }
+               } else {
+                   const child = constructRecursive(childTNode)
+                   //empty control nodes are null values (see below)
+                   if (child !== null) {
+                       root.appendChild(child);
+                   }
+               }
+           }
+
+           //parse attributes
+           for (let i = 0; i < tNode.attributes.length; i++) {
+               const attrNode = tNode.attributes.item(i);
+               root.attributes.set(attrNode.name, attrNode.value);
+           }
+
+           return root;
+       }
     }
 
 }

@@ -116,6 +116,8 @@ class DeltaModelGenerator {
                         }
                     }
 
+                    //TODO adjust like deltagen
+
                     if (movfrNode !== null) {
                         if(newData.data !== undefined) {
                             //update data and attributes
@@ -196,6 +198,107 @@ class DeltaModelGenerator {
         return model;
     }
 
+    static deltaTreeNoMoveFrom(model, editScript) {
+        //copy model
+        model = model.deltaCopy();
+
+        for (const change of editScript) {
+            switch (change.changeType) {
+                //Which path (new vs old) represents the anchor depends on the change operation
+                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
+                case Dsl.CHANGE_TYPES.INSERTION: {
+                    const indexArr = change.newPath.split("/").map(str => parseInt(str));
+                    const childIndex = indexArr.pop();
+                    const parent = findNodeByIndexArr(indexArr);
+                    const child = DeltaNode.parseFromXml(change.newData);
+
+                    parent.insertChild(childIndex, child);
+                    for(const descendant of child.toPreOrderArray()) {
+                        descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
+                    }
+                    break;
+                }
+                case Dsl.CHANGE_TYPES.MOVE_TO: {
+
+                    //find moved node
+                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
+                    let node= findNodeByIndexArr(nodeIndexArr);
+
+                    //detach node
+                    node.removeFromParent();
+
+                    //find new parent
+                    const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
+                    const targetIndex = parentIndexArr.pop();
+                    const parent = findNodeByIndexArr(parentIndexArr);
+
+                    //insert node
+                    parent.insertChild(targetIndex, node);
+                    node.changeType = change.changeType;
+
+                    break;
+                }
+                case Dsl.CHANGE_TYPES.UPDATE: {
+                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
+                    const node = findNodeByIndexArr(nodeIndexArr);
+                    const newData = CpeeNode.parseFromXml(change.newData);
+
+                    if (node.data !== newData.data) {
+                        node.updates.push(["data", node.data, newData.data]);
+                        node.data = newData.data;
+                    }
+
+                    //detected updated and inserted attributes
+                    for (const [key, value] of  newData.attributes) {
+                        if (node.attributes.has(key)) {
+                            if (node.attributes.get(key) !== value) {
+                                node.updates.push([key, node.attributes.get(key), value]);
+                                node.attributes.set(key, value);
+                            }
+                        } else {
+                            node.updates.push([key, null, value]);
+                            node.attributes.set(key, value);
+                        }
+                    }
+
+                    //detect deleted attributes
+                    for (const [key, value] of node.attributes) {
+                        if (!newData.attributes.has(key)) {
+                            node.updates.push([key, value, null])
+                            node.attributes.remove(key);
+                        }
+                    }
+                    break;
+                }
+                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
+                case Dsl.CHANGE_TYPES.DELETION: {
+                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
+                    const node = findNodeByIndexArr(nodeIndexArr);
+
+                    for (const descendant of node.toPreOrderArray()) {
+                        descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
+                    }
+
+                    node.removeFromParent();
+                    break;
+                }
+            }
+        }
+
+        function findNodeByIndexArr(indexArr) {
+            let currNode = model.root;
+            for (let index of indexArr) {
+                if (index > currNode.numChildren()) {
+                    throw new Error("Edit script not applicable to model");
+                }
+                currNode = currNode.getChild(index);
+            }
+            return currNode;
+        }
+
+        return model;
+    }
+
 }
 
-exports.DeltaTreeGenerator = DeltaModelGenerator;
+exports.DeltaModelGenerator = DeltaModelGenerator;

@@ -10,6 +10,7 @@
 //      comparisons for remaining inner nodes
 //      fix model generator and implement change agent
 //      IMPORTANT rewrite placeholder not as parent attribute
+//      keep mod and readvariables after insert
 
 //TODO new algos
 //      q-gram distance for script comparison
@@ -32,6 +33,7 @@
 //      IMPORTANT use default parameters to simplify postorder methods etc.
 //      readVariables considers Code, too
 //      read and modified Variables as Getter???
+//      True preprocessor that spits out xml doc
 
 
 //TODO tidy
@@ -75,15 +77,13 @@
 
 /*
 Merge Ideas:
-2way: Find conflicts between unmatched nodes
-Examine move and update operations
 
-3way: rely on edit script (+ dependency and consistency information), not matching (diff is result of your tool)
-build diff between 1 and 2, merge automatically where only one choice consistent, If two choices (without future side effects),
-merge automatically
-either get deleted nodes at the start or proceed in edit script order.
 
-Force context preservation (adjustable)
+3way:
+idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree
+
+idea 2: Merge the set of leaf nodes, then
+
 
 Merge edit script between base and T1 into T2 using merge algorithm
  */

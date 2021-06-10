@@ -102,36 +102,6 @@ class Parser {
                 return null;
             }
 
-            //extract modified variables from code and read variables from call to endpoint
-            if (root.containsCode()) {
-                //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
-                const matches = root.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
-                if (matches !== null) {
-                    for (const variable of matches) {
-                        //match only variable name and remove data. prefix
-                        root.modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                    }
-                }
-
-                for (const [key, value] of root.attributes) {
-                    if (key.startsWith("./parameters/arguments/")) {
-                        root.readVariables.add(value.replace(/data\./, ""));
-                    }
-                }
-            }
-
-            //extract read Variables from condition
-            if (root.containsCondition()) {
-                const condition = root.attributes.get("condition");
-                const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
-                if (matches !== null) {
-                    for (const variable of matches) {
-                        //match only variable name and remove data. prefix
-                        root.readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                    }
-                }
-            }
-
             return root;
         }
     }

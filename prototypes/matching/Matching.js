@@ -83,6 +83,11 @@ class Matching {
         return this.oldToNewMap.has(oldNode)&& this.oldToNewMap.get(oldNode).size > 0;
     }
 
+    areMatched(oldNode, newNode) {
+        //TODO replace wit hequals()
+        return this.getNewSingle(newNode) === oldNode;
+    }
+
     _propagate() {
         if (this._needsPropagation) {
             this.oldToNewMap = new Map();

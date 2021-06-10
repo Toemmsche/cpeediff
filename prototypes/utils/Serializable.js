@@ -16,13 +16,14 @@
 
 class Serializable {
 
-    convertToJson() {
+    convertToXml(includeChildNodes = true, asXmlDom = false) {
         throw new Error("Interface method not implemented");
     }
 
-    static parseFromJson() {
+    static parseFromXml() {
         throw new Error("Interface method not implemented");
     }
+
 
 }
 

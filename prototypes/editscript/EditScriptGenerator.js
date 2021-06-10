@@ -82,32 +82,8 @@ class EditScriptGenerator {
                 if (!newNode.contentEquals(match)) {
                     //modify node
                     const oldPath = match.toChildIndexPathString();
-                    //lossy comparison
-                    const oldData = new CpeeNode("");
-                    const newData = new CpeeNode("");
-                    if (newNode.data !== match.data) {
-                        oldData.data = match.data;
-                        newData.data = newNode.data;
-                    }
-                    //detected updated and inserted attributes
-                    for (const [key, value] of newNode.attributes) {
-                        if (match.attributes.has(key)) {
-                            if (match.attributes.get(key) !== value) {
-                                newData.attributes.set(key, value);
-                            }
-                        } else {
-                            newData.attributes.set(key, value);
-                        }
-                    }
-                    //detect deleted attributes
-                    for (const [key, value] of match.attributes) {
-                        if (!newNode.attributes.has(key)) {
-                            newData.attributes.set(key, null);
-                        }
-                    }
-
                     //during edit script generation, we don't need to update the data/attributes of the match
-                    editScript.appendChange(Change.update(oldPath, newData.convertToJson(false)));
+                    editScript.appendChange(Change.update(oldPath, newNode.convertToXml(false, false)));
                 }
             } else {
                 //detect subtree insertions
@@ -137,7 +113,7 @@ class EditScriptGenerator {
                 //perform insert operation at match of the parent node
                 matchOfParent.insertChild(insertionIndex, copy);
                 const newPath = copy.toChildIndexPathString();
-                const newData = copy.convertToJson();
+                const newData = copy.convertToXml(true, false);
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
                 editScript.appendChange(Change.insert(newPath, newData, copy.hasChildren()));

@@ -24,33 +24,7 @@ const {Change} = require("../editscript/Change");
 class XmlSerializer {
 
     static serializeModel(model) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
-        const root = constructRecursive(model.root);
-        doc.insertBefore(root, null);
-        return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-
-        function constructRecursive(cpeeNode) {
-            const node = doc.createElement(cpeeNode.label);
-
-            if (cpeeNode.label === Dsl.KEYWORDS.ROOT) {
-                node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-            }
-
-            for (const [key, value] of cpeeNode.attributes) {
-                node.setAttribute(key, value);
-            }
-
-            for (const child of cpeeNode) {
-                node.appendChild(constructRecursive(child));
-            }
-
-            if(cpeeNode.data != null) {
-                node.appendChild(doc.createTextNode(cpeeNode.data))
-            }
-
-            return node;
-        }
+       return model.root.convertToXml();
     }
 
     /**
@@ -58,48 +32,6 @@ class XmlSerializer {
      * @param {CpeeModel} model
      */
     static serializeDeltaTree(model) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
-        const root = constructRecursive(model.root);
-        doc.insertBefore(root, null);
-        return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-
-        function constructRecursive(cpeeNode) {
-
-            let changeType;
-            if(cpeeNode.changeType === Dsl.CHANGE_TYPES.NIL && cpeeNode.isUpdated()) {
-                changeType = Dsl.CHANGE_TYPES.UPDATE;
-            } else {
-                changeType = cpeeNode.changeType;
-            }
-            const prefix = Dsl.NAMESPACES[changeType + "_NAMESPACE_PREFIX"] + ":"
-            const node = doc.createElement(prefix + cpeeNode.label);
-            node.localName = cpeeNode.label;
-
-            if (cpeeNode.label === Dsl.KEYWORDS.ROOT) {
-                node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.NIL_NAMESPACE_PREFIX, Dsl.NAMESPACES.NIL_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX, Dsl.NAMESPACES.INSERT_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX, Dsl.NAMESPACES.DELETE_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_TO_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_TO_NAMESPACE_URI);
-                node.setAttribute("xmlns:" + Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX, Dsl.NAMESPACES.UPDATE_NAMESPACE_URI);
-            }
-
-            for (const [key, value] of cpeeNode.attributes) {
-                node.setAttribute(key, value);
-            }
-
-            for (const child of cpeeNode) {
-                node.appendChild(constructRecursive(child));
-            }
-
-            if(cpeeNode.data != null) {
-                node.appendChild(doc.createTextNode(cpeeNode.data))
-            }
-
-            return node;
-        }
 
     }
 }

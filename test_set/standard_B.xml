@@ -1,4 +1,19 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
+    <call id="a1" endpoint="bookAir">
+        <parameters>
+            <label>Book Airline23</label>
+            <method>:post</method>
+            <arguments>
+                <from>data.from</from>
+                <to>data.to</to>
+                <persons>data.persons</persons>
+                <deep>45</deep>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+        </code>
+    </call>
     <parallel>
         <loop mode="pre_test" condition="data.persons > 0">
             <parallel_branch pass="data.persons" local="p">
@@ -13,104 +28,25 @@
                     <code>
                         <finalize output="result">data.hotels result.value('id') data.costs += result.value('costs').to_f</finalize>
                     </code>
-                </call>
-                <call id="a1" endpoint="bookAir">
-                    <parameters>
-                        <label>Book Airline</label>
-                        <method>:post</method>
-                        <arguments>
-                            <to>data.to</to>
-                            <from>data.from</from>
-                            <persons>data.persons</persons>
-                        </arguments>
-                        <stream>
-                            <sensors/>
-                            <ips/>
-                        </stream>
-                        <report>
-                            <url/>
-                        </report>
-                    </parameters>
-                    <code>
-                        <prepare/>
-                        <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
-                        <update output="result"/>
-                        <rescue output="result"/>
-                    </code>
-                    <annotations>
-                        <_timing>
-                            <_timing_weight/>
-                            <_timing_avg/>
-                            <explanations/>
-                        </_timing>
-                        <_notes>
-                            <_notes_general/>
-                        </_notes>
-                    </annotations>
-                    <input/>
-                    <output/>
-                    <implementation>
-                        <description/>
-                    </implementation>
-                    <code>
-                        <description/>
-                    </code>
+                    <description>SDFLJSDFLSDFJSLDFJSJDFLLDFKS</description>
                 </call>
             </parallel_branch>
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
     <choose mode="inclusive">
-        <otherwise>
-            <call id="a5" endpoint="reject">
+        <alternative condition="data.costs > 700">
+            <call id="a4" endpoint="approve">
                 <parameters>
-                    <label>Reject hotel</label>
+                    <label>Approve Hotel</label>
                     <method>:post</method>
                     <arguments>
-                        <costs>0</costs>
+                        <costs>data.costs</costs>
                     </arguments>
-                    <stream>
-                        <sensors/>
-                        <ips/>
-                    </stream>
-                    <report>
-                        <url/>
-                    </report>
                 </parameters>
-                <annotations>
-                    <_timing>
-                        <_timing_weight/>
-                        <_timing_avg/>
-                        <explanations/>
-                    </_timing>
-                    <_notes>
-                        <_notes_general/>
-                    </_notes>
-                </annotations>
-                <input/>
-                <output/>
-                <implementation>
-                    <description/>
-                </implementation>
             </call>
-            <_probability>
-                <_probability_min>0.1</_probability_min>
-                <_probability_max>90</_probability_max>
-                <_probability_avg>123</_probability_avg>
-            </_probability>
-        </otherwise>
-        <escape id="asddf"></escape>
+            <escape id="asddf"></escape>
+        </alternative>
     </choose>
-    <alternative condition="data.costs > 700">
-        <call id="a4" endpoint="approve">
-            <parameters>
-                <label>Approve Hotel</label>
-                <method>:post</method>
-                <arguments>
-                    <costs>data.costs</costs>
-                </arguments>
-            </parameters>
-        </call>
-    </alternative>
-    <terminate id="145"></terminate>
+    <stop id="a6"/>
 </description>

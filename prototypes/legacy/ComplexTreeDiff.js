@@ -21,6 +21,68 @@ const {DOMParser, XMLSerializer} = require("xmldom");
 class ComplexTreeDiff extends AbstractDiff {
 
     /**
+     *  @override
+     * @returns {String}
+     */
+    convertToJson(includeChildNodes = true) {
+        function replacer(key, value) {
+            if (key === "_parent" || key === "_childIndex" || (!includeChildNodes && key === "_childNodes")) {
+                return undefined;
+            } else if (value == null || value === "" || value.length === 0 || value.size === 0 || (key === "changeType" && value === Dsl.CHANGE_TYPES.NIL)) {  //ignore empty strings, arrays, sets, and maps
+                return undefined;
+            } else if (value instanceof Map) {
+                return {
+                    //preserve data type for correct parsing
+                    dataType: "Map",
+                    value: Array.from(value.entries())
+                };
+            } else if (value instanceof Set) {
+                return {
+                    //preserve data type for correct parsing
+                    dataType: "Set",
+                    value: Array.from(value.keys())
+                }
+            }
+            return value;
+        }
+
+        return JSON.stringify(this, replacer);
+    }
+
+    /**
+     *
+     * @override
+     * @returns {CpeeNode}
+     */
+    static parseFromJson(str) {
+        function reviver(key, value) {
+            if (value instanceof Object) {
+                //all maps are marked
+                if (value.dataType !== undefined && value.dataType === "Map") {
+                    return new Map(value.value);
+                } else if (value.dataType !== undefined && value.dataType === "Set") {
+                    return new Set(value.value);
+                }
+                if (value.label !== undefined) {
+                    const node = new CpeeNode(value.label);
+                    for (const property in value) {
+                        node[property] = value[property];
+                    }
+                    for (let i = 0; i < node._childNodes.length; i++) {
+                        node._childNodes[i].parent = node;
+                        node._childNodes[i].childIndex = i;
+                    }
+                    return node;
+                }
+            }
+            return value;
+        }
+
+        return JSON.parse(str, reviver);
+    }
+
+
+    /**
      * Instantiate a ComplexTreeDiff object with the given models and options.
      * @param {String} xml1 The original cpee process model as an XML document
      * @param {String} xml2 The changed cpee process model as an XML document

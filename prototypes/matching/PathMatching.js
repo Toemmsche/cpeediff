@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {StandardComparator} = require("../compare/StandardComparator");
 const {Lcs} = require("../utils/LongestCommonSubsequence");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
@@ -34,7 +35,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
      *                                    The order the matching algorithms are applied in matters.
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    static match(oldModel, newModel, matching = new Matching(), comparator) {
+    static match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator()) {
         //get all nodes, leaf nodes and inner nodes of the models
         const oldLeaves = oldModel.leafNodes();
         const newLeaves = newModel.leafNodes();

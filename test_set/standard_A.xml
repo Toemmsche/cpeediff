@@ -7,9 +7,7 @@
                 <from>data.from</from>
                 <to>data.to</to>
                 <persons>data.persons</persons>
-                <nested>
-                    <deep>45</deep>
-                </nested>
+                <deep>45</deep>
             </arguments>
         </parameters>
         <code>

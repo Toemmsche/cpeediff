@@ -16,6 +16,8 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {DeltaMerger} = require("../merge/DeltaMerger");
+const {MatchMerger} = require("../merge/MatchMerger");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {XmlSerializer} = require("../serialize/XmlSerializer");
 const {StandardComparator} = require("../compare/StandardComparator");
@@ -24,7 +26,7 @@ const {BottomUpMatching} = require("../matching/BottomUpMatching");
 const {Patcher} = require("../patch/Patcher");
 const {CpeeModel} = require("../cpee/CpeeModel");
 const {ModelGenerator} = require("../gen/ModelGenerator");
-const {DeltaTreeGenerator} = require("../patch/DeltaModelGenerator");
+const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
@@ -34,31 +36,32 @@ const {CpeeNode} = require("../cpee/CpeeNode");
 
 let file1 = process.argv[2];
 let file2 = process.argv[3];
+let file3 = process.argv[4];
 
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
-
-const gen = new ModelGenerator(5000, 10, 20, 23);
-/*
-const g1 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g1.json").toString()));
-const g2 = new CpeeModel(CpeeNode.parseFromJson(fs.readFileSync("prototypes/temp/g2.json").toString()));
-*/
- const g1 = gen.randomModel();
- const g2 = gen.randomModel();
+const xmlC = fs.readFileSync(file3).toString();
 
 
 let model1 = Parser.fromCpee(xmlA);
 let model2 = Parser.fromCpee(xmlB);
+let model3 = Parser.fromCpee(xmlC);
 
 
 console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length + " i: " + (model1.toPostOrderArray().length - model1.leafNodes().length));
 console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
 
-model1 = model1.copy(true);
 
 console.log(TreeStringSerializer.serializeModel(model1));
 console.log(TreeStringSerializer.serializeModel(model2));
+
+DeltaMerger.merge(model1, model2, model3);
+
+//MatchMerger.merge(model1, model2, model3);
+
+
+/*
 
 const start = new Date().getTime();
 const delta = MatchDiff.diff(model1, model2, PathMatching);
@@ -66,12 +69,7 @@ const end = new Date().getTime();
 console.log(delta.toString());
 
 console.log("diff took " + (end - start) + "ms");
-//console.log(delta.toString());
-const dt = DeltaTreeGenerator.deltaTree(model1, delta);
-//console.log(XmlSerializer.serializeDeltaTree(dt));
-//console.log(XmlSerializer.serializeDeltaTree(dt));
-console.log(XmlSerializer.serializeDeltaTree(dt));
-//Patcher.patch(model1, delta);
-//console.log(TreeStringSerializer.serializeModel(model1));
+*/
+
 
 
