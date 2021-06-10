@@ -21,7 +21,7 @@ const {CpeeNode} = require("../cpee/CpeeNode");
 
 class DeltaModelGenerator {
 
-    static deltaTree(model, editScript) {
+    static deltaTree(model, editScript, extended = false) {
         //copy model
         model = model.deltaCopy();
 
@@ -36,7 +36,7 @@ class DeltaModelGenerator {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
                     const [parent, movfrParent] = findNodeByIndexArr(indexArr);
-                    const child = DeltaNode.parseFromJson(change.newData);
+                    const child = DeltaNode.fromCpeeNode(change.newData);
 
                     parent.insertChild(childIndex, child);
                     for(const descendant of child.toPreOrderArray()) {
@@ -96,43 +96,53 @@ class DeltaModelGenerator {
                 case Dsl.CHANGE_TYPES.UPDATE: {
                     const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
                     const [node, movfrNode] = findNodeByIndexArr(nodeIndexArr);
-                    const newData = CpeeNode.parseFromJson(change.newData);
+                    const newData = change.newData;
 
-                    //update data and attributes
-                    if(newData.data !== undefined) {
+                    if (node.data !== newData.data) {
                         node.updates.push(["data", node.data, newData.data]);
                         node.data = newData.data;
                     }
 
-
-                    if (newData.attributes !== undefined) {
-                        for (const [key, value] of newData.attributes) {
-                            node.updates.push([key, node.attributes.has(key) ? node.attributes.get(key) : null, value]);
-                            if (value === null) {
-                                node.attributes.delete(key);
-                            } else {
+                    //detected updated and inserted attributes
+                    for (const [key, value] of  newData.attributes) {
+                        if (node.attributes.has(key)) {
+                            if (node.attributes.get(key) !== value) {
+                                node.updates.push([key, node.attributes.get(key), value]);
                                 node.attributes.set(key, value);
                             }
+                        } else {
+                            node.updates.push([key, null, value]);
+                            node.attributes.set(key, value);
                         }
                     }
 
-                    //TODO adjust like deltagen
+                    //detect deleted attributes
+                    for (const [key, value] of node.attributes) {
+                        if (!newData.attributes.has(key)) {
+                            node.updates.push([key, value, null])
+                            node.attributes.remove(key);
+                        }
+                    }
 
                     if (movfrNode !== null) {
-                        if(newData.data !== undefined) {
-                            //update data and attributes
-                            movfrNode.updates.push(["data", movfrNode.data, newData.data]);
-                            movfrNode.data = newData.data;
-                        }
-
-                        if (newData.attributes !== undefined) {
-                            for (const [key, value] of newData.attributes) {
-                                movfrNode.updates.push([key, movfrNode.attributes.has(key) ? movfrNode.attributes.get(key) : null, value]);
-                                if (value === null) {
-                                    movfrNode.attributes.delete(key);
-                                } else {
+                        //detected updated and inserted attributes
+                        for (const [key, value] of  newData.attributes) {
+                            if (movfrNode.attributes.has(key)) {
+                                if (movfrNode.attributes.get(key) !== value) {
+                                    movfrNode.updates.push([key, movfrNode.attributes.get(key), value]);
                                     movfrNode.attributes.set(key, value);
                                 }
+                            } else {
+                                movfrNode.updates.push([key, null, value]);
+                                movfrNode.attributes.set(key, value);
+                            }
+                        }
+
+                        //detect deleted attributes
+                        for (const [key, value] of movfrNode.attributes) {
+                            if (!newData.attributes.has(key)) {
+                                movfrNode.updates.push([key, value, null])
+                                movfrNode.attributes.remove(key);
                             }
                         }
                     }
@@ -181,124 +191,29 @@ class DeltaModelGenerator {
             return [currNode, moveFromPlaceHolder];
         }
 
-        function resolvePlaceholders(node, isMoveTo = false) {
-            for (const child of node) {
-                resolvePlaceholders(child, isMoveTo || child.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+        if(extended) {
+            function resolvePlaceholders(node, isMoveTo = false) {
+                for (const child of node) {
+                    resolvePlaceholders(child, isMoveTo || child.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+                }
+                for (const placeholder of node.placeholders) {
+                    resolvePlaceholders(placeholder, isMoveTo || node.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+                    if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
+                        node.insertChild(placeholder.childIndex, placeholder);
+                    }
+                }
+                node.placeholders = [];
             }
-            for (const placeholder of node.placeholders) {
-                resolvePlaceholders(placeholder, isMoveTo || node.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
-                if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
-                    node.insertChild(placeholder.childIndex, placeholder);
-                }
+            resolvePlaceholders(model.root);
+        } else {
+            for(const deltaNode of model.toPreOrderArray()) {
+                //remove all placeholders
+                deltaNode.placeholders = [];
             }
-            node.placeholders = [];
-        }
-
-        resolvePlaceholders(model.root);
-        return model;
-    }
-
-    static deltaTreeNoMoveFrom(model, editScript) {
-        //copy model
-        model = model.deltaCopy();
-
-        for (const change of editScript) {
-            switch (change.changeType) {
-                //Which path (new vs old) represents the anchor depends on the change operation
-                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
-                case Dsl.CHANGE_TYPES.INSERTION: {
-                    const indexArr = change.newPath.split("/").map(str => parseInt(str));
-                    const childIndex = indexArr.pop();
-                    const parent = findNodeByIndexArr(indexArr);
-                    const child = DeltaNode.parseFromXml(change.newData);
-
-                    parent.insertChild(childIndex, child);
-                    for(const descendant of child.toPreOrderArray()) {
-                        descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
-                    }
-                    break;
-                }
-                case Dsl.CHANGE_TYPES.MOVE_TO: {
-
-                    //find moved node
-                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    let node= findNodeByIndexArr(nodeIndexArr);
-
-                    //detach node
-                    node.removeFromParent();
-
-                    //find new parent
-                    const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
-                    const targetIndex = parentIndexArr.pop();
-                    const parent = findNodeByIndexArr(parentIndexArr);
-
-                    //insert node
-                    parent.insertChild(targetIndex, node);
-                    node.changeType = change.changeType;
-
-                    break;
-                }
-                case Dsl.CHANGE_TYPES.UPDATE: {
-                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    const node = findNodeByIndexArr(nodeIndexArr);
-                    const newData = CpeeNode.parseFromXml(change.newData);
-
-                    if (node.data !== newData.data) {
-                        node.updates.push(["data", node.data, newData.data]);
-                        node.data = newData.data;
-                    }
-
-                    //detected updated and inserted attributes
-                    for (const [key, value] of  newData.attributes) {
-                        if (node.attributes.has(key)) {
-                            if (node.attributes.get(key) !== value) {
-                                node.updates.push([key, node.attributes.get(key), value]);
-                                node.attributes.set(key, value);
-                            }
-                        } else {
-                            node.updates.push([key, null, value]);
-                            node.attributes.set(key, value);
-                        }
-                    }
-
-                    //detect deleted attributes
-                    for (const [key, value] of node.attributes) {
-                        if (!newData.attributes.has(key)) {
-                            node.updates.push([key, value, null])
-                            node.attributes.remove(key);
-                        }
-                    }
-                    break;
-                }
-                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
-                case Dsl.CHANGE_TYPES.DELETION: {
-                    const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-                    const node = findNodeByIndexArr(nodeIndexArr);
-
-                    for (const descendant of node.toPreOrderArray()) {
-                        descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
-                    }
-
-                    node.removeFromParent();
-                    break;
-                }
-            }
-        }
-
-        function findNodeByIndexArr(indexArr) {
-            let currNode = model.root;
-            for (let index of indexArr) {
-                if (index > currNode.numChildren()) {
-                    throw new Error("Edit script not applicable to model");
-                }
-                currNode = currNode.getChild(index);
-            }
-            return currNode;
         }
 
         return model;
     }
-
 }
 
 exports.DeltaModelGenerator = DeltaModelGenerator;

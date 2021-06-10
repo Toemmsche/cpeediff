@@ -83,9 +83,10 @@ class EditScriptGenerator {
                     //modify node
                     const oldPath = match.toChildIndexPathString();
                     //during edit script generation, we don't need to update the data/attributes of the match
-                    editScript.appendChange(Change.update(oldPath, newNode.convertToXml(false, false)));
+                    editScript.appendChange(Change.update(oldPath, newNode.copy(false)));
                 }
             } else {
+                //TODO refine to detect partial subrtrees
                 //detect subtree insertions
                 function noMatch(newNode) {
                     if(matching.hasNew(newNode)) {
@@ -113,10 +114,10 @@ class EditScriptGenerator {
                 //perform insert operation at match of the parent node
                 matchOfParent.insertChild(insertionIndex, copy);
                 const newPath = copy.toChildIndexPathString();
-                const newData = copy.convertToXml(true, false);
+
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
-                editScript.appendChange(Change.insert(newPath, newData, copy.hasChildren()));
+                editScript.appendChange(Change.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode)));
             }
         }
 

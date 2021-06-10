@@ -39,10 +39,13 @@ class DeltaNode extends CpeeNode {
         this.moveIndex = null;
     }
 
-    static parseFromXml(str) {
-        const doc = new xmldom.DOMParser().parseFromString(str, "text/xml");
-
-        return constructRecursive(doc.firstChild);
+    static parseFromXml(xml, xmlDom = false) {
+        if(xmlDom) {
+            return constructRecursive(xml);
+        } else {
+            const doc = new xmldom.DOMParser().parseFromString(xml, "text/xml");
+            return constructRecursive(doc.firstChild);
+        }
 
         function constructRecursive(tNode) {
             let root = new DeltaNode(tNode.localName);
@@ -139,7 +142,6 @@ class DeltaNode extends CpeeNode {
         for (const update of this.updates) {
             copy.updates.push(update.slice());
         }
-
         for (const [key, value] of this.attributes) {
             copy.attributes.set(key, value);
         }
@@ -154,26 +156,25 @@ class DeltaNode extends CpeeNode {
         return copy;
     }
 
-    convertToXml(includeChildNodes = true, asXmlDom = false) {
+    convertToXml(includeChildNodes = true, xmlDom = false) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
         const root = constructRecursive(this);
 
-        if (asXmlDom) {
+        if (xmlDom) {
             return root;
         } else {
             doc.insertBefore(root, null);
             return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-
         }
 
         function constructRecursive(deltaNode) {
             let changeType;
-            if (deltaNode.changeType === Dsl.CHANGE_TYPES.NIL && deltaNode.isUpdated()) {
+            if (deltaNode.isNil() && deltaNode.isUpdate()) {
                 changeType = Dsl.CHANGE_TYPES.UPDATE;
             } else {
                 changeType = deltaNode.changeType;
             }
+            //TODO apply namespace to attributes only
             const prefix = Dsl.NAMESPACES[changeType + "_NAMESPACE_PREFIX"] + ":"
             const node = doc.createElement(prefix + deltaNode.label);
             node.localName = deltaNode.label;

@@ -85,7 +85,7 @@ class Matching {
 
     areMatched(oldNode, newNode) {
         //TODO replace wit hequals()
-        return this.getNewSingle(newNode) === oldNode;
+        return this.hasNew(newNode) && this.getNewSingle(newNode) === oldNode;
     }
 
     _propagate() {

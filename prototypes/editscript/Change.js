@@ -14,6 +14,9 @@
    limitations under the License.
 */
 
+const xmldom = require("xmldom");
+const vkbeautify = require("vkbeautify");
+const {CpeeNode} = require("../cpee/CpeeNode");
 const {Dsl} = require("../Dsl");
 const {Serializable} = require("../utils/Serializable");
 
@@ -48,8 +51,23 @@ class Change extends Serializable {
         return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData);
     }
 
-    static parseFromJson(str) {
-        return Object.assign(new Change(), JSON.parse(str));
+    static parseFromXml(xml, xmlDom = false) {
+        let root;
+        if(xmlDom) {
+            root = xml;
+        } else {
+            root = new DOMParser().parseFromString(xml, "text/xml").firstChild;
+        }
+
+        const [changeType, oldPath, newPath] = [root.localName, root.attributes.get("oldPath"), root.attributes.get("newPath")];
+        let newData;
+        for (let i = 0; i <root.childNodes.length ; i++) {
+            const childTNode = root.childNodes.item(i);
+
+            if(childTNode.localName === "newData") {
+                newData = CpeeNode.parseFromXml(childTNode, true);
+            }
+        }
     }
 
     toString() {
@@ -60,19 +78,25 @@ class Change extends Serializable {
             (this.newData !== null ? this.newData + " " : "");
     }
 
-    /**
-     * @override
-     * @returns {string}
-     */
-    convertToJson() {
-        function replacer(key, value) {
-            if (value == "") { //lossy comparison matches null
-                return undefined;
-            }
-            return value;
-        }
+    convertToXml(xmlDom = false) {
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
 
-        return JSON.stringify(this, replacer);
+        const root = doc.createElement(this.changeType);
+        if(this.oldPath != null) {
+            root.setAttribute("oldPath", this.oldPath);
+        }
+        if(this.newPath != null) {
+            root.setAttribute("newPath", this.newPath);
+        }
+        const newDataElement = doc.createElement("newData");
+        newDataElement.appendChild(doc.createTextNode(this.newData));
+
+        if(xmlDom) {
+            return root;
+        } else {
+            doc.insertBefore(root);
+            return vkbeautify.xml(new XMLSerializer().serializeToString(doc));
+        }
     }
 }
 

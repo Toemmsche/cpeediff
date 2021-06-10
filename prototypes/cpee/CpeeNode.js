@@ -152,7 +152,7 @@ class CpeeNode extends Serializable {
     }
 
     get modifiedVariables() {
-        const modifiedVariables= new Set();
+        const modifiedVariables = new Set();
         if (this.containsCode()) {
             //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
             const matches = this.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
@@ -168,17 +168,57 @@ class CpeeNode extends Serializable {
 
     get readVariables() {
         const readVariables = new Set();
-        if(this.attributes.has("condition")) {
+        if (this.attributes.has("condition")) {
             const condition = this.attributes.get("condition");
             const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
             if (matches !== null) {
                 for (const variable of matches) {
                     //match only variable name and remove data. prefix
-                   readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                    readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
                 }
             }
         }
         return readVariables;
+    }
+
+    static parseFromXml(xml, xmlDom = false) {
+        if (xmlDom) {
+            return constructRecursive(xml);
+        } else {
+            const doc = new xmldom.DOMParser().parseFromString(xml, "text/xml");
+            return constructRecursive(doc.firstChild);
+        }
+
+        function constructRecursive(tNode) {
+            let root = new this.constructor(tNode.localName);
+            for (let i = 0; i < tNode.childNodes.length; i++) {
+                const childTNode = tNode.childNodes.item(i);
+                if (childTNode.nodeType === 3) { //text node
+                    //check if text node contains a non-empty payload
+                    if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
+                        //empty data, skip
+                        continue;
+                    } else {
+                        //relevant data, set as node data
+                        root.data = childTNode.data;
+                    }
+                } else {
+                    const child = constructRecursive(childTNode)
+                    //empty control nodes are null values (see below)
+                    if (child !== null) {
+                        root.appendChild(child);
+                    }
+                }
+            }
+
+            //parse attributes
+            for (let i = 0; i < tNode.attributes.length; i++) {
+                const attrNode = tNode.attributes.item(i);
+                root.attributes.set(attrNode.name, attrNode.value);
+            }
+
+            return root;
+        }
     }
 
     /**
@@ -484,25 +524,25 @@ class CpeeNode extends Serializable {
     }
 
     copy(includeChildNodes = true) {
-       const copy = new CpeeNode(this.label);
-       copy.data = this.data;
-       for(const [key, value] of this.attributes) {
-           copy.attributes.set(key, value);
-       }
-       if(includeChildNodes) {
-           for(const child of this) {
-               copy.appendChild(child.copy(true))
-           }
-       }
-       return copy;
+        const copy = new CpeeNode(this.label);
+        copy.data = this.data;
+        for (const [key, value] of this.attributes) {
+            copy.attributes.set(key, value);
+        }
+        if (includeChildNodes) {
+            for (const child of this) {
+                copy.appendChild(child.copy(true))
+            }
+        }
+        return copy;
     }
 
-    convertToXml( includeChildNodes = true, asXmlDom = false,) {
+    convertToXml(includeChildNodes = true, asXmlDom = false,) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
 
         const root = constructRecursive(this);
 
-        if(asXmlDom) {
+        if (asXmlDom) {
             return root;
         } else {
             doc.insertBefore(root, null);
@@ -511,64 +551,22 @@ class CpeeNode extends Serializable {
 
         function constructRecursive(cpeeNode) {
             const node = doc.createElement(cpeeNode.label);
-
             if (cpeeNode.label === Dsl.KEYWORDS.ROOT) {
                 node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
             }
-
             for (const [key, value] of cpeeNode.attributes) {
                 node.setAttribute(key, value);
             }
-
-            if(includeChildNodes) {
+            if (includeChildNodes) {
                 for (const child of cpeeNode) {
                     node.appendChild(constructRecursive(child));
                 }
             }
-
-            if(cpeeNode.data != null) {
+            if (cpeeNode.data != null) {
                 node.appendChild(doc.createTextNode(cpeeNode.data))
             }
-
             return node;
         }
-    }
-
-   static parseFromXml(str) {
-        const doc = new xmldom.DOMParser().parseFromString(str, "text/xml");
-
-        return constructRecursive(doc.firstChild);
-
-       function constructRecursive(tNode) {
-           let root = new CpeeNode(tNode.localName);
-           for (let i = 0; i < tNode.childNodes.length; i++) {
-               const childTNode = tNode.childNodes.item(i);
-               if (childTNode.nodeType === 3) { //text node
-                   //check if text node contains a non-empty payload
-                   if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
-                       //empty data, skip
-                       continue;
-                   } else {
-                       //relevant data, set as node data
-                       root.data = childTNode.data;
-                   }
-               } else {
-                   const child = constructRecursive(childTNode)
-                   //empty control nodes are null values (see below)
-                   if (child !== null) {
-                       root.appendChild(child);
-                   }
-               }
-           }
-
-           //parse attributes
-           for (let i = 0; i < tNode.attributes.length; i++) {
-               const attrNode = tNode.attributes.item(i);
-               root.attributes.set(attrNode.name, attrNode.value);
-           }
-
-           return root;
-       }
     }
 
 }

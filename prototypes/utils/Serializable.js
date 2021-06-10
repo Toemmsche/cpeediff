@@ -16,11 +16,11 @@
 
 class Serializable {
 
-    convertToXml(includeChildNodes = true, asXmlDom = false) {
+    convertToXml(includeChildNodes = true, xmlDom = false) {
         throw new Error("Interface method not implemented");
     }
 
-    static parseFromXml() {
+    static parseFromXml(xml, xmlDom = false) {
         throw new Error("Interface method not implemented");
     }
 
