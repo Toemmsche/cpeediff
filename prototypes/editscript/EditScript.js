@@ -15,6 +15,9 @@
 */
 
 const fs = require("fs");
+const xmldom= require("xmldom");
+const vkbeautify = require("vkbeautify");
+const {Dsl} = require("../Dsl");
 const {Serializable} = require("../utils/Serializable");
 
 class EditScript extends Serializable {
@@ -38,8 +41,24 @@ class EditScript extends Serializable {
         this.changes.push(change);
     }
 
-    convertToJson() {
-        return JSON.stringify(this);
+    convertToXml(xmlDom = false) {
+        const doc = xmldom
+            .DOMImplementation
+            .prototype
+            .createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+
+        const root = doc.createElement("delta");
+        for(const change of this.changes) {
+            const ch = change.convertToXml(true);
+            root.appendChild(change.convertToXml(true));
+        }
+
+        if(xmlDom) {
+            return root;
+        } else {
+            doc.insertBefore(root);
+            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
+        }
     }
 
     [Symbol.iterator]() {

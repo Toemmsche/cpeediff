@@ -16,7 +16,7 @@
 
 class Serializable {
 
-    convertToXml(includeChildNodes = true, xmlDom = false) {
+    convertToXml(xmlDom = false, includeChildNodes = true) {
         throw new Error("Interface method not implemented");
     }
 

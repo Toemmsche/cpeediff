@@ -88,14 +88,17 @@ class Change extends Serializable {
         if(this.newPath != null) {
             root.setAttribute("newPath", this.newPath);
         }
-        const newDataElement = doc.createElement("newData");
-        newDataElement.appendChild(doc.createTextNode(this.newData));
+        if(this.newData != null) {
+            const newDataElement = doc.createElement("newData");
+            newDataElement.appendChild(this.newData.convertToXml(true, true));
+            root.appendChild(newDataElement);
+        }
 
         if(xmlDom) {
             return root;
         } else {
             doc.insertBefore(root);
-            return vkbeautify.xml(new XMLSerializer().serializeToString(doc));
+            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
         }
     }
 }

@@ -26,8 +26,8 @@ class DeltaMerger {
     static merge(base, model1, model2) {
         const delta1 = MatchDiff.diff(base, model1, PathMatching);
         const delta2 = MatchDiff.diff(base, model2, PathMatching);
-        console.log(delta1.toString());
-        console.log(delta2.toString());
+        console.log(delta1.convertToXml(false));
+        console.log(delta2.convertToXml(false));
 
         const dt1 = DeltaModelGenerator.deltaTree(base, delta1);
         const dt2 = DeltaModelGenerator.deltaTree(base, delta2);

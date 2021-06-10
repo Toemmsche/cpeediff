@@ -156,7 +156,7 @@ class DeltaNode extends CpeeNode {
         return copy;
     }
 
-    convertToXml(includeChildNodes = true, xmlDom = false) {
+    convertToXml( xmlDom = false, includeChildNodes = true) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
         const root = constructRecursive(this);
 
