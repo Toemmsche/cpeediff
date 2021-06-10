@@ -76,14 +76,14 @@ class EditScriptGenerator {
 
                     matchOfParent.insertChild(insertionIndex, match);
                     const newPath = match.toChildIndexPathString();
-                    editScript.appendChange(Change.move(oldPath, newPath));
+                    editScript.move(oldPath, newPath);
                 }
 
                 if (!newNode.contentEquals(match)) {
                     //modify node
                     const oldPath = match.toChildIndexPathString();
                     //during edit script generation, we don't need to update the data/attributes of the match
-                    editScript.appendChange(Change.update(oldPath, newNode.copy(false)));
+                    editScript.update(oldPath, newNode.copy(false));
                 }
             } else {
                 //TODO refine to detect partial subrtrees
@@ -117,7 +117,7 @@ class EditScriptGenerator {
 
                 //insertions always correspond to a new mapping
                 matching.matchNew(newNode, copy);
-                editScript.appendChange(Change.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode)));
+                editScript.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode));
             }
         }
 
@@ -141,7 +141,7 @@ class EditScriptGenerator {
             const oldPath = node.toChildIndexPathString();
             //TODO document that removeFromParent() does not change the parent attributes
             node.removeFromParent();
-            editScript.appendChange(Change.delete(oldPath, node.hasChildren()));
+            editScript.delete(oldPath, node.hasChildren());
         }
 
         //All nodes have the right parent and are matched or deleted later
@@ -206,7 +206,7 @@ class EditScriptGenerator {
                     const oldPath = node.toChildIndexPathString();
                     node.changeChildIndex(match.childIndex);
                     const newPath = node.toChildIndexPathString();
-                    editScript.appendChange(Change.move(oldPath, newPath));
+                    editScript.move(oldPath, newPath);
                 }
             }
 

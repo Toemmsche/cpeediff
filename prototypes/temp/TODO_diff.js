@@ -9,8 +9,7 @@
 //      IMPORTANT: compare path
 //      comparisons for remaining inner nodes
 //      fix model generator and implement change agent
-//      IMPORTANT rewrite placeholder not as parent attribute
-//      keep mod and readvariables after insert
+//      IMPORTANT rewrite placeholder not as parent attribute (maybe after)
 
 //TODO new algos
 //      q-gram distance for script comparison
@@ -32,9 +31,7 @@
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
 //      readVariables considers Code, too
-//      read and modified Variables as Getter???
 //      True preprocessor that spits out xml doc
-
 
 //TODO tidy
 //      no static methods

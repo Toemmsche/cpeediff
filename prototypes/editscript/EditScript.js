@@ -17,6 +17,7 @@
 const fs = require("fs");
 const xmldom= require("xmldom");
 const vkbeautify = require("vkbeautify");
+const {Change} = require("./Change");
 const {Dsl} = require("../Dsl");
 const {Serializable} = require("../utils/Serializable");
 
@@ -37,8 +38,22 @@ class EditScript extends Serializable {
         return this.changes.map(c => c.toString()).join("\n");
     }
 
-    appendChange(change) {
-        this.changes.push(change);
+
+
+    insert(newPath, newData, subtree = false) {
+        this.changes.push(new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newData));
+    }
+
+    delete(oldPath, subtree = false) {
+        this.changes.push(new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null,  null));
+    }
+
+    move(oldPath, newPath) {
+        this.changes.push(new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath,  newPath));
+    }
+
+    update(oldPath, newData) {
+        this.changes.push(new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData));
     }
 
     convertToXml(xmlDom = false) {

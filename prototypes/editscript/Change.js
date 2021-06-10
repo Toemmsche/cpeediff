@@ -35,22 +35,6 @@ class Change extends Serializable {
         this.newData = newData;
     }
 
-    static insert(newPath, newData, subtree = false) {
-        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newData);
-    }
-
-    static delete(oldPath, subtree = false) {
-        return new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null,  null);
-    }
-
-    static move(oldPath, newPath) {
-        return new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath,  newPath);
-    }
-
-    static update(oldPath, newData) {
-        return new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData);
-    }
-
     static parseFromXml(xml, xmlDom = false) {
         let root;
         if(xmlDom) {
