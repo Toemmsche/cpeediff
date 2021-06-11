@@ -56,6 +56,7 @@
 
 
 //TODO REWRITE
+//      use getOther() in matching
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      property-subtree

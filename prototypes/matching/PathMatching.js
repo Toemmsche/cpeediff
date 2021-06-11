@@ -57,7 +57,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
                     minCompareValue = compareValue;
                     // longestLCS = Lcs.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
                     //Discard all matching with a higher comparison value
-                    matching.unMatchNew(newLeafNode);
+                    matching.unmatchNew(newLeafNode);
                     matching.matchNew(newLeafNode, oldLeafNode)
                 }
             }
@@ -72,8 +72,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
         start = new Date().getTime();
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
-        for (const [newLeafNode, matchSet] of matching) {
-            matchPathExperimental(matchSet[Symbol.iterator]().next().value, newLeafNode);
+        for (const [newLeafNode, oldLeafNode] of matching) {
+            matchPathExperimental(oldLeafNode, newLeafNode);
         }
 
         end = new Date().getTime();
@@ -90,7 +90,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
             for (let i = 0; i < oldPath.length; i++) {
                 for (let k = j; k < newPath.length; k++) {
                     //does there already exist a match between the two paths?
-                    if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNewSingle(newPath[k]))) {
+                    if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNew(newPath[k]))) {
                         //If so, we terminate to preserve ancestor order within the path
                         return;
                     } else if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
@@ -122,44 +122,6 @@ class PathMatching extends AbstractMatchingAlgorithm {
             }
         }
 
-        /*
-        Step 4: Transform one-to-many (new to old) inner node matching into one-to-one matching.
-         */
-        matching.reduceNew((newInnerNode, matchSet) => {
-            //choose the old node with the highest similarity value
-            let maxSimilarityValue = 0;
-            let maxSimilarityNode = null;
-            for (const oldInnerNode of matchSet) {
-                const similarityValue = matchingSimilarity(oldInnerNode, newInnerNode);
-                if (similarityValue > maxSimilarityValue) {
-                    maxSimilarityValue = similarityValue;
-                    maxSimilarityNode = oldInnerNode;
-                }
-            }
-            matchSet.clear();
-            matchSet.add(maxSimilarityNode);
-        });
-
-        function matchingSimilarity(oldRootNode, newRootNode) {
-            //divide size of set of common nodes by size of old subtree
-            //only consider true descendants
-            const oldSubTreePreOrder = new CpeeModel(oldRootNode).toPreOrderArray();
-            const newSubTreePreOrder = new CpeeModel(newRootNode).toPreOrderArray();
-
-            if (oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
-                return 0;
-            }
-
-            let commonSize = 0;
-            for (const newNode of newSubTreePreOrder) {
-                if (matching.hasNew(newNode) && oldSubTreePreOrder.includes(matching.getNewSingle(newNode))) {
-                    commonSize++;
-                }
-            }
-
-            return commonSize / oldSubTreePreOrder.length;
-        }
-
         if (!matching.hasNew(newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
         }
@@ -169,7 +131,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
         //match properties of leaf nodes
         for (const newLeaf of newLeaves) {
             if (matching.hasNew(newLeaf)) {
-                matchProperties(newLeaf, matching.getNewSingle(newLeaf));
+                matchProperties(newLeaf, matching.getNew(newLeaf));
             }
         }
         end = new Date().getTime();

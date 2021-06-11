@@ -190,7 +190,7 @@ class CpeeNode extends Serializable {
         }
 
         function constructRecursive(tNode) {
-            let root = new this.constructor(tNode.localName);
+            let root = new CpeeNode(tNode.localName);
             for (let i = 0; i < tNode.childNodes.length; i++) {
                 const childTNode = tNode.childNodes.item(i);
                 if (childTNode.nodeType === 3) { //text node
@@ -204,10 +204,7 @@ class CpeeNode extends Serializable {
                     }
                 } else {
                     const child = constructRecursive(childTNode)
-                    //empty control nodes are null values (see below)
-                    if (child !== null) {
-                        root.appendChild(child);
-                    }
+                    root.appendChild(child);
                 }
             }
 

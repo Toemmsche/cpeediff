@@ -15,23 +15,20 @@
 */
 
 //TODO doc
+const {Serializable} = require("../utils/Serializable");
 const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 
-class CpeeModel {
+class CpeeModel extends Serializable{
 
     /**
      * @type CpeeNode
      */
     root;
-    /**
-     *  @type Set<String>
-     */
-    declaredVariables;
 
-    constructor(root, declaredVariables = new Set()) {
+    constructor(root) {
+        super();
         this.root = root;
-        this.declaredVariables = declaredVariables;
     }
 
     copy() {
@@ -52,6 +49,18 @@ class CpeeModel {
 
     leafNodes() {
         return this.toPreOrderArray().filter(n => n.isControlFlowLeafNode());
+    }
+
+    convertToXml(xmlDom = false) {
+        return this.root.convertToXml(xmlDom);
+    }
+
+    static parseFromXml(xml, xmlDom = false, deltaModel = false) {
+        if(deltaModel) {
+            return new CpeeModel(DeltaNode.parseFromXml(xml, xmlDom));
+        } else {
+            return new CpeeModel(CpeeNode.parseFromXml(xml, xmlDom));
+        }
     }
 }
 

@@ -24,7 +24,7 @@ const {TreeStringSerializer} = require("./serialize/TreeStringSerializer");
 const {DeltaTreeGenerator} = require("./patch/DeltaModelGenerator");
 const {Config} = require("./Config");
 const {PathMatching} = require("./matching/PathMatching");
-const {Parser} = require("./parse/Parser");
+const {Parser} = require("./parse/Preprocessor");
 const {MatchDiff} = require("./diffs/MatchDiff");
 
 

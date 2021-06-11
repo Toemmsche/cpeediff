@@ -1,5 +1,20 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
+    <call id="a1" endpoint="bookAir">
+        <parameters>
+            <label>Book Air</label>
+            <method>:post</method>
+            <arguments>
+                <from>data.from</from>
+                <to>data.to</to>
+                <persons>data.persons</persons>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+        </code>
+    </call>
     <parallel>
+        <manipulate id="sdfd">data.costs += 12</manipulate>
         <loop mode="pre_test" condition="data.persons > 0">
             <parallel_branch pass="data.persons" local="p">
                 <call id="a2" endpoint="bookHotel">
@@ -20,6 +35,9 @@
         </loop>
     </parallel>
     <choose mode="inclusive">
+        <otherwise>
+            <manipulate id="234523">data.duration = 1</manipulate>
+        </otherwise>
         <alternative condition="data.costs > 700">
             <call id="a4" endpoint="approve">
                 <parameters>
@@ -32,5 +50,4 @@
             </call>
         </alternative>
     </choose>
-    <stop id="a6"/>
 </description>

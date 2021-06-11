@@ -38,8 +38,6 @@ class EditScript extends Serializable {
         return this.changes.map(c => c.toString()).join("\n");
     }
 
-
-
     insert(newPath, newData, subtree = false) {
         this.changes.push(new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newData));
     }

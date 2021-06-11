@@ -2,7 +2,7 @@
     <loop condition="costs < 0">
         <call id="a1" endpoint="bookAir">
             <parameters>
-                <label>Book Airline</label>
+                <label>Book Airlines</label>
                 <method>:post</method>
                 <arguments>
                     <from>data.from</from>
@@ -36,20 +36,6 @@
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <call id="a4" endpoint="approve">
-                <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <costs>data.costs</costs>
-                    </arguments>
-                </parameters>
-            </call>
-            <escape id="asddf"></escape>
-        </alternative>
-    </choose>
+    <stop id="a6"></stop>
     <manipulate id="sdfd">data.costs += 12</manipulate>
-    <stop id="a6"/>
 </description>

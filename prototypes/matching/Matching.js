@@ -20,7 +20,7 @@ const {CpeeModel} = require("../cpee/CpeeModel");
 class Matching {
 
     /**
-     * @type Map<CpeeNode,Set<CpeeNode>>
+     * @type Map<CpeeNode,CpeeNode>
      */
     newToOldMap;
     oldToNewMap;
@@ -37,37 +37,30 @@ class Matching {
 
     matchNew(newNode, oldNode) {
         this._needsPropagation = true;
-        if(!this.newToOldMap.has(newNode)) {
-            this.newToOldMap.set(newNode, new Set());
-        }
-        if(!this.newToOldMap.get(newNode).has(oldNode)) {
-            this.newToOldMap.get(newNode).add(oldNode);
-        }
+        this.newToOldMap.set(newNode, oldNode);
     }
 
-    unMatchNew(newNode) {
+    unmatchNew(newNode) {
         this._needsPropagation = true;
-        if(this.newToOldMap.has(newNode)) {
-           this.newToOldMap.set(newNode, new Set());
-        }
+        this.newToOldMap.delete(newNode);
     }
 
     getNew(newNode) {
         return this.newToOldMap.get(newNode);
     }
 
-    getNewSingle(newNode) {
-        return this.newToOldMap.get(newNode)[Symbol.iterator]().next().value;
-    }
 
     getOld(oldNode) {
         this._propagate();
         return this.oldToNewMap.get(oldNode);
     }
 
-    getOldSingle(oldNode) {
-        this._propagate();
-        return this.oldToNewMap.get(oldNode)[Symbol.iterator]().next().value;
+    getOther(node) {
+        if(this.hasNew(node)) {
+            return this.getNew(node);
+        } else {
+            return this.getOld(node);
+        }
     }
 
     hasAny(node) {
@@ -75,44 +68,27 @@ class Matching {
     }
 
     hasNew(newNode) {
-        return this.newToOldMap.has(newNode) && this.newToOldMap.get(newNode).size > 0;
+        return this.newToOldMap.has(newNode);
     }
 
     hasOld(oldNode) {
         this._propagate();
-        return this.oldToNewMap.has(oldNode)&& this.oldToNewMap.get(oldNode).size > 0;
+        return this.oldToNewMap.has(oldNode);
     }
 
     areMatched(oldNode, newNode) {
         //TODO replace wit hequals()
-        return this.hasNew(newNode) && this.getNewSingle(newNode) === oldNode;
+        return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
     }
 
     _propagate() {
         if (this._needsPropagation) {
             this.oldToNewMap = new Map();
-            for(const [newNode, oldMatchSet] of this.newToOldMap) {
-                for(const oldNode of oldMatchSet) {
-                    if(!this.oldToNewMap.has(oldNode)) {
-                        this.oldToNewMap.set(oldNode, new Set());
-                    }
-                    this.oldToNewMap.get(oldNode).add(newNode);
-                }
+            for(const [newNode, oldMatch] of this.newToOldMap) {
+               this.oldToNewMap.set(oldMatch, newNode);
             }
             this._needsPropagation = false;
         }
-    }
-
-    reduceNew(reducer) {
-        for(const [newNode, matchSet] of this.newToOldMap) {
-            if(matchSet.size > 1) {
-                reducer(newNode, matchSet);
-                if(matchSet.size > 1) {
-                    throw new Error("Multiple matched nodes left after reduction");
-                }
-            }
-        }
-        this._needsPropagation = true;
     }
 
     [Symbol.iterator]() {

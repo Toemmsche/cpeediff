@@ -44,10 +44,10 @@ class EditScriptGenerator {
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two cpee models
             if (newNode.parent == null) continue;
-            const matchOfParent = matching.getNewSingle(newNode.parent);
+            const matchOfParent = matching.getNew(newNode.parent);
             if (matching.hasNew(newNode)) {
                 //new Node has a match in the old model
-                const match = matching.getNewSingle(newNode);
+                const match = matching.getNew(newNode);
                 //is a copy?
                 const newMatches = matching.getOld(match);
                 if (newMatches.size > 1) {
@@ -55,7 +55,7 @@ class EditScriptGenerator {
                     //TODO actually compute best NIL
                     for (const newMatch of newMatches) {
                         if (newMatch !== newNode) {
-                            matching.unMatchNew(newMatch);
+                            matching.unmatchNew(newMatch);
                         }
                     }
                 }
@@ -69,7 +69,7 @@ class EditScriptGenerator {
                     if(newNode.childIndex > 0) {
                         const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
                         //left sibling has a match
-                        insertionIndex = matching.getNewSingle(leftSibling).childIndex + 1;
+                        insertionIndex = matching.getNew(leftSibling).childIndex + 1;
                     } else {
                         insertionIndex = 0;
                     }
@@ -106,7 +106,7 @@ class EditScriptGenerator {
                 if(newNode.childIndex > 0) {
                     const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
                     //left sibling has a match
-                    insertionIndex = matching.getNewSingle(leftSibling).childIndex + 1;
+                    insertionIndex = matching.getNew(leftSibling).childIndex + 1;
                 } else {
                     insertionIndex = 0;
                 }
@@ -156,7 +156,7 @@ class EditScriptGenerator {
                 }
 
                 //map each old child node to the child index of its matching partner
-                const arr = reshuffle.map(n => matching.getOldSingle(n).childIndex);
+                const arr = reshuffle.map(n => matching.getOld(n).childIndex);
 
                 //avoid expensive dynamic programming procedure if children are already ordered
                 let ascending = true;
@@ -202,7 +202,7 @@ class EditScriptGenerator {
                 }
 
                 for (const node of reshuffle) {
-                    const match = matching.getOldSingle(node);
+                    const match = matching.getOld(node);
                     const oldPath = node.toChildIndexPathString();
                     node.changeChildIndex(match.childIndex);
                     const newPath = node.toChildIndexPathString();

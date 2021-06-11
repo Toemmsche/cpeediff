@@ -16,6 +16,7 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
 const {MatchMerger} = require("../merge/MatchMerger");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
@@ -30,7 +31,6 @@ const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
 const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
-const {Parser} = require("../parse/Parser");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
 
@@ -43,9 +43,9 @@ const xmlB = fs.readFileSync(file2).toString();
 const xmlC = fs.readFileSync(file3).toString();
 
 
-let model1 = Parser.fromCpee(xmlA);
-let model2 = Parser.fromCpee(xmlB);
-let model3 = Parser.fromCpee(xmlC);
+let model1 = new Preprocessor().prepare(xmlA);
+let model2 =  new Preprocessor().prepare(xmlB);
+let model3 =  new Preprocessor().prepare(xmlC);
 
 
 console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length + " i: " + (model1.toPostOrderArray().length - model1.leafNodes().length));

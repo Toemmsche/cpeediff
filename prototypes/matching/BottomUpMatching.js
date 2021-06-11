@@ -29,6 +29,43 @@ class BottomUpMatching extends AbstractMatchingAlgorithm {
     }
 
     static match(oldModel, newModel, matching = new Matching(), t = 0.1) {
+        /*
+               Step 4: Transform one-to-many (new to old) inner node matching into one-to-one matching.
+                */
+        matching.reduceNew((newInnerNode, matchSet) => {
+            //choose the old node with the highest similarity value
+            let maxSimilarityValue = 0;
+            let maxSimilarityNode = null;
+            for (const oldInnerNode of matchSet) {
+                const similarityValue = matchingSimilarity(oldInnerNode, newInnerNode);
+                if (similarityValue > maxSimilarityValue) {
+                    maxSimilarityValue = similarityValue;
+                    maxSimilarityNode = oldInnerNode;
+                }
+            }
+            matchSet.clear();
+            matchSet.add(maxSimilarityNode);
+        });
+
+        function matchingSimilarity(oldRootNode, newRootNode) {
+            //divide size of set of common nodes by size of old subtree
+            //only consider true descendants
+            const oldSubTreePreOrder = new CpeeModel(oldRootNode).toPreOrderArray();
+            const newSubTreePreOrder = new CpeeModel(newRootNode).toPreOrderArray();
+
+            if (oldSubTreePreOrder.length === 0 || newSubTreePreOrder.length === 0) {
+                return 0;
+            }
+
+            let commonSize = 0;
+            for (const newNode of newSubTreePreOrder) {
+                if (matching.hasNew(newNode) && oldSubTreePreOrder.includes(matching.getNewSingle(newNode))) {
+                    commonSize++;
+                }
+            }
+
+            return commonSize / oldSubTreePreOrder.length;
+        }
 
         const newLeaves = newModel.leafNodes();
         const oldLeaves = oldModel.leafNodes();
