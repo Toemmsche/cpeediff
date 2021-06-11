@@ -35,7 +35,6 @@
 
 //TODO tidy
 //      no static methods
-//      move change static methods into editscript
 //      colors in delta output
 //      replace nodeequals with === where applicable
 //      encapsulate handleInsert() in edit script generation
@@ -43,15 +42,11 @@
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
 //      fix parallel
-//      replace label comparison with instanceof
-//      use multiple inheritance for call otherwise etc.
 //      find cleaner way to get node attributes (e.g. is property node)
 //      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
 //      maybe change member variable declaration and initiliazation
-//      use constructor for node comparison
 //      move node boolean flags into cpeemodel to keep semantic parsing in one place
-//      rename root to node in model
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
 //      change TNode name (maybe element or text)
@@ -77,10 +72,13 @@ Merge Ideas:
 
 
 3way:
-idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree
+idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree (DeltaMerger)
 
 idea 2: Merge the set of leaf nodes, then
+ */
 
+/*
+pipeline
 
-Merge edit script between base and T1 into T2 using merge algorithm
+Parser -> preprocessor -> validator -> match -> editScript -> deltaTree -> merge
  */
