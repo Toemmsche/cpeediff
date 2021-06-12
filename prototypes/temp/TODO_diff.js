@@ -58,7 +58,7 @@
 
 
 //TODO REWRITE
-//      use getOther() in matching
+//      deltaTree is result of editScriptFActory
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      property-subtree
@@ -84,4 +84,17 @@ idea 2: Merge the set of leaf nodes, then
 pipeline
 
 Parser -> preprocessor -> validator -> match -> editScript -> deltaTree -> merge
+ */
+
+/*
+Problems with examined matching algorithms:
+Chawathe - Match & Fastmatch: Acyclicity condition is not satisfied
+Kyong Ho lee - PathMatch: Scenarios with single inserts yield unfavourable matching results
+RWS-Diff: complex implementation of index structures. Performance is not the focus -> O(n²) is acceptable
+
+Tekli et al.: Move operation is not considered
+XCC: parent match condition -> not suitable for operation focused edit scripts
+Cobena - XyDiff: Perofmrance is not an issue -> subtree hashing is sensitive to small changes.
+brazil - Similarity matching: Too expensive, hungarian algorithm is O(n³)
+wang K-Diff+: No move operation, weird matching
  */

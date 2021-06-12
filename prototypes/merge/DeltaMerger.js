@@ -34,6 +34,7 @@ class DeltaMerger {
         const dt2 = DeltaModelGenerator.deltaTree(base, delta2);
 
         const matching = PathMatching.match(dt1, dt2);
+        //TODO always match nodes that have been matched to the same node in base
 
         for (const node1 of dt1.toPreOrderArray()) {
             node1.label = "1_" + node1.label;

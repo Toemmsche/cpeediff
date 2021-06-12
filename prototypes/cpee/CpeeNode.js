@@ -165,6 +165,31 @@ class CpeeNode extends Serializable {
         }
         return readVariables;
     }
+    
+    contentHash() {
+        const sortedAttrList = new Array(this.attributes.keys()).sort()
+        let contentHash= this.label;
+        for(const key in sortedAttrList) {
+            contentHash+= key + "=" + this.attributes.get(key);
+        }
+        contentHash+= this.data;
+        return contentHash;
+    }
+    
+    childHash() {
+        let childHash = "";
+        if(this.hasInternalOrdering()) {
+            //preserve order
+            childHash += this._childNodes.map(n => n.nodeHash()).join("");
+        } else {
+            childHash += this._childNodes.map(n => n.nodeHash()).sort().join("");
+        }
+        return childHash;
+    }
+
+    nodeHash() {
+        return this.contentHash() + this.childHash();
+    }
 
     static parseFromXml(xml, xmlDom = false) {
         if (xmlDom) {

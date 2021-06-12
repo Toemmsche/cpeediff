@@ -90,8 +90,11 @@ class PathMatching extends AbstractMatchingAlgorithm {
         Step 3: Match inner nodes.
          */
         start = new Date().getTime();
+
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
+
+        const newInnersMap = new Map();
         for (const [newLeaf, oldLeaf] of matching) {
             matchPathExperimental(oldLeaf, newLeaf);
         }
@@ -100,6 +103,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
 
         console.log("matching paths took " + (end - start) + "ms");
 
+        //running time hypothesis: O(n)
         function matchPath(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
             const newPath = newLeaf.path.slice().reverse().slice(1);
@@ -122,8 +126,25 @@ class PathMatching extends AbstractMatchingAlgorithm {
                 }
             }
         }
+        /*
+        Potential new matching approach:
+        Hash leaf nodes using a number hash
+        apply hash matching like in RWS Diff
+        compare remaining leaf nodes with comparator()
+        match inner nodes with equal hash()
 
+        group inner nodes by label-buckets
+        compare using content and sets (or lists) of contained hashes and path to root (only heuristically)
 
+        worst case: O(n²)
+
+        round off with top-down matching and matchSimilarUnmatched()
+
+        additional considerations:
+        large subtree matchings (same hash) could force path matching (threshold?)
+         */
+
+        //hypothesis: O(n²)
         function matchPathExperimental(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
             const newPath = newLeaf.path.slice().reverse().slice(1);
@@ -170,6 +191,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
             }
 
         }
+
+        //TODO matchSimilarUnmatched()
 
         return matching;
     }
