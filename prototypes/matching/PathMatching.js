@@ -45,20 +45,40 @@ class PathMatching extends AbstractMatchingAlgorithm {
         */
 
         let start = new Date().getTime();
-        //The treshold t dictates how similar two leaf nodes have to be in order to be matched (Matching Criterion 1)
-        for (const newLeafNode of newLeaves) {
-            //the minimum compare value
-            let minCompareValue = 2;
-            for (const oldLeafNode of oldLeaves) {
-                const compareValue = comparator.compare(newLeafNode, oldLeafNode);
-                let longestLCS = -1;
-                if (compareValue < minCompareValue
-                    && compareValue <= Config.LEAF_SIMILARITY_THRESHOLD) {
-                    minCompareValue = compareValue;
-                    // longestLCS = Lcs.getLCS(oldLeafNode.path, newLeafNode.path, (a,b) => a.label === b.label);
-                    //Discard all matching with a higher comparison value
-                    matching.unmatchNew(newLeafNode);
-                    matching.matchNew(newLeafNode, oldLeafNode)
+
+        //Use buckets for each label
+        const newLabelMap = new Map();
+        const oldLabelMap = new Map();
+        for (const newLeaf of newLeaves) {
+            if (!newLabelMap.has(newLeaf.label)) {
+                newLabelMap.set(newLeaf.label, []);
+            }
+            newLabelMap.get(newLeaf.label).push(newLeaf);
+        }
+        for (const oldLeaf of oldLeaves) {
+            if (!oldLabelMap.has(oldLeaf.label)) {
+                oldLabelMap.set(oldLeaf.label, []);
+            }
+            oldLabelMap.get(oldLeaf.label).push(oldLeaf);
+        }
+        for (const [label, newNodeList] of newLabelMap) {
+            if (oldLabelMap.has(label)) {
+                for (const newLeaf of newNodeList) {
+                    //the minimum compare value
+                    let minCompareValue = 2;
+                    for (const oldLeaf of oldLabelMap.get(label)) {
+                        const compareValue = comparator.compare(newLeaf, oldLeaf);
+                        let longestLCS = -1;
+                        if (compareValue < minCompareValue
+                            //The treshold t dictates how similar two leaf nodes have to be in order to be matched (Matching Criterion 1)
+                            && compareValue <= Config.LEAF_SIMILARITY_THRESHOLD) {
+                            minCompareValue = compareValue;
+                            // longestLCS = Lcs.getLCS(oldLeaf.path, newLeaf.path, (a,b) => a.label === b.label);
+                            //Discard all matching with a higher comparison value
+                            matching.unmatchNew(newLeaf);
+                            matching.matchNew(newLeaf, oldLeaf)
+                        }
+                    }
                 }
             }
         }
@@ -72,18 +92,18 @@ class PathMatching extends AbstractMatchingAlgorithm {
         start = new Date().getTime();
         //Every pair of matched leaf nodes induces a comparison of the respective node paths from root to parent
         //to find potential matches.
-        for (const [newLeafNode, oldLeafNode] of matching) {
-            matchPathExperimental(oldLeafNode, newLeafNode);
+        for (const [newLeaf, oldLeaf] of matching) {
+            matchPathExperimental(oldLeaf, newLeaf);
         }
 
         end = new Date().getTime();
 
         console.log("matching paths took " + (end - start) + "ms");
 
-        function matchPath(oldLeafNode, newLeafNode) {
+        function matchPath(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
-            const newPath = newLeafNode.path.slice().reverse().slice(1);
-            const oldPath = oldLeafNode.path.slice().reverse().slice(1);
+            const newPath = newLeaf.path.slice().reverse().slice(1);
+            const oldPath = oldLeaf.path.slice().reverse().slice(1);
 
             //index in newPath where last matching occurred
             let j = 0;
@@ -104,10 +124,10 @@ class PathMatching extends AbstractMatchingAlgorithm {
         }
 
 
-        function matchPathExperimental(oldLeafNode, newLeafNode) {
+        function matchPathExperimental(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
-            const newPath = newLeafNode.path.slice().reverse().slice(1);
-            const oldPath = oldLeafNode.path.slice().reverse().slice(1);
+            const newPath = newLeaf.path.slice().reverse().slice(1);
+            const oldPath = oldLeaf.path.slice().reverse().slice(1);
 
             const lcs = Lcs.getLCS(newPath, oldPath, (a, b) => a.label === b.label, true);
 
@@ -139,12 +159,12 @@ class PathMatching extends AbstractMatchingAlgorithm {
 
         function matchProperties(newNode, oldNode) {
             //We assume that no two properties that are siblings in the xml tree share the same label
-            const labelMap = new Map();
+            const oldLabelMap = new Map();
             for (const oldChild of oldNode) {
-                labelMap.set(oldChild.label, oldChild);
+                oldLabelMap.set(oldChild.label, oldChild);
             }
             for (const newChild of newNode) {
-                const match = labelMap.get(newChild.label);
+                const match = oldLabelMap.get(newChild.label);
                 matching.matchNew(newChild, match);
             }
 
