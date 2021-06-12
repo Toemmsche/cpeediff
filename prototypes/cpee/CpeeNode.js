@@ -73,14 +73,6 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     *
-     * @param {CpeeNode} parentNode
-     */
-    set parent(parentNode) {
-        this._parent = parentNode;
-    }
-
-    /**
      * @type Number
      * @private
      */
@@ -91,14 +83,6 @@ class CpeeNode extends Serializable {
      */
     get childIndex() {
         return this._childIndex;
-    }
-
-    /**
-     *
-     * @param {Number} childIndex
-     */
-    set childIndex(childIndex) {
-        this._childIndex = childIndex;
     }
 
     /**
@@ -167,8 +151,9 @@ class CpeeNode extends Serializable {
     }
 
     get readVariables() {
+        //TODO extract from code as well
         const readVariables = new Set();
-        if (this.attributes.has("condition")) {
+        if (this.containsCondition()) {
             const condition = this.attributes.get("condition");
             const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
             if (matches !== null) {
@@ -338,12 +323,7 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     hasInternalOrdering() {
-        return [Dsl.KEYWORDS.LOOP,
-            Dsl.KEYWORDS.CRITICAL,
-            Dsl.KEYWORDS.ROOT,
-            Dsl.KEYWORDS.ALTERNATIVE,
-            Dsl.KEYWORDS.OTHERWISE,
-            Dsl.KEYWORDS.PARALLEL_BRANCH].includes(this.label);
+        return Dsl.INTERNAL_ORDERING_SET.has(this.label);
     }
 
     /**
@@ -351,11 +331,7 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isControlFlowLeafNode() {
-        return [Dsl.KEYWORDS.CALL,
-            Dsl.KEYWORDS.MANIPULATE,
-            Dsl.KEYWORDS.TERMINATE,
-            Dsl.KEYWORDS.STOP,
-            Dsl.KEYWORDS.ESCAPE].includes(this.label);
+        return Dsl.LEAF_NODE_SET.has(this.label);
     }
 
     /**
@@ -363,10 +339,7 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isPropertyNode() {
-        for (const cpeeKeyWord in Dsl.KEYWORDS) {
-            if (this.label === Dsl.KEYWORDS[cpeeKeyWord]) return false;
-        }
-        return true;
+       return !Dsl.KEYWORD_SET.has(this.label);
     }
 
     /**
@@ -377,15 +350,6 @@ class CpeeNode extends Serializable {
         return !this.isControlFlowLeafNode()
             && (this.data === "" || this.data == null)
             && !this.hasAttributes()
-            && !this.hasChildren();
-    }
-
-    /**
-     *
-     * @returns {boolean}
-     */
-    isDocumentation() {
-        return Config.PROPERTY_IGNORE_LIST.includes(this.label)
             && !this.hasChildren();
     }
 
@@ -421,7 +385,7 @@ class CpeeNode extends Serializable {
      */
     insertChild(index, node) {
         this._childNodes.splice(index, 0, node);
-        node.parent = this;
+        node._parent = this;
         this._fixChildIndices();
     }
 
@@ -448,7 +412,7 @@ class CpeeNode extends Serializable {
 
     _fixChildIndices() {
         for (let i = 0; i < this._childNodes.length; i++) {
-            this._childNodes[i].childIndex = i;
+            this._childNodes[i]._childIndex = i;
         }
     }
 
@@ -470,10 +434,6 @@ class CpeeNode extends Serializable {
     toChildIndexPathString() {
         //discard root node
         return this.path.map(n => n.childIndex).join("/");
-    }
-
-    toLabelPathString() {
-        return this.path.map(n => n.label).join("/");
     }
 
     toPropertyPathString() {

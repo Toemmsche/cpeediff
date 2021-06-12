@@ -65,12 +65,16 @@ class Preprocessor {
                 if (endpointToURL.has(endpoint)) {
                    node.attributes.set("endpoint", endpointToURL.get(endpoint));
                 }
-            } else if(node.label === Dsl.KEYWORDS.CALL) {
+            } else if(node.label === Dsl.KEYWORDS.CALL.label) {
                 node.attributes.set("endpoint", Math.floor(Math.random * 1000000).toString()); //random endpoint
             }
 
             //TODO move semantic methods that are only moved once to the caller class (or extractor)
-            if(!node.isControlFlowLeafNode() && (node.isDocumentation() || !node.hasChildren())) {
+            //todo rework this mdess
+            if(!node.isControlFlowLeafNode() && (
+                (node.isPropertyNode() && Config.PROPERTY_IGNORE_LIST.includes(node.label))
+                || (!node.isPropertyNode() && !node.hasChildren())
+                || (node.isPropertyNode() && node.isEmpty()))) {
                 node.removeFromParent();
             }
 

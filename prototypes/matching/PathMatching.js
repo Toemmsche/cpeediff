@@ -135,19 +135,19 @@ class PathMatching extends AbstractMatchingAlgorithm {
             }
         }
         end = new Date().getTime();
-        console.log("matching properties took " + (end -start) + "ms");
+        console.log("matching properties took " + (end - start) + "ms");
 
         function matchProperties(newNode, oldNode) {
-            //TODO bucket matching
-            for (const newChild of newNode) {
-                for (const oldChild of oldNode) {
-                    //label equality is sufficient
-                    if (newChild.label === oldChild.label) {
-                        matching.matchNew(newChild, oldChild);
-                        matchProperties(newChild, oldChild);
-                    }
-                }
+            //We assume that no two properties that are siblings in the xml tree share the same label
+            const labelMap = new Map();
+            for (const oldChild of oldNode) {
+                labelMap.set(oldChild.label, oldChild);
             }
+            for (const newChild of newNode) {
+                const match = labelMap.get(newChild.label);
+                matching.matchNew(newChild, match);
+            }
+
         }
 
         return matching;

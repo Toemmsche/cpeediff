@@ -17,7 +17,6 @@
 const {Dsl} = require("../Dsl");
 const {CpeeModel} = require("../cpee/CpeeModel");
 const {CpeeNode} = require("../cpee/CpeeNode");
-const {Serializable} = require("../utils/Serializable");
 
 class ModelGenerator {
 

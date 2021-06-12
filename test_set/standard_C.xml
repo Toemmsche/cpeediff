@@ -2,7 +2,7 @@
     <loop condition="costs < 0">
         <call id="a1" endpoint="bookAir">
             <parameters>
-                <label>Book Airlines</label>
+                <label>Book AirlinesNEW</label>
                 <method>:post</method>
                 <arguments>
                     <from>data.from</from>

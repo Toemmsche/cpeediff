@@ -22,6 +22,7 @@
 //      conflict groups for reshuffling (toggleable)
 
 //TODO semi-features
+//      move index as attribute in delta tree (use prefix or namespace delta:)
 //      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
 //      output path instead of attributes
@@ -34,6 +35,7 @@
 //      True preprocessor that spits out xml doc
 
 //TODO tidy
+//      make insertChild() call removeFromparent(),
 //      no static methods
 //      colors in delta output
 //      replace nodeequals with === where applicable

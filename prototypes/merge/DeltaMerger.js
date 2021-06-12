@@ -44,115 +44,80 @@ class DeltaMerger {
 
         console.log(TreeStringSerializer.serializeDeltaTree(dt1));
         console.log(TreeStringSerializer.serializeDeltaTree(dt2));
-        console.log("wd");
 
-        //FIRST PASS: detect moves and insertions in T1
-        outer1: for (const node1 of dt1.toPreOrderArray()) {
-            //root is always matched
-            if (node1.parent == null) continue;
-            if (matching.hasOld(node1)) {
-                const match2 = matching.getOld(node1);
+        const deleteConflicts = [];
+        const deleteDescendantConflicts = [];
+        const updateConflicts = new Set();
+        const moveConflicts = new Set();
 
-                if (matching.areMatched(node1.parent, match2.parent)) {
-                    console.log("True nil for " + node1.label);
-                } else if (!node1.isMove() && match2.isMove()) {
-                    //node was moved in T2 --> apply move to T1
-                    if (matching.hasNew(match2.parent)) {
-                        //Trivial case, parent has match
-                        const matchOfParent1 = matching.getNew(match2.parent);
-                        node1.removeFromParent();
-                        insertCorrectly(matchOfParent1, node1, match2);
-                    } else {
-                        //parent doesnt have a match -> was inserted
-                        console.log("save for later...");
-                    }
+        traverse(dt1);
+        traverse(dt2);
 
-                } else if (node1.isMove() && !match2.isMove()) {
-                    //node was moved in T1 --> apply move to T2
-                    const matchOfParent2 = matching.getOld(node1.parent);
-                    match2.removeFromParent();
-                    insertCorrectly(matchOfParent2, match2, node1);
-                }
-
-                if (node1.isUpdate() && !match2.isUpdate()) {
-                    //update match
-                    for (const [key, val] of node1.attributes) {
-                        match2.attributes.set(key, val);
-                    }
-                    match2.data = node1.data;
-                    match2.updates = node1.updates;
-                } else if (!node1.isUpdate() && match2.isUpdate()) {
-                    //update node
-                    for (const [key, val] of match2.attributes) {
-                        node1.attributes.set(key, val);
-                    }
-                    node1.data = match2.data;
-                    node1.updates = match2.updates;
-                }
-
-            } else if (node1.isInsertion()) {
-                //node was either inserted in T1 and not in T2
-                //OR
-                //node was deleted in T2 but not in T1
-                //node was inserted in T1 --> insert in T2
-                const copy = node1.copy(false);
-                if(matching.hasOld(node1.parent)) {
-                    const matchOfParent2 = matching.getOld(node1.parent);
-                    insertCorrectly(matchOfParent2, copy, node1);
-                    matching.matchNew(copy, node1);
-                } else {
-                    console.log("save for later...");
-                }
-
-            } else {
-                //node was either moved or kept in T1, but deleted in T2 --> delete in T1
-
-                //first, check for conflict with descendants
-                for (const descendant of node1.toPreOrderArray().slice(1)) {
-                    if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node1.isUpdate()) {
-                        console.log("save for later...");
-                        continue outer1;
-                    }
-                }
-                node1.removeFromParent();
-            }
-
-        }
-
-        //Detect insertions in T2
-        outer2: for (const node2 of dt2.toPreOrderArray()) {
-            //root is always matched
-            if (node2.parent == null) continue;
-            if (!matching.hasNew(node2)) {
-                //node was either inserted in T2 and not in T1
-                //OR
-                //node was deleted in T1 but not in T2
-
-                if (node2.isInsertion()) {
-                    //node was inserted in T2 --> insert in T1
-                    const copy = node2.copy(false);
-                    if(matching.hasNew(node2.parent)) {
-                        const matchOfParent1 = matching.getNew(node2.parent);
-                        insertCorrectly(matchOfParent1, copy, node2);
-                        matching.matchNew(node2, copy);
-                    } else {
-                        console.log("save for later..");
-                    }
-
-                } else {
-                    //node was either moved or kept in T2, but deleted in T1 --> delete in T2
-                    //first, check for conflict with descendants
-                    for (const descendant of node2.toPreOrderArray().slice(1)) {
-                        if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node2.isUpdate()) {
-                            console.log("save for later...");
-                            continue outer2;
+        function traverse(deltaTree) {
+            outer: for (const node of deltaTree.toPreOrderArray()) {
+                if (node.parent == null) continue;
+                if (matching.hasAny(node)) {
+                    const match = matching.getOther(node);
+                    if (matching.areMatched(node.parent, match.parent)) {
+                        console.log("True nil for " + node.label);
+                    } else if (node.isMove() && !match.isMove()) {
+                        //node was moved in this tree, but not in the other one --> apply move to other tree
+                        const matchOfParent = matching.getOther(node.parent);
+                        match.removeFromParent();
+                        insertCorrectly(matchOfParent, match, node);
+                    } else if(node.isMove() && match.isMove()) {
+                        console.log("move conflict");
+                        if(!moveConflicts.has(match)) {
+                            moveConflicts.add(node);
                         }
                     }
-                    node2.removeFromParent();
+
+                    if (node.isUpdate() && !match.isUpdate()) {
+                        //update match
+                        for (const [key, val] of node.attributes) {
+                            match.attributes.set(key, val);
+                        }
+                        match.data = node.data;
+                        match.updates = node.updates;
+                    } else if(node.isUpdate() && match.isUpdate())  {
+                        console.log("udpate conflict");
+                        if(!updateConflicts.has(match)) {
+                            updateConflicts.add(node);
+                        }
+                    }
+                } else {
+                    if (node.isInsertion()) {
+                        //node was inserted in this Tree, not in the other --> insert in other tree
+                        const copy = node.copy(false);
+                        if (matching.hasAny(node.parent)) {
+                            const matchOfParent = matching.getOther(node.parent);
+                            insertCorrectly(matchOfParent, copy, node);
+                            //TODO decide dynamically
+                            if (dt1.toPreOrderArray().includes(node)) {
+                                matching.matchNew(node, copy);
+                            } else {
+                                matching.matchNew(copy, node);
+                            }
+                        } else {
+                            console.log("save for later..");
+                        }
+                    } else {
+                        if (node.isMove() || node.isUpdate()) {
+                            deleteConflicts.push(node);
+                            continue outer;
+                        }
+                        //node was either moved or kept in this Tree, but deleted in the other --> delete in this tree, too
+                        for (const descendant of node.toPreOrderArray().slice(1)) {
+                            if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node.isUpdate()) {
+                                deleteDescendantConflicts.push(descendant);
+                                continue outer;
+                            }
+                        }
+                        node.removeFromParent();
+                    }
                 }
             }
         }
-        console.log(TreeStringSerializer.serializeDeltaTree(dt1));
 
         function insertCorrectly(newParent, nodeToInsert, referenceNode) {
             //TODO consider order conflicts (mark nodes as newly inserted)
@@ -168,77 +133,44 @@ class DeltaMerger {
                 newParent.insertChild(match.childIndex + 1, nodeToInsert);
             }
         }
-
-        //SECOND PASS: resolve move and update conflicts
-        for (const node1 of dt1.toPreOrderArray()) {
-            //root is always matched
-            if (node1.parent == null) continue;
-            if (matching.hasOld(node1)) {
-
-                const match2 = matching.getOld(node1);
-
-                if (node1.isMove() && match2.isMove()) {
-                    console.log("move conflict, using move 1");
-                    const matchOfParent2 = matching.getOld(node1.parent);
-                    match2.removeFromParent();
-                    insertCorrectly(matchOfParent2, match2, node1);
-                }
-
-                if (node1.isUpdate() && match2.isUpdate()) {
-                    //TODO use updates provided in delta node (e.g. if something is changed to shorter value, it will be disregarded)
-                    //merge attributes
-                    for (const [key, value] of node1.attributes) {
-                        if (!match2.attributes.has(key) || match2.attributes.get(key).length < value.length) {
-                            match2.attributes.set(key, value);
-                        }
-                    }
-                    for (const [key, value] of match2.attributes) {
-                        if (!node1.attributes.has(key) || node1.attributes.get(key).length < value.length) {
-                            node1.attributes.set(key, value);
-                        }
-                    }
-
-                    //merge data
-                    if (node1.data == null || match2.data.length > node1.data.length) {
-                        node1.data = match2.data;
-                    } else {
-                        match2.data = node1.data;
-                    }
-
-                    console.log("Resolved update on same node conflict");
+        
+        //resolve update conflicts
+        for(const node  of updateConflicts) {
+            const match = matching.getOther(node);
+            //TODO use updates provided in delta node (e.g. if something is changed to shorter value, it will be disregarded)
+            //merge attributes
+            for (const [key, value] of node.attributes) {
+                if (!match.attributes.has(key) || match.attributes.get(key).length < value.length) {
+                    match.attributes.set(key, value);
                 }
             }
-        }
-
-        for (const node1 of dt1.toPreOrderArray()) {
-            if (!matching.hasOld(node1) && !node1.isInsertion()) {
-                //node was either moved or kept in T1, but deleted in T2 --> delete in T1
-                //first, check for conflict with descendants
-                for (const descendant of node1.toPreOrderArray()) {
-                    if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate()) {
-                        throw new Error("delete vs insertion or move or update conflict");
-                    }
+            for (const [key, value] of match.attributes) {
+                if (!node.attributes.has(key) || node.attributes.get(key).length < value.length) {
+                    node.attributes.set(key, value);
                 }
-                node1.removeFromParent();
             }
+            //merge data
+            if (node.data == null || match.data.length > node.data.length) {
+                node.data = match.data;
+            } else {
+                match.data = node.data;
+            }
+            updateConflicts.delete(node);
+            console.log("Resolved update on same node conflict");
         }
 
-
-        //Detect insertions in T2
-        for (const node2 of dt2.toPreOrderArray()) {
-            //root is always matched
-            if (node2.parent == null) continue;
-            if (!matching.hasNew(node2) && !node2.isInsertion()) {
-                //node was either moved or kept in T2, but deleted in T1 --> delete in T2
-                //first, check for conflict with descendants
-                for (const descendant of node2.toPreOrderArray()) {
-                    if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node2.isUpdate()) {
-                        throw new Error("delete vs insertion or move or update conflict");
-                    }
-                }
-                node2.removeFromParent();
-            }
+        for (const node of moveConflicts) {
+            //use move 1
+            const match = matching.getOther(node);
+            const matchOfParent = matching.getOther(node.parent);
+            match.removeFromParent();
+            insertCorrectly(matchOfParent, match, node);
+            moveConflicts.delete(node);
+            console.log("Resolved move conflict");
         }
+
+        //TODO resolve delete and descendant delete conflicts
+        //TODO resolve node order --> semantic aspects
 
         console.log(dt1.root.convertToXml());
     }

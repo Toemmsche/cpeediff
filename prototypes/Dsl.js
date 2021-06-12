@@ -17,22 +17,92 @@
 class Dsl {
 
     static KEYWORDS = {
-        ROOT: "description",
-        CALL: "call",
-        MANIPULATE: "manipulate",
-        PARALLEL: "parallel",
-        PARALLEL_BRANCH: "parallel_branch",
-        CHOOSE: "choose",
-        ALTERNATIVE: "alternative",
-        OTHERWISE: "otherwise",
-        LOOP: "loop",
-        CRITICAL: "critical",
-        STOP: "stop",
-        ESCAPE: "escape",
-        TERMINATE: "terminate"
+        ROOT: {
+            label: "description",
+            isLeaf: false,
+            isOrdered: true
+        },
+        CALL: {
+            label: "call",
+            isLeaf: true,
+            isOrdered: false
+        },
+        MANIPULATE: {
+            label: "manipulate",
+            isLeaf: true,
+            isOrdered: false
+        },
+        PARALLEL: {
+            label: "parallel",
+            isLeaf: false,
+            isOrdered: false
+        },
+        PARALLEL_BRANCH: {
+            label: "parallel_branch",
+            isLeaf: false,
+            isOrdered: true
+        },
+        CHOOSE: {
+            label: "choose",
+            isLeaf: false,
+            isOrdered: false
+        },
+        ALTERNATIVE: {
+            label: "alternative",
+            isLeaf: false,
+            isOrdered: true
+        },
+        OTHERWISE: {
+            label: "otherwise",
+            isLeaf: false,
+            isOrdered: true
+        },
+        LOOP: {
+            label: "loop",
+            isLeaf: false,
+            isOrdered: true
+        },
+        CRITICAL: {
+            label: "critical",
+            isLeaf: false,
+            isOrdered: true
+        },
+        STOP: {
+            label: "stop",
+            isLeaf: true,
+            isOrdered: false
+        },
+        ESCAPE: {
+            label: "escape",
+            isLeaf: true,
+            isOrdered: false
+        },
+        TERMINATE: {
+            label: "terminate",
+            isLeaf: true,
+            isOrdered: false
+        }
     }
 
+    static KEYWORD_SET = new Set(Object
+        .keys(Dsl.KEYWORDS)
+        .map(key => Dsl.KEYWORDS[key])
+        .map(k => k.label));
+
+    static LEAF_NODE_SET = new Set(Object
+        .keys(Dsl.KEYWORDS)
+        .map(key => Dsl.KEYWORDS[key])
+        .filter(k => k.isLeaf)
+        .map(k => k.label));
+
+    static INTERNAL_ORDERING_SET = new Set(Object
+        .keys(Dsl.KEYWORDS)
+        .map(key => Dsl.KEYWORDS[key])
+        .filter(k => k.isOrdered)
+        .map(k => k.label));
+
     static CHANGE_TYPES = {
+        //TODO turn into objects with more info (e.g. namespaces)
         INSERTION: "INSERT",
         DELETION: "DELETE",
         SUBTREE_INSERTION: "INSERT SUBTREE",
