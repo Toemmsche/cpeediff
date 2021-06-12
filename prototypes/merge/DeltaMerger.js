@@ -45,8 +45,8 @@ class DeltaMerger {
         console.log(TreeStringSerializer.serializeDeltaTree(dt1));
         console.log(TreeStringSerializer.serializeDeltaTree(dt2));
 
-        const deleteConflicts = [];
-        const deleteDescendantConflicts = [];
+        const deleteConflicts = new Set();
+        const deleteDescendantConflicts = new Set();
         const updateConflicts = new Set();
         const moveConflicts = new Set();
 
@@ -62,12 +62,16 @@ class DeltaMerger {
                         console.log("True nil for " + node.label);
                     } else if (node.isMove() && !match.isMove()) {
                         //node was moved in this tree, but not in the other one --> apply move to other tree
-                        const matchOfParent = matching.getOther(node.parent);
-                        match.removeFromParent();
-                        insertCorrectly(matchOfParent, match, node);
-                    } else if(node.isMove() && match.isMove()) {
+                        if (matching.hasAny(node.parent)) {
+                            const matchOfParent = matching.getOther(node.parent);
+                            match.removeFromParent();
+                            insertCorrectly(matchOfParent, match, node);
+                        } else {
+                            console.log("undetected descendant delete conflict");
+                        }
+                    } else if (node.isMove() && match.isMove()) {
                         console.log("move conflict");
-                        if(!moveConflicts.has(match)) {
+                        if (!moveConflicts.has(match)) {
                             moveConflicts.add(node);
                         }
                     }
@@ -79,9 +83,9 @@ class DeltaMerger {
                         }
                         match.data = node.data;
                         match.updates = node.updates;
-                    } else if(node.isUpdate() && match.isUpdate())  {
+                    } else if (node.isUpdate() && match.isUpdate()) {
                         console.log("udpate conflict");
-                        if(!updateConflicts.has(match)) {
+                        if (!updateConflicts.has(match)) {
                             updateConflicts.add(node);
                         }
                     }
@@ -103,17 +107,19 @@ class DeltaMerger {
                         }
                     } else {
                         if (node.isMove() || node.isUpdate()) {
-                            deleteConflicts.push(node);
+                            deleteConflicts.add(node);
                             continue outer;
                         }
                         //node was either moved or kept in this Tree, but deleted in the other --> delete in this tree, too
+                        let noConflict = true;
                         for (const descendant of node.toPreOrderArray().slice(1)) {
                             if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node.isUpdate()) {
-                                deleteDescendantConflicts.push(descendant);
+                                deleteDescendantConflicts.add(node);
                                 continue outer;
                             }
                         }
                         node.removeFromParent();
+                        deleteDescendantConflicts.delete(node);
                     }
                 }
             }
@@ -133,9 +139,9 @@ class DeltaMerger {
                 newParent.insertChild(match.childIndex + 1, nodeToInsert);
             }
         }
-        
+
         //resolve update conflicts
-        for(const node  of updateConflicts) {
+        for (const node of updateConflicts) {
             const match = matching.getOther(node);
             //TODO use updates provided in delta node (e.g. if something is changed to shorter value, it will be disregarded)
             //merge attributes
@@ -166,10 +172,31 @@ class DeltaMerger {
             match.removeFromParent();
             insertCorrectly(matchOfParent, match, node);
             moveConflicts.delete(node);
-            console.log("Resolved move conflict");
+            console.log("Resolved move conflict in favor of T1");
         }
 
-        //TODO resolve delete and descendant delete conflicts
+        for (const node of deleteConflicts) {
+            //delete takes precedence
+            node.removeFromParent();
+            console.log("Resolved delete conflict by deleting node");
+        }
+
+        //TODO bottom up traversal for deletion
+        for (const node of deleteDescendantConflicts) {
+            //delete the node
+            for(const descendant of node.toPreOrderArray()) {
+                if(descendant.isMove()) {
+                    descendant.removeFromParent();
+                    const match  =matching.getOther(descendant);
+                    const newParent = matching.getOther(match.parent);
+                    insertCorrectly(newParent, descendant, match);
+                }
+            }
+
+            node.removeFromParent();
+        }
+
+        //TODO match child nodes of insertion
         //TODO resolve node order --> semantic aspects
 
         console.log(dt1.root.convertToXml());

@@ -166,6 +166,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
             for (const newChild of newNode) {
                 const match = oldLabelMap.get(newChild.label);
                 matching.matchNew(newChild, match);
+                matchProperties(newChild, match);
             }
 
         }
