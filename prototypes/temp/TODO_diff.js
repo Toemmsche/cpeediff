@@ -22,6 +22,7 @@
 //      conflict groups for reshuffling (toggleable)
 
 //TODO semi-features
+//      ensure one to one matching
 //      move index as attribute in delta tree (use prefix or namespace delta:)
 //      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
@@ -83,7 +84,7 @@ idea 2: Merge the set of leaf nodes, then
 /*
 pipeline
 
-Parser -> preprocessor -> validator -> match -> editScript -> deltaTree -> merge
+Parser -> preprocessor -> validator (for old and new model --> warnings and forbidden moves) -> match -> editScript -> deltaTree -> merge
  */
 
 /*

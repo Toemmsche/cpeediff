@@ -16,6 +16,7 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
 const {MatchMerger} = require("../merge/MatchMerger");
@@ -52,6 +53,9 @@ console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length
 console.log(model2.toPreOrderArray().length+ " l: " + model2.leafNodes().length + " i: " + (model2.toPostOrderArray().length - model2.leafNodes().length));
 
 
+const d = MatchDiff.diff(model1, model2, ChawatheMatching);
+const dt = DeltaModelGenerator.deltaTree(model1, d);
+console.log(TreeStringSerializer.serializeDeltaTree(dt));
 
 console.log(TreeStringSerializer.serializeModel(model1));
 console.log(TreeStringSerializer.serializeModel(model2));

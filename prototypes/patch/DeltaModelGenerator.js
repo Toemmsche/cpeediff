@@ -43,7 +43,7 @@ class DeltaModelGenerator {
                        descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                     }
 
-                    if (movfrParent !== null) {
+                    if (movfrParent != null) {
                         const movfrChild = child.copy();
                         movfrParent.insertChild(childIndex, movfrChild);
 
@@ -51,7 +51,6 @@ class DeltaModelGenerator {
                             descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                         }
                     }
-
                     break;
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO: {
@@ -62,8 +61,9 @@ class DeltaModelGenerator {
 
                     //configure move_from placeholder node
                     let movfrParent;
-                    if (movfrNode === null) {
+                    if (movfrNode == null) {
                         movfrNode = node.copy();
+                        movfrNode._childIndex = node.childIndex;
                         movfrParent = node.parent;
                     } else {
                         movfrParent = movfrNode.parent;
@@ -124,7 +124,7 @@ class DeltaModelGenerator {
                         }
                     }
 
-                    if (movfrNode !== null) {
+                    if (movfrNode != null) {
                         //detected updated and inserted attributes
                         for (const [key, value] of  newData.attributes) {
                             if (movfrNode.attributes.has(key)) {
@@ -159,7 +159,7 @@ class DeltaModelGenerator {
                     node.removeFromParent();
                     node.parent.placeholders.push(node);
 
-                    if (movfrNode !== null) {
+                    if (movfrNode != null) {
                         for (const descendant of movfrNode.toPreOrderArray()) {
                             descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
                         }
@@ -194,15 +194,14 @@ class DeltaModelGenerator {
         if(extended) {
             function resolvePlaceholders(node, isMoveTo = false) {
                 for (const child of node) {
-                    resolvePlaceholders(child, isMoveTo || child.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+                    resolvePlaceholders(child, isMoveTo || child.isMove());
                 }
-                for (const placeholder of node.placeholders) {
-                    resolvePlaceholders(placeholder, isMoveTo || node.changeType === Dsl.CHANGE_TYPES.MOVE_TO);
+                while(node.placeholders.length > 0) {
+                    const placeholder = node.placeholders.pop();
                     if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
                         node.insertChild(placeholder.childIndex, placeholder);
                     }
                 }
-                node.placeholders = [];
             }
             resolvePlaceholders(model.root);
         } else {

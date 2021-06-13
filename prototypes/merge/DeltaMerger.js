@@ -15,32 +15,32 @@
 */
 
 
+const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
-const {PathMatching} = require("../matching/PathMatching");
 
 class DeltaMerger {
 
 
     static merge(base, model1, model2) {
-        const delta1 = MatchDiff.diff(base, model1, PathMatching);
-        const delta2 = MatchDiff.diff(base, model2, PathMatching);
+        const delta1 = MatchDiff.diff(base, model1, ChawatheMatching);
+        const delta2 = MatchDiff.diff(base, model2, ChawatheMatching);
         console.log(delta1.convertToXml(false));
         console.log(delta2.convertToXml(false));
 
         const dt1 = DeltaModelGenerator.deltaTree(base, delta1);
         const dt2 = DeltaModelGenerator.deltaTree(base, delta2);
 
-        const matching = PathMatching.match(dt1, dt2);
+        const matching = ChawatheMatching.match(dt1, dt2);
         //TODO always match nodes that have been matched to the same node in base
 
         for (const node1 of dt1.toPreOrderArray()) {
-            node1.label = "1_" + node1.label;
+            node1.changeOrigin = 1
         }
-        for (const node1 of dt2.toPreOrderArray()) {
-            node1.label = "2_" + node1.label;
+        for (const node2 of dt2.toPreOrderArray()) {
+            node2.changeOrigin = 2;
         }
 
         console.log(TreeStringSerializer.serializeDeltaTree(dt1));
@@ -116,11 +116,13 @@ class DeltaMerger {
                         for (const descendant of node.toPreOrderArray().slice(1)) {
                             if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node.isUpdate()) {
                                 deleteDescendantConflicts.add(node);
-                                continue outer;
+                                noConflict = false;
                             }
                         }
-                        node.removeFromParent();
-                        deleteDescendantConflicts.delete(node);
+                        if(noConflict) {
+                            node.removeFromParent();
+                            deleteDescendantConflicts.delete(node);
+                        }
                     }
                 }
             }
@@ -128,8 +130,11 @@ class DeltaMerger {
 
         function insertCorrectly(newParent, nodeToInsert, referenceNode) {
             //TODO consider order conflicts (mark nodes as newly inserted)
+            //TODO find other way to assign nodes to tree
+            nodeToInsert.changeOrigin = referenceNode.changeOrigin;
+            nodeToInsert.changeType = referenceNode.changeType;
             let i = referenceNode.childIndex - 1;
-            while (i >= 0 && !matching.hasAny(referenceNode.parent.getChild(i))) {
+            while (i >= 0 && (referenceNode.parent.getChild(i).isMove() || !matching.hasAny(referenceNode.parent.getChild(i)))) {
                 i--;
             }
             if (i < 0) {
@@ -167,18 +172,29 @@ class DeltaMerger {
         }
 
         for (const node of moveConflicts) {
-            //use move 1
             const match = matching.getOther(node);
-            const matchOfParent = matching.getOther(node.parent);
-            match.removeFromParent();
-            insertCorrectly(matchOfParent, match, node);
-            moveConflicts.delete(node);
+            if(deleteDescendantConflicts.has(node)) {
+               //favor T2
+                const matchOfParent = matching.getOther(match.parent);
+                node.removeFromParent();
+                insertCorrectly(matchOfParent, node, match);
+                moveConflicts.delete(node);
+                deleteDescendantConflicts.delete(node);
+            } else {
+                //favor T1
+                const matchOfParent = matching.getOther(node.parent);
+                match.removeFromParent();
+                insertCorrectly(matchOfParent, match, node);
+                moveConflicts.delete(node);
+            }
+
             console.log("Resolved move conflict in favor of T1");
         }
 
         for (const node of deleteConflicts) {
             //delete takes precedence
             node.removeFromParent();
+            deleteDescendantConflicts.delete(node);
             console.log("Resolved delete conflict by deleting node");
         }
 
@@ -186,6 +202,7 @@ class DeltaMerger {
         for (const node of deleteDescendantConflicts) {
             //delete the node
             for(const descendant of node.toPreOrderArray()) {
+                //in the case of move, prefer old one
                 if(descendant.isMove()) {
                     descendant.removeFromParent();
                     const match  =matching.getOther(descendant);
@@ -197,8 +214,20 @@ class DeltaMerger {
             node.removeFromParent();
         }
 
-        //TODO match child nodes of insertion
-        //TODO resolve node order --> semantic aspects
+        //TODO resolve node order --> semantic aspects or anchors generated during delta construction
+
+        for(const node1 of dt1.toPreOrderArray()) {
+            if(node1.isInsertion() || node1.isMove()) {
+                const leftSibling = node1.getSiblings()[node1.childIndex - 1];
+                const rightSibling = node1.getSiblings()[node1.childIndex + 1];
+                if(leftSibling != null  && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node1.changeOrigin) {
+                    console.log("possible order conflict");
+                }
+                if(rightSibling != null && (rightSibling.isMove() || rightSibling.isInsertion()) && rightSibling.changeOrigin !== node1.changeOrigin) {
+                    console.log("possible order conflict");
+                }
+            }
+        }
 
         console.log(dt1.root.convertToXml());
     }

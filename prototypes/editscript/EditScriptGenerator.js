@@ -48,17 +48,7 @@ class EditScriptGenerator {
             if (matching.hasNew(newNode)) {
                 //new Node has a match in the old model
                 const match = matching.getNew(newNode);
-                //is a copy?
-                const newMatches = matching.getOld(match);
-                if (newMatches.size > 1) {
-                    //determine which node is NIL and which ones are copies, the latter are unmatched
-                    //TODO actually compute best NIL
-                    for (const newMatch of newMatches) {
-                        if (newMatch !== newNode) {
-                            matching.unmatchNew(newMatch);
-                        }
-                    }
-                }
+
                 if (matchOfParent !== match.parent) {
                     const oldPath = match.toChildIndexPathString();
                     //move match to matchOfParent

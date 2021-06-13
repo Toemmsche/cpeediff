@@ -30,6 +30,9 @@ class DeltaNode extends CpeeNode {
     moveIndex;
     placeholders;
 
+    //origin of the change. Used for three-way merging
+    changeOrigin;
+
     constructor(label) {
         super(label);
         //NIL change type indicates no change
@@ -96,11 +99,20 @@ class DeltaNode extends CpeeNode {
     removeFromParent() {
         //adjust parent placeholders
         for (const placeholder of this._parent.placeholders) {
-            if (placeholder.index > this._childIndex) {
-                placeholder.index--;
+            if (placeholder._childIndex > this._childIndex) {
+                placeholder._childIndex--;
             }
         }
         super.removeFromParent();
+    }
+
+    insertChild(index, node) {
+        for (const placeholder of this.placeholders) {
+            if (placeholder._childIndex >= index) {
+                placeholder._childIndex++;
+            }
+        }
+        super.insertChild(index, node);
     }
 
     isUpdate() {

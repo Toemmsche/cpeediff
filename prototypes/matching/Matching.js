@@ -85,6 +85,10 @@ class Matching {
         if (this._needsPropagation) {
             this.oldToNewMap = new Map();
             for(const [newNode, oldMatch] of this.newToOldMap) {
+                if(this.oldToNewMap.has(oldMatch)) {
+                    const newMatch = this.oldToNewMap.get(oldMatch);
+                    this.unmatchNew(newMatch);
+                }
                this.oldToNewMap.set(oldMatch, newNode);
             }
             this._needsPropagation = false;

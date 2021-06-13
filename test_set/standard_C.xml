@@ -15,7 +15,6 @@
         </code>
     </call>
     <parallel>
-        <manipulate id="sdfd">data.costs += 12</manipulate>
         <loop mode="pre_test" condition="data.persons > 0">
             <parallel_branch pass="data.persons" local="p">
                 <call id="a2" endpoint="bookHotel">
@@ -35,5 +34,35 @@
             <manipulate id="a3">data.persons -= 1</manipulate>
         </loop>
     </parallel>
+    <choose mode="inclusive">
+        <alternative condition="data.costs > 700">
+            <call id="a4" endpoint="approve">
+                <parameters>
+                    <label>Approve Hotel</label>
+                    <method>:post</method>
+                    <arguments>
+                        <costs>data.costs</costs>
+                    </arguments>
+                </parameters>
+            </call>
+            <escape id="asddf"></escape>
+        </alternative>
+    </choose>
+    <choose>
+        <alternative condition="data.persons > 0">
+            <manipulate id="sdf">data.flights--</manipulate>
+            <call endpoint="bookExtra">
+                <parameters>
+                    <label>Book extra seats</label>
+                    <method>:post</method>
+                    <arguments>
+                        <costs>data.persons</costs>
+                    </arguments>
+                </parameters>
+            </call>
+            <manipulate id="sdfd">data.costs += 12</manipulate>
+            <terminate id="asdf"></terminate>
+        </alternative>
+    </choose>
     <stop id="a6"/>
 </description>
