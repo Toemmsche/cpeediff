@@ -78,8 +78,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
                             minCompareNode = oldLeaf;
                         }
                     }
-                    if(minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
-                        if(!oldToNewLeafMap.has(minCompareNode)) {
+                    if (minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
+                        if (!oldToNewLeafMap.has(minCompareNode)) {
                             oldToNewLeafMap.set(minCompareNode, []);
                         }
                         oldToNewLeafMap.get(minCompareNode).push([newLeaf, minCompareValue]);
@@ -88,10 +88,10 @@ class PathMatching extends AbstractMatchingAlgorithm {
             }
         }
 
-        for(const [oldLeaf, newMatches] of oldToNewLeafMap) {
+        for (const [oldLeaf, newMatches] of oldToNewLeafMap) {
             let min = null;
-            for(const tuple of newMatches) {
-                if(min == null || tuple[1] < min[1]) {
+            for (const tuple of newMatches) {
+                if (min == null || tuple[1] < min[1]) {
                     min = tuple;
                 }
             }
@@ -181,9 +181,9 @@ class PathMatching extends AbstractMatchingAlgorithm {
             }
         }
 
-        if (!matching.hasNew(newModel.root)) {
-            matching.matchNew(newModel.root, oldModel.root);
-        }
+        //always match root and initializer script
+        matching.matchNew(newModel.root, oldModel.root);
+        matching.matchNew(newModel.root.getChild(0), oldModel.root.getChild(0));
 
 
         start = new Date().getTime();

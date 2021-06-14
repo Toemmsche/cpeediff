@@ -12,9 +12,8 @@
 //      IMPORTANT rewrite placeholder not as parent attribute (maybe after)
 
 //TODO new algos
-//      q-gram distance for script comparison
+//      q-gram distance for string comparison and similarity
 //      fast match by Chawathe et al.
-//      Simple match by Chawathe et al.
 //      optimize matching
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
@@ -23,17 +22,13 @@
 
 //TODO semi-features
 //      ensure one to one matching
-//      move index as attribute in delta tree (use prefix or namespace delta:)
-//      use custom class for attributes (maybe extension of map)
 //      patcher supports child index only and type index
-//      output path instead of attributes
 //      add verbose function
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
 //      readVariables considers Code, too
-//      True preprocessor that spits out xml doc
 
 //TODO tidy
 //      make insertChild() call removeFromparent(),

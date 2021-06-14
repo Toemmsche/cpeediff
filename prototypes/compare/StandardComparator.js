@@ -25,7 +25,8 @@ class StandardComparator extends AbstractComparator {
         super();
         this._attributeMap = new Map();
     }
-    
+
+    //TODO extract dynamically
     _buildPropertyMap(node) {
         if(!this._attributeMap.has(node)) {
             const map = new Map(node.attributes.entries());
@@ -70,46 +71,8 @@ class StandardComparator extends AbstractComparator {
                     endPointComparisonValue = Math.min( endPointComparisonValue + 0.1, 1);
                 }
 
-                let maxSize = Math.max(node.modifiedVariables.size, other.modifiedVariables.size);
-                let modifiedVariablesComparisonValue;
-                //if modifiedVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    modifiedVariablesComparisonValue = endPointComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const modifiedVariable of node.modifiedVariables) {
-                        if (!other.modifiedVariables.has(modifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherModifiedVariable of other.modifiedVariables) {
-                        if (!node.modifiedVariables.has(otherModifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    modifiedVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                maxSize = Math.max(node.readVariables.size, other.readVariables.size);
-
-                let readVariablesComparisonValue;
-                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    readVariablesComparisonValue = endPointComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const readVariable of node.readVariables) {
-                        if (!other.readVariables.has(readVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherReadVariable of other.readVariables) {
-                        if (!node.readVariables.has(otherReadVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    readVariablesComparisonValue = differentCounter / maxSize;
-                }
+                let modifiedVariablesComparisonValue = this._setCompare(node.modifiedVariables, other.modifiedVariables, endPointComparisonValue);
+                let readVariablesComparisonValue = this._setCompare(node.readVariables, other.readVariables, modifiedVariablesComparisonValue);
 
                 //endpoint and modified variables have higher weights
                 return endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
@@ -119,49 +82,8 @@ class StandardComparator extends AbstractComparator {
                 if (node.label !== other.label) {
                     return 1;
                 }
-                /*
-                Comparison of two scripts is identical to comparison of two service calls minus the endpoint comparison
-                 */
-                let maxSize = Math.max(node.modifiedVariables.size, other.modifiedVariables.size);
-                let modifiedVariablesComparisonValue;
-                //if modifiedVariables is empty, we must return a pessimistic estimate
-                if (maxSize === 0) {
-                    modifiedVariablesComparisonValue = 1;
-                } else {
-                    let differentCounter = 0;
-                    for (const modifiedVariable of node.modifiedVariables) {
-                        if (!other.modifiedVariables.has(modifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherModifiedVariable of other.modifiedVariables) {
-                        if (!node.modifiedVariables.has(otherModifiedVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    modifiedVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                maxSize = Math.max(node.readVariables.size, other.readVariables.size);
-
-                let readVariablesComparisonValue;
-                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    readVariablesComparisonValue = modifiedVariablesComparisonValue;
-                } else {
-                    let differentCounter = 0;
-                    for (const readVariable of node.readVariables) {
-                        if (!other.readVariables.has(readVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherReadVariable of other.readVariables) {
-                        if (!node.readVariables.has(otherReadVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    readVariablesComparisonValue = differentCounter / maxSize;
-                }
+                let modifiedVariablesComparisonValue = this._setCompare(node.modifiedVariables, other.modifiedVariables, 1);
+                let readVariablesComparisonValue = this._setCompare(node.readVariables, other.readVariables, modifiedVariablesComparisonValue);
 
                 return 0.7 * modifiedVariablesComparisonValue + 0.3 * readVariablesComparisonValue;
             }
@@ -180,27 +102,7 @@ class StandardComparator extends AbstractComparator {
 
             case "alternative":
             case "loop": {
-                const maxSize = Math.max(node.readVariables.size, other.readVariables.size);
-                let readVariablesComparisonValue;
-                //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-                if (maxSize === 0) {
-                    readVariablesComparisonValue = 0
-                } else {
-                    let differentCounter = 0;
-                    for (const readVariable of node.readVariables) {
-                        if (!other.readVariables.has(readVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    for (const otherReadVariable of other.readVariables) {
-                        if (!node.readVariables.has(otherReadVariable)) {
-                            differentCounter++;
-                        }
-                    }
-                    readVariablesComparisonValue = differentCounter / maxSize;
-                }
-
-                return readVariablesComparisonValue;
+                return this._setCompare(node.readVariables, other.readVariables);
             }
 
             default: {
@@ -221,6 +123,29 @@ class StandardComparator extends AbstractComparator {
         } else {
             return 0;
         }
+    }
+
+    _setCompare(set, other, defaultValue = 1) {
+        const maxSize = Math.max(set.size, other.size);
+        let compValue;
+        //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
+        if (maxSize === 0) {
+            compValue = defaultValue;
+        } else {
+            let differentCounter = 0;
+            for (const element of set) {
+                if (!other.has(element)) {
+                    differentCounter++;
+                }
+            }
+            for (const element of other) {
+                if (!set.has(element)) {
+                    differentCounter++;
+                }
+            }
+            compValue = differentCounter / maxSize;
+        }
+        return compValue;
     }
 
     compare(node,other) {

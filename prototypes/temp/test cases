@@ -1,0 +1,6 @@
+- obscure Attribute changes (wait or probability)
+- deep inserts (multiple layers, thin subtrees)
+- invalid models
+- X - mappings
+- test EXACT_EDIT_SCRIPT using patcher
+-

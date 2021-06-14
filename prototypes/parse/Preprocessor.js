@@ -26,6 +26,7 @@ class Preprocessor {
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
         const endpointToURL = new Map();
+        const dataElements = new Map();
         let model;
         if (doc.localName === "properties") {
             let root;
@@ -34,13 +35,21 @@ class Preprocessor {
                 if (childTNode.localName === "dslx") {
                     let j = 0;
                     while (childTNode.childNodes.item(j).localName !== "description") j++;
-                    root =CpeeNode.parseFromXml(childTNode.childNodes.item(j), true);
+                    root = CpeeNode.parseFromXml(childTNode.childNodes.item(j), true);
                 } else if (childTNode.localName === "endpoints") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
                             const url = endpoint.childNodes.item(0).data;
-                            endpointToURL.set(endpoint, url);
+                            endpointToURL.set(endpoint.localName, url);
+                        }
+                    }
+                } else if (childTNode.localName === "dataelements") {
+                    for (let j = 0; j < childTNode.childNodes.length; j++) {
+                        const dataElement = childTNode.childNodes.item(j);
+                        if (dataElement.nodeType === 1) { //Element, not Text
+                            const initialValue = dataElement.childNodes.item(0).data;
+                            dataElements.set(dataElement.localName, initialValue);
                         }
                     }
                 }
@@ -48,38 +57,44 @@ class Preprocessor {
             model = new CpeeModel(root);
         } else {
             //no information about declared Variables available
-            model =  new CpeeModel(CpeeNode.parseFromXml(doc, true));
+            model = new CpeeModel(CpeeNode.parseFromXml(doc, true));
         }
 
         //preprocess model in post-order (bottom-up)
-        for(const node of model.toPostOrderArray()) {
+        for (const node of model.toPostOrderArray()) {
             //process attributes, only preserve relevant ones, force endpoint if call
-            for(const key of node.attributes.keys()) {
-                if(Config.PROPERTY_IGNORE_LIST.includes(key)) {
+            for (const key of node.attributes.keys()) {
+                if (Config.PROPERTY_IGNORE_LIST.includes(key)) {
                     node.attributes.delete(key);
                 }
             }
-            if(node.attributes.has("endpoint")) {
+            if (node.attributes.has("endpoint")) {
                 const endpoint = node.attributes.get("endpoint");
                 //replace endpoint identifier with actual endpoint URL (if it exists)
                 if (endpointToURL.has(endpoint)) {
-                   node.attributes.set("endpoint", endpointToURL.get(endpoint));
+                    node.attributes.set("endpoint", endpointToURL.get(endpoint));
                 }
-            } else if(node.label === Dsl.KEYWORDS.CALL.label) {
+            } else if (node.label === Dsl.KEYWORDS.CALL.label) {
                 node.attributes.set("endpoint", Math.floor(Math.random * 1000000).toString()); //random endpoint
             }
 
             //TODO move semantic methods that are only moved once to the caller class (or extractor)
             //todo rework this mdess
-            if(!node.isControlFlowLeafNode() && (
+            if (!node.isControlFlowLeafNode() && (
                 (node.isPropertyNode() && Config.PROPERTY_IGNORE_LIST.includes(node.label))
                 || (!node.isPropertyNode() && !node.hasChildren())
                 || (node.isPropertyNode() && node.isEmpty()))) {
                 node.removeFromParent();
             }
-
-            //TODO insert manipulate with all vars at begin
         }
+
+        //insert script at beginning of model that initializes all declared variables with their specified value
+        const script = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
+        script.data = "";
+        for(const [dataElement, initialValue] of dataElements) {
+            script.data += "data." + dataElement + " = " + initialValue + ";";
+        }
+        model.root.insertChild(0, script);
 
         return model;
     }

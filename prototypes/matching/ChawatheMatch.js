@@ -129,9 +129,10 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         }
 
 
-        if (!matching.hasNew(newModel.root)) {
-            matching.matchNew(newModel.root, oldModel.root);
-        }
+        //always match root and initializer script
+        matching.matchNew(newModel.root, oldModel.root);
+        matching.matchNew(newModel.root.getChild(0), oldModel.root.getChild(0));
+
 
         //match properties of leaf nodes
         for (const newLeaf of newLeaves) {
