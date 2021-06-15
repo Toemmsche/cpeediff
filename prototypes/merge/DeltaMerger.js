@@ -35,8 +35,8 @@ class DeltaMerger {
         const matching = ChawatheMatching.match(dt1, dt2);
         //TODO always match nodes that have been matched to the same node in base
 
-        for (const node1 of dt1.toPreOrderArray()) {
-            node1.changeOrigin = 1
+        for (const node of dt1.toPreOrderArray()) {
+            node.changeOrigin = 1
         }
         for (const node2 of dt2.toPreOrderArray()) {
             node2.changeOrigin = 2;
@@ -148,24 +148,62 @@ class DeltaMerger {
         //resolve update conflicts
         for (const node of updateConflicts) {
             const match = matching.getOther(node);
-            //TODO use updates provided in delta node (e.g. if something is changed to shorter value, it will be disregarded)
-            //merge attributes
-            for (const [key, value] of node.attributes) {
-                if (!match.attributes.has(key) || match.attributes.get(key).length < value.length) {
-                    match.attributes.set(key, value);
+
+            //detect attribute and data conflicts
+            for(const [key, change] of node.updates) {
+                const oldVal = change[0];
+                const newVal = change[1];
+                    if(!match.updates.has(key)) {
+                        match.updates.set(key, change.slice());
+                        if(key === "data") {
+                            match.data = newVal;
+                        } else {
+                            if(newVal == null) {
+                                match.attributes.delete(key);
+                            } else {
+                                match.attributes.set(key, newVal);
+                            }
+                        }
+
+                    } else {
+                        const matchNewVal = match.updates.get(key)[1];
+                        if(newVal !== matchNewVal) {
+                            //TODO pick longer version
+                            //TODO mark change origin
+                            //true conflict, pick this tree's version
+                            match.updates.get(key)[1] = newVal;
+                            if(key === "data") {
+                                match.data = newVal;
+                            } else {
+                                if(newVal == null) {
+                                    match.attributes.delete(key);
+                                } else {
+                                    match.attributes.set(key, newVal);
+                                }
+                            }
+                        }
+                    }
+            }
+
+            //consider changes from other tree
+            for(const [key, change] of match.updates) {
+                const oldVal = change[0];
+                const newVal = change[1];
+                if(!node.updates.has(key)) {
+                    node.updates.set(key, change.slice());
+                    if(key === "data") {
+                        node.data = newVal;
+                    } else {
+                        if(newVal == null) {
+                            node.attributes.delete(key);
+                        } else {
+                            node.attributes.set(key, newVal);
+                        }
+                    }
+
                 }
             }
-            for (const [key, value] of match.attributes) {
-                if (!node.attributes.has(key) || node.attributes.get(key).length < value.length) {
-                    node.attributes.set(key, value);
-                }
-            }
-            //merge data
-            if (node.data == null || match.data.length > node.data.length) {
-                node.data = match.data;
-            } else {
-                match.data = node.data;
-            }
+
             updateConflicts.delete(node);
             console.log("Resolved update on same node conflict");
         }
@@ -214,14 +252,14 @@ class DeltaMerger {
 
         //TODO resolve node order --> semantic aspects or anchors generated during delta construction
 
-        for(const node1 of dt1.toPreOrderArray()) {
-            if(node1.hasInternalOrdering() && (node1.isInsertion() || node1.isMove())) {
-                const leftSibling = node1.getSiblings()[node1.childIndex - 1];
-                const rightSibling = node1.getSiblings()[node1.childIndex + 1];
-                if(leftSibling != null  && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node1.changeOrigin) {
+        for(const node of dt1.toPreOrderArray()) {
+            if(node.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
+                const leftSibling = node.getSiblings()[node.childIndex - 1];
+                const rightSibling = node.getSiblings()[node.childIndex + 1];
+                if(leftSibling != null  && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node.changeOrigin) {
                     console.log("possible order conflict");
                 }
-                if(rightSibling != null && (rightSibling.isMove() || rightSibling.isInsertion()) && rightSibling.changeOrigin !== node1.changeOrigin) {
+                if(rightSibling != null && (rightSibling.isMove() || rightSibling.isInsertion()) && rightSibling.changeOrigin !== node.changeOrigin) {
                     console.log("possible order conflict");
                 }
             }

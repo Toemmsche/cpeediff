@@ -146,7 +146,7 @@ class PathMatching extends AbstractMatchingAlgorithm {
 
         /*
         Potential new matching approach:
-        Hash leaf nodes using a number hash
+        Hash leaf nodes using a number hash (exclude empty nodes like terminat eor stop or escape)
         apply hash matching like in RWS Diff
         compare remaining leaf nodes with comparator()
         match inner nodes with equal hash()

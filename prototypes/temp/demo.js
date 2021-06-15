@@ -46,15 +46,15 @@ const xmlC = fs.readFileSync(file3).toString();
 
 const bookingXML = fs.readFileSync(booking).toString();
 
-let bm = new Preprocessor().parseXml(bookingXML);
+let bm = new Preprocessor().parseWithMetadata(bookingXML);
 console.log(bm.convertToXml());
 
-let model1 = new Preprocessor().parseXml(xmlA);
-let model2 =  new Preprocessor().parseXml(xmlB);
-let model3 =  new Preprocessor().parseXml(xmlC);
+let model1 = new Preprocessor().parseWithMetadata(xmlA);
+let model2 =  new Preprocessor().parseWithMetadata(xmlB);
+let model3 =  new Preprocessor().parseWithMetadata(xmlC);
 
 
-let rand1 = new ModelGenerator(2000, 20, 10567, 5098).randomModel();
+let rand1 = new ModelGenerator(20, 20, 1, 5098).randomModel();
 
 
 //console.log(rand1.convertToXml());

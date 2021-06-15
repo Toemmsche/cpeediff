@@ -65,7 +65,7 @@
                 </parallel_branch>
                 <manipulate id="a3">data.persons -= 1</manipulate>
             </loop>
-            <choose mode="inclusive">
+            <choose mode="inclusive" kekw="sdfs" attr="value1" asdf="">
                 <otherwise>
                     <manipulate>data.costs++</manipulate>
                 </otherwise>

@@ -14,26 +14,19 @@
    limitations under the License.
 */
 
-const xmldom = require("xmldom");
-const {CpeeNode} = require("../cpee/CpeeNode");
-const {Config} = require("../Config");
-const vkbeautify = require("vkbeautify");
-const {Dsl} = require("../Dsl");
-const {Change} = require("../editscript/Change");
+class ChangeAgent {
 
-class XmlSerializer {
-
-    static serializeModel(model) {
-       return model.root.convertToXml();
+    maxChanges;
+    constructor(maxChanges) {
+        this.maxChanges = maxChanges;
     }
 
-    /**
-     *
-     * @param {CpeeModel} model
-     */
-    static serializeDeltaTree(model) {
+    changeModel(model) {
+        //do not modify original model
+        model = model.copy();
 
     }
+
 }
 
-exports.XmlSerializer = XmlSerializer;
+exports.ChangeAgent = ChangeAgent;

@@ -69,7 +69,7 @@
             </loop>
             <parallel>
                 <parallel_branch>
-                    <choose mode="inclusive">
+                    <choose mode="inclusive" attr="value2" bazinga="wowzers">
                         <alternative condition="data.costs > 700">
                             <call id="a4" endpoint="approve">
                                 <parameters>

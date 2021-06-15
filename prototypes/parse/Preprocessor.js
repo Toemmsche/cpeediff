@@ -22,7 +22,7 @@ const {DOMParser} = require("xmldom");
 
 class Preprocessor {
 
-    parseXml(xml) {
+    parseWithMetadata(xml) {
 
         const endpointToUrl = new Map();
         const dataElements = new Map();
@@ -69,14 +69,15 @@ class Preprocessor {
     }
     
     prepareModel(model, endpointToUrl = new Map(), dataElements = new Map()) {
-        //preprocess model in post-order (bottom-up)
+        //traverse model in post-order (bottom-up)
         for (const node of model.toPostOrderArray()) {
-            //process attributes, only preserve relevant ones, force endpoint if call
+            //only preserve semantically relevant attributes
             for (const key of node.attributes.keys()) {
-                if (Config.PROPERTY_IGNORE_LIST.includes(key)) {
+                if (Config.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
                     node.attributes.delete(key);
                 }
             }
+            //replace endpoint identifier with actual URL
             if (node.attributes.has("endpoint")) {
                 const endpoint = node.attributes.get("endpoint");
                 //replace endpoint identifier with actual endpoint URL (if it exists)
@@ -97,7 +98,7 @@ class Preprocessor {
             }
         }
 
-        //insert script at beginning of model that initializes all declared variables with their specified value
+        //insert initializer for all declared variables at beginning of model
         const script = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
         script.data = "";
         script.attributes.set("id", "init");

@@ -37,49 +37,13 @@ class DeltaNode extends CpeeNode {
         super(label);
         //NIL change type indicates no change
         this.changeType = "NIL";
-        this.updates = [];
+        this.updates = new Map();
         this.placeholders = [];
         this.moveIndex = null;
     }
 
     static parseFromXml(xml, xmlDom = false) {
-        if(xmlDom) {
-            return constructRecursive(xml);
-        } else {
-            const doc = new xmldom.DOMParser().parseFromString(xml, "text/xml");
-            return constructRecursive(doc.firstChild);
-        }
-
-        function constructRecursive(tNode) {
-            let root = new DeltaNode(tNode.localName);
-            for (let i = 0; i < tNode.childNodes.length; i++) {
-                const childTNode = tNode.childNodes.item(i);
-                if (childTNode.nodeType === 3) { //text node
-                    //check if text node contains a non-empty payload
-                    if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
-                        //empty data, skip
-                        continue;
-                    } else {
-                        //relevant data, set as node data
-                        root.data = childTNode.data;
-                    }
-                } else {
-                    const child = constructRecursive(childTNode)
-                    //empty control nodes are null values (see below)
-                    if (child !== null) {
-                        root.appendChild(child);
-                    }
-                }
-            }
-
-            //parse attributes
-            for (let i = 0; i < tNode.attributes.length; i++) {
-                const attrNode = tNode.attributes.item(i);
-                root.attributes.set(attrNode.name, attrNode.value);
-            }
-
-            return root;
-        }
+        return this.fromCpeeNode(CpeeNode.parseFromXml(xml, xmlDom));
     }
 
     static fromCpeeNode(node, includeChildNodes = true) {
@@ -116,7 +80,7 @@ class DeltaNode extends CpeeNode {
     }
 
     isUpdate() {
-        return this.updates.length > 0;
+        return this.updates.size > 0;
     }
 
     isMove() {
@@ -139,8 +103,8 @@ class DeltaNode extends CpeeNode {
         let res = this.label;
         res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.moveIndex !== null ? "_" + this.moveIndex : "") + ">";
         if (this.isUpdate()) {
-            for (const update of this.updates) {
-                res += " " + update[0] + ": [" + update[1] + "] -> [" + update[2] + "]";
+            for (const [key, change]  of this.updates) {
+                res += " " + key + ": [" + change[0] + "] -> [" + change[1] + "]";
             }
         }
         return res;
@@ -151,8 +115,9 @@ class DeltaNode extends CpeeNode {
         copy.data = this.data;
         copy.changeType = this.changeType;
         copy.moveIndex = this.moveIndex;
-        for (const update of this.updates) {
-            copy.updates.push(update.slice());
+
+        for (const [key, change] of this.updates) {
+            copy.updates.set(key, change.slice());
         }
         for (const [key, value] of this.attributes) {
             copy.attributes.set(key, value);
@@ -165,6 +130,7 @@ class DeltaNode extends CpeeNode {
                 copy.appendChild(child.copy(true))
             }
         }
+        copy.changeOrigin = this.changeOrigin;
         return copy;
     }
 
@@ -180,13 +146,8 @@ class DeltaNode extends CpeeNode {
         }
 
         function constructRecursive(deltaNode) {
-            let changeType;
-            if (deltaNode.isNil() && deltaNode.isUpdate()) {
-                changeType = Dsl.CHANGE_TYPES.UPDATE;
-            } else {
-                changeType = deltaNode.changeType;
-            }
-            //TODO apply namespace to attributes only
+            const changeType = deltaNode.changeType;
+
             const prefix = Dsl.NAMESPACES[changeType + "_NAMESPACE_PREFIX"] + ":"
             const node = doc.createElement(prefix + deltaNode.label);
             node.localName = deltaNode.label;
@@ -202,7 +163,30 @@ class DeltaNode extends CpeeNode {
                 node.setAttribute("xmlns:" + Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX, Dsl.NAMESPACES.UPDATE_NAMESPACE_URI);
             }
 
+
+            //set namespace of updated fields
+            for(const [key, change] of deltaNode.updates) {
+                const oldVal = change[0];
+                const newVal = change[1];
+                if(key === "data") {
+                    deltaNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":data", "true");
+                } else {
+                    if(oldVal == null) {
+                        const val = deltaNode.attributes.get(key);
+                        deltaNode.attributes.set(Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX + ":" + key, val );
+                        deltaNode.attributes.delete(key);
+                    } else if(newVal == null) {
+                        deltaNode.attributes.set(Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX + ":" + key, oldVal);
+                    } else {
+                        const val = deltaNode.attributes.get(key);
+                        deltaNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":" + key, val);
+                        deltaNode.attributes.delete(key);
+                    }
+                }
+            }
+
             for (const [key, value] of deltaNode.attributes) {
+
                 node.setAttribute(key, value);
             }
 

@@ -20,6 +20,7 @@
 //      model validator
 
 //TODO semi-features
+//      chnage origin for ujpdates -->> own class
 //      matchins is never overwritten, only extended
 //      confidence level during merging
 //      make init script toggleable
@@ -52,9 +53,12 @@
 //      automate namespaces and changetype attributes
 //      resolve naming conflicts (call as argunment)
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever possible
+//      maybe remove contructrecursive and use actual recursion
 
 
 //TODO REWRITE
+//      update class
+//      merged node as subclass
 //      deltaTree is result of editScriptFActory
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);

@@ -39,15 +39,15 @@ class DeltaModelGenerator {
                     const child = DeltaNode.fromCpeeNode(change.newData);
 
                     parent.insertChild(childIndex, child);
-                    for(const descendant of child.toPreOrderArray()) {
-                       descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
+                    for (const descendant of child.toPreOrderArray()) {
+                        descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                     }
 
                     if (movfrParent != null) {
                         const movfrChild = child.copy();
                         movfrParent.insertChild(childIndex, movfrChild);
 
-                        for(const descendant of movfrChild.toPreOrderArray()) {
+                        for (const descendant of movfrChild.toPreOrderArray()) {
                             descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
                         }
                     }
@@ -85,7 +85,7 @@ class DeltaModelGenerator {
 
                     //TODO proper move id
                     //Insert placeholder at old position
-                    movfrNode.moveIndex =  placeholderCount;
+                    movfrNode.moveIndex = placeholderCount;
                     movfrNode.changeType = Dsl.CHANGE_TYPES.MOVE_FROM;
 
                     movfrParent.placeholders.push(movfrNode);
@@ -99,19 +99,21 @@ class DeltaModelGenerator {
                     const newData = change.newData;
 
                     if (node.data !== newData.data) {
-                        node.updates.push(["data", node.data, newData.data]);
+                        node.updates.set("data",[ node.data, newData.data]);
                         node.data = newData.data;
                     }
 
+                    //TODO remove duplicated code
+
                     //detected updated and inserted attributes
-                    for (const [key, value] of  newData.attributes) {
+                    for (const [key, value] of newData.attributes) {
                         if (node.attributes.has(key)) {
                             if (node.attributes.get(key) !== value) {
-                                node.updates.push([key, node.attributes.get(key), value]);
+                                node.updates.set(key, [node.attributes.get(key), value]);
                                 node.attributes.set(key, value);
                             }
                         } else {
-                            node.updates.push([key, null, value]);
+                            node.updates.set(key, [null, value]);
                             node.attributes.set(key, value);
                         }
                     }
@@ -119,21 +121,27 @@ class DeltaModelGenerator {
                     //detect deleted attributes
                     for (const [key, value] of node.attributes) {
                         if (!newData.attributes.has(key)) {
-                            node.updates.push([key, value, null])
-                            node.attributes.remove(key);
+                            node.updates.set(key, [value, null])
+                            node.attributes.delete(key);
                         }
                     }
 
                     if (movfrNode != null) {
+                        
+                        if (movfrNode.data !== newData.data) {
+                            movfrNode.updates.set("data", [movfrNode.data, newData.data]);
+                            movfrNode.data = newData.data;
+                        }
+                        
                         //detected updated and inserted attributes
-                        for (const [key, value] of  newData.attributes) {
+                        for (const [key, value] of newData.attributes) {
                             if (movfrNode.attributes.has(key)) {
                                 if (movfrNode.attributes.get(key) !== value) {
-                                    movfrNode.updates.push([key, movfrNode.attributes.get(key), value]);
+                                    movfrNode.updates.set(key, [movfrNode.attributes.get(key), value]);
                                     movfrNode.attributes.set(key, value);
                                 }
                             } else {
-                                movfrNode.updates.push([key, null, value]);
+                                movfrNode.updates.set(key, [null, value]);
                                 movfrNode.attributes.set(key, value);
                             }
                         }
@@ -141,8 +149,8 @@ class DeltaModelGenerator {
                         //detect deleted attributes
                         for (const [key, value] of movfrNode.attributes) {
                             if (!newData.attributes.has(key)) {
-                                movfrNode.updates.push([key, value, null])
-                                movfrNode.attributes.remove(key);
+                                movfrNode.updates.set(key, [value, null])
+                                movfrNode.attributes.delete(key);
                             }
                         }
                     }
@@ -191,21 +199,22 @@ class DeltaModelGenerator {
             return [currNode, moveFromPlaceHolder];
         }
 
-        if(extended) {
+        if (extended) {
             function resolvePlaceholders(node, isMoveTo = false) {
                 for (const child of node) {
                     resolvePlaceholders(child, isMoveTo || child.isMove());
                 }
-                while(node.placeholders.length > 0) {
+                while (node.placeholders.length > 0) {
                     const placeholder = node.placeholders.pop();
                     if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
                         node.insertChild(placeholder.childIndex, placeholder);
                     }
                 }
             }
+
             resolvePlaceholders(model.root);
         } else {
-            for(const deltaNode of model.toPreOrderArray()) {
+            for (const deltaNode of model.toPreOrderArray()) {
                 //remove all placeholders
                 deltaNode.placeholders = [];
             }
