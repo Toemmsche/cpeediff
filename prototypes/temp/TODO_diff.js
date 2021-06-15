@@ -10,6 +10,7 @@
 //      comparisons for remaining inner nodes
 //      fix model generator and implement change agent
 //      IMPORTANT rewrite placeholder not as parent attribute (maybe after)
+//      command line visualization including "live" patching and filtered changes
 
 //TODO new algos
 //      q-gram distance for string comparison and similarity
@@ -21,6 +22,9 @@
 //      conflict groups for reshuffling (toggleable)
 
 //TODO semi-features
+//      confidence level during merging
+//      make init script toggleable
+//      ignore comments during xml parsing
 //      ensure one to one matching
 //      patcher supports child index only and type index
 //      add verbose function
@@ -40,7 +44,7 @@
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
 //      fix parallel
-//      find cleaner way to get node attributes (e.g. is property node)
+//      find cleaner way to get node attributes (e.g. is property node) (maybe use Extractor)
 //      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
 //      maybe change member variable declaration and initiliazation

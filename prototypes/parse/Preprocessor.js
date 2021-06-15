@@ -91,6 +91,7 @@ class Preprocessor {
         //insert script at beginning of model that initializes all declared variables with their specified value
         const script = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
         script.data = "";
+        script.attributes.set("id", "init");
         for(const [dataElement, initialValue] of dataElements) {
             script.data += "data." + dataElement + " = " + initialValue + ";";
         }

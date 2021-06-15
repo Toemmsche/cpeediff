@@ -125,21 +125,21 @@ class StandardComparator extends AbstractComparator {
         }
     }
 
-    _setCompare(set, other, defaultValue = 1) {
-        const maxSize = Math.max(set.size, other.size);
+    _setCompare(setA, setB, defaultValue = 1) {
+        const maxSize = Math.max(setA.size, setB.size);
         let compValue;
         //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
         if (maxSize === 0) {
             compValue = defaultValue;
         } else {
             let differentCounter = 0;
-            for (const element of set) {
-                if (!other.has(element)) {
+            for (const element of setA) {
+                if (!setB.has(element)) {
                     differentCounter++;
                 }
             }
-            for (const element of other) {
-                if (!set.has(element)) {
+            for (const element of setB) {
+                if (!setA.has(element)) {
                     differentCounter++;
                 }
             }

@@ -23,7 +23,6 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 
 class DeltaMerger {
 
-
     static merge(base, model1, model2) {
         const delta1 = MatchDiff.diff(base, model1, ChawatheMatching);
         const delta2 = MatchDiff.diff(base, model2, ChawatheMatching);
@@ -46,10 +45,10 @@ class DeltaMerger {
         console.log(TreeStringSerializer.serializeDeltaTree(dt1));
         console.log(TreeStringSerializer.serializeDeltaTree(dt2));
 
-        const deleteConflicts = new Set();
+        const deleteConflicts           = new Set();
         const deleteDescendantConflicts = new Set();
-        const updateConflicts = new Set();
-        const moveConflicts = new Set();
+        const updateConflicts           = new Set();
+        const moveConflicts             = new Set();
 
         traverse(dt1);
         traverse(dt2);
@@ -210,7 +209,6 @@ class DeltaMerger {
                     insertCorrectly(newParent, descendant, match);
                 }
             }
-
             node.removeFromParent();
         }
 

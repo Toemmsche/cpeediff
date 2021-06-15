@@ -39,14 +39,22 @@ let file1 = process.argv[2];
 let file2 = process.argv[3];
 let file3 = process.argv[4];
 
+let booking = "test_set/real/booking.xml";
+
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 const xmlC = fs.readFileSync(file3).toString();
 
+const bookingXML = fs.readFileSync(booking).toString();
+
+let bm = new Preprocessor().prepare(bookingXML);
+console.log(bm.convertToXml());
 
 let model1 = new Preprocessor().prepare(xmlA);
 let model2 =  new Preprocessor().prepare(xmlB);
 let model3 =  new Preprocessor().prepare(xmlC);
+
+
 
 
 console.log(model1.toPreOrderArray().length + " l: " + model1.leafNodes().length + " i: " + (model1.toPostOrderArray().length - model1.leafNodes().length));

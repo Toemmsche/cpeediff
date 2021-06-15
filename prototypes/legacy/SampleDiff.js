@@ -33,13 +33,6 @@ class SampleDiff extends AbstractDiff {
          *              - root always has the same name (description)
          */
 
-        /*
-        Thoughts:
-        Find deleted/inserted nodes via set diff
-        -> Delete nodes
-        -> insert leaf nodes
-        -> move nodes
-         */
 
         //TODO set diff
         const preOrder1 = this.model1.toPreOrderArray();

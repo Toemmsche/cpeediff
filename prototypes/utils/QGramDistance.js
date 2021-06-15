@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-class Config {
-    static LEAF_SIMILARITY_THRESHOLD = 0.25;
-    static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
+class QGramDistance {
 
-    static EXACT_EDIT_SCRIPT = false;
 
-    static PROPERTY_IGNORE_LIST = ["id", "description", "xmlns"];
+    static getQGramDistance(strA, strB) {
+        //TODO
+    }
+
 }
 
-exports.Config = Config;
+exports.QGramDistance = QGramDistance;
