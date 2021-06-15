@@ -1,15 +1,12 @@
 //TODO features
 //      longest substring compare for scripts
 //      export set and map similarity calculation
-//      add consistency check for data dependencies (variables are declared as data elements (all?)
 //      IMPORTANT make exact edit script toggleable
-//      add reshuffling in merger
-//      patch context
-//      leaf matching: Find easy matches using buckets grouped by label, then match leftover nodes
-//      IMPORTANT: compare path
+//      distinguish between interparent and far move
+//      hash matching first, then path (or chawathe) matching, then matchSimilarUnmatched()
+//      IMPORTANT: compare path (heuristically)
 //      comparisons for remaining inner nodes
-//      fix model generator and implement change agent
-//      IMPORTANT rewrite placeholder not as parent attribute (maybe after)
+//      implement change agent
 //      command line visualization including "live" patching and filtered changes
 
 //TODO new algos
@@ -20,8 +17,10 @@
 
 //TODO maybe features
 //      conflict groups for reshuffling (toggleable)
+//      model validator
 
 //TODO semi-features
+//      matchins is never overwritten, only extended
 //      confidence level during merging
 //      make init script toggleable
 //      ignore comments during xml parsing
@@ -33,21 +32,19 @@
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
 //      readVariables considers Code, too
+//      colors in delta output
 
 //TODO tidy
+//      make property strings members of keyword objects
 //      make insertChild() call removeFromparent(),
 //      no static methods
-//      colors in delta output
 //      replace nodeequals with === where applicable
 //      encapsulate handleInsert() in edit script generation
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
-//      fix parallel
-//      find cleaner way to get node attributes (e.g. is property node) (maybe use Extractor)
 //      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
-//      maybe change member variable declaration and initiliazation
 //      move node boolean flags into cpeemodel to keep semantic parsing in one place
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
@@ -63,13 +60,14 @@
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      property-subtree
 //      MatchedNode subclass instead of matching class (with maxSimilarity, etc)
+//      add some patterns
 //      VIZ only;
 //          fix property trees in inner nodes (.properties() method)
 //          find a way around childattributes (property extractor) or clean up deletion in pathmatching
-//         make subclass for property nodes
-//          minimum edit script doesnt feautre old data
 //          dual namespaces maybe with update namespace for changed attributes/data
 
+//TODO advanced semantics
+//      nested chooses -> single choose (depends on CPEE spec --> look it up)
 /*
 Merge Ideas:
 

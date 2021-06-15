@@ -22,11 +22,14 @@ const {DOMParser} = require("xmldom");
 
 class Preprocessor {
 
-    prepare(xml, options = []) {
+    parseXml(xml) {
+
+        const endpointToUrl = new Map();
+        const dataElements = new Map();
+        
         //Parse options
         const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-        const endpointToURL = new Map();
-        const dataElements = new Map();
+        
         let model;
         if (doc.localName === "properties") {
             let root;
@@ -41,7 +44,7 @@ class Preprocessor {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
                             const url = endpoint.childNodes.item(0).data;
-                            endpointToURL.set(endpoint.localName, url);
+                            endpointToUrl.set(endpoint.localName, url);
                         }
                     }
                 } else if (childTNode.localName === "dataelements") {
@@ -60,6 +63,12 @@ class Preprocessor {
             model = new CpeeModel(CpeeNode.parseFromXml(doc, true));
         }
 
+        
+        return this.prepareModel(model, endpointToUrl, dataElements);
+       
+    }
+    
+    prepareModel(model, endpointToUrl = new Map(), dataElements = new Map()) {
         //preprocess model in post-order (bottom-up)
         for (const node of model.toPostOrderArray()) {
             //process attributes, only preserve relevant ones, force endpoint if call
@@ -71,8 +80,8 @@ class Preprocessor {
             if (node.attributes.has("endpoint")) {
                 const endpoint = node.attributes.get("endpoint");
                 //replace endpoint identifier with actual endpoint URL (if it exists)
-                if (endpointToURL.has(endpoint)) {
-                    node.attributes.set("endpoint", endpointToURL.get(endpoint));
+                if (endpointToUrl.has(endpoint)) {
+                    node.attributes.set("endpoint", endpointToUrl.get(endpoint));
                 }
             } else if (node.label === Dsl.KEYWORDS.CALL.label) {
                 node.attributes.set("endpoint", Math.floor(Math.random * 1000000).toString()); //random endpoint

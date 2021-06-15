@@ -7,3 +7,5 @@
 //      eval edit distance
 //      decompose by stage (mapping vs edit script generation vs merging etc)
 //      run profiler and write tests
+//      confidence level for merging
+//      problem classes

@@ -95,6 +95,12 @@ class Dsl {
         .filter(k => k.isLeaf)
         .map(k => k.label));
 
+    static INNER_NODE_SET = new Set(Object
+        .keys(Dsl.KEYWORDS)
+        .map(key => Dsl.KEYWORDS[key])
+        .filter(k => !k.isLeaf)
+        .map(k => k.label));
+
     static INTERNAL_ORDERING_SET = new Set(Object
         .keys(Dsl.KEYWORDS)
         .map(key => Dsl.KEYWORDS[key])

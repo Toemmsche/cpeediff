@@ -14,22 +14,19 @@
    limitations under the License.
 */
 
+const {Preprocessor} = require("../parse/Preprocessor");
 const {Dsl} = require("../Dsl");
 const {CpeeModel} = require("../cpee/CpeeModel");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
 class ModelGenerator {
 
-    static INNER_NODES = ["parallel", "critical", "loop", "choose"];
-    static LEAF_NODES = ["call", "manipulate", "stop", "escape", "terminate"];
-
     static ENDPOINT_METHODS = [":get", ":post", ":put", ":patch", ":delete"];
     static CHOOSE_MODES = ["inclusive", "exclusive"];
 
-    variables = ["aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg"];
+    variables = ["costs", "persons", "duration", "val", "res", "input", "output"];
     endpoints = ["bookAir", "bookHotel"];
     labels = ["Book Airline", "Book Hotel"];
-
 
     maxDepth;
     maxWidth;
@@ -50,32 +47,40 @@ class ModelGenerator {
     randomModel() {
         this._currDepth = 0;
         this._currSize = 0;
-        return new CpeeModel(this.randomRoot(), new Set(this.variables))
+
+        //at least 10 endpoints and labels
+        this.endpoints = [];
+        this.labels = [];
+        this.variables = [];
+        for (let i = 0; i < Math.max(Math.sqrt(this.maxSize), 10); i++) {
+            this.endpoints.push(this.randomString(this.randInt(20) + 10));
+            this.labels.push(this.randomString(this.randInt(20) + 10));
+            this.variables.push(this.randomString(this.randInt(10) + 5));
+        }
+
+        return new Preprocessor().prepareModel(new CpeeModel(this.randomRoot()));
     }
 
-    randomFrom(collection,) {
-        let randIndex;
-        if (collection.constructor === Set) {
-            randIndex = this.randInt(collection.size);
+    randomFrom(collection, amount = 1) {
+        if(collection.constructor === Set) {
             let i = 0;
-            for (const element of collection) {
-                if (randIndex === i) return element;
+            const randIndex = this.randInt(collection.size);
+            for(const element of collection) {
+                if(i === randIndex) return element;
                 i++;
             }
-        } else if (collection.constructor === Array) {
-            randIndex = this.randInt(collection.length);
-            return collection[randIndex];
+        }
+        if (collection.constructor === Array) {
+            return collection[this.randInt(collection.length)];
         }
     }
 
-    randomInto(source, destination, amount) {
+    randomSubSet(collection, amount) {
+        const res = [];
         for (let i = 0; i < amount; i++) {
-            if (destination.constructor === Set) {
-                destination.add(this.randomFrom(source));
-            } else {
-                destination.push(this.randomFrom(source));
-            }
+            res.push(this.randomFrom(collection));
         }
+        return new Set(res);
     }
 
     randInt(max) {
@@ -85,16 +90,14 @@ class ModelGenerator {
     randomString(length = this.randInt(100)) {
         const result = [];
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const charactersLength = characters.length;
         for (let i = 0; i < length; i++) {
-            result.push(characters.charAt(Math.floor(Math.random() *
-                charactersLength)));
+            result.push(characters.charAt(this.randInt(characters.length)));
         }
         return result.join('');
     }
 
     randomRoot() {
-        const node = new CpeeNode(Dsl.KEYWORDS.ROOT);
+        const node = new CpeeNode(Dsl.KEYWORDS.ROOT.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -114,33 +117,33 @@ class ModelGenerator {
     }
 
     randomLeafNode() {
-        const r = this.randomFrom(ModelGenerator.LEAF_NODES);
-        switch (this.randomFrom(ModelGenerator.LEAF_NODES)) {
-            case Dsl.KEYWORDS.CALL:
-                return this.randomCall();
-            case Dsl.KEYWORDS.MANIPULATE:
-                return this.randomManipulate();
-            case Dsl.KEYWORDS.STOP:
-                return this.randomStop();
-            case Dsl.KEYWORDS.ESCAPE:
-                return this.randomEscape();
-            case Dsl.KEYWORDS.TERMINATE:
-                return this.randomTerminate();
-            default:
-                return this.randomCall();
+        const rand = this.randInt(100);
+
+        //about two-third chance to add a call
+        if(rand < 65) {
+            return this.randomCall();
+        } else if(rand < 90) {
+            return this.randomManipulate();
+        } else if (rand < 93) {
+            return this.randomStop();
+        } else if(rand < 97)  {
+            return this.randomEscape();
+        } else {
+            return this.randomTerminate();
         }
     }
 
 
     randomInnerNode() {
-        switch (this.randomFrom(ModelGenerator.INNER_NODES)) {
-            case Dsl.KEYWORDS.LOOP:
+        //inner nodes are evenly distributed
+        switch (this.randomFrom(Dsl.INNER_NODE_SET)) {
+            case Dsl.KEYWORDS.LOOP.label:
                 return this.randomLoop();
-            case Dsl.KEYWORDS.CHOOSE:
+            case Dsl.KEYWORDS.CHOOSE.label:
                 return this.randomChoose();
-            case Dsl.KEYWORDS.PARALLEL:
+            case Dsl.KEYWORDS.PARALLEL.label:
                 return this.randomParallel();
-            case Dsl.KEYWORDS.CRITICAL:
+            case Dsl.KEYWORDS.CRITICAL.label:
                 return this.randomCritical();
             default:
                 return this.randomLoop();
@@ -148,45 +151,74 @@ class ModelGenerator {
     }
 
     randomCall() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CALL);
+        const node = new CpeeNode(Dsl.KEYWORDS.CALL.label);
         node.attributes.set("endpoint", this.randomFrom(this.endpoints));
-        node.attributes.set("./parameters/label", this.randomFrom(this.labels));
-        node.attributes.set("./parameters/method", this.randomFrom(ModelGenerator.ENDPOINT_METHODS));
 
-        node.attributes.set("./code/prepare", this.randomString());
-        node.attributes.set("./code/finalize", this.randomString());
-        node.attributes.set("./code/update", this.randomString());
-        node.attributes.set("./code/rescue", this.randomString());
+        const parameters = new CpeeNode("parameters");
 
-        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
-        this.randomInto(this.variables, node.modifiedVariables, this.randInt(this.maxVars));
+        //random label
+        const label = new CpeeNode("label");
+        label.data = this.randomFrom(this.labels);
+        parameters.appendChild(label);
+
+        //random method
+        const method = new CpeeNode("method");
+        method.data = this.randomFrom(ModelGenerator.ENDPOINT_METHODS);
+        parameters.appendChild(method);
+
+        //random arguments (read Variables)
+        const args = new CpeeNode("arguments");
+        for(const readVariable of this.randomSubSet(this.variables, this.randInt(this.maxVars))) {
+            const arg = new CpeeNode(readVariable);
+            arg.data = "data." + readVariable;
+            args.appendChild(arg);
+        }
+        parameters.appendChild(args);
+
+        //random modified Variables
+        const code = new CpeeNode("code");
+        const codeUpdate = new CpeeNode("update");
+        codeUpdate.data = "";
+        for(const modifiedVariable of this.randomSubSet(this.variables, this.randInt(this.maxVars))) {
+            codeUpdate.data += "data." + modifiedVariable + " = 420;"
+        }
+        code.appendChild(codeUpdate);
+
+        node.appendChild(parameters);
+        node.appendChild(code);
+
         return node;
     }
 
     randomManipulate() {
-        const node = new CpeeNode(Dsl.KEYWORDS.MANIPULATE);
-        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
-        this.randomInto(this.variables, node.modifiedVariables, this.randInt(this.maxVars));
+        const node = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
+
+        //random modified Variables
+        node.data = "";
+        for(const modifiedVariable of this.randomSubSet(this.variables, this.randInt(this.maxVars))) {
+            node.data += "data." + modifiedVariable + " = 420;"
+        }
+
         return node;
     }
 
     randomStop() {
-        const node = new CpeeNode(Dsl.KEYWORDS.STOP);
+        const node = new CpeeNode(Dsl.KEYWORDS.STOP.label);
         return node;
     }
 
     randomEscape() {
-        const node = new CpeeNode(Dsl.KEYWORDS.ESCAPE);
+        const node = new CpeeNode(Dsl.KEYWORDS.ESCAPE.label);
         return node;
     }
 
     randomTerminate() {
-        const node = new CpeeNode(Dsl.KEYWORDS.TERMINATE);
+        const node = new CpeeNode(Dsl.KEYWORDS.TERMINATE.label);
         return node;
     }
 
     randomParallel() {
-        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL);
+        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomParallelBranch());
         }
@@ -195,7 +227,7 @@ class ModelGenerator {
 
     randomParallelBranch() {
         this._currDepth++;
-        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH);
+        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -204,7 +236,7 @@ class ModelGenerator {
     }
 
     randomChoose() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CHOOSE);
+        const node = new CpeeNode(Dsl.KEYWORDS.CHOOSE.label);
         node.attributes.set("mode", this.randomFrom(ModelGenerator.CHOOSE_MODES));
 
         let i;
@@ -218,9 +250,12 @@ class ModelGenerator {
 
     randomAlternative() {
         this._currDepth++;
-        const node = new CpeeNode(Dsl.KEYWORDS.ALTERNATIVE);
-        node.attributes.set("condition", this.randomString());
-        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        const node = new CpeeNode(Dsl.KEYWORDS.ALTERNATIVE.label);
+
+        //random condition
+        const readVariable = this.randomFrom(this.variables);
+        node.attributes.set("condition", "data." + readVariable + " < 69");
+
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -230,7 +265,7 @@ class ModelGenerator {
 
     randomOtherwise() {
         this._currDepth++;
-        const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE);
+        const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -239,9 +274,12 @@ class ModelGenerator {
     }
 
     randomLoop() {
-        const node = new CpeeNode(Dsl.KEYWORDS.LOOP);
-        node.attributes.set("condition", this.randomString());
-        this.randomInto(this.variables, node.readVariables, this.randInt(this.maxVars));
+        const node = new CpeeNode(Dsl.KEYWORDS.LOOP.label);
+
+        //random condition
+        const readVariable = this.randomFrom(this.variables);
+        node.attributes.set("condition", "data." + readVariable + " < 69");
+
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }
@@ -249,7 +287,7 @@ class ModelGenerator {
     }
 
     randomCritical() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL);
+        const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
             node.insertChild(this.randInt(i), this.randomNode());
         }

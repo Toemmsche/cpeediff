@@ -428,11 +428,13 @@ class CpeeNode extends Serializable {
     }
 
     removeFromParent() {
-        if (this._parent === null) {
-            throw new Error("Cannot remove node that has no parent");
+        if (this._parent != null) {
+            this._parent.childNodes.splice(this._childIndex, 1);
+            this._parent._fixChildIndices();
+        } else {
+            console.log("Cannot remove node that has no parent");
         }
-        this._parent.childNodes.splice(this._childIndex, 1);
-        this._parent._fixChildIndices();
+
     }
 
     _fixChildIndices() {
