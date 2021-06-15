@@ -10,6 +10,7 @@
 //      command line visualization including "live" patching and filtered changes
 
 //TODO new algos
+//      fast LIS (O nlogn)
 //      q-gram distance for string comparison and similarity
 //      fast match by Chawathe et al.
 //      optimize matching
@@ -57,6 +58,7 @@
 
 
 //TODO REWRITE
+//      splite edit script geneartion into phases (with individual methods)
 //      update class
 //      merged node as subclass
 //      deltaTree is result of editScriptFActory
