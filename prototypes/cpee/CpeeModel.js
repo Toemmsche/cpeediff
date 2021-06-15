@@ -51,6 +51,10 @@ class CpeeModel extends Serializable{
         return this.toPreOrderArray().filter(n => n.isControlFlowLeafNode());
     }
 
+    innerNodes() {
+        return this.toPreOrderArray().filter(n => !n.isControlFlowLeafNode() && !n.isPropertyNode());
+    }
+
     convertToXml(xmlDom = false) {
         return this.root.convertToXml(xmlDom);
     }

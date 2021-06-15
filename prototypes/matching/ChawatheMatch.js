@@ -86,12 +86,10 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
          */
 
         const newInnerNodes = newModel
-            .toPreOrderArray()
-            .filter(n => !n.isPropertyNode() && !newLeaves.includes(n))
+            .innerNodes()
             .sort((a, b) => a.toPreOrderArray().length - b.toPreOrderArray().length);
         const oldInnerNodes = oldModel
-            .toPreOrderArray()
-            .filter(n => !n.isPropertyNode() && !oldLeaves.includes(n))
+            .innerNodes()
             .sort((a, b) => a.toPreOrderArray().length - b.toPreOrderArray().length);
 
         for (const newInner of newInnerNodes) {

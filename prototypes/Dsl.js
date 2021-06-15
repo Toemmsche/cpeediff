@@ -119,6 +119,11 @@ class Dsl {
         NIL: "NIL"
     }
 
+    static CHANGE_TYPE_SET = new Set(Object
+        .keys(Dsl.CHANGE_TYPES)
+        .map(key => Dsl.CHANGE_TYPES[key]));
+
+
 
     static NAMESPACES = {
         DEFAULT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0",

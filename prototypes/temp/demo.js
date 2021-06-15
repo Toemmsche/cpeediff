@@ -54,12 +54,13 @@ let model2 =  new Preprocessor().parseWithMetadata(xmlB);
 let model3 =  new Preprocessor().parseWithMetadata(xmlC);
 
 
-let rand1 = new ModelGenerator(20, 20, 1, 5098).randomModel();
+let rand1 = new ModelGenerator(5, 5, 5, 5).randomModel();
 
 
-//console.log(rand1.convertToXml());
+console.log(rand1.convertToXml());
 
 
+console.log(MatchDiff.diff(rand1,new ModelGenerator(5, 5, 5, 5).changeModel(rand1, 10), ChawatheMatching).convertToXml())
 const d = MatchDiff.diff(model1, model2, ChawatheMatching);
 const dt = DeltaModelGenerator.deltaTree(model1, d);
 

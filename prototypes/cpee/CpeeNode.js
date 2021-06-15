@@ -367,6 +367,9 @@ class CpeeNode extends Serializable {
        return !Dsl.KEYWORD_SET.has(this.label);
     }
 
+    isRoot() {
+        return this.label === Dsl.KEYWORDS.ROOT.label && this._parent == null;
+    }
     /**
      *
      * @returns {boolean}
@@ -401,6 +404,7 @@ class CpeeNode extends Serializable {
     appendChild(node) {
         node._childIndex = this._childNodes.push(node) - 1;
         node._parent = this;
+        //fixChildIndices can be omitted as no other children are affected
     }
 
     /**
@@ -535,7 +539,7 @@ class CpeeNode extends Serializable {
 
         function constructRecursive(cpeeNode) {
             const node = doc.createElement(cpeeNode.label);
-            if (cpeeNode.label === Dsl.KEYWORDS.ROOT) {
+            if (cpeeNode.isRoot()) {
                 node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
             }
             for (const [key, value] of cpeeNode.attributes) {

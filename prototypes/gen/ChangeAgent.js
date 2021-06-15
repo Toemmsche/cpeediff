@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {Dsl} = require("../Dsl");
+
 class ChangeAgent {
 
     maxChanges;
@@ -25,7 +27,13 @@ class ChangeAgent {
         //do not modify original model
         model = model.copy();
 
+        for (let i = 0; i < this.maxChanges; i++) {
+            switch(this.randomFrom(Dsl.CHANGE_TYPE_SET)) {
+            }
+        }
     }
+
+
 
 }
 

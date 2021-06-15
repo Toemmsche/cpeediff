@@ -99,7 +99,7 @@ class ModelGenerator {
     randomRoot() {
         const node = new CpeeNode(Dsl.KEYWORDS.ROOT.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         return node;
     }
@@ -220,7 +220,7 @@ class ModelGenerator {
     randomParallel() {
         const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomParallelBranch());
+            node.insertChild(this.randInt(i + 1), this.randomParallelBranch());
         }
         return node;
     }
@@ -229,7 +229,7 @@ class ModelGenerator {
         this._currDepth++;
         const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -241,9 +241,9 @@ class ModelGenerator {
 
         let i;
         for (i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomAlternative());
+            node.insertChild(this.randInt(i + 1), this.randomAlternative());
         }
-        node.insertChild(this.randInt(i), this.randomOtherwise());
+        node.insertChild(this.randInt(i + 1), this.randomOtherwise());
 
         return node;
     }
@@ -257,7 +257,7 @@ class ModelGenerator {
         node.attributes.set("condition", "data." + readVariable + " < 69");
 
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -267,7 +267,7 @@ class ModelGenerator {
         this._currDepth++;
         const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -281,7 +281,7 @@ class ModelGenerator {
         node.attributes.set("condition", "data." + readVariable + " < 69");
 
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         return node;
     }
@@ -289,9 +289,48 @@ class ModelGenerator {
     randomCritical() {
         const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i), this.randomNode());
+            node.insertChild(this.randInt(i + 1), this.randomNode());
         }
         return node;
+    }
+
+
+
+    changeModel(model, maxChanges) {
+        //do not modify original model
+        model = model.copy();
+
+        for (let i = 0; i < maxChanges; i++) {
+            const nodes = model.toPreOrderArray();
+            const inners = model.innerNodes();
+            const leaves = model.leafNodes();
+
+            switch(this.randomFrom(Dsl.CHANGE_TYPE_SET)) {
+
+                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION: {
+                    const newNode = this.randomInnerNode();
+                    const parent = this.randomFrom(inners);
+                    parent.insertChild(this.randInt(parent.numChildren() + 1), newNode);
+                }
+                case Dsl.CHANGE_TYPES.INSERTION: {
+                    const newNode = this.randomLeafNode();
+                    const parent = this.randomFrom(inners);
+                    parent.insertChild(this.randInt(parent.numChildren() + 1), newNode);
+                }
+                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
+                case Dsl.CHANGE_TYPES.DELETION: {
+
+                }
+                case Dsl.CHANGE_TYPES.MOVE_TO:
+                case Dsl.CHANGE_TYPES.MOVE_FROM: {
+
+                }
+                case Dsl.CHANGE_TYPES.UPDATE: {
+
+                }
+            }
+        }
+        return model;
     }
 
 }

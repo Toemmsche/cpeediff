@@ -20,6 +20,7 @@
 //      model validator
 
 //TODO semi-features
+//      CHANGE origin in xml
 //      chnage origin for ujpdates -->> own class
 //      matchins is never overwritten, only extended
 //      confidence level during merging
@@ -27,7 +28,6 @@
 //      ignore comments during xml parsing
 //      ensure one to one matching
 //      patcher supports child index only and type index
-//      add verbose function
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
