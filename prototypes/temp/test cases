@@ -4,3 +4,12 @@
 - X - mappings
 - test EXACT_EDIT_SCRIPT using patcher
 -
+
+
+
+unit tests:
+- no root (empty model)
+- no init script
+- one init script
+- one root
+- changed indentation / whitespaces

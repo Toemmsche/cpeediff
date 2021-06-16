@@ -138,7 +138,10 @@ class Dsl {
         MOVE_TO_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/move-to",
         MOVE_TO_NAMESPACE_PREFIX: "movto",
         UPDATE_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/update",
-        UPDATE_NAMESPACE_PREFIX: "upd"
+        UPDATE_NAMESPACE_PREFIX: "upd",
+
+        DELTA_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/delta",
+        DELTA_NAMESPACE_PREFIX: "delta"
     }
 
 

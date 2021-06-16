@@ -15,6 +15,7 @@
 */
 
 //TODO doc
+const {MergeNode} = require("./MergeNode");
 const {Serializable} = require("../utils/Serializable");
 const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
@@ -37,6 +38,10 @@ class CpeeModel extends Serializable{
 
     deltaCopy() {
         return new CpeeModel(DeltaNode.fromCpeeNode(this.root, true));
+    }
+
+    mergeCopy() {
+        return new CpeeModel(MergeNode.fromDeltaNode(this.root, true));
     }
 
     toPreOrderArray() {

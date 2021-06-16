@@ -16,6 +16,8 @@
 
 const xmldom = require("xmldom");
 const vkbeautify = require("vkbeautify");
+const {PrimeGenerator} = require("../utils/PrimeGenerator");
+const {StringHash} = require("../utils/StringHash");
 const {Dsl} = require("../Dsl");
 const {Change} = require("../editscript/Change");
 const {Config} = require("../Config");
@@ -167,27 +169,37 @@ class CpeeNode extends Serializable {
     }
     
     contentHash() {
-        const sortedAttrList = new Array(this.attributes.keys()).sort()
-        let contentHash= this.label;
-        for(const key in sortedAttrList) {
-            contentHash+= key + "=" + this.attributes.get(key);
+        const sortedAttrList = new Array(...this.attributes.keys()).sort()
+        let content = this.label;
+        for(const key of sortedAttrList) {
+            content += key + "=" + this.attributes.get(key);
         }
-        contentHash+= this.data;
-        return contentHash;
+        if(this.data != null) {
+            content += this.data;
+        }
+        return StringHash.hash(content);
     }
     
     childHash() {
-        let childHash = "";
+        let childHash = 0;
         if(this.hasInternalOrdering()) {
-            //preserve order
-            childHash += this._childNodes.map(n => n.nodeHash()).join("");
+            //preserve order by multiplying child hashes with distinct prime number based on index
+            const primes = PrimeGenerator.primes(this.numChildren());
+            childHash += this
+                ._childNodes
+                .map((n, i) => n.hash() * primes[i])
+                .reduce((prev, curr) => prev + curr, 0);
         } else {
-            childHash += this._childNodes.map(n => n.nodeHash()).sort().join("");
+            //arbitrary order, achieved by simple addition
+            childHash += this
+                ._childNodes
+                .map(n => n.hash())
+                .reduce((prev, curr) => prev + curr, 0);
         }
-        return childHash;
+       return childHash;
     }
 
-    nodeHash() {
+    hash() {
         return this.contentHash() + this.childHash();
     }
 

@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "murmur-32": "^0.2.0",
     "vkbeautify": "^0.99.3",
     "xmldom": "^0.6.0",
     "yargs": "^17.0.1"

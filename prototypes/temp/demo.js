@@ -66,9 +66,11 @@ console.log(MatchDiff.diff(rand1, rand2, ChawatheMatching).convertToXml())
 
 */
 
+console.log(TreeStringSerializer.serializeModel(model1));
+console.log(TreeStringSerializer.serializeModel(model2));
 
 
-const d = MatchDiff.diff(model1, model2, ChawatheMatching);
+const d = MatchDiff.diff(model1, model2, new ChawatheMatching());
 const dt = DeltaModelGenerator.deltaTree(model1, d);
 
 

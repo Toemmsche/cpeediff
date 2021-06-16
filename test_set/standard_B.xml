@@ -1,24 +1,28 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a1" endpoint="bookAir">
-        <parameters>
-            <label>Book Airline</label>
-            <method>:post</method>
-            <arguments>
-                <from>data.from</from>
-                <to>data.to</to>
-                <persons>data.persons</persons>
-            </arguments>
-        </parameters>
-        <code>
-            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                status.update 1, 'Hotel'
-            </finalize>
-        </code>
-    </call>
+    <loop>
+        <call id="a1" endpoint="bookAir">
+            <parameters>
+                <label>Book Airline</label>
+                <method>:post</method>
+                <arguments>
+                    <from>data.from</from>
+                    <to>data.to</to>
+                    <persons>data.persons</persons>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
+                    status.update 1, 'Hotel'
+                </finalize>
+            </code>
+        </call>
+        <escape></escape>
+    </loop>
     <manipulate id="asf">data.costs = 12</manipulate>
     <choose mode="inclusive">
         <alternative condition="data.costs > 700">
             <terminate/>
         </alternative>
     </choose>
+    <manipulate>data.persons++</manipulate>
 </description>

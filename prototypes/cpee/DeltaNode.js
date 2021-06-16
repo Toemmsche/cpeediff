@@ -21,7 +21,7 @@ const {CpeeNode} = require("./CpeeNode");
 
 class DeltaNode extends CpeeNode {
 
-    //diff related information
+    //delta related information
     /**
      * @type String
      */
@@ -29,9 +29,6 @@ class DeltaNode extends CpeeNode {
     updates;
     moveIndex;
     placeholders;
-
-    //origin of the change. Used for three-way merging
-    changeOrigin;
 
     constructor(label) {
         super(label);
@@ -130,7 +127,6 @@ class DeltaNode extends CpeeNode {
                 copy.appendChild(child.copy(true))
             }
         }
-        copy.changeOrigin = this.changeOrigin;
         return copy;
     }
 

@@ -1,13 +1,14 @@
 //TODO features
-//      longest substring compare for scripts
+//      longest substring compare for scripts (or q gram distance)
 //      export set and map similarity calculation
 //      IMPORTANT make exact edit script toggleable
 //      distinguish between interparent and far move
-//      hash matching first, then path (or chawathe) matching, then matchSimilarUnmatched()
+//      matchSimilarUnmatched()
 //      IMPORTANT: compare path (heuristically)
 //      comparisons for remaining inner nodes
 //      implement change agent
 //      command line visualization including "live" patching and filtered changes
+//      configurable separator between data and variable name (make "data." configurable)
 
 //TODO new algos
 //      fast LIS (O nlogn)
@@ -21,6 +22,7 @@
 //      model validator
 
 //TODO semi-features
+//      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
 //      chnage origin for ujpdates -->> own class
 //      matchins is never overwritten, only extended
@@ -59,6 +61,8 @@
 
 //TODO bugs
 //      robustness against indentation and newlines/whitespaces
+//      unnecessary tree traversals during matching, edit script genreation, hashing and merging
+//      make robust against missing root and init script
 
 
 //TODO REWRITE

@@ -24,15 +24,16 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 class DeltaMerger {
 
     static merge(base, model1, model2) {
-        const delta1 = MatchDiff.diff(base, model1, ChawatheMatching);
-        const delta2 = MatchDiff.diff(base, model2, ChawatheMatching);
+        const delta1 = MatchDiff.diff(base, model1, new ChawatheMatching());
+        const delta2 = MatchDiff.diff(base, model2, new ChawatheMatching());
         console.log(delta1.convertToXml(false));
         console.log(delta2.convertToXml(false));
 
-        const dt1 = DeltaModelGenerator.deltaTree(base, delta1);
-        const dt2 = DeltaModelGenerator.deltaTree(base, delta2);
+        const dt1 = DeltaModelGenerator.deltaTree(base, delta1).mergeCopy();
+        const dt2 = DeltaModelGenerator.deltaTree(base, delta2).mergeCopy();
 
-        const matching = ChawatheMatching.match(dt1, dt2);
+        const matching = new ChawatheMatching().match(dt1, dt2);
+
         //TODO always match nodes that have been matched to the same node in base
 
         for (const node of dt1.toPreOrderArray()) {
@@ -169,7 +170,6 @@ class DeltaMerger {
                         const matchNewVal = match.updates.get(key)[1];
                         if(newVal !== matchNewVal) {
                             //TODO pick longer version
-                            //TODO mark change origin
                             //true conflict, pick this tree's version
                             match.updates.get(key)[1] = newVal;
                             if(key === "data") {
@@ -242,7 +242,7 @@ class DeltaMerger {
                 //in the case of move, prefer old one
                 if(descendant.isMove()) {
                     descendant.removeFromParent();
-                    const match  =matching.getOther(descendant);
+                    const match = matching.getOther(descendant);
                     const newParent = matching.getOther(match.parent);
                     insertCorrectly(newParent, descendant, match);
                 }
