@@ -15,6 +15,7 @@
 */
 
 
+const {Lis} = require("../lib/Lis");
 const {Config} = require("../Config");
 const {Change} = require("./Change");
 const {CpeeModel} = require("../cpee/CpeeModel");
@@ -34,7 +35,7 @@ class EditScriptGenerator {
      * @param options
      * @return {EditScript}
      */
-    static generateEditScript(oldModel, newModel, matching, options = []) {
+    generateEditScript(oldModel, newModel, matching, options = []) {
         const editScript = new EditScript();
 
         const oldPostOrderArray = oldModel.toPostOrderArray();
@@ -44,70 +45,19 @@ class EditScriptGenerator {
         for (const newNode of newPreOrderArray) {
             //We can safely skip the root node, as it will always be mapped between two cpee models
             if (newNode.parent == null) continue;
-            const matchOfParent = matching.getNew(newNode.parent);
             if (matching.hasNew(newNode)) {
                 //new Node has a match in the old model
                 const match = matching.getNew(newNode);
-
-                if (matchOfParent !== match.parent) {
-                    const oldPath = match.toChildIndexPathString();
-                    //move match to matchOfParent
-                    match.removeFromParent();
-
-                    //find appropriate insertion index
-                    let insertionIndex;
-                    if(newNode.childIndex > 0) {
-                        const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
-                        //left sibling has a match
-                        insertionIndex = matching.getNew(leftSibling).childIndex + 1;
-                    } else {
-                        insertionIndex = 0;
-                    }
-
-                    matchOfParent.insertChild(insertionIndex, match);
-                    const newPath = match.toChildIndexPathString();
-                    editScript.move(oldPath, newPath);
+                if (matching.getNew(newNode.parent) !== match.parent) {
+                    this._move(match, matching, editScript);
                 }
 
                 if (!newNode.contentEquals(match)) {
-                    //modify node
-                    const oldPath = match.toChildIndexPathString();
-                    //during edit script generation, we don't need to update the data/attributes of the match
-                    editScript.update(oldPath, newNode.copy(false));
+                    this._update(match, matching, editScript);
                 }
             } else {
-                //TODO refine to detect partial subrtrees
-                //detect subtree insertions
-                function noMatch(newNode) {
-                    if(matching.hasNew(newNode)) {
-                        return false;
-                    }
-                    for(const child of newNode) {
-                        if(!noMatch(child)) {
-                            return false;
-                        }
-                    }
-                }
-                //if no descendant of newNode is matched, they all need to be inserted
-                const copy = newNode.copy(noMatch(newNode));
-
-                //find appropriate insertion index
-                let insertionIndex;
-                if(newNode.childIndex > 0) {
-                    const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
-                    //left sibling has a match
-                    insertionIndex = matching.getNew(leftSibling).childIndex + 1;
-                } else {
-                    insertionIndex = 0;
-                }
-
-                //perform insert operation at match of the parent node
-                matchOfParent.insertChild(insertionIndex, copy);
-                const newPath = copy.toChildIndexPathString();
-
-                //insertions always correspond to a new mapping
-                matching.matchNew(newNode, copy);
-                editScript.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode));
+                //TODO subtree insert
+                this._insert(newNode, matching, editScript);
             }
         }
 
@@ -128,103 +78,136 @@ class EditScriptGenerator {
             //all nodes from index 0 to node are deleted in a single subtree deletion
             const subTreeSize = oldDeletedNodes.indexOf(node) + 1;
             oldDeletedNodes.splice(0, subTreeSize);
-            const oldPath = node.toChildIndexPathString();
-            //TODO document that removeFromParent() does not change the parent attributes
-            node.removeFromParent();
-            editScript.delete(oldPath, node.hasChildren());
+
+            this._delete(node, editScript);
+
         }
 
         //All nodes have the right parent and are matched or deleted later
         //However, order of child nodes might not be right, we must verify that it matches the new model.
         for (const oldNode of oldModel.toPreOrderArray()) {
             if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
-                //Based on A. Marian, "Detecting Changes in XML Documents", 2002
-
-                const reshuffle = oldNode.childNodes.filter(n => matching.hasOld(n));
-                if (reshuffle.length === 0) {
-                    continue;
-                }
-
-                //map each old child node to the child index of its matching partner
-                const arr = reshuffle.map(n => matching.getOld(n).childIndex);
-
-                //avoid expensive dynamic programming procedure if children are already ordered
-                let ascending = true;
-                for (let i = 1; i < arr.length; i++) {
-                    if (arr[i] <= arr[i - 1]) {
-                        ascending = false;
-                        break;
-                    }
-                }
-                if (ascending) {
-                    continue;
-                }
-
-                //TODO
-                //find conflict groups based on read and modified variables
-
-                //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
-                //dp[i] contains the length of the longest sequence that ends at i
-                const dp = new Array(arr.length);
-                const parent = new Array(arr.length);
-
-                //best value
-                let max = 0;
-                //Simple O(n²) algorithm to compute the LIS
-                for (let i = 0; i < dp.length; i++) {
-                    dp[i] = 1;
-                    parent[i] = -1;
-                    for (let j = 0; j < i; j++) {
-                        if (arr[j] < arr[i] && dp[j] + 1 > dp[i]) {
-                            dp[i] = dp[j] + 1;
-                            parent[i] = j;
-                        }
-                    }
-                    //update best value
-                    if (dp[i] > dp[max]) {
-                        max = i;
-                    }
-                }
-                //all nodes not part of the LIS have to be reordered
-                while (max !== -1) {
-                    reshuffle.splice(max, 1);
-                    max = parent[max];
-                }
-
-                for (const node of reshuffle) {
-                    const match = matching.getOld(node);
-                    const oldPath = node.toChildIndexPathString();
-                    node.changeChildIndex(match.childIndex);
-                    const newPath = node.toChildIndexPathString();
-                    editScript.move(oldPath, newPath);
-                }
-            }
-
-        }
-
-        /*
-        //TODO fix
-
-        //detect subtree insertions
-        for (let i = 0; i < editScript.changes.length; i++) {
-            const change = editScript.changes[i];
-            if (change instanceof Insertion) {
-                const arr = change.targetNode.toPreOrderArray();
-                //change type must remain the same (insertion or copy)
-                for (let j = 1; j < arr.length; j++) {
-                    if (i + j >= editScript.changes.length || !(editScript.changes[i + j] instanceof Insertion) || !editScript.changes[i + j].targetNode === arr[j]) {
-                        break;
-                    }
-                    if (j === arr.length - 1) {
-                        //replace whole subarray with single subtree insertion
-                        editScript.changes.splice(i + 1, arr.length - 1);
-                        editScript.changes[i] = new Insertion(change.targetNode, change.targetNode);
-                    }
-                }
+                this._alignChildren(oldNode, matching, editScript);
             }
         }
-        */
         return editScript;
+    }
+
+    _alignChildren(oldNode, matching, editScript) {
+        //Based on A. Marian, "Detecting Changes in XML Documents", 2002
+
+        const reshuffle = oldNode.childNodes.filter(n => matching.hasOld(n));
+        if (reshuffle.length === 0) {
+            return;
+        }
+
+        //map each old child node to the child index of its matching partner
+        const arr = reshuffle.map(n => matching.getOld(n).childIndex);
+
+        //avoid expensive dynamic programming procedure if children are already ordered
+        let ascending = true;
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i] <= arr[i - 1]) {
+                ascending = false;
+                break;
+            }
+        }
+        if (ascending) {
+            return;
+        }
+
+        //TODO
+        //find conflict groups based on read and modified variables
+        //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
+
+        const lis = Lis.getLis(arr);
+
+        //filter out LIS
+        for (const index of lis) {
+            reshuffle.splice(index, 1);
+        }
+
+        for (const node of reshuffle) {
+            const match = matching.getOld(node);
+            const oldPath = node.toChildIndexPathString();
+            node.changeChildIndex(match.childIndex);
+            const newPath = node.toChildIndexPathString();
+            editScript.move(oldPath, newPath);
+        }
+    }
+
+    _delete(oldNode, editScript) {
+        const oldPath = oldNode.toChildIndexPathString();
+        //TODO document that removeFromParent() does not change the parent attributes
+        oldNode.removeFromParent();
+        editScript.delete(oldPath, oldNode.hasChildren());
+    }
+
+    _move(oldNode, matching, editScript) {
+        const newNode = matching.getOld(oldNode);
+        const oldPath = oldNode.toChildIndexPathString();
+
+        //move oldNode to newParent
+        oldNode.removeFromParent();
+
+        //find appropriate insertion index
+        let insertionIndex;
+        if (newNode.childIndex > 0) {
+            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+            //left sibling has a match
+            insertionIndex = matching.getNew(leftSibling).childIndex + 1;
+        } else {
+            insertionIndex = 0;
+        }
+
+        const newParent = matching.getNew(newNode.parent);
+        newParent.insertChild(insertionIndex, oldNode);
+        const newPath = oldNode.toChildIndexPathString();
+        editScript.move(oldPath, newPath);
+    }
+
+    _insert(newNode, matching, editScript) {
+        //TODO refine to detect partial subrtrees
+        //detect subtree insertions
+        function noMatch(newNode) {
+            if (matching.hasNew(newNode)) {
+                return false;
+            }
+            for (const child of newNode) {
+                if (!noMatch(child)) {
+                    return false;
+                }
+            }
+        }
+
+        //if no descendant of newNode is matched, they all need to be inserted
+        const copy = newNode.copy(noMatch(newNode));
+
+        //find appropriate insertion index
+        let insertionIndex;
+        if (newNode.childIndex > 0) {
+            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+            //left sibling has a match
+            insertionIndex = matching.getNew(leftSibling).childIndex + 1;
+        } else {
+            insertionIndex = 0;
+        }
+
+        //perform insert operation at match of the parent node
+        const newParent = matching.getNew(newNode.parent);
+        newParent.insertChild(insertionIndex, copy);
+        const newPath = copy.toChildIndexPathString();
+
+        //insertions always correspond to a new mapping
+        matching.matchNew(newNode, copy);
+        editScript.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode));
+    }
+
+    _update(oldNode, matching, editScript) {
+        const newNode = matching.getOld(oldNode);
+        const oldPath = oldNode.toChildIndexPathString();
+        //during edit script generation, we don't need to update the data/attributes of the match
+        editScript.update(oldPath, newNode.copy(false));
     }
 }
 

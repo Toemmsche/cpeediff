@@ -18,7 +18,7 @@ const xmldom = require("xmldom");
 const vkbeautify = require("vkbeautify");
 const {CpeeNode} = require("../cpee/CpeeNode");
 const {Dsl} = require("../Dsl");
-const {Serializable} = require("../utils/Serializable");
+const {Serializable} = require("../Serializable");
 
 class Change extends Serializable {
 

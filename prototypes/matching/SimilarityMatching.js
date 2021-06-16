@@ -14,8 +14,7 @@
    limitations under the License.
 */
 
-const {HungarianAlgorithm} = require("../utils/HungarianAlgorithm");
-const {LCSSimilarity} = require("../utils/LongestCommonSubsequence");
+const {LCSSimilarity} = require("../lib/Lcs");
 const {Globals} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");

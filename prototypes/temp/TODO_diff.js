@@ -39,6 +39,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      use custom objects as return values (e.g. change in updates)
 //      make property strings members of keyword objects
 //      make insertChild() call removeFromparent(),
 //      no static methods

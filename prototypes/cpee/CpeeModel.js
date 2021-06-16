@@ -16,7 +16,7 @@
 
 //TODO doc
 const {MergeNode} = require("./MergeNode");
-const {Serializable} = require("../utils/Serializable");
+const {Serializable} = require("../Serializable");
 const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 

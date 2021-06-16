@@ -52,7 +52,7 @@ class MatchDiff extends AbstractDiff {
 
 
         //generate edit script
-        return EditScriptGenerator.generateEditScript(copyOfOld, newModel, m);
+        return new EditScriptGenerator().generateEditScript(copyOfOld, newModel, m);
     }
 }
 

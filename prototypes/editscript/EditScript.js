@@ -19,7 +19,7 @@ const xmldom= require("xmldom");
 const vkbeautify = require("vkbeautify");
 const {Change} = require("./Change");
 const {Dsl} = require("../Dsl");
-const {Serializable} = require("../utils/Serializable");
+const {Serializable} = require("../Serializable");
 
 class EditScript extends Serializable {
 

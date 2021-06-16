@@ -14,9 +14,12 @@
    limitations under the License.
 */
 
+const vkbeautify = require("vkbeautify");
+const xmldom = require("xmldom");
 const {CpeeNode} = require("./CpeeNode");
 const {Dsl} = require("../Dsl");
 
+//TODO extend DeltaNode
 class  MergeNode extends CpeeNode {
 
     //merge related information
@@ -102,6 +105,77 @@ class  MergeNode extends CpeeNode {
         }
         return copy;
     }
+
+    convertToXml( xmlDom = false, includeChildNodes = true) {
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const root = constructRecursive(this);
+
+        if (xmlDom) {
+            return root;
+        } else {
+            doc.insertBefore(root, null);
+            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
+        }
+
+        function constructRecursive(mergeNode) {
+            const changeType = mergeNode.changeType;
+
+            const prefix = Dsl.NAMESPACES[changeType + "_NAMESPACE_PREFIX"] + ":"
+            const node = doc.createElement(prefix + mergeNode.label);
+            node.localName = mergeNode.label;
+
+            //TODO delta variables
+            if (mergeNode.label === Dsl.KEYWORDS.ROOT) {
+                node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.NIL_NAMESPACE_PREFIX, Dsl.NAMESPACES.NIL_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX, Dsl.NAMESPACES.INSERT_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX, Dsl.NAMESPACES.DELETE_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_TO_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_TO_NAMESPACE_URI);
+                node.setAttribute("xmlns:" + Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX, Dsl.NAMESPACES.UPDATE_NAMESPACE_URI);
+            }
+
+
+            //set namespace of updated fields
+            for(const [key, change] of mergeNode.updates) {
+                const oldVal = change[0];
+                const newVal = change[1];
+                if(key === "data") {
+                    mergeNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":data", "true");
+                } else {
+                    if(oldVal == null) {
+                        const val = mergeNode.attributes.get(key);
+                        mergeNode.attributes.set(Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX + ":" + key, val );
+                        mergeNode.attributes.delete(key);
+                    } else if(newVal == null) {
+                        mergeNode.attributes.set(Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX + ":" + key, oldVal);
+                    } else {
+                        const val = mergeNode.attributes.get(key);
+                        mergeNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":" + key, val);
+                        mergeNode.attributes.delete(key);
+                    }
+                }
+            }
+
+            for (const [key, value] of mergeNode.attributes) {
+
+                node.setAttribute(key, value);
+            }
+
+            if (includeChildNodes) {
+                for (const child of mergeNode) {
+                    node.appendChild(constructRecursive(child));
+                }
+            }
+
+            if (mergeNode.data != null) {
+                node.appendChild(doc.createTextNode(mergeNode.data))
+            }
+
+            return node;
+        }
+    }
+
 }
 
 exports. MergeNode =  MergeNode;

@@ -15,7 +15,7 @@
 */
 
 const {StandardComparator} = require("../compare/StandardComparator");
-const {Lcs} = require("../utils/LongestCommonSubsequence");
+const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
@@ -183,6 +183,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         }
 
         function matchingSimilarity(newNode, oldNode) {
+            //TODO assign weight to nodes based on size
             let commonCounter = 0;
             const newNodeSet = new Set(newNode
                 .toPreOrderArray()

@@ -251,7 +251,6 @@ class DeltaMerger {
         }
 
         //TODO resolve node order --> semantic aspects or anchors generated during delta construction
-
         for(const node of dt1.toPreOrderArray()) {
             if(node.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
                 const leftSibling = node.getSiblings()[node.childIndex - 1];

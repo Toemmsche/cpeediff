@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {Lcs} = require("../utils/LongestCommonSubsequence");
+const {Lcs} = require("../lib/Lcs");
 const {AbstractComparator} = require("./AbstractComparator");
 
 class StandardComparator extends AbstractComparator {

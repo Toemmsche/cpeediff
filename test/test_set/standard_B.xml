@@ -16,13 +16,13 @@
                 </finalize>
             </code>
         </call>
+        <choose mode="inclusive">
+            <alternative condition="data.costs > 700">
+                <terminate/>
+            </alternative>
+        </choose>
         <escape></escape>
     </loop>
     <manipulate id="asf">data.costs = 12</manipulate>
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <terminate/>
-        </alternative>
-    </choose>
     <manipulate>data.persons++</manipulate>
 </description>

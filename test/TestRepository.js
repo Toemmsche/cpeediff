@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*
     Copyright 2021 Tom Papke
 
@@ -14,24 +16,16 @@
    limitations under the License.
 */
 
-const munkres = require("munkres-js");
+const fs = require("fs");
+const {CpeeModel} = require("../prototypes/cpee/CpeeModel");
 
-class HungarianAlgorithm {
+class TestRepository {
 
-    static match(costMatrix) {
-        const res = munkres(costMatrix);
-        let val = 0;
-        for(const [first ,second] of res) {
-            val += costMatrix[first][second];
-        }
-        return val / costMatrix.length;
+    static _bookingModel = CpeeModel.parseFromXml(fs.readFileSync("test/test_set/examples/Booking.xml").toString());
+
+    static bookingModel() {
+        return this._bookingModel.copy(true);
     }
-
-    static matches(costMatrix) {
-        return munkres(costMatrix);
-    }
-
 }
 
-exports.HungarianAlgorithm = HungarianAlgorithm;
-
+exports.TestRepository = TestRepository;

@@ -16,12 +16,12 @@
 
 const xmldom = require("xmldom");
 const vkbeautify = require("vkbeautify");
-const {PrimeGenerator} = require("../utils/PrimeGenerator");
-const {StringHash} = require("../utils/StringHash");
+const {PrimeGenerator} = require("../lib/PrimeGenerator");
+const {StringHash} = require("../lib/StringHash");
 const {Dsl} = require("../Dsl");
 const {Change} = require("../editscript/Change");
 const {Config} = require("../Config");
-const {Serializable} = require("../utils/Serializable");
+const {Serializable} = require("../Serializable");
 
 class CpeeNode extends Serializable {
 
@@ -315,14 +315,6 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     * @param {CpeeNode} other
-     * @returns {boolean}
-     */
-    nodeTypeEquals(other) {
-        return this.label === other.label;
-    }
-
-    /**
      *  @returns {String}
      */
     getCode() {
@@ -436,9 +428,9 @@ class CpeeNode extends Serializable {
      */
     changeChildIndex(newIndex) {
         //delete
-        this._parent.childNodes.splice(this._childIndex, 1);
+        this._parent._childNodes.splice(this._childIndex, 1);
         //insert
-        this._parent.childNodes.splice(newIndex, 0, this);
+        this._parent._childNodes.splice(newIndex, 0, this);
         //adjust child indices
         this._parent._fixChildIndices();
     }
@@ -457,21 +449,6 @@ class CpeeNode extends Serializable {
         for (let i = 0; i < this._childNodes.length; i++) {
             this._childNodes[i]._childIndex = i;
         }
-    }
-
-    /**
-     *
-     * @returns {CpeeNode}
-     */
-    getParentLeaf() {
-        if (!this.isPropertyNode()) {
-            throw new Error("Non-property node does not have a parent leaf node");
-        }
-        let node = this;
-        while (node.isPropertyNode()) {
-            node = node._parent;
-        }
-        return node;
     }
 
     toChildIndexPathString() {

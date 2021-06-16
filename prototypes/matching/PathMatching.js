@@ -15,7 +15,7 @@
 */
 
 const {StandardComparator} = require("../compare/StandardComparator");
-const {Lcs} = require("../utils/LongestCommonSubsequence");
+const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");

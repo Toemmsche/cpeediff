@@ -19,7 +19,6 @@
 
 const yargs = require("yargs");
 const fs = require("fs");
-const {XmlSerializer} = require("./serialize/XmlSerializer");
 const {TreeStringSerializer} = require("./serialize/TreeStringSerializer");
 const {DeltaTreeGenerator} = require("./patch/DeltaModelGenerator");
 const {Config} = require("./Config");
