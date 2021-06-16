@@ -57,6 +57,10 @@
 //      maybe remove contructrecursive and use actual recursion
 
 
+//TODO bugs
+//      robustness against indentation and newlines/whitespaces
+
+
 //TODO REWRITE
 //      splite edit script geneartion into phases (with individual methods)
 //      update class

@@ -1,91 +1,24 @@
-<properties xmlns="http://cpee.org/ns/properties/2.0">
-    <state changed="2021-06-14T14:39:17.247+02:00">ready</state>
-    <status>
-        <id>0</id>
-        <message>undefined</message>
-    </status>
-    <executionhandler>ruby</executionhandler>
-    <positions/>
-    <dataelements>
-        <persons>3</persons>
-        <card>Visa_12345</card>
-        <airline>null</airline>
-        <hotels>[]</hotels>
-        <from>Vienna</from>
-        <to>Prague</to>
-        <costs>0</costs>
-    </dataelements>
-    <endpoints>
-        <bookAir>http://gruppe.wst.univie.ac.at/~mangler/services/airline.php</bookAir>
-        <timeout>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</timeout>
-        <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
-        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
-    </endpoints>
-    <attributes>
-        <uuid>79f888e0-156a-4e5a-8448-862b42d4c38c</uuid>
-        <theme>extended</theme>
-        <info>Coopis 2010</info>
-        <creator>Christine Ashcreek</creator>
-        <modeltype>CPEE</modeltype>
-        <author>Christine Ashcreek</author>
-        <design_stage>development</design_stage>
-        <design_dir>Templates.dir</design_dir>
-    </attributes>
-    <dsl>control flow do call :a1, :bookAir, parameters: { :label => "Book Airline", :method => :post, :arguments => [⭐(:name => :from, :value => ->{ "data.from" }), ⭐(:name => :to, :value => ->{ "data.to" }), ⭐(:name => :persons, :value => ->{ "data.persons" })] }, finalize: <<-END data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel' END loop pre_test("data.persons > 0") do parallel_branch data.persons do |p| call :a2, :bookHotel, parameters: { :label => "Book Hotel", :method => :post, :arguments => [⭐(:name => :to, :value => ->{ "data.to" })] }, finalize: <<-END data.hotels << result.value('id') data.costs += result.value('costs').to_f END end manipulate :a3, <<-END data.persons -= 1 END end choose :inclusive do alternative test("data.costs > 700") do call :a4, :approve, parameters: { :label => "Approve Hotel", :method => :post, :arguments => [⭐(:name => :costs, :value => ->{ "data.costs" })] } end end end</dsl>
-    <dslx>
-        <description xmlns="http://cpee.org/ns/description/1.0">
-            <call id="a1" endpoint="bookAir">
-                <parameters>
-                    <label>Book Airline</label>
-                    <method>:post</method>
-                    <arguments>
-                        <from>data.from</from>
-                        <to>data.to</to>
-                        <persons>data.persons</persons>
-                    </arguments>
-                </parameters>
-                <code>
-                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
-                </code>
-            </call>
-            <loop mode="pre_test" condition="data.persons > 0">
-                <parallel_branch pass="data.persons" local="p">
-                    <call id="a2" endpoint="bookHotel">
-                        <parameters>
-                            <label>Book Hotel</label>
-                            <method>:post</method>
-                            <arguments>
-                                <to>data.to</to>
-                            </arguments>
-                        </parameters>
-                        <code>
-                            <finalize output="result">data.hotels << result.value('id') data.costs += result.value('costs').to_f</finalize>
-                        </code>
-                    </call>
-                </parallel_branch>
-                <manipulate id="a3">data.persons -= 1</manipulate>
-            </loop>
-            <choose mode="inclusive" kekw="sdfs" attr="value1" asdf="">
-                <otherwise>
-                    <manipulate>data.costs++</manipulate>
-                </otherwise>
-                <alternative condition="data.costs > 600">
-                    <call id="a4" endpoint="approve">
-                        <parameters>
-                            <label>Approve Hotel</label>
-                            <method>:post</method>
-                            <arguments>
-                                <costs>data.costs</costs>
-                            </arguments>
-                        </parameters>
-                    </call>
-                </alternative>
-            </choose>
-        </description>
-    </dslx>
-    <transformation>
-        <description type="copy"/>
-        <dataelements type="none"/>
-        <endpoints type="none"/>
-    </transformation>
-</properties>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <call id="a1" endpoint="bookAir">
+        <parameters>
+            <label>Book Airline</label>
+            <method>:post</method>
+            <arguments>
+                <from>data.from</from>
+                <to>data.to</to>
+                <persons>data.persons</persons>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
+                status.update 1, 'Hotel'
+            </finalize>
+        </code>
+    </call>
+    <manipulate id="asf">data.costs = 12</manipulate>
+    <choose mode="inclusive">
+        <alternative condition="data.costs > 700">
+            <terminate/>
+        </alternative>
+    </choose>
+</description>

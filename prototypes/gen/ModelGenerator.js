@@ -87,6 +87,10 @@ class ModelGenerator {
         return Math.floor(Math.random() * max);
     }
 
+    withProbability(prob) {
+        return Math.random() < prob;
+    }
+
     randomString(length = this.randInt(100)) {
         const result = [];
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -96,12 +100,12 @@ class ModelGenerator {
         return result.join('');
     }
 
-    randomRoot() {
-        const node = new CpeeNode(Dsl.KEYWORDS.ROOT.label);
-        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+    insertRandomly(parent, child) {
+        let insertionIndex = this.randInt(parent.numChildren());
+        if(parent.isRoot() && insertionIndex === 0) {
+            insertionIndex++;
         }
-        return node;
+        parent.insertChild(child);
     }
 
     randomNode() {
@@ -120,13 +124,13 @@ class ModelGenerator {
         const rand = this.randInt(100);
 
         //about two-third chance to add a call
-        if(rand < 65) {
+        if(this.withProbability(0.65)) {
             return this.randomCall();
-        } else if(rand < 90) {
+        } else if(this.withProbability(0.3)) {
             return this.randomManipulate();
-        } else if (rand < 93) {
+        } else if (this.withProbability(0.3)) {
             return this.randomStop();
-        } else if(rand < 97)  {
+        } else if(this.withProbability(0.3))  {
             return this.randomEscape();
         } else {
             return this.randomTerminate();
@@ -148,6 +152,14 @@ class ModelGenerator {
             default:
                 return this.randomLoop();
         }
+    }
+
+    randomRoot() {
+        const node = new CpeeNode(Dsl.KEYWORDS.ROOT.label);
+        for (let i = 0; i < this.randInt(this.maxWidth); i++) {
+            this.insertRandomly(node, this.randomNode());
+        }
+        return node;
     }
 
     randomCall() {
@@ -220,7 +232,7 @@ class ModelGenerator {
     randomParallel() {
         const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomParallelBranch());
+            this.insertRandomly(node, this.randomParallelBranch());
         }
         return node;
     }
@@ -229,7 +241,7 @@ class ModelGenerator {
         this._currDepth++;
         const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+            this.insertRandomly(node, this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -241,9 +253,9 @@ class ModelGenerator {
 
         let i;
         for (i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomAlternative());
+            this.insertRandomly(node, this.randomAlternative());
         }
-        node.insertChild(this.randInt(i + 1), this.randomOtherwise());
+        this.insertRandomly(node, this.randomOtherwise());
 
         return node;
     }
@@ -257,7 +269,7 @@ class ModelGenerator {
         node.attributes.set("condition", "data." + readVariable + " < 69");
 
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+            this.insertRandomly(node, this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -267,7 +279,7 @@ class ModelGenerator {
         this._currDepth++;
         const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+            this.insertRandomly(node, this.randomNode());
         }
         this._currDepth--;
         return node;
@@ -281,7 +293,7 @@ class ModelGenerator {
         node.attributes.set("condition", "data." + readVariable + " < 69");
 
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+            this.insertRandomly(node, this.randomNode());
         }
         return node;
     }
@@ -289,11 +301,10 @@ class ModelGenerator {
     randomCritical() {
         const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL.label);
         for (let i = 0; i < this.randInt(this.maxWidth); i++) {
-            node.insertChild(this.randInt(i + 1), this.randomNode());
+            this.insertRandomly(node, this.randomNode());
         }
         return node;
     }
-
 
 
     changeModel(model, maxChanges) {
@@ -305,28 +316,57 @@ class ModelGenerator {
             const inners = model.innerNodes();
             const leaves = model.leafNodes();
 
+            //TODO prevent syntactical errors (like call directly underneath parallel or otherwise)
             switch(this.randomFrom(Dsl.CHANGE_TYPE_SET)) {
-
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION: {
                     const newNode = this.randomInnerNode();
                     const parent = this.randomFrom(inners);
-                    parent.insertChild(this.randInt(parent.numChildren() + 1), newNode);
+                    this.insertRandomly(parent, newNode);
                 }
                 case Dsl.CHANGE_TYPES.INSERTION: {
                     const newNode = this.randomLeafNode();
                     const parent = this.randomFrom(inners);
-                    parent.insertChild(this.randInt(parent.numChildren() + 1), newNode);
+                    this.insertRandomly(parent, newNode);
                 }
-                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
+                case Dsl.CHANGE_TYPES.SUBTREE_DELETION: {
+                    const node = this.randomFrom(inners);
+                    node.removeFromParent();
+                }
                 case Dsl.CHANGE_TYPES.DELETION: {
-
+                    const node = this.randomFrom(leaves);
+                    node.removeFromParent();
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO:
                 case Dsl.CHANGE_TYPES.MOVE_FROM: {
+                    const node = this.randomFrom(nodes);
+                    node.removeFromParent();
+                    const newParent = this.randomFrom(model.innerNodes());
+                    this.insertRandomly(newParent, node);
 
                 }
                 case Dsl.CHANGE_TYPES.UPDATE: {
+                    let node;
+                    if(this.withProbability(0.8)) {
+                        node = this.randomFrom(leaves);
+                    } else {
+                        node = this.randomFrom(inners);
+                    }
 
+                    //randomly change/delete/insert attributes
+                    for(const key of node.attributes.keys()) {
+                        if(this.withProbability(0.05)) {
+                            node.attributes.delete(key);
+                        } else if(this.withProbability(0.15)) {
+                            const newVal = node.attributes.get(key) + this.randomString(5);
+                            node.attributes.set(key, newVal);
+                        }
+                    }
+                    if(this.withProbability(0.2)) {
+                        node.attributes.set(this.randomString(10), this.randomString(10));
+                    }
+
+
+                    //TODO chagne data and explore properties (if leaf)
                 }
             }
         }

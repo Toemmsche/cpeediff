@@ -47,20 +47,27 @@ const xmlC = fs.readFileSync(file3).toString();
 const bookingXML = fs.readFileSync(booking).toString();
 
 let bm = new Preprocessor().parseWithMetadata(bookingXML);
-console.log(bm.convertToXml());
+//console.log(bm.convertToXml());
 
 let model1 = new Preprocessor().parseWithMetadata(xmlA);
 let model2 =  new Preprocessor().parseWithMetadata(xmlB);
 let model3 =  new Preprocessor().parseWithMetadata(xmlC);
 
+/*
 
 let rand1 = new ModelGenerator(5, 5, 5, 5).randomModel();
 
 
 console.log(rand1.convertToXml());
 
+let rand2 = new ModelGenerator(5, 5, 5, 5).changeModel(rand1, 10);
 
-console.log(MatchDiff.diff(rand1,new ModelGenerator(5, 5, 5, 5).changeModel(rand1, 10), ChawatheMatching).convertToXml())
+console.log(MatchDiff.diff(rand1, rand2, ChawatheMatching).convertToXml())
+
+*/
+
+
+
 const d = MatchDiff.diff(model1, model2, ChawatheMatching);
 const dt = DeltaModelGenerator.deltaTree(model1, d);
 
