@@ -17,11 +17,12 @@
 */
 
 const fs = require("fs");
+const {Preprocessor} = require("../prototypes/parse/Preprocessor");
 const {CpeeModel} = require("../prototypes/cpee/CpeeModel");
 
 class TestRepository {
 
-    static _bookingModel = CpeeModel.parseFromXml(fs.readFileSync("test/test_set/examples/Booking.xml").toString());
+    static _bookingModel =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
 
     static bookingModel() {
         return this._bookingModel.copy(true);

@@ -22,11 +22,14 @@ const {CpeeNode} = require("../prototypes/cpee/CpeeNode");
 
 describe("CpeeNode", () => {
 
-    const newNodeLabel = "123456789";
+    //a new dummy node
     let newNode;
+    const newNodeLabel = "123456789";
 
+    //some nodes from the booking example
     let model;
     let bookAirCall;
+    let toArgument;
 
     beforeEach(() => {
         newNode = new CpeeNode(newNodeLabel);
@@ -35,11 +38,16 @@ describe("CpeeNode", () => {
         newNode.data = "dataVal";
 
         model = TestRepository.bookingModel();
-        bookAirCall = model.root.getChild(0);
+        bookAirCall = model.root.getChild(1);
+        toArgument = model.root
+            .getChild(1) //bookAirCall
+            .getChild(0) //parameters
+            .getChild(2) //arguments
+            .getChild(1) //to
     });
 
     describe("#copy()", () => {
-        it('should copy a node, including its content and child nodes (if specified)',() => {
+        it('should copy a node, including its content and child nodes (if specified)', () => {
             //do not copy child nodes
             let copy = newNode.copy(false);
 
@@ -47,12 +55,12 @@ describe("CpeeNode", () => {
             assert.strictEqual(copy.numChildren(), 0);
             assert.strictEqual(copy.data, newNode.data);
             assert.strictEqual(copy.attributes.size, newNode.attributes.size);
-            for(const key of newNode.attributes.keys()) {
+            for (const key of newNode.attributes.keys()) {
                 assert.strictEqual(copy.attributes.get(key), newNode.attributes.get(key));
             }
 
             //verify reference inequality
-            assert.notStrictEqual(copy, newNode);
+            assert.strictEqual(copy === newNode, false);
 
             //insert one child
             newNode.appendChild(new CpeeNode("dummy"));
@@ -68,7 +76,7 @@ describe("CpeeNode", () => {
 
 
     describe("#contentEquals()", () => {
-        it('should detect content equality between two nodes, excluding child nodes',() => {
+        it('should detect content equality between two nodes, excluding child nodes', () => {
             //do not copy child nodes
             const copy = newNode.copy(false);
             //insert one child
@@ -83,7 +91,7 @@ describe("CpeeNode", () => {
     });
 
     describe("#appendChild()", () => {
-        it('should append child at the end of node',() => {
+        it('should append child at the end of node', () => {
             model.root.appendChild(newNode);
 
             const lastChild = model.root.getChild(model.root.numChildren() - 1);
@@ -94,7 +102,7 @@ describe("CpeeNode", () => {
     });
 
     describe("#insertChild()", () => {
-        it('should insert child at specified index',() => {
+        it('should insert child at specified index', () => {
             const insertionIndex = 1;
 
             model.root.insertChild(insertionIndex, newNode);
@@ -107,7 +115,7 @@ describe("CpeeNode", () => {
     });
 
     describe("#removeFromParent()", () => {
-        it('should remove the node from its parent',() => {
+        it('should remove the node from its parent', () => {
             bookAirCall.removeFromParent();
             assert.notStrictEqual(model.root.getChild(0), bookAirCall);
 
@@ -117,19 +125,19 @@ describe("CpeeNode", () => {
     });
 
     describe("#changeChildIndex()", () => {
-        it('should move a node to a different position within its child list',() => {
+        it('should move a node to a different position within its child list', () => {
             const newIndex = 1;
 
             bookAirCall.changeChildIndex(newIndex);
 
             assert.strictEqual(bookAirCall.childIndex, newIndex);
             //parent should not change
-            assert.strictEqual(bookAirCall.parent, model.root);
+            assert.strictEqual(bookAirCall.parent , model.root);
         });
     });
 
     describe("#hash()", () => {
-        it('should produce a unique hash for the subtree rooted at the node',() => {
+        it('should produce a unique hash for the subtree rooted at the node', () => {
             //hash should be a number
             assert.ok(model.root.hash().constructor === Number);
 
@@ -147,5 +155,69 @@ describe("CpeeNode", () => {
             assert.strictEqual(model.root.hash(), copy.root.hash());
         });
     });
+
+
+    describe("#path()", () => {
+        it('should return a sequence of nodes excluding the root that represent the path from the root to the node', () => {
+            const parameters = bookAirCall.getChild(0);
+            const arguments = parameters.getChild(2);
+
+            const path = toArgument.path;
+            strictArrayEqual(path, [bookAirCall, parameters, arguments, toArgument])
+        });
+    });
+
+    describe("#toChildIndexPathString()", () => {
+        it('should return the path from root to the node using child indices', () => {
+            assert.strictEqual(toArgument.toChildIndexPathString(), "1/0/2/1");
+        });
+    });
+
+    describe("#toPropertyPathString()", () => {
+        it('should return the path from the parent leaf node to the property node using child indices', () => {
+            assert.strictEqual(toArgument.toPropertyPathString(), "arguments/to");
+        });
+    });
+
+    describe("#toPreorderArray()", () => {
+        it('should return a sequence of nodes equivalent to a pre-order traversal of the subtree rooted at the node', () => {
+            const preOrder = bookAirCall.toPreOrderArray();
+
+            const parameters = bookAirCall.getChild(0);
+            const label = parameters.getChild(0);
+            const method = parameters.getChild(1);
+            const arguments = parameters.getChild(2);
+            const fromArgument = arguments.getChild(0);
+            const personsArgument = arguments.getChild(2);
+            const code = bookAirCall.getChild(1);
+            const finalize = code.getChild(0);
+
+            strictArrayEqual(preOrder, [bookAirCall, parameters, label, method, arguments, fromArgument, toArgument, personsArgument, code, finalize]);
+        });
+    });
+
+    describe("#toPostorderArray()", () => {
+        it('should return a sequence of nodes equivalent to a post-order traversal of the subtree rooted at the node', () => {
+            const postOrder = bookAirCall.toPostOrderArray();
+
+            const parameters = bookAirCall.getChild(0);
+            const label = parameters.getChild(0);
+            const method = parameters.getChild(1);
+            const arguments = parameters.getChild(2);
+            const fromArgument = arguments.getChild(0);
+            const personsArgument = arguments.getChild(2);
+            const code = bookAirCall.getChild(1);
+            const finalize = code.getChild(0);
+
+            strictArrayEqual(postOrder, [label, method, fromArgument, toArgument, personsArgument, arguments, parameters, finalize, code, bookAirCall]);
+        });
+    });
 });
+
+function strictArrayEqual(actual, expected) {
+    assert.strictEqual(actual.length, expected.length);
+    for (let i = 0; i < actual.length; i++) {
+        assert.strictEqual(actual[i], expected[i]);
+    }
+}
 

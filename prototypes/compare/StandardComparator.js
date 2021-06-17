@@ -41,7 +41,9 @@ class StandardComparator extends AbstractComparator {
 
                 //copy all values into new map
                 for (const child of node.childNodes) {
-                    buildRecursive(child, map);
+                    if(node.isPropertyNode()) {
+                        buildRecursive(child, map);
+                    }
                 }
             }
         }

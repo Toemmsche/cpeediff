@@ -26,18 +26,21 @@ class  MergeNode extends CpeeNode {
     changeType;
     updates;
     changeOrigin;
+    baseNode;
 
     constructor(label) {
         super(label);
         this.changeType = "NIL";
         this.updates = new Map();
-        this.changeOrigin = -1;
+        this.changeOrigin = null;
+        this.baseNode = null;
     }
     
     static fromDeltaNode(node, includeChildNodes = true) {
         const root = new MergeNode(node.label);
         root.data = node.data;
         root.changeType = node.changeType;
+        root.baseNode = node.baseNode;
         for (const [key, value] of node.attributes) {
             root.attributes.set(key, value);
         }

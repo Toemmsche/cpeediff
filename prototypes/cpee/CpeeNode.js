@@ -109,19 +109,6 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     * @returns {Number}
-     */
-    get typeIndex() {
-        let index = 0;
-        for (let i = 0; i < this._childIndex; i++) {
-            if (this._parent.childNodes[i].label === this.label) {
-                index++;
-            }
-        }
-        return index;
-    }
-
-    /**
      * @returns {CpeeNode[]}
      */
     get path() {
@@ -467,7 +454,7 @@ class CpeeNode extends Serializable {
             pathArr.push(node);
             node = node._parent;
         }
-        return pathArr.reverse().slice(1).map(n => n.label);
+        return pathArr.reverse().slice(1).map(n => n.label).join("/");
     }
 
     toString() {

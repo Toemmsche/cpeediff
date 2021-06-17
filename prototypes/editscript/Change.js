@@ -52,6 +52,7 @@ class Change extends Serializable {
                 newData = CpeeNode.parseFromXml(childTNode, true);
             }
         }
+        return new Change(changeType, oldPath, newPath, newData);
     }
 
     toString() {

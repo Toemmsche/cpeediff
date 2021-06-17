@@ -1,5 +1,5 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <loop>
+    <loop condition="data.persons > 1">
         <call id="a1" endpoint="bookAir">
             <parameters>
                 <label>Book Airline</label>

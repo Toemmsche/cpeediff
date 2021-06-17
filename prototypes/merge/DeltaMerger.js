@@ -15,6 +15,7 @@
 */
 
 
+const {Matching} = require("../matching/Matching");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
@@ -32,9 +33,21 @@ class DeltaMerger {
         const dt1 = DeltaModelGenerator.deltaTree(base, delta1).mergeCopy();
         const dt2 = DeltaModelGenerator.deltaTree(base, delta2).mergeCopy();
 
-        const matching = new ChawatheMatching().match(dt1, dt2);
+        const baseNodeMap = new Map();
+        for(const node1 of dt1.toPreOrderArray()) {
+            if(node1.baseNode != null) {
+                baseNodeMap.set(node1.baseNode, node1);
+            }
 
-        //TODO always match nodes that have been matched to the same node in base
+        }
+        let matching = new Matching();
+        for(const node2 of dt2.toPreOrderArray()) {
+            if(node2.baseNode != null && baseNodeMap.has(node2.baseNode))   {
+                matching.matchNew(node2, baseNodeMap.get(node2.baseNode));
+            }
+        }
+        //find duplicate insertions
+        matching = new ChawatheMatching().match(dt1, dt2, matching);
 
         for (const node of dt1.toPreOrderArray()) {
             node.changeOrigin = 1
@@ -264,7 +277,8 @@ class DeltaMerger {
             }
         }
 
-        console.log(dt1.root.convertToXml());
+        console.log(dt1.convertToXml());
+        console.log(dt2.convertToXml());
     }
 }
 

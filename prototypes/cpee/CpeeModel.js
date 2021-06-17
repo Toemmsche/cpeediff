@@ -37,7 +37,12 @@ class CpeeModel extends Serializable{
     }
 
     deltaCopy() {
-        return new CpeeModel(DeltaNode.fromCpeeNode(this.root, true));
+        const deltaRoot = DeltaNode.fromCpeeNode(this.root, true);
+        const preOrder = deltaRoot.toPreOrderArray();
+        for (let i = 0; i < preOrder.length; i++) {
+            preOrder[i].baseNode = i;
+        }
+        return new CpeeModel(deltaRoot);
     }
 
     mergeCopy() {

@@ -39,6 +39,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      rename model to tree (thesis title is prroces tree diff aferter all)
 //      use custom objects as return values (e.g. change in updates)
 //      make property strings members of keyword objects
 //      make insertChild() call removeFromparent(),
@@ -64,9 +65,12 @@
 //      robustness against indentation and newlines/whitespaces
 //      unnecessary tree traversals during matching, edit script genreation, hashing and merging
 //      make robust against missing root and init script
+//      similar insertions are not compared in regards to update conflicts
+//      are data passes (parallel branch) resolved correctly?
 
 
 //TODO REWRITE
+//      nodeFactory is responsible for all instanation (parseFromXml, fromCpeeNode, etc)
 //      splite edit script geneartion into phases (with individual methods)
 //      update class
 //      merged node as subclass

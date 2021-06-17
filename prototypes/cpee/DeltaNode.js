@@ -29,6 +29,8 @@ class DeltaNode extends CpeeNode {
     updates;
     moveIndex;
     placeholders;
+    //what original node it was mapped back to
+    baseNode;
 
     constructor(label) {
         super(label);
@@ -37,6 +39,7 @@ class DeltaNode extends CpeeNode {
         this.updates = new Map();
         this.placeholders = [];
         this.moveIndex = null;
+        this.baseNode = null;
     }
 
     static parseFromXml(xml, xmlDom = false) {

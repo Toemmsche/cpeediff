@@ -36,9 +36,9 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
     match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator()) {
-        //all nodes
-        const oldNodes = oldModel.toPreOrderArray();
-        const newNodes = newModel.toPreOrderArray();
+        //all nodes except properties
+        const oldNodes = oldModel.toPreOrderArray().filter(n => !n.isPropertyNode());
+        const newNodes = newModel.toPreOrderArray().filter(n => !n.isPropertyNode());
 
         //leaf nodes
         const oldLeaves = oldModel.leafNodes();
@@ -69,7 +69,10 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //match inner nodes based on (subtree) similarity
         this._innerNodesSimilarityMatching(oldInners, newInners, matching, comparator);
 
-        //TODO matchSimilarUnmatched()
+
+        for(const [newNode, match] of matching) {
+            this._matchSimilarUnmatched(match, newNode, matching, comparator);
+        }
 
         //match properties of leaf nodes
         for (const newLeaf of newLeaves) {
@@ -200,6 +203,27 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
             }
 
             return 1 - (commonCounter / Math.max(newNodeSet.size, oldNodeSet.size));
+        }
+    }
+
+    _matchSimilarUnmatched(oldNode, newNode, matching, comparator) {
+        //TODO use method similar to 3DM, pathmatching for now
+
+        //copy paths, reverse them and remove first element, discard already matched nodes
+        const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasAny(n));
+        const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasAny(n));
+
+        //index in newPath where last matching occurred
+        let j = 0;
+        for (let i = 0; i < oldPath.length; i++) {
+            for (let k = j; k < newPath.length; k++) {
+               if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                    matching.matchNew(newPath[k], oldPath[i]);
+                    //update last matching index to avoid a false positive of the first if branch in subsequent iterations
+                    j = k + 1;
+                    break;
+                }
+            }
         }
     }
 

@@ -38,13 +38,15 @@ let file1 = process.argv[2];
 let file2 = process.argv[3];
 let file3 = process.argv[4];
 
-let booking = "test_set/examples/Booking.xml";
+let booking = "test/test_set/examples/booking.xml";
 
 const xmlA = fs.readFileSync(file1).toString();
 const xmlB = fs.readFileSync(file2).toString();
 const xmlC = fs.readFileSync(file3).toString();
 
+const  b = fs.readFileSync(booking).toString();
 
+let bm = new Preprocessor().parseWithMetadata(b);
 
 
 
