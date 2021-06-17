@@ -20,7 +20,7 @@
     </loop>
     <choose mode="inclusive">
         <alternative condition="data.costs > 700">
-            <stop/>
+            <terminate></terminate>
         </alternative>
     </choose>
     <manipulate>data.persons += 3</manipulate>

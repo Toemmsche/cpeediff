@@ -15,6 +15,7 @@
 */
 
 
+const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
 const {Lis} = require("../lib/Lis");
 const {Config} = require("../Config");
 const {Change} = require("./Change");
@@ -181,7 +182,7 @@ class EditScriptGenerator {
         }
 
         //if no descendant of newNode is matched, they all need to be inserted
-        const copy = newNode.copy(noMatch(newNode));
+        const copy = CpeeNodeFactory.getNode(newNode, noMatch(newNode));
 
         //find appropriate insertion index
         let insertionIndex;
@@ -200,14 +201,14 @@ class EditScriptGenerator {
 
         //insertions always correspond to a new mapping
         matching.matchNew(newNode, copy);
-        editScript.insert(newPath, copy.copy(noMatch(newNode)), noMatch(newNode));
+        editScript.insert(newPath, CpeeNodeFactory.getNode(copy ,noMatch(newNode)), noMatch(newNode));
     }
 
     _update(oldNode, matching, editScript) {
         const newNode = matching.getOld(oldNode);
         const oldPath = oldNode.toChildIndexPathString();
         //during edit script generation, we don't need to update the data/attributes of the match
-        editScript.update(oldPath, newNode.copy(false));
+        editScript.update(oldPath, CpeeNodeFactory.getNode(newNode, false));
     }
 }
 

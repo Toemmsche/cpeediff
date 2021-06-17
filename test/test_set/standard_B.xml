@@ -12,7 +12,8 @@
             </parameters>
             <code>
                 <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                    status.update 1, 'Hotel'
+                    status.update 1, 'Hotel';
+                    data.persons = data.costs - 1;
                 </finalize>
             </code>
         </call>

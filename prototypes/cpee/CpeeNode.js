@@ -19,8 +19,6 @@ const vkbeautify = require("vkbeautify");
 const {PrimeGenerator} = require("../lib/PrimeGenerator");
 const {StringHash} = require("../lib/StringHash");
 const {Dsl} = require("../Dsl");
-const {Change} = require("../editscript/Change");
-const {Config} = require("../Config");
 const {Serializable} = require("../Serializable");
 
 class CpeeNode extends Serializable {
@@ -49,11 +47,11 @@ class CpeeNode extends Serializable {
      */
     data;
 
-    constructor(label) {
+    constructor(label, data = null) {
         super();
         this.label = label;
+        this.data = data;
         this.attributes = new Map();
-        this.data = null;
 
         this._childNodes = [];
         this._parent = null;
@@ -127,7 +125,7 @@ class CpeeNode extends Serializable {
     get modifiedVariables() {
         const modifiedVariables = new Set();
         if (this.containsCode()) {
-            //match all variable assignments of the form variable_1.variable_2.variable_3 = some_value
+            //match all variable assignments
             const matches = this.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
             if (matches !== null) {
                 for (const variable of matches) {
@@ -140,7 +138,6 @@ class CpeeNode extends Serializable {
     }
 
     get readVariables() {
-        //TODO extract from code as well
         const readVariables = new Set();
         if (this.containsCondition()) {
             const condition = this.attributes.get("condition");
@@ -154,22 +151,22 @@ class CpeeNode extends Serializable {
         }
         return readVariables;
     }
-    
+
     contentHash() {
         const sortedAttrList = new Array(...this.attributes.keys()).sort()
         let content = this.label;
-        for(const key of sortedAttrList) {
+        for (const key of sortedAttrList) {
             content += key + "=" + this.attributes.get(key);
         }
-        if(this.data != null) {
+        if (this.data != null) {
             content += this.data;
         }
         return StringHash.hash(content);
     }
-    
+
     childHash() {
         let childHash = 0;
-        if(this.hasInternalOrdering()) {
+        if (this.hasInternalOrdering()) {
             //preserve order by multiplying child hashes with distinct prime number based on index
             const primes = PrimeGenerator.primes(this.numChildren());
             childHash += this
@@ -183,48 +180,11 @@ class CpeeNode extends Serializable {
                 .map(n => n.hash())
                 .reduce((prev, curr) => prev + curr, 0);
         }
-       return childHash;
+        return childHash;
     }
 
     hash() {
         return this.contentHash() + this.childHash();
-    }
-
-    static parseFromXml(xml, xmlDom = false) {
-        if (xmlDom) {
-            return constructRecursive(xml);
-        } else {
-            const doc = new xmldom.DOMParser().parseFromString(xml, "text/xml");
-            return constructRecursive(doc.firstChild);
-        }
-
-        function constructRecursive(tNode) {
-            let root = new CpeeNode(tNode.localName);
-            for (let i = 0; i < tNode.childNodes.length; i++) {
-                const childTNode = tNode.childNodes.item(i);
-                if (childTNode.nodeType === 3) { //text node
-                    //check if text node contains a non-empty payload
-                    if (childTNode.data.match(/^\s*$/) !== null) { //match whole string
-                        //empty data, skip
-                        continue;
-                    } else {
-                        //relevant data, set as node data
-                        root.data = childTNode.data;
-                    }
-                } else {
-                    const child = constructRecursive(childTNode)
-                    root.appendChild(child);
-                }
-            }
-
-            //parse attributes
-            for (let i = 0; i < tNode.attributes.length; i++) {
-                const attrNode = tNode.attributes.item(i);
-                root.attributes.set(attrNode.name, attrNode.value);
-            }
-
-            return root;
-        }
     }
 
     /**
@@ -355,12 +315,13 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isPropertyNode() {
-       return !Dsl.KEYWORD_SET.has(this.label);
+        return !Dsl.KEYWORD_SET.has(this.label);
     }
 
     isRoot() {
         return this.label === Dsl.KEYWORDS.ROOT.label && this._parent == null;
     }
+
     /**
      *
      * @returns {boolean}
@@ -487,21 +448,7 @@ class CpeeNode extends Serializable {
         return arr;
     }
 
-    copy(includeChildNodes = true) {
-        const copy = new CpeeNode(this.label);
-        copy.data = this.data;
-        for (const [key, value] of this.attributes) {
-            copy.attributes.set(key, value);
-        }
-        if (includeChildNodes) {
-            for (const child of this) {
-                copy.appendChild(child.copy(true))
-            }
-        }
-        return copy;
-    }
-
-    convertToXml(xmlDom = false, includeChildNodes = true, ) {
+    convertToXml(xmlDom = false, includeChildNodes = true,) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
 
         const root = constructRecursive(this);

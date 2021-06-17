@@ -3,7 +3,6 @@
 //      export set and map similarity calculation
 //      IMPORTANT make exact edit script toggleable
 //      distinguish between interparent and far move
-//      matchSimilarUnmatched()
 //      IMPORTANT: compare path (heuristically)
 //      comparisons for remaining inner nodes
 //      implement change agent
@@ -24,13 +23,11 @@
 //TODO semi-features
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
-//      chnage origin for ujpdates -->> own class
-//      matchins is never overwritten, only extended
+//      chnage origin for ujpdates -->> own object ( with undefined meaning not present -> insertion or deletion)
 //      confidence level during merging
 //      make init script toggleable
 //      ignore comments during xml parsing
 //      ensure one to one matching
-//      patcher supports child index only and type index
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures

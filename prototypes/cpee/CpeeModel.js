@@ -14,7 +14,9 @@
    limitations under the License.
 */
 
-//TODO doc
+const {CpeeNodeFactory} = require("./factory/CpeeNodeFactory");
+const {MergeNodeFactory} = require("./factory/MergeNodeFactory");
+const {DeltaNodeFactory} = require("./factory/DeltaNodeFactory");
 const {MergeNode} = require("./MergeNode");
 const {Serializable} = require("../Serializable");
 const {DeltaNode} = require("./DeltaNode");
@@ -33,11 +35,11 @@ class CpeeModel extends Serializable{
     }
 
     copy() {
-        return new CpeeModel(this.root.copy(true));
+        return new CpeeModel(CpeeNodeFactory.getNode(this.root, true));
     }
 
     deltaCopy() {
-        const deltaRoot = DeltaNode.fromCpeeNode(this.root, true);
+        const deltaRoot = DeltaNodeFactory.getNode(this.root, true);
         const preOrder = deltaRoot.toPreOrderArray();
         for (let i = 0; i < preOrder.length; i++) {
             preOrder[i].baseNode = i;
@@ -46,7 +48,7 @@ class CpeeModel extends Serializable{
     }
 
     mergeCopy() {
-        return new CpeeModel(MergeNode.fromDeltaNode(this.root, true));
+        return new CpeeModel(MergeNodeFactory.getNode(this.root, true));
     }
 
     toPreOrderArray() {
@@ -69,12 +71,8 @@ class CpeeModel extends Serializable{
         return this.root.convertToXml(xmlDom);
     }
 
-    static parseFromXml(xml, xmlDom = false, deltaModel = false) {
-        if(deltaModel) {
-            return new CpeeModel(DeltaNode.parseFromXml(xml, xmlDom));
-        } else {
-            return new CpeeModel(CpeeNode.parseFromXml(xml, xmlDom));
-        }
+    static parseFromXml(xml) {
+        return CpeeNodeFactory.getNode(xml);
     }
 }
 

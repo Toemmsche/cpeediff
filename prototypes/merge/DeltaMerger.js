@@ -15,6 +15,7 @@
 */
 
 
+const {MergeNodeFactory} = require("../cpee/factory/MergeNodeFactory");
 const {Matching} = require("../matching/Matching");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Dsl} = require("../Dsl");
@@ -106,7 +107,7 @@ class DeltaMerger {
                 } else {
                     if (node.isInsertion()) {
                         //node was inserted in this Tree, not in the other --> insert in other tree
-                        const copy = node.copy(false);
+                        const copy = MergeNodeFactory.getNode(node, false);
                         if (matching.hasAny(node.parent)) {
                             const matchOfParent = matching.getOther(node.parent);
                             insertCorrectly(matchOfParent, copy, node);

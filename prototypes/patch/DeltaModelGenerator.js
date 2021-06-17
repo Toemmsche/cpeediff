@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {DeltaNodeFactory} = require("../cpee/factory/DeltaNodeFactory");
 const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaNode} = require("../cpee/DeltaNode");
@@ -36,7 +37,7 @@ class DeltaModelGenerator {
                     const indexArr = change.newPath.split("/").map(str => parseInt(str));
                     const childIndex = indexArr.pop();
                     const [parent, movfrParent] = findNodeByIndexArr(indexArr);
-                    const child = DeltaNode.fromCpeeNode(change.newData);
+                    const child = DeltaNodeFactory.getNode(change.newData, true);
 
                     parent.insertChild(childIndex, child);
                     for (const descendant of child.toPreOrderArray()) {
@@ -44,7 +45,7 @@ class DeltaModelGenerator {
                     }
 
                     if (movfrParent != null) {
-                        const movfrChild = child.copy();
+                        const movfrChild =  DeltaNodeFactory.getNode(change.newData, true);
                         movfrParent.insertChild(childIndex, movfrChild);
 
                         for (const descendant of movfrChild.toPreOrderArray()) {
@@ -62,7 +63,7 @@ class DeltaModelGenerator {
                     //configure move_from placeholder node
                     let movfrParent;
                     if (movfrNode == null) {
-                        movfrNode = node.copy();
+                        movfrNode = DeltaNodeFactory.getNode(node, true);
                         movfrNode._childIndex = node.childIndex;
                         movfrParent = node.parent;
                     } else {

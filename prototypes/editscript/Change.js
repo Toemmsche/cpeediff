@@ -16,6 +16,7 @@
 
 const xmldom = require("xmldom");
 const vkbeautify = require("vkbeautify");
+const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
 const {CpeeNode} = require("../cpee/CpeeNode");
 const {Dsl} = require("../Dsl");
 const {Serializable} = require("../Serializable");
@@ -49,7 +50,7 @@ class Change extends Serializable {
             const childTNode = root.childNodes.item(i);
 
             if(childTNode.localName === "newData") {
-                newData = CpeeNode.parseFromXml(childTNode, true);
+                newData = CpeeNodeFactory.getNode(childTNode, true);
             }
         }
         return new Change(changeType, oldPath, newPath, newData);

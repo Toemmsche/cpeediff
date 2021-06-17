@@ -33,24 +33,6 @@ class MatchDiff extends AbstractDiff {
         const end = new Date().getTime();
         console.log("matchtook " + (end - start) + "ms");
 
-        //TODO clear childattributes
-        for(const oldLeaf of oldModel.toPreOrderArray()) {
-            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
-                return !e[0].startsWith("./");
-            }));
-        }
-        for(const oldLeaf of copyOfOld.toPreOrderArray()) {
-            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
-                return !e[0].startsWith("./");
-            }));
-        }
-        for(const oldLeaf of newModel.toPreOrderArray()) {
-            oldLeaf.attributes = new Map(new Array(...oldLeaf.attributes.entries()).filter((e) => {
-                return !e[0].startsWith("./");
-            }));
-        }
-
-
         //generate edit script
         return new EditScriptGenerator().generateEditScript(copyOfOld, newModel, m);
     }

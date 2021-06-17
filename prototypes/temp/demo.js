@@ -16,6 +16,7 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
@@ -33,6 +34,7 @@ const {PathMatching} = require("../matching/PathMatching");
 const {TopDownMatching} = require("../matching/TopDownMatching");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
+CpeeNodeFactory.getNode(new CpeeNode("label"));
 
 let file1 = process.argv[2];
 let file2 = process.argv[3];

@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
 const {Dsl} = require("../Dsl");
 const {Config} = require("../Config");
 const {CpeeNode} = require("../cpee/CpeeNode");
@@ -38,7 +39,7 @@ class Preprocessor {
                 if (childTNode.localName === "dslx") {
                     let j = 0;
                     while (childTNode.childNodes.item(j).localName !== "description") j++;
-                    root = CpeeNode.parseFromXml(childTNode.childNodes.item(j), true);
+                    root = CpeeNodeFactory.getNode(childTNode.childNodes.item(j), true);
                 } else if (childTNode.localName === "endpoints") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
@@ -60,7 +61,7 @@ class Preprocessor {
             model = new CpeeModel(root);
         } else {
             //no information about declared Variables available
-            model = new CpeeModel(CpeeNode.parseFromXml(doc, true));
+            model = new CpeeModel(CpeeNodeFactory.getNode(doc, true));
         }
 
         

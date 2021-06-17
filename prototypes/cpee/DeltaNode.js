@@ -27,37 +27,17 @@ class DeltaNode extends CpeeNode {
      */
     changeType;
     updates;
-    moveIndex;
     placeholders;
-    //what original node it was mapped back to
+
+    //what original node it was mapped to (if any)
     baseNode;
 
-    constructor(label) {
-        super(label);
-        //NIL change type indicates no change
-        this.changeType = "NIL";
-        this.updates = new Map();
+    constructor(label, data = null, changeType = "NIL", baseNode = null ) {
+        super(label, data);
+        this.baseNode = baseNode;
+        this.changeType = changeType;
+        this.updates =  new Map();
         this.placeholders = [];
-        this.moveIndex = null;
-        this.baseNode = null;
-    }
-
-    static parseFromXml(xml, xmlDom = false) {
-        return this.fromCpeeNode(CpeeNode.parseFromXml(xml, xmlDom));
-    }
-
-    static fromCpeeNode(node, includeChildNodes = true) {
-        const root = new DeltaNode(node.label);
-        root.data = node.data;
-        for (const [key, value] of node.attributes) {
-            root.attributes.set(key, value);
-        }
-        if (includeChildNodes) {
-            for (const child of node) {
-                root.appendChild(this.fromCpeeNode(child, true))
-            }
-        }
-        return root;
     }
 
     removeFromParent() {
@@ -101,36 +81,13 @@ class DeltaNode extends CpeeNode {
 
     toString() {
         let res = this.label;
-        res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.moveIndex !== null ? "_" + this.moveIndex : "") + ">";
+        res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.baseNode !== null ? "_" + this.baseNode : "") + ">";
         if (this.isUpdate()) {
             for (const [key, change]  of this.updates) {
                 res += " " + key + ": [" + change[0] + "] -> [" + change[1] + "]";
             }
         }
         return res;
-    }
-
-    copy(includeChildNodes = true) {
-        const copy = new DeltaNode(this.label);
-        copy.data = this.data;
-        copy.changeType = this.changeType;
-        copy.moveIndex = this.moveIndex;
-
-        for (const [key, change] of this.updates) {
-            copy.updates.set(key, change.slice());
-        }
-        for (const [key, value] of this.attributes) {
-            copy.attributes.set(key, value);
-        }
-        if (includeChildNodes) {
-            for (const placeholder of this.placeholders) {
-                copy.placeholders.push(placeholder.copy(true));
-            }
-            for (const child of this) {
-                copy.appendChild(child.copy(true))
-            }
-        }
-        return copy;
     }
 
     convertToXml( xmlDom = false, includeChildNodes = true) {
