@@ -20,18 +20,9 @@ const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
-const {MatchMerger} = require("../merge/MatchMerger");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
-const {StandardComparator} = require("../compare/StandardComparator");
-const {SimilarityMatching} = require("../matching/SimilarityMatching");
-const {BottomUpMatching} = require("../matching/BottomUpMatching");
-const {Patcher} = require("../patch/Patcher");
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {ModelGenerator} = require("../gen/ModelGenerator");
 const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diffs/MatchDiff");
-const {PathMatching} = require("../matching/PathMatching");
-const {TopDownMatching} = require("../matching/TopDownMatching");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
 CpeeNodeFactory.getNode(new CpeeNode("label"));
