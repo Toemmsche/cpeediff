@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
     Copyright 2021 Tom Papke
 

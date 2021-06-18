@@ -15,7 +15,7 @@
 */
 
 
-const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
+const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {Lis} = require("../lib/Lis");
 const {Config} = require("../Config");
 const {Change} = require("./Change");
@@ -123,8 +123,8 @@ class EditScriptGenerator {
 
         const lis = Lis.getLis(arr);
 
-        //filter out LIS
-        for (const index of lis) {
+        //filter out all nodes that are part of the LIS
+        for (const index of lis.reverse()) {
             reshuffle.splice(index, 1);
         }
 
@@ -168,21 +168,13 @@ class EditScriptGenerator {
     }
 
     _insert(newNode, matching, editScript) {
-        //TODO refine to detect partial subrtrees
-        //detect subtree insertions
-        function noMatch(newNode) {
-            if (matching.hasNew(newNode)) {
-                return false;
-            }
-            for (const child of newNode) {
-                if (!noMatch(child)) {
-                    return false;
-                }
-            }
+        let copy;
+        if(newNode.toPreOrderArray().find(n => matching.hasNew(n))) {
+            copy = CpeeNodeFactory.getNode(newNode, false);
+        } else {
+            copy = CpeeNodeFactory.getNode(newNode, true);
         }
-
-        //if no descendant of newNode is matched, they all need to be inserted
-        const copy = CpeeNodeFactory.getNode(newNode, noMatch(newNode));
+        ;
 
         //find appropriate insertion index
         let insertionIndex;
@@ -201,7 +193,7 @@ class EditScriptGenerator {
 
         //insertions always correspond to a new mapping
         matching.matchNew(newNode, copy);
-        editScript.insert(newPath, CpeeNodeFactory.getNode(copy ,noMatch(newNode)), noMatch(newNode));
+        editScript.insert(newPath, CpeeNodeFactory.getNode(copy, true), copy.hasChildren());
     }
 
     _update(oldNode, matching, editScript) {

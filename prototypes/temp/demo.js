@@ -16,7 +16,7 @@ limitations under the License.
 
 
 const fs = require("fs");
-const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
+const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
@@ -74,10 +74,10 @@ console.log(TreeStringSerializer.serializeModel(model2));
 
 
 const d = MatchDiff.diff(model1, model2, new ChawatheMatching());
-const dt = DeltaModelGenerator.deltaTree(model1, d);
+const dt = new DeltaModelGenerator().deltaTree(model1, d);
 
 
-DeltaMerger.merge(model1, model2, model3);
+new DeltaMerger().merge(model1, model2, model3);
 
 
 

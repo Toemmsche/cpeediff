@@ -51,6 +51,7 @@ class DeltaNode extends CpeeNode {
     }
 
     insertChild(index, node) {
+        //adjust placeholders
         for (const placeholder of this.placeholders) {
             if (placeholder._childIndex >= index) {
                 placeholder._childIndex++;

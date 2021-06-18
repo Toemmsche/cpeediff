@@ -14,67 +14,60 @@
    limitations under the License.
 */
 
+const {VariableExtractor} = require("../extract/VariableExtractor");
+const {PropertyExtractor} = require("../extract/PropertyExtractor");
 const {Lcs} = require("../lib/Lcs");
 const {AbstractComparator} = require("./AbstractComparator");
 
 class StandardComparator extends AbstractComparator {
 
-    _attributeMap;
+    propertyExtractor;
+    variableExtractor;
+    matching;
     
-    constructor() {
+    constructor(matching, propertyExtractor = new PropertyExtractor(), variableExtractor = new VariableExtractor()) {
         super();
-        this._attributeMap = new Map();
+        this.propertyExtractor = propertyExtractor;
+        this.variableExtractor = variableExtractor;
+        this.matching = matching;
     }
 
-    //TODO extract dynamically
-    _buildPropertyMap(node) {
-        if(!this._attributeMap.has(node)) {
-            const map = new Map(node.attributes.entries());
-            this._attributeMap.set(node, map);
-            buildRecursive(node);
-            
-            function buildRecursive(node) {
-                if (node.data != null) { //lossy comparison
-                    //retain full (relative) structural information in the nodes
-                    map.set("./" + node.toPropertyPathString(), node.data);
-                }
 
-                //copy all values into new map
-                for (const child of node.childNodes) {
-                    if(node.isPropertyNode()) {
-                        buildRecursive(child, map);
-                    }
-                }
-            }
-        }
-    }
 
-    _contentCompare(node, other) {
-        this._buildPropertyMap(node);
-        this._buildPropertyMap(other);
-        const nodeAttributes = this._attributeMap.get(node);
-        const otherAttributes = this._attributeMap.get(other);
+    contentCompare(node, other) {
+
+        //extract properties
+        const nodeProperties = this.propertyExtractor.get(node);
+        const otherProperties = this.propertyExtractor.get(other);
+
+        //extract modified variables
+        const nodeModifiedVariables = this.variableExtractor.get(node).modifiedVariables;
+        const otherModifiedVariables = this.variableExtractor.get(other).modifiedVariables;
+
+        //extract read variables
+        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+        const otherReadVariables = this.variableExtractor.get(other).readVariables;
         
         switch (node.label) {
             case "call": {
                 //we cannot possibly match a call with another node type
                 if (node.label !== other.label) return 1.0;
 
-                const thisEndpoint = nodeAttributes.get("endpoint");
-                const otherEndpoint = otherAttributes.get("endpoint");
+                const thisEndpoint = node.attributes.get("endpoint");
+                const otherEndpoint = other.attributes.get("endpoint");
                 const endPointLcsSimilarity = Lcs.getLCS(thisEndpoint, otherEndpoint).length
                     / Math.max(thisEndpoint.length, otherEndpoint.length);
                 let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
-                if (nodeAttributes.get("./parameters/label") === otherAttributes.get("./parameters/label")) {
+                if (nodeProperties.get("./parameters/label") === otherProperties.get("./parameters/label")) {
                     //TODO maybe use LCS, too
                     endPointComparisonValue *= 0.5;
                 }
-                if (nodeAttributes.get("./parameters/method") !== otherAttributes.get("./parameters/method")) {
+                if (nodeProperties.get("./parameters/method") !== otherProperties.get("./parameters/method")) {
                     endPointComparisonValue = Math.min( endPointComparisonValue + 0.1, 1);
                 }
 
-                let modifiedVariablesComparisonValue = this._setCompare(node.modifiedVariables, other.modifiedVariables, endPointComparisonValue);
-                let readVariablesComparisonValue = this._setCompare(node.readVariables, other.readVariables, modifiedVariablesComparisonValue);
+                let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, endPointComparisonValue);
+                let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
 
                 //endpoint and modified variables have higher weights
                 return endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
@@ -84,8 +77,8 @@ class StandardComparator extends AbstractComparator {
                 if (node.label !== other.label) {
                     return 1;
                 }
-                let modifiedVariablesComparisonValue = this._setCompare(node.modifiedVariables, other.modifiedVariables, 1);
-                let readVariablesComparisonValue = this._setCompare(node.readVariables, other.readVariables, modifiedVariablesComparisonValue);
+                let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, 1);
+                let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, modifiedVariablesComparisonValue);
 
                 return 0.7 * modifiedVariablesComparisonValue + 0.3 * readVariablesComparisonValue;
             }
@@ -96,7 +89,7 @@ class StandardComparator extends AbstractComparator {
                 }
                 let compareValue = 0;
                 //wait attribute dictates the number of branches that have to finish until execution proceeds
-                if (nodeAttributes.has("wait") && nodeAttributes.get("wait") !== otherAttributes.get("wait")) {
+                if (nodeProperties.has("wait") && nodeProperties.get("wait") !== otherProperties.get("wait")) {
                     compareValue += 0.2;
                 }
                 return compareValue;
@@ -104,7 +97,7 @@ class StandardComparator extends AbstractComparator {
 
             case "alternative":
             case "loop": {
-                return this._setCompare(node.readVariables, other.readVariables);
+                return this._setCompare(nodeReadVariables, otherReadVariables);
             }
 
             default: {
@@ -150,8 +143,33 @@ class StandardComparator extends AbstractComparator {
         return compValue;
     }
 
+    _matchCompare(node, other) {
+        //TODO assign weight to nodes based on size
+        let commonCounter = 0;
+        const nodeSet = new Set(node
+            .toPreOrderArray()
+            .slice(1)
+            .filter(n => !n.isPropertyNode()));
+        const otherSet = new Set(other
+            .toPreOrderArray()
+            .slice(1)
+            .filter(n => !n.isPropertyNode()));
+        for (const node of nodeSet) {
+            if (this.matching.hasAny(node) && otherSet.has(this.matching.getOther(node))) {
+                commonCounter++;
+            }
+        }
+
+        return 1 - (commonCounter / Math.max(nodeSet.size, otherSet.size));
+    }
+
     compare(node,other) {
-        return 0.9 * this._contentCompare(node, other) + 0.1 * this._structCompare(node, other);
+        if(node.isLeaf()) {
+            return 0.9 * this.contentCompare(node, other) + 0.1 * this._structCompare(node, other);
+        } else if(node.isInnerNode()) {
+            return 0.5 * this._matchCompare(node, other) + 0.4 * this.contentCompare(node, other) + 0.1 * this._structCompare(node, other);
+        }
+
     }
 }
 

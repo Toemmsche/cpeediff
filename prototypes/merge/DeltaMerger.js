@@ -15,7 +15,7 @@
 */
 
 
-const {MergeNodeFactory} = require("../cpee/factory/MergeNodeFactory");
+const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
 const {Matching} = require("../matching/Matching");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Dsl} = require("../Dsl");
@@ -25,261 +25,248 @@ const {MatchDiff} = require("../diffs/MatchDiff");
 
 class DeltaMerger {
 
-    static merge(base, model1, model2) {
-        const delta1 = MatchDiff.diff(base, model1, new ChawatheMatching());
-        const delta2 = MatchDiff.diff(base, model2, new ChawatheMatching());
-        console.log(delta1.convertToXml(false));
-        console.log(delta2.convertToXml(false));
-
-        const dt1 = DeltaModelGenerator.deltaTree(base, delta1).mergeCopy();
-        const dt2 = DeltaModelGenerator.deltaTree(base, delta2).mergeCopy();
-
+    _getDeltaMatching(deltaTree1, deltaTree2, matchingAlgorithm) {
         const baseNodeMap = new Map();
-        for(const node1 of dt1.toPreOrderArray()) {
-            if(node1.baseNode != null) {
+        for (const node1 of deltaTree1.toPreOrderArray()) {
+            if (node1.baseNode != null) {
                 baseNodeMap.set(node1.baseNode, node1);
             }
-
         }
         let matching = new Matching();
-        for(const node2 of dt2.toPreOrderArray()) {
-            if(node2.baseNode != null && baseNodeMap.has(node2.baseNode))   {
+        for (const node2 of deltaTree2.toPreOrderArray()) {
+            if (node2.baseNode != null && baseNodeMap.has(node2.baseNode)) {
                 matching.matchNew(node2, baseNodeMap.get(node2.baseNode));
             }
         }
         //find duplicate insertions
-        matching = new ChawatheMatching().match(dt1, dt2, matching);
+        return matchingAlgorithm.match(deltaTree1, deltaTree2, matching);
+    }
 
-        for (const node of dt1.toPreOrderArray()) {
-            node.changeOrigin = 1
+    _setChangeOrigin(deltaTree, origin) {
+        for (const node of deltaTree.toPreOrderArray()) {
+            node.changeOrigin = origin;
         }
-        for (const node2 of dt2.toPreOrderArray()) {
-            node2.changeOrigin = 2;
+    }
+
+    _insertCorrectly(nodeToInsert, referenceNode, matching) {
+        const newParent = matching.getOther(referenceNode.parent);
+        nodeToInsert.changeOrigin = referenceNode.changeOrigin;
+        nodeToInsert.changeType = referenceNode.changeType;
+        let i = referenceNode.childIndex - 1;
+        while (i >= 0 && (!matching.hasAny(referenceNode.parent.getChild(i)) || matching.getOther(referenceNode.parent.getChild(i)).parent !== newParent)) {
+            i--;
         }
+        if (i < 0) {
+            newParent.insertChild(0, nodeToInsert);
+        } else {
+            const pre = referenceNode.parent.getChild(i);
+            const match = matching.getOther(pre);
+            newParent.insertChild(match.childIndex + 1, nodeToInsert);
+        }
+    }
 
-        console.log(TreeStringSerializer.serializeDeltaTree(dt1));
-        console.log(TreeStringSerializer.serializeDeltaTree(dt2));
+    _applyUpdate(fromNode, toNode) {
+        for (const [key, val] of fromNode.attributes) {
+            toNode.attributes.set(key, val);
+        }
+        toNode.data = fromNode.data;
+        for (const [updateKey, updateVal] of fromNode.updates) {
+            toNode.updates.set(updateKey, updateVal.slice());
+        }
+        toNode.changeOrigin = fromNode.changeOrigin;
+    }
 
-        const deleteConflicts           = new Set();
-        const deleteDescendantConflicts = new Set();
-        const updateConflicts           = new Set();
-        const moveConflicts             = new Set();
+    _applyDeletions(deltaTree, matching) {
+        for (const node of deltaTree.toPreOrderArray()) {
+            if (!matching.hasAny(node) && !node.isInsertion()) {
+                //no was deleted in other tree --> delete in this tree, too
+                node.removeFromParent();
+            }
+        }
+    }
 
-        traverse(dt1);
-        traverse(dt2);
-
-        function traverse(deltaTree) {
-            outer: for (const node of deltaTree.toPreOrderArray()) {
-                if (node.parent == null) continue;
-                if (matching.hasAny(node)) {
-                    const match = matching.getOther(node);
-                    if (matching.areMatched(node.parent, match.parent)) {
-                        console.log("True nil for " + node.label);
-                    } else if (node.isMove() && !match.isMove()) {
-                        //node was moved in this tree, but not in the other one --> apply move to other tree
-                        if (matching.hasAny(node.parent)) {
-                            const matchOfParent = matching.getOther(node.parent);
-                            match.removeFromParent();
-                            insertCorrectly(matchOfParent, match, node);
-                        } else {
-                            console.log("undetected descendant delete conflict");
-                        }
-                    } else if (node.isMove() && match.isMove()) {
-                        console.log("move conflict");
-                        if (!moveConflicts.has(match)) {
-                            moveConflicts.add(node);
-                        }
-                    }
-
-                    if (node.isUpdate() && !match.isUpdate()) {
-                        //update match
-                        for (const [key, val] of node.attributes) {
-                            match.attributes.set(key, val);
-                        }
-                        match.data = node.data;
-                        match.updates = node.updates;
-                    } else if (node.isUpdate() && match.isUpdate()) {
-                        console.log("udpate conflict");
-                        if (!updateConflicts.has(match)) {
-                            updateConflicts.add(node);
-                        }
-                    }
-                } else {
-                    if (node.isInsertion()) {
-                        //node was inserted in this Tree, not in the other --> insert in other tree
-                        const copy = MergeNodeFactory.getNode(node, false);
-                        if (matching.hasAny(node.parent)) {
-                            const matchOfParent = matching.getOther(node.parent);
-                            insertCorrectly(matchOfParent, copy, node);
-                            //TODO decide dynamically
-                            if (dt1.toPreOrderArray().includes(node)) {
-                                matching.matchNew(node, copy);
-                            } else {
-                                matching.matchNew(copy, node);
-                            }
-                        } else {
-                            console.log("save for later..");
-                        }
+    _applyMovesAndInsertions(deltaTree, matching) {
+        for (const node of deltaTree.toPreOrderArray()) {
+            if (node.parent == null) continue;
+            if (matching.hasAny(node)) {
+                const match = matching.getOther(node);
+                if (node.isMove() && !match.isMove()) {
+                    //node was moved in this tree, but not in the other one --> apply move to other tree
+                    match.removeFromParent();
+                    this._insertCorrectly(match, node, matching);
+                }
+                if (node.isUpdate() && !match.isUpdate()) {
+                    //update match
+                    this._applyUpdate(node, match);
+                }
+            } else {
+                if (node.isInsertion()) {
+                    //node was inserted in this Tree, not in the other --> insert in other tree
+                    const copy = MergeNodeFactory.getNode(node, false);
+                    this._insertCorrectly(copy, node, matching);
+                    if (node.changeOrigin === 2) {
+                        matching.matchNew(node, copy);
                     } else {
-                        if (node.isMove() || node.isUpdate()) {
-                            deleteConflicts.add(node);
-                            continue outer;
-                        }
-                        //node was either moved or kept in this Tree, but deleted in the other --> delete in this tree, too
-                        let noConflict = true;
-                        for (const descendant of node.toPreOrderArray().slice(1)) {
-                            if (descendant.isMove() || descendant.isInsertion() || descendant.isUpdate() || node.isUpdate()) {
-                                deleteDescendantConflicts.add(node);
-                                noConflict = false;
-                            }
-                        }
-                        if(noConflict) {
-                            node.removeFromParent();
-                            deleteDescendantConflicts.delete(node);
-                        }
+                        matching.matchNew(copy, node);
                     }
                 }
             }
         }
+    }
 
-        function insertCorrectly(newParent, nodeToInsert, referenceNode) {
-            //TODO consider order conflicts (mark nodes as newly inserted)
-            //TODO find other way to assign nodes to tree
-            nodeToInsert.changeOrigin = referenceNode.changeOrigin;
-            nodeToInsert.changeType = referenceNode.changeType;
-            let i = referenceNode.childIndex - 1;
-            while (i >= 0 && (referenceNode.parent.getChild(i).isMove() || !matching.hasAny(referenceNode.parent.getChild(i)))) {
-                i--;
-            }
-            if (i < 0) {
-                newParent.insertChild(0, nodeToInsert);
-            } else {
-                const pre = referenceNode.parent.getChild(i);
-                const match = matching.getOther(pre);
-                newParent.insertChild(match.childIndex + 1, nodeToInsert);
+    _findConflicts(deltaTree, matching) {
+        const updateConflicts = new Set();
+        const moveConflicts = new Set();
+        for (const node of deltaTree.toPreOrderArray()) {
+            if (matching.hasAny(node)) {
+                const match = matching.getOther(node);
+                if (node.isMove() && match.isMove() && node.changeOrigin !== match.changeOrigin) {
+                    moveConflicts.add(node);
+                }
+                if (node.isUpdate() && match.isUpdate()) {
+                    updateConflicts.add(node);
+                }
             }
         }
+        return [updateConflicts, moveConflicts];
+    }
 
+    _resolveMoveConflicts(moveConflicts, matching) {
+        for (const node of moveConflicts) {
+            const match = matching.getOther(node);
+            if (matching.areMatched(node, match)) {
+                //inter parent move
+                node.confidence.positionConfident = false;
+                match.confidence.positionConfident = false;
+            } else {
+                //far move (new parent)
+                node.confidence.parentConfident = false;
+                match.confidence.parentConfident = false;
+            }
+            //favor T1
+            match.removeFromParent();
+            this._insertCorrectly(match, node, matching);
+
+            console.log("Resolved move conflict in favor of T1");
+        }
+    }
+
+    _resolveUpdateConflicts(updateConflicts, matching) {
         //resolve update conflicts
         for (const node of updateConflicts) {
             const match = matching.getOther(node);
 
             //detect attribute and data conflicts
-            for(const [key, change] of node.updates) {
+            for (const [key, change] of node.updates) {
                 const oldVal = change[0];
                 const newVal = change[1];
-                    if(!match.updates.has(key)) {
-                        match.updates.set(key, change.slice());
-                        if(key === "data") {
-                            match.data = newVal;
-                        } else {
-                            if(newVal == null) {
-                                match.attributes.delete(key);
+                if (!match.updates.has(key)) {
+                    match.updates.set(key, change.slice());
+                    if (key === "data") {
+                        match.data = newVal;
+                    } else if (newVal == null) {
+                        match.attributes.delete(key);
+                    } else {
+                        match.attributes.set(key, newVal);
+                    }
+                } else {
+                    const matchNewVal = match.updates.get(key)[1];
+                    if (newVal !== matchNewVal) {
+                        //true conflict, pick longer version
+                        if (matchNewVal == null || (newVal != null && newVal.length >= matchNewVal.length)) {
+                            //adopt this version
+                            match.updates.get(key)[1] = newVal;
+                            if (key === "data") {
+                                match.data = newVal;
                             } else {
                                 match.attributes.set(key, newVal);
                             }
-                        }
-
-                    } else {
-                        const matchNewVal = match.updates.get(key)[1];
-                        if(newVal !== matchNewVal) {
-                            //TODO pick longer version
-                            //true conflict, pick this tree's version
-                            match.updates.get(key)[1] = newVal;
-                            if(key === "data") {
-                                match.data = newVal;
+                        } else {
+                            //adopt the version of the match
+                            node.updates.get(key)[1] = matchNewVal;
+                            if (key === "data") {
+                                node.data = matchNewVal;
                             } else {
-                                if(newVal == null) {
-                                    match.attributes.delete(key);
-                                } else {
-                                    match.attributes.set(key, newVal);
-                                }
+                                node.attributes.set(key, matchNewVal);
                             }
                         }
+                        //lose content confidence
+                        node.confidence.contentConfident = false;
+                        match.confidence.contentConfident = false;
                     }
-            }
-
-            //consider changes from other tree
-            for(const [key, change] of match.updates) {
-                const oldVal = change[0];
-                const newVal = change[1];
-                if(!node.updates.has(key)) {
-                    node.updates.set(key, change.slice());
-                    if(key === "data") {
-                        node.data = newVal;
-                    } else {
-                        if(newVal == null) {
-                            node.attributes.delete(key);
-                        } else {
-                            node.attributes.set(key, newVal);
-                        }
-                    }
-
                 }
             }
 
-            updateConflicts.delete(node);
+            //consider non-conflicting changes from other node
+            for (const [key, change] of match.updates) {
+                const newVal = change[1];
+                if (!node.updates.has(key)) {
+                    node.updates.set(key, change.slice());
+                    if (key === "data") {
+                        node.data = newVal;
+                    } else if (newVal == null) {
+                        node.attributes.delete(key);
+                    } else {
+                        node.attributes.set(key, newVal);
+                    }
+                }
+            }
+
+            //TODO change origin
             console.log("Resolved update on same node conflict");
         }
+    }
 
-        for (const node of moveConflicts) {
-            const match = matching.getOther(node);
-            if(deleteDescendantConflicts.has(node)) {
-               //favor T2
-                const matchOfParent = matching.getOther(match.parent);
-                node.removeFromParent();
-                insertCorrectly(matchOfParent, node, match);
-                moveConflicts.delete(node);
-                deleteDescendantConflicts.delete(node);
-            } else {
-                //favor T1
-                const matchOfParent = matching.getOther(node.parent);
-                match.removeFromParent();
-                insertCorrectly(matchOfParent, match, node);
-                moveConflicts.delete(node);
-            }
+    merge(base, tree1, tree2, matchingAlgorithm = new ChawatheMatching()) {
+        const delta1 = MatchDiff.diff(base, tree1, new ChawatheMatching());
+        const delta2 = MatchDiff.diff(base, tree2, new ChawatheMatching());
 
-            console.log("Resolved move conflict in favor of T1");
-        }
+        console.log(delta1.convertToXml());
+        console.log(delta2.convertToXml());
 
-        for (const node of deleteConflicts) {
-            //delete takes precedence
-            node.removeFromParent();
-            deleteDescendantConflicts.delete(node);
-            console.log("Resolved delete conflict by deleting node");
-        }
+        const deltaTreeFactory = new DeltaModelGenerator();
+        const dt1 = deltaTreeFactory.deltaTree(base, delta1).mergeCopy();
+        const dt2 = deltaTreeFactory.deltaTree(base, delta2).mergeCopy();
 
-        //TODO bottom up traversal for deletion
-        for (const node of deleteDescendantConflicts) {
-            //delete the node
-            for(const descendant of node.toPreOrderArray()) {
-                //in the case of move, prefer old one
-                if(descendant.isMove()) {
-                    descendant.removeFromParent();
-                    const match = matching.getOther(descendant);
-                    const newParent = matching.getOther(match.parent);
-                    insertCorrectly(newParent, descendant, match);
-                }
-            }
-            node.removeFromParent();
-        }
+        const matching = this._getDeltaMatching(dt1, dt2, matchingAlgorithm);
 
-        //TODO resolve node order --> semantic aspects or anchors generated during delta construction
-        for(const node of dt1.toPreOrderArray()) {
-            if(node.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
-                const leftSibling = node.getSiblings()[node.childIndex - 1];
-                const rightSibling = node.getSiblings()[node.childIndex + 1];
-                if(leftSibling != null  && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node.changeOrigin) {
-                    console.log("possible order conflict");
-                }
-                if(rightSibling != null && (rightSibling.isMove() || rightSibling.isInsertion()) && rightSibling.changeOrigin !== node.changeOrigin) {
-                    console.log("possible order conflict");
-                }
-            }
-        }
+        this._setChangeOrigin(dt1, 1);
+        this._setChangeOrigin(dt2, 2);
+
+        this._applyDeletions(dt1, matching);
+        this._applyDeletions(dt2, matching);
+        this._applyDeletions(dt1, matching);
+
+        const [updateConflicts, moveConflicts] = this._findConflicts(dt1, matching);
+
+        this._applyMovesAndInsertions(dt1, matching);
+        this._applyMovesAndInsertions(dt2, matching);
+
+        this._resolveMoveConflicts(moveConflicts, matching);
+        this._resolveUpdateConflicts(updateConflicts, matching);
+
+        this._findOrderConflicts(dt1);
+        this._findOrderConflicts(dt2);
 
         console.log(dt1.convertToXml());
         console.log(dt2.convertToXml());
+    }
+
+    _findOrderConflicts(deltaTree) {
+        for (const node of deltaTree.toPreOrderArray()) {
+            if (node.parent != null && node.parent.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
+                const leftSibling = node.getSiblings()[node.childIndex - 1];
+                const rightSibling = node.getSiblings()[node.childIndex + 1];
+                if (leftSibling != null && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node.changeOrigin) {
+                    node.confidence.positionConfident = false;
+                    leftSibling.confidence.positionConfident = false;
+                }
+                if (rightSibling != null && (rightSibling.isMove() || rightSibling.isInsertion()) && rightSibling.changeOrigin !== node.changeOrigin) {
+                    node.confidence.positionConfident = false;
+                    rightSibling.confidence.positionConfident = false;
+                }
+            }
+        }
     }
 }
 

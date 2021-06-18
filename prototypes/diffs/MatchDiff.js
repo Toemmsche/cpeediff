@@ -28,7 +28,7 @@ class MatchDiff extends AbstractDiff {
         let m = new Matching();
         const start = new Date().getTime();
         for(const matchingAlgorithm of matchingAlgorithms) {
-            m = matchingAlgorithm.match(copyOfOld, newModel, m, new StandardComparator());
+            m = matchingAlgorithm.match(copyOfOld, newModel, m, new StandardComparator(m));
         }
         const end = new Date().getTime();
         console.log("matchtook " + (end - start) + "ms");

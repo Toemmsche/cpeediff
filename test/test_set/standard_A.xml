@@ -1,6 +1,10 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <loop condition="data.persons > 1">
-        <call id="a1" endpoint="bookAir">
+    <stop></stop>
+    <terminate></terminate>
+    <escape></escape>
+    <manipulate>data.persons++</manipulate>
+
+        <call id="a1" endpoint="bookAir" kek="asdf">
             <parameters>
                 <label>Book Airline</label>
                 <method>:post</method>
@@ -8,21 +12,13 @@
                     <from>data.from</from>
                     <to>data.to</to>
                     <persons>data.persons</persons>
+                    <costs>data.costs</costs>
                 </arguments>
             </parameters>
             <code>
-                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                    status.update 1, 'Hotel'
-                </finalize>
+                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
             </code>
         </call>
-        <escape></escape>
-    </loop>
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <terminate/>
-        </alternative>
-    </choose>
-    <manipulate>data.persons++</manipulate>
+
 </description>
 

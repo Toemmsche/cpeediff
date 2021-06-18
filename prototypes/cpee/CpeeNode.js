@@ -47,6 +47,7 @@ class CpeeNode extends Serializable {
      */
     data;
 
+
     constructor(label, data = null) {
         super();
         this.label = label;
@@ -56,6 +57,8 @@ class CpeeNode extends Serializable {
         this._childNodes = [];
         this._parent = null;
         this._childIndex = null;
+
+        this.nodeId = null;
     }
 
     //structural information
@@ -120,36 +123,6 @@ class CpeeNode extends Serializable {
             node = node._parent;
         }
         return pathArr.reverse().slice(1);
-    }
-
-    get modifiedVariables() {
-        const modifiedVariables = new Set();
-        if (this.containsCode()) {
-            //match all variable assignments
-            const matches = this.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
-            if (matches !== null) {
-                for (const variable of matches) {
-                    //match only variable name and remove data. prefix
-                    modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                }
-            }
-        }
-        return modifiedVariables;
-    }
-
-    get readVariables() {
-        const readVariables = new Set();
-        if (this.containsCondition()) {
-            const condition = this.attributes.get("condition");
-            const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
-            if (matches !== null) {
-                for (const variable of matches) {
-                    //match only variable name and remove data. prefix
-                    readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                }
-            }
-        }
-        return readVariables;
     }
 
     contentHash() {
@@ -306,8 +279,12 @@ class CpeeNode extends Serializable {
      *
      * @returns {boolean}
      */
-    isControlFlowLeafNode() {
+    isLeaf() {
         return Dsl.LEAF_NODE_SET.has(this.label);
+    }
+
+    isInnerNode() {
+        return Dsl.INNER_NODE_SET.has(this.label);
     }
 
     /**
@@ -327,7 +304,7 @@ class CpeeNode extends Serializable {
      * @returns {boolean}
      */
     isEmpty() {
-        return !this.isControlFlowLeafNode()
+        return !this.isLeaf()
             && (this.data === "" || this.data == null)
             && !this.hasAttributes()
             && !this.hasChildren();

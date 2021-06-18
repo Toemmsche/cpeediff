@@ -16,7 +16,7 @@
 
 const xmldom = require("xmldom");
 const vkbeautify = require("vkbeautify");
-const {CpeeNodeFactory} = require("../cpee/factory/CpeeNodeFactory");
+const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {CpeeNode} = require("../cpee/CpeeNode");
 const {Dsl} = require("../Dsl");
 const {Serializable} = require("../Serializable");

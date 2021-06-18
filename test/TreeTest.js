@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /*
     Copyright 2021 Tom Papke
 
@@ -17,6 +15,7 @@
 */
 
 const assert = require("assert");
+const {CpeeNodeFactory} = require("../prototypes/factory/CpeeNodeFactory");
 const {TestRepository} = require("./TestRepository");
 const {CpeeNode} = require("../prototypes/cpee/CpeeNode");
 
@@ -38,47 +37,18 @@ describe("CpeeNode", () => {
         newNode.data = "dataVal";
 
         model = TestRepository.bookingModel();
-        bookAirCall = model.root.getChild(1);
+        bookAirCall = model.root.getChild(0);
         toArgument = model.root
-            .getChild(1) //bookAirCall
+            .getChild(0) //bookAirCall
             .getChild(0) //parameters
             .getChild(2) //arguments
             .getChild(1) //to
     });
 
-    describe("#copy()", () => {
-        it('should copy a node, including its content and child nodes (if specified)', () => {
-            //do not copy child nodes
-            let copy = newNode.copy(false);
-
-            //verify content equality
-            assert.strictEqual(copy.numChildren(), 0);
-            assert.strictEqual(copy.data, newNode.data);
-            assert.strictEqual(copy.attributes.size, newNode.attributes.size);
-            for (const key of newNode.attributes.keys()) {
-                assert.strictEqual(copy.attributes.get(key), newNode.attributes.get(key));
-            }
-
-            //verify reference inequality
-            assert.strictEqual(copy === newNode, false);
-
-            //insert one child
-            newNode.appendChild(new CpeeNode("dummy"));
-
-            //do copy child nodes
-            copy = newNode.copy(true);
-
-            //verify structural equality
-            assert.strictEqual(copy.numChildren(), newNode.numChildren());
-            assert.ok(copy.getChild(0).contentEquals(newNode.getChild(0)));
-        });
-    });
-
-
     describe("#contentEquals()", () => {
         it('should detect content equality between two nodes, excluding child nodes', () => {
             //do not copy child nodes
-            const copy = newNode.copy(false);
+            const copy = CpeeNodeFactory.getNode(newNode, false);
             //insert one child
             copy.appendChild(new CpeeNode("dummy"));
 
@@ -169,7 +139,7 @@ describe("CpeeNode", () => {
 
     describe("#toChildIndexPathString()", () => {
         it('should return the path from root to the node using child indices', () => {
-            assert.strictEqual(toArgument.toChildIndexPathString(), "1/0/2/1");
+            assert.strictEqual(toArgument.toChildIndexPathString(), "0/0/2/1");
         });
     });
 

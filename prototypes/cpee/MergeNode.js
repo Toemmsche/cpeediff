@@ -20,10 +20,17 @@ class MergeNode extends DeltaNode {
 
     //merge related information
     changeOrigin;
+    confidence;
 
     constructor(label, data = null, changeType = "NIL", baseNode = null, changeOrigin = null) {
         super(label, data, changeType, baseNode);
         this.changeOrigin = changeOrigin;
+        //initial confidence
+        this.confidence = {
+            contentConfident: true,
+            parentConfident: true,
+            positionConfident: true
+        }
     }
 }
 

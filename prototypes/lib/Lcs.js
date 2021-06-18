@@ -70,9 +70,10 @@ class Lcs {
         let indexB = seqB.length;
         let lcs;
         if (retBoth) {
-            lcs = new Map();
-            lcs.set(0, []);
-            lcs.set(1, []);
+            lcs =  {
+                lcsA : [],
+                lcsB : []
+            }
         } else {
             lcs = []
         }
@@ -86,8 +87,8 @@ class Lcs {
                     break;
                 default:
                     if (retBoth) {
-                        lcs.get(0).unshift(seqA[indexA - 1]);
-                        lcs.get(1).unshift(seqB[indexB - 1]);
+                        lcs.lcsA.unshift(seqA[indexA - 1]);
+                        lcs.lcsB.unshift(seqB[indexB - 1]);
                     } else {
                         lcs.unshift(seqA[indexA - 1]);
                     }

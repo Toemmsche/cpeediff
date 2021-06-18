@@ -35,7 +35,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
      *                                    The order the matching algorithms are applied in matters.
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator()) {
+    match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator(matching)) {
         //all nodes except properties
         const oldNodes = oldModel.toPreOrderArray().filter(n => !n.isPropertyNode());
         const newNodes = newModel.toPreOrderArray().filter(n => !n.isPropertyNode());
@@ -173,7 +173,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 let minCompareValue = 1;
                 let minCompareNode = null;
                 for (const oldInner of oldLabelMap.get(newInner.label)) {
-                    const compareValue = comparator.compare(newInner, oldInner) * 0.4 + 0.6 * matchingSimilarity(newInner, oldInner)
+                    const compareValue = comparator.compare(newInner, oldInner);
                     if (compareValue < minCompareValue) {
                         minCompareNode = oldInner;
                         minCompareValue = compareValue;
@@ -183,26 +183,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                     matching.matchNew(newInner, minCompareNode);
                 }
             }
-        }
-
-        function matchingSimilarity(newNode, oldNode) {
-            //TODO assign weight to nodes based on size
-            let commonCounter = 0;
-            const newNodeSet = new Set(newNode
-                .toPreOrderArray()
-                .slice(1)
-                .filter(n => !n.isPropertyNode()));
-            const oldNodeSet = new Set(oldNode
-                .toPreOrderArray()
-                .slice(1)
-                .filter(n => !n.isPropertyNode()));
-            for (const node of newNodeSet) {
-                if (matching.hasNew(node) && oldNodeSet.has(matching.getNew(node))) {
-                    commonCounter++;
-                }
-            }
-
-            return 1 - (commonCounter / Math.max(newNodeSet.size, oldNodeSet.size));
         }
     }
 
@@ -217,7 +197,8 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         let j = 0;
         for (let i = 0; i < oldPath.length; i++) {
             for (let k = j; k < newPath.length; k++) {
-               if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                //relax similarity threshold
+               if (comparator.contentCompare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
                     matching.matchNew(newPath[k], oldPath[i]);
                     //update last matching index to avoid a false positive of the first if branch in subsequent iterations
                     j = k + 1;

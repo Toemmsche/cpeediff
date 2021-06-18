@@ -1,10 +1,8 @@
 //TODO features
-//      longest substring compare for scripts (or q gram distance)
-//      export set and map similarity calculation
+//      property matching for inner nodes (ask Juergen)
+//      weights during inner node matching, fully matched code induces matching
 //      IMPORTANT make exact edit script toggleable
-//      distinguish between interparent and far move
 //      IMPORTANT: compare path (heuristically)
-//      comparisons for remaining inner nodes
 //      implement change agent
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
@@ -24,8 +22,6 @@
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
 //      chnage origin for ujpdates -->> own object ( with undefined meaning not present -> insertion or deletion)
-//      confidence level during merging
-//      make init script toggleable
 //      ignore comments during xml parsing
 //      ensure one to one matching
 //      command line interface (help, error messages, logging, etc.)
@@ -61,29 +57,22 @@
 //TODO bugs
 //      robustness against indentation and newlines/whitespaces
 //      unnecessary tree traversals during matching, edit script genreation, hashing and merging
-//      make robust against missing root and init script
+//      make robust against missing root
 //      similar insertions are not compared in regards to update conflicts
 //      are data passes (parallel branch) resolved correctly?
+//      robust against keywrods as properties
 
 
 //TODO REWRITE
-//      nodeFactory is responsible for all instanation (parseFromXml, fromCpeeNode, etc)
-//      splite edit script geneartion into phases (with individual methods)
 //      update class
-//      merged node as subclass
 //      deltaTree is result of editScriptFActory
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      property-subtree
 //      MatchedNode subclass instead of matching class (with maxSimilarity, etc)
 //      add some patterns
-//      VIZ only;
-//          fix property trees in inner nodes (.properties() method)
-//          find a way around childattributes (property extractor) or clean up deletion in pathmatching
-//          dual namespaces maybe with update namespace for changed attributes/data
 
 //TODO advanced semantics
-//      nested chooses -> single choose (depends on CPEE spec --> look it up)
 /*
 Merge Ideas:
 

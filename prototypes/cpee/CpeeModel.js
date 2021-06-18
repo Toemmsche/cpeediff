@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-const {CpeeNodeFactory} = require("./factory/CpeeNodeFactory");
-const {MergeNodeFactory} = require("./factory/MergeNodeFactory");
-const {DeltaNodeFactory} = require("./factory/DeltaNodeFactory");
+const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
+const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
+const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
 const {MergeNode} = require("./MergeNode");
 const {Serializable} = require("../Serializable");
 const {DeltaNode} = require("./DeltaNode");
@@ -40,10 +40,6 @@ class CpeeModel extends Serializable{
 
     deltaCopy() {
         const deltaRoot = DeltaNodeFactory.getNode(this.root, true);
-        const preOrder = deltaRoot.toPreOrderArray();
-        for (let i = 0; i < preOrder.length; i++) {
-            preOrder[i].baseNode = i;
-        }
         return new CpeeModel(deltaRoot);
     }
 
@@ -60,11 +56,11 @@ class CpeeModel extends Serializable{
     }
 
     leafNodes() {
-        return this.toPreOrderArray().filter(n => n.isControlFlowLeafNode());
+        return this.toPreOrderArray().filter(n => n.isLeaf());
     }
 
     innerNodes() {
-        return this.toPreOrderArray().filter(n => !n.isControlFlowLeafNode() && !n.isPropertyNode());
+        return this.toPreOrderArray().filter(n => !n.isLeaf() && !n.isPropertyNode());
     }
 
     convertToXml(xmlDom = false) {
@@ -72,7 +68,7 @@ class CpeeModel extends Serializable{
     }
 
     static parseFromXml(xml) {
-        return CpeeNodeFactory.getNode(xml);
+        return new CpeeModel(CpeeNodeFactory.getNode(xml));
     }
 }
 
