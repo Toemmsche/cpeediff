@@ -7,7 +7,6 @@
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
-            <manipulate id="a2">data.costs += 1</manipulate>
             <choose mode="inclusive">
                 <alternative condition="data.costs > 700">
                     <call id="a1" endpoint="approve">
@@ -19,6 +18,7 @@
                             </arguments>
                         </parameters>
                     </call>
+                    <manipulate id="a2">data.costs += 1</manipulate>
                 </alternative>
             </choose>
         </description>

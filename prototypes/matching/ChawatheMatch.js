@@ -69,10 +69,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //match inner nodes based on (subtree) similarity
         this._innerNodesSimilarityMatching(oldInners, newInners, matching, comparator);
 
-
-        for(const [newNode, match] of matching) {
-            this._matchSimilarUnmatched(match, newNode, matching, comparator);
-        }
+        this._matchSimilarUnmatched(matching, comparator);
 
         //match properties of leaf nodes
         for (const newLeaf of newLeaves) {
@@ -80,6 +77,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 this._propertyMatching(matching.getNew(newLeaf), newLeaf, matching);
             }
         }
+
 
         matching._propagate();
 
@@ -173,7 +171,9 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 let minCompareValue = 1;
                 let minCompareNode = null;
                 for (const oldInner of oldLabelMap.get(newInner.label)) {
-                    const compareValue = comparator.compare(newInner, oldInner);
+                    //compare() compares the nodes regarding content and structure similarity
+                    //matchCompare() compares inner nodes by the number of matched nodes their respective subtrees share
+                    const compareValue = (comparator.compare(newInner, oldInner) + comparator.matchCompare(newInner, oldInner)) / 2;
                     if (compareValue < minCompareValue) {
                         minCompareNode = oldInner;
                         minCompareValue = compareValue;
@@ -184,30 +184,39 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 }
             }
         }
+
+        //TODO remoev copies
     }
 
-    _matchSimilarUnmatched(oldNode, newNode, matching, comparator) {
-        //TODO use method similar to 3DM, pathmatching for now
+    _matchSimilarUnmatched(matching, comparator) {
+        for(const [newNode, oldNode] of matching) {
+            //TODO use method similar to 3DM, pathmatching for now
 
-        //copy paths, reverse them and remove first element, discard already matched nodes
-        const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasAny(n));
-        const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasAny(n));
+            //copy paths, reverse them and remove first element, discard already matched nodes
+            const newPath = newNode.path.slice().reverse().slice(1);
+            const oldPath = oldNode.path.slice().reverse().slice(1);
 
-        //index in newPath where last matching occurred
-        let j = 0;
-        for (let i = 0; i < oldPath.length; i++) {
-            for (let k = j; k < newPath.length; k++) {
-                //relax similarity threshold
-               if (comparator.contentCompare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
-                    matching.matchNew(newPath[k], oldPath[i]);
-                    //update last matching index to avoid a false positive of the first if branch in subsequent iterations
-                    j = k + 1;
-                    break;
+            //index in newPath where last matching occurred
+            let j = 0;
+            for (let i = 0; i < oldPath.length; i++) {
+                for (let k = j; k < newPath.length; k++) {
+                    //relax similarity threshold
+                    if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNew(newNode))) {
+                        //a matching within the path has been found, discard
+                        return;
+                    }
+                    if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                        matching.matchNew(newPath[k], oldPath[i]);
+                        //update last matching index to avoid a false positive of the first if branch in subsequent iterations
+                        j = k + 1;
+                        break;
+                    }
                 }
             }
+
+            //TODO remove copies
         }
     }
-
 }
 
 exports.ChawatheMatching = ChawatheMatching;

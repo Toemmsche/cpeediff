@@ -14,10 +14,18 @@
    limitations under the License.
 */
 
+const {CodeExtractor} = require("./CodeExtractor");
 const {Dsl} = require("../Dsl");
 const {AbstractExtractor} = require("./AbstractExtractor");
 
 class VariableExtractor extends AbstractExtractor {
+
+    codeExtractor;
+
+    constructor(codeExtractor = new CodeExtractor()) {
+        super();
+        this.codeExtractor = codeExtractor;
+    }
 
     _extract(node) {
         this._memo.set(node, {
@@ -30,7 +38,7 @@ class VariableExtractor extends AbstractExtractor {
         const modifiedVariables = new Set();
         if (node.containsCode()) {
             //match all variable assignments
-            const matches = node.getCode().match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+            const matches = this.codeExtractor.get(node).match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
             if (matches !== null) {
                 for (const variable of matches) {
                     //match only variable name and remove data. prefix

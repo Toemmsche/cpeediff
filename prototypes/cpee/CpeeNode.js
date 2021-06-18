@@ -235,24 +235,6 @@ class CpeeNode extends Serializable {
     }
 
     /**
-     *  @returns {String}
-     */
-    getCode() {
-        if (this.containsCode()) {
-            if (this.label === "manipulate") {
-                return this.data;
-            } else {
-                let code = "";
-                const codeNode = this._childNodes.find(n => n.label === "code");
-                for (const child of codeNode) {
-                    code += child.data;
-                }
-                return code;
-            }
-        }
-    }
-
-    /**
      * @returns {boolean}
      */
     hasChildren() {

@@ -55,8 +55,9 @@ describe("match cases", () => {
                 oldToNewIdMap.set(idExtractor.get(oldNode), idExtractor.get(newNode));
             }
             for (const [newNode, oldNode] of matching.newToOldMap) {
-                newToOldIdMap.set(idExtractor.get(oldNode), idExtractor.get(newNode));
+                newToOldIdMap.set(idExtractor.get(newNode), idExtractor.get(oldNode));
             }
+
             if (expected.matchPairs.length > 0) {
                 //verify that matching meets the expected results
                 it("should produce expected matchings", () => {
