@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {HashExtractor} = require("../extract/HashExtractor");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
 class TreeStringSerializer {
@@ -43,7 +44,8 @@ class TreeStringSerializer {
             }
             line += "─";
             const lineLength = line.length;
-            line += cpeeNode.toString() + cpeeNode.hash() + "\n";
+            //TODO rework
+            line += cpeeNode.toString() + new HashExtractor().get(cpeeNode); + "\n";
             if (cpeeNode.hasChildren()) {
                 barList.push(lineLength + 1);
                 for (const child of cpeeNode) {

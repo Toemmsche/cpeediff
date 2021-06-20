@@ -250,6 +250,8 @@ class DeltaMerger {
 
         console.log(dt1.convertToXml());
         console.log(dt2.convertToXml());
+
+        return dt1;
     }
 
     _findOrderConflicts(deltaTree) {

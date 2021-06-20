@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {HashExtractor} = require("../extract/HashExtractor");
 const {StandardComparator} = require("../compare/StandardComparator");
 const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
@@ -44,10 +45,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         const oldLeaves = oldModel.leafNodes();
         const newLeaves = newModel.leafNodes();
 
-        //inner nodes sorted ascending by subtree size
-        const oldInners = oldModel.innerNodes().sort((a, b) => a.toPreOrderArray().length - b.toPreOrderArray().length);
-        const newInners = newModel.innerNodes().sort((a, b) => a.toPreOrderArray().length - b.toPreOrderArray().length);
-
         //root is always matched
         matching.matchNew(newModel.root, oldModel.root);
 
@@ -61,13 +58,9 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         }
 
         //get obvious matches via hashing
-        this._hashMatching(oldNodes, newNodes, matching);
+        this._hashMatching(oldNodes, newNodes, matching, comparator);
 
-        //match leaf nodes based on similarity
-        this._leafSimilarityMatching(oldLeaves, newLeaves, matching, comparator);
-
-        //match inner nodes based on (subtree) similarity
-        this._innerNodesSimilarityMatching(oldInners, newInners, matching, comparator);
+        this._similarityMatching(oldNodes, newNodes, matching, comparator);
 
         this._matchSimilarUnmatched(matching, comparator);
 
@@ -77,7 +70,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 this._propertyMatching(matching.getNew(newLeaf), newLeaf, matching);
             }
         }
-
 
         matching._propagate();
 
@@ -99,102 +91,120 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         }
     }
 
-    _hashMatching(oldNodes, newNodes, matching) {
+    _hashMatching(oldNodes, newNodes, matching, comparator) {
         //filter for unmatched nodes and non-empty nodes
-        oldNodes = oldNodes.filter(n => !matching.hasAny(n) && (n.hasAttributes() || n.data != null || n.hasChildren()));
-        newNodes = newNodes.filter(n => !matching.hasAny(n) && (n.hasAttributes() || n.data != null || n.hasChildren()));
+        oldNodes = oldNodes.filter(n => !matching.hasAny(n));
+        newNodes = newNodes.filter(n => !matching.hasAny(n));
+
+        const hashExtractor = new HashExtractor();
 
         //build hash map using old nodes
         const hashMap = new Map();
         for (const oldNode of oldNodes) {
-            hashMap.set(oldNode.hash(), oldNode);
+            const hash = hashExtractor.get(oldNode);
+            if (!hashMap.has(hash)) {
+                hashMap.set(hash, []);
+            }
+            hashMap.get(hash).push(oldNode);
         }
 
+        const oldToNewMap = new Map();
         //probe hash map with new nodes
         for (const newNode of newNodes) {
-            const hash = newNode.hash();
+            const hash = hashExtractor.get(newNode);
             if (hashMap.has(hash)) {
-                matching.matchNew(newNode, hashMap.get(hash));
+                let minStructCompareValue = 2;
+                let minStructCompareNode = null;
+                for (const candidate of hashMap.get(hash)) {
+                    //TODO remove
+                    if(!newNode.contentEquals(candidate)) {
+                        throw new Error();
+                    }
+                    const structCompareValue = comparator.structCompare(candidate, newNode);
+                    if (structCompareValue < minStructCompareValue) {
+                        minStructCompareValue = structCompareValue;
+                        minStructCompareNode = candidate;
+                    }
+                }
+                //ensure (partial) one-to-one matching
+                if (!oldToNewMap.has(minStructCompareNode) || minStructCompareValue < oldToNewMap.get(minStructCompareNode).compareValue) {
+                    oldToNewMap.set(minStructCompareNode, {
+                        newNode: newNode,
+                        compareValue: minStructCompareValue
+                    })
+                }
             }
+        }
+
+        for (const [oldNode, bestMatch] of oldToNewMap) {
+            matching.matchNew(bestMatch.newNode, oldNode);
         }
     }
 
-    _leafSimilarityMatching(oldLeaves, newLeaves, matching, comparator) {
+    _similarityMatching(oldNodes, newNodes, matching, comparator) {
         //filter leaves for unmatched nodes
-        oldLeaves = oldLeaves.filter(n => !matching.hasAny(n));
-        newLeaves = newLeaves.filter(n => !matching.hasAny(n));
+        oldNodes = oldNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
+        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
 
         //Only matchings of nodes with the same label are allowed
         const oldLabelMap = new Map();
-        for (const oldLeaf of oldLeaves) {
-            if (!oldLabelMap.has(oldLeaf.label)) {
-                oldLabelMap.set(oldLeaf.label, []);
+        for (const oldNode of oldNodes) {
+            if (!oldLabelMap.has(oldNode.label)) {
+                oldLabelMap.set(oldNode.label, []);
             }
-            oldLabelMap.get(oldLeaf.label).push(oldLeaf);
+            oldLabelMap.get(oldNode.label).push(oldNode);
         }
 
-        for (const newLeaf of newLeaves) {
-            if (oldLabelMap.has(newLeaf.label)) {
+        //use a temporary map until the best matches are found
+        const oldToNewMap = new Map();
+        for (const newNode of newNodes) {
+            if (oldLabelMap.has(newNode.label)) {
                 //the minimum compare value
                 let minCompareValue = 1;
                 let minCompareNode = null;
-                for (const oldLeaf of oldLabelMap.get(newLeaf.label)) {
-                    const compareValue = comparator.compare(newLeaf, oldLeaf);
+                for (const oldNode of oldLabelMap.get(newNode.label)) {
+                    let compareValue;
+                    if (newNode.isLeaf()) {
+                        //compare leaf nodes
+                        compareValue = comparator.compare(newNode, oldNode);
+
+                    } else {
+                        //compare inner nodes
+                        compareValue = (comparator.compare(newNode, oldNode) + comparator.matchCompare(newNode, oldNode)) / 2;
+                    }
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
-                        minCompareNode = oldLeaf;
+                        minCompareNode = oldNode;
+                    }
+
+                }
+                if (newNode.isLeaf() && minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD || newNode.isInnerNode() && minCompareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                    //ensure (partial) one-to-one matching
+                    if (!oldToNewMap.has(minCompareNode) || minCompareValue < oldToNewMap.get(minCompareNode).compareValue) {
+                        oldToNewMap.set(minCompareNode, {
+                            newNode: newNode,
+                            compareValue: minCompareValue
+                        })
                     }
                 }
-                if (minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
-                    matching.matchNew(newLeaf, minCompareNode);
-                }
-            }
-        }
-    }
-
-    _innerNodesSimilarityMatching(oldInners, newInners, matching, comparator) {
-        //filter for unmatched nodes
-        oldInners = oldInners.filter(n => !matching.hasAny(n));
-        newInners = newInners.filter(n => !matching.hasAny(n));
-
-        //Only matchings of nodes with the same label are allowed
-        const oldLabelMap = new Map();
-        for (const oldInner of oldInners) {
-            if (!oldLabelMap.has(oldInner.label)) {
-                oldLabelMap.set(oldInner.label, []);
-            }
-            oldLabelMap.get(oldInner.label).push(oldInner);
-        }
-
-        for (const newInner of newInners) {
-            if (oldLabelMap.has(newInner.label)) {
-                let minCompareValue = 1;
-                let minCompareNode = null;
-                for (const oldInner of oldLabelMap.get(newInner.label)) {
-                    //compare() compares the nodes regarding content and structure similarity
-                    //matchCompare() compares inner nodes by the number of matched nodes their respective subtrees share
-                    const compareValue = (comparator.compare(newInner, oldInner) + comparator.matchCompare(newInner, oldInner)) / 2;
-                    if (compareValue < minCompareValue) {
-                        minCompareNode = oldInner;
-                        minCompareValue = compareValue;
-                    }
-                }
-                if (minCompareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
-                    matching.matchNew(newInner, minCompareNode);
-                }
             }
         }
 
-        //TODO remoev copies
+        //the best matchings can be persisted
+        for (const [oldNode, bestMatch] of oldToNewMap) {
+            matching.matchNew(bestMatch.newNode, oldNode);
+        }
     }
 
     _matchSimilarUnmatched(matching, comparator) {
-        for(const [newNode, oldNode] of matching) {
+        for (const [newNode, oldNode] of matching) {
             //TODO use method similar to 3DM, pathmatching for now
 
             //copy paths, reverse them and remove first element, discard already matched nodes
             const newPath = newNode.path.slice().reverse().slice(1);
             const oldPath = oldNode.path.slice().reverse().slice(1);
+
+            const newToOldMap = new Map();
 
             //index in newPath where last matching occurred
             let j = 0;
@@ -205,8 +215,14 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                         //a matching within the path has been found, discard
                         return;
                     }
-                    if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
-                        matching.matchNew(newPath[k], oldPath[i]);
+                    const compareValue = comparator.compare(newPath[k], oldPath[i]);
+                    if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                        if(!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue) {
+                            newToOldMap.set(newPath[k], {
+                                oldNode: oldPath[i],
+                                compareValue: compareValue
+                            });
+                        }
                         //update last matching index to avoid a false positive of the first if branch in subsequent iterations
                         j = k + 1;
                         break;
@@ -214,7 +230,21 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 }
             }
 
-            //TODO remove copies
+            //ensure (partial) one-to-one matching
+            const oldToNewMap = new Map();
+            for(const [newNode, bestMatch] of newToOldMap) {
+                if (!oldToNewMap.has(bestMatch.oldNode) || bestMatch.compareValue < oldToNewMap.get(bestMatch.oldNode).compareValue) {
+                    oldToNewMap.set(bestMatch.oldNode, {
+                        newNode: newNode,
+                        compareValue: bestMatch.compareValue
+                    })
+                }
+            }
+
+            //the best matchings can be persisted
+            for (const [oldNode, bestMatch] of oldToNewMap) {
+                matching.matchNew(bestMatch.newNode, oldNode);
+            }
         }
     }
 }

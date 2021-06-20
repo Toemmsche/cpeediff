@@ -125,41 +125,6 @@ class CpeeNode extends Serializable {
         return pathArr.reverse().slice(1);
     }
 
-    contentHash() {
-        const sortedAttrList = new Array(...this.attributes.keys()).sort()
-        let content = this.label;
-        for (const key of sortedAttrList) {
-            content += key + "=" + this.attributes.get(key);
-        }
-        if (this.data != null) {
-            content += this.data;
-        }
-        return StringHash.hash(content);
-    }
-
-    childHash() {
-        let childHash = 0;
-        if (this.hasInternalOrdering()) {
-            //preserve order by multiplying child hashes with distinct prime number based on index
-            const primes = PrimeGenerator.primes(this.numChildren());
-            childHash += this
-                ._childNodes
-                .map((n, i) => n.hash() * primes[i])
-                .reduce((prev, curr) => prev + curr, 0);
-        } else {
-            //arbitrary order, achieved by simple addition
-            childHash += this
-                ._childNodes
-                .map(n => n.hash())
-                .reduce((prev, curr) => prev + curr, 0);
-        }
-        return childHash;
-    }
-
-    hash() {
-        return this.contentHash() + this.childHash();
-    }
-
     /**
      * @returns {IterableIterator<CpeeNode>}
      */

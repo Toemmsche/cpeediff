@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {SizeExtractor} = require("../extract/SizeExtractor");
 const {Dsl} = require("../Dsl");
 const {CodeExtractor} = require("../extract/CodeExtractor");
 const {VariableExtractor} = require("../extract/VariableExtractor");
@@ -26,6 +27,7 @@ class StandardComparator extends AbstractComparator {
     propertyExtractor;
     codeExtractor;
     variableExtractor;
+    sizeExtractor;
     matching;
 
     constructor(matching) {
@@ -33,7 +35,13 @@ class StandardComparator extends AbstractComparator {
         this.propertyExtractor = new PropertyExtractor();
         this.codeExtractor = new CodeExtractor();
         this.variableExtractor = new VariableExtractor(this.codeExtractor);
+        this.sizeExtractor = new SizeExtractor();
         this.matching = matching;
+    }
+
+    sizeCompare(node, other) {
+        const nodeSize = this.sizeExtractor.get(node);
+      return this.sizeExtractor.get(node) - this.sizeExtractor.get(other);
     }
 
     _compareCalls(node, other) {
@@ -143,7 +151,7 @@ class StandardComparator extends AbstractComparator {
         }
     }
 
-    _structCompare(node, other) {
+    structCompare(node, other) {
         //TODO compare nodes based on their position in the tree (path to root, neighbors, etc.) in CONSTANT time =>> no lcs
         if (node.parent == null || other.parent == null || node.parent.label === other.parent.label) {
             return 1;
@@ -197,9 +205,9 @@ class StandardComparator extends AbstractComparator {
 
     compare(node, other) {
         if (node.isLeaf()) {
-            return 0.9 * this.contentCompare(node, other) + 0.1 * this._structCompare(node, other);
+            return 0.9 * this.contentCompare(node, other) + 0.1 * this.structCompare(node, other);
         } else if (node.isInnerNode()) {
-            return 0.8 * this.contentCompare(node, other) + 0.2 * this._structCompare(node, other);
+            return 0.8 * this.contentCompare(node, other) + 0.2 * this.structCompare(node, other);
         }
 
     }

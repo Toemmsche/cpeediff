@@ -171,10 +171,16 @@ class EditScriptGenerator {
         let copy;
         if(newNode.toPreOrderArray().find(n => matching.hasNew(n))) {
             copy = CpeeNodeFactory.getNode(newNode, false);
+            matching.matchNew(newNode, copy);
         } else {
             copy = CpeeNodeFactory.getNode(newNode, true);
+            const copyPreOrder = copy.toPreOrderArray();
+            const newNodePreOrder = newNode.toPreOrderArray();
+            for (let i = 0; i < newNodePreOrder.length; i++) {
+                matching.matchNew(newNodePreOrder[i], copyPreOrder[i]);
+            }
         }
-        ;
+
 
         //find appropriate insertion index
         let insertionIndex;
@@ -191,8 +197,6 @@ class EditScriptGenerator {
         newParent.insertChild(insertionIndex, copy);
         const newPath = copy.toChildIndexPathString();
 
-        //insertions always correspond to a new mapping
-        matching.matchNew(newNode, copy);
         editScript.insert(newPath, CpeeNodeFactory.getNode(copy, true), copy.hasChildren());
     }
 
