@@ -14,25 +14,31 @@
    limitations under the License.
 */
 
-const {AbstractExtractor} = require("./AbstractExtractor");
+class CallProperties {
 
-class CodeExtractor extends AbstractExtractor {
+    endpoint;
+    method;
+    label;
+    code;
 
-    _extract(node) {
-        if (node.label === "manipulate") {
-            this._memo.set(node, node.data);
-        } else {
-            let code = "";
-            const codeNode = node._childNodes.find(n => n.label === "code");
-            if(codeNode != null) {
-                for (const child of codeNode) {
-                    code += child.data;
-                }
-            }
-            this._memo.set(node, code);
-        }
+    args;
+
+    constructor(endpoint, method, args, code, label) {
+        this.endpoint = endpoint;
+        this.method = method;
+        this.args = args;
+        this.code = code;
+        this.label = label;
+    }
+
+    hasLabel() {
+        return this.label != null;
+    }
+
+    hasCode() {
+        return this.code != null;
     }
 
 }
 
-exports.CodeExtractor = CodeExtractor;
+exports.CallProperties= CallProperties;
