@@ -14,17 +14,17 @@
    limitations under the License.
 */
 
-const {CodeExtractor} = require("./CodeExtractor");
+const {CallPropertyExtractor} = require("./CallPropertyExtractor");
 const {Dsl} = require("../Dsl");
 const {AbstractExtractor} = require("./AbstractExtractor");
 
 class VariableExtractor extends AbstractExtractor {
 
-    codeExtractor;
+    callPropertyExtractor;
 
-    constructor(codeExtractor = new CodeExtractor()) {
+    constructor(callPropertyExtractor = new CallPropertyExtractor()) {
         super();
-        this.codeExtractor = codeExtractor;
+        this.callPropertyExtractor = callPropertyExtractor;
     }
 
     _extract(node) {
@@ -37,8 +37,14 @@ class VariableExtractor extends AbstractExtractor {
     _getModifiedVariables(node) {
         const modifiedVariables = new Set();
         if (node.containsCode()) {
+            let code;
+            if (node.label === Dsl.KEYWORDS.CALL.label) {
+                code = this.callPropertyExtractor.get(node).code;
+            } else if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
+                code = node.data;
+            }
             //match all variable assignments
-            const matches = this.codeExtractor.get(node).match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+            const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
             if (matches !== null) {
                 for (const variable of matches) {
                     //match only variable name and remove data. prefix
@@ -62,12 +68,10 @@ class VariableExtractor extends AbstractExtractor {
                 }
             }
         }
-        if(node.label === Dsl.KEYWORDS.CALL.label) {
-            const parameters = node.childNodes.find(n => n.label === "parameters");
-            const args = parameters.childNodes.find(n => n.label === "arguments");
-            for(const arg of args)  {
+        if (node.label === Dsl.KEYWORDS.CALL.label) {
+            for (const arg of this.callPropertyExtractor.get(node).args) {
                 //do NOT use the label of the argument
-                readVariables.add(arg.data.replaceAll("data.", ""));
+                readVariables.add(arg.replaceAll("data.", ""));
             }
         }
         return readVariables;

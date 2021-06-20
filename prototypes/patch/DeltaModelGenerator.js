@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {IdExtractor} = require("../extract/IdExtractor");
 const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
 const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
@@ -138,6 +139,11 @@ class DeltaModelGenerator {
     deltaTree(tree, editScript, extended = false) {
         //copy tree
         tree = tree.deltaCopy();
+
+        const idExtractor = new IdExtractor();
+        for(const node of tree.toPreOrderArray()) {
+            node.baseNode = idExtractor.get(node);
+        }
 
         const moveMap = new Map();
         for (const change of editScript) {

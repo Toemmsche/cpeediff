@@ -160,35 +160,6 @@ class CpeeNode extends Serializable {
     /**
      *
      * @param {CpeeNode} other
-     * @returns {boolean}
-     */
-    nodeEquals(other) {
-        for (const member in this) {
-            //only check public members
-            if (!member.startsWith("_")) {
-                const thisValue = this[member];
-                const otherValue = other[member];
-                if (thisValue instanceof Set) {
-                    if (thisValue.size !== otherValue.size) return false;
-                    for (const element of thisValue) {
-                        if (!otherValue.has(element)) return false;
-                    }
-                } else if (thisValue instanceof Map) {
-                    if (thisValue.size !== otherValue.size) return false;
-                    for (const [key, value] of thisValue) {
-                        if (otherValue.get(key) !== value) return false;
-                    }
-                } else if (thisValue !== otherValue) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     *
-     * @param {CpeeNode} other
      */
     contentEquals(other) {
         if (this.attributes.size !== other.attributes.size) return false;

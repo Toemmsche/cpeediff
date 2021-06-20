@@ -18,6 +18,8 @@ class Config {
     static LEAF_SIMILARITY_THRESHOLD = 0.25;
     static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
 
+    static PATH_COMPARE_RANGE = 5;
+
     static EXACT_EDIT_SCRIPT = false;
 
     static PROPERTY_IGNORE_LIST = ["id", "description", "xmlns"];

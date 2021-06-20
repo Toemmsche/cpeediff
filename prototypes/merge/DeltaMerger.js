@@ -99,6 +99,8 @@ class DeltaMerger {
                     //update match
                     this._applyUpdate(node, match);
                 }
+
+
             } else {
                 if (node.isInsertion()) {
                     //node was inserted in this Tree, not in the other --> insert in other tree
@@ -125,6 +127,15 @@ class DeltaMerger {
                 }
                 if (node.isUpdate() && match.isUpdate()) {
                     updateConflicts.add(node);
+                }
+
+                //edge case: insertion of the same node (matched insertions) at different positions/with different content
+                //TODO make merge case
+                if(node.isInsertion() && match.isInsertion()) {
+                    moveConflicts.add(node);
+                    if (!node.contentEquals(match)) {
+                        updateConflicts.add(node);
+                    }
                 }
             }
         }
@@ -155,6 +166,19 @@ class DeltaMerger {
         //resolve update conflicts
         for (const node of updateConflicts) {
             const match = matching.getOther(node);
+
+            //edge case: both nodes are insertions
+            if(node.isInsertion() && match.isInsertion()) {
+                //insertion is essentially an update with no pre-existing value
+                for(const [key ,value] of node.attributes) {
+                    node.updates.set(key, [null, value]);
+                }
+                node.updates.set("data", [null, node.data]);
+                for(const [key ,value] of match.attributes) {
+                    match.updates.set(key, [null, value]);
+                }
+                match.updates.set("data", [null, match.data]);
+            }
 
             //detect attribute and data conflicts
             for (const [key, change] of node.updates) {

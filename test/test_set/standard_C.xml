@@ -1,23 +1,42 @@
-<description xmlns="http://cpee.org/ns/description/1.0">
-    <loop>
-    <call id="a1" endpoint="bookAi">
-        <parameters>
-            <label>Book Airline</label>
-            <method>:post</method>
-            <arguments>
-                <from>data.from</from>
-                <to>data.to</to>
-                <persons>data.persons</persons>
-            </arguments>
-        </parameters>
-        <code>
-            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f'</finalize>
-        </code>
-    </call>
-    </loop>
-    <stop></stop>
-    <terminate></terminate>
-    <escape></escape>
-    <manipulate>data.persons++</manipulate>
-</description>
-
+<properties xmlns="http://cpee.org/ns/properties/2.0">
+    <dataelements>
+        <costs>0</costs>
+    </dataelements>
+    <endpoints>
+        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
+    </endpoints>
+    <dslx>
+        <description xmlns="http://cpee.org/ns/description/1.0">
+            <choose mode="inclusive">
+                <alternative condition="data.costs > 700">
+                    <call id="a1" endpoint="approve">
+                        <parameters>
+                            <label>Approve Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <costs>data.costs</costs>
+                            </arguments>
+                        </parameters>
+                    </call>
+                </alternative>
+            </choose>
+            <loop>
+                <call id="a3" endpoint="bookAir" kekw="sadf">
+                    <parameters>
+                        <label>Book Airlines</label>
+                        <method>:post</method>
+                        <arguments>
+                            <from>data.from</from>
+                            <to>data.to</to>
+                            <persons>data.persons</persons>
+                            <costs>data.costs</costs>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f'</finalize>
+                    </code>
+                </call>
+            </loop>
+        </description>
+    </dslx>
+</properties>

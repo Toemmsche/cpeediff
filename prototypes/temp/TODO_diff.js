@@ -2,28 +2,28 @@
 //      property matching for inner nodes (ask Juergen)
 //      weights during inner node matching, fully matched code induces matching
 //      IMPORTANT make exact edit script toggleable
-//      IMPORTANT: compare path (heuristically)
+//      compare path with weights depending on closeness
 //      implement change agent
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
+//      hash only considers semantic aspects
 
 //TODO new algos
 //      fast LIS (O nlogn)
 //      q-gram distance for string comparison and similarity
-//      fast match by Chawathe et al.
 //      optimize matching
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO maybe features
 //      conflict groups for reshuffling (toggleable)
 //      model validator
+//      append updates even in the case of insertion
 
 //TODO semi-features
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
 //      chnage origin for ujpdates -->> own object ( with undefined meaning not present -> insertion or deletion)
 //      ignore comments during xml parsing
-//      ensure one to one matching
 //      command line interface (help, error messages, logging, etc.)
 //      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
@@ -34,36 +34,33 @@
 //TODO tidy
 //      rename model to tree (thesis title is prroces tree diff aferter all)
 //      use custom objects as return values (e.g. change in updates)
-//      make property strings members of keyword objects
 //      make insertChild() call removeFromparent(),
 //      no static methods
-//      replace nodeequals with === where applicable
-//      encapsulate handleInsert() in edit script generation
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
 //      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
-//      move node boolean flags into cpeemodel to keep semantic parsing in one place
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
 //      change TNode name (maybe element or text)
-//      automate namespaces and changetype attributes
 //      resolve naming conflicts (call as argunment)
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever possible
-//      maybe remove contructrecursive and use actual recursion
 
 
 //TODO bugs
 //      robustness against indentation and newlines/whitespaces
-//      unnecessary tree traversals during matching, edit script genreation, hashing and merging
+//      unnecessary tree traversals during matching, edit script genreation, and merging
 //      make robust against missing root
-//      similar insertions are not compared in regards to update conflicts
 //      are data passes (parallel branch) resolved correctly?
 //      robust against keywrods as properties
+//      differtnt merge output trees (dt1 and dt2)
+//      clearn up merge output (removal of empty inners)
+//      missing method, label, code and args, endpoint
 
 
 //TODO REWRITE
+//      make propertyExtractor reutrn an object with fields instead of map
 //      update class
 //      deltaTree is result of editScriptFActory
 //      use underscores
@@ -73,6 +70,7 @@
 //      add some patterns
 
 //TODO advanced semantics
+//     if parallel_branch matched, match paralell (same for choose and otherwise/alternative)
 /*
 Merge Ideas:
 
