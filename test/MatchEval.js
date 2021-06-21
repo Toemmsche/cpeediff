@@ -21,7 +21,13 @@ const {ChawatheMatching} = require("../prototypes/matching/ChawatheMatch");
 const {ExpectedMatch} = require("./ExpectedMatch");
 const {Preprocessor} = require("../prototypes/parse/Preprocessor");
 
+
+
 const matchingAlgorithm = new ChawatheMatching();
+
+
+
+
 describe("match cases", () => {
 
     const pathPrefix = "test/test_set/match_cases"
@@ -45,18 +51,22 @@ describe("match cases", () => {
 
         describe(dir, () => {
             //match base and changed
-            const matching = matchingAlgorithm.match(oldTree, newTree);
+            let matching;
             const oldToNewIdMap = new Map();
             const newToOldIdMap = new Map();
 
-            const idExtractor = new IdExtractor();
+            it("should not fail", () => {
+                matching = matchingAlgorithm.match(oldTree, newTree);
+                const idExtractor = new IdExtractor();
 
-            for (const [oldNode, newNode] of matching.oldToNewMap) {
-                oldToNewIdMap.set(idExtractor.get(oldNode), idExtractor.get(newNode));
-            }
-            for (const [newNode, oldNode] of matching.newToOldMap) {
-                newToOldIdMap.set(idExtractor.get(newNode), idExtractor.get(oldNode));
-            }
+                for (const [oldNode, newNode] of matching.oldToNewMap) {
+                    oldToNewIdMap.set(idExtractor.get(oldNode), idExtractor.get(newNode));
+                }
+                for (const [newNode, oldNode] of matching.newToOldMap) {
+                    newToOldIdMap.set(idExtractor.get(newNode), idExtractor.get(oldNode));
+                }
+            });
+
 
             if (expected.matchPairs.length > 0) {
                 //verify that matching meets the expected results
@@ -116,11 +126,3 @@ describe("match cases", () => {
         })
     })
 });
-
-function strictArrayEqual(actual, expected) {
-    assert.strictEqual(actual.length, expected.length);
-    for (let i = 0; i < actual.length; i++) {
-        assert.strictEqual(actual[i], expected[i]);
-    }
-}
-

@@ -19,11 +19,9 @@ const vkbeautify = require("vkbeautify");
 const {PrimeGenerator} = require("../lib/PrimeGenerator");
 const {StringHash} = require("../lib/StringHash");
 const {Dsl} = require("../Dsl");
-const {Serializable} = require("../Serializable");
 
-class CpeeNode extends Serializable {
+class CpeeNode {
 
-    //TODO parent and sibling relationship, fingerprint considering path and subtree (maybe separate for each)
     /**
      * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
      */
@@ -49,7 +47,6 @@ class CpeeNode extends Serializable {
 
 
     constructor(label, data = null) {
-        super();
         this.label = label;
         this.data = data;
         this.attributes = new Map();
@@ -57,8 +54,6 @@ class CpeeNode extends Serializable {
         this._childNodes = [];
         this._parent = null;
         this._childIndex = null;
-
-        this.nodeId = null;
     }
 
     //structural information
@@ -299,20 +294,6 @@ class CpeeNode extends Serializable {
         return this.path.map(n => n.childIndex).join("/");
     }
 
-    toPropertyPathString() {
-        const pathArr = [];
-        let node = this;
-        const isPropertyNode = this.isPropertyNode();
-        while (node != null && (!isPropertyNode || node.isPropertyNode())) {
-            if (pathArr.includes(node)) {
-                console.log("up")
-            }
-            pathArr.push(node);
-            node = node._parent;
-        }
-        return pathArr.reverse().slice(1).map(n => n.label).join("/");
-    }
-
     toString() {
         return this.label;
     }
@@ -341,38 +322,6 @@ class CpeeNode extends Serializable {
         }
         arr.push(this);
         return arr;
-    }
-
-    convertToXml(xmlDom = false, includeChildNodes = true,) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
-        const root = constructRecursive(this);
-
-        if (xmlDom) {
-            return root;
-        } else {
-            doc.insertBefore(root, null);
-            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-        }
-
-        function constructRecursive(cpeeNode) {
-            const node = doc.createElement(cpeeNode.label);
-            if (cpeeNode.isRoot()) {
-                node.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-            }
-            for (const [key, value] of cpeeNode.attributes) {
-                node.setAttribute(key, value);
-            }
-            if (includeChildNodes) {
-                for (const child of cpeeNode) {
-                    node.appendChild(constructRecursive(child));
-                }
-            }
-            if (cpeeNode.data != null) {
-                node.appendChild(doc.createTextNode(cpeeNode.data))
-            }
-            return node;
-        }
     }
 
 }

@@ -24,7 +24,7 @@ const {DeltaTreeGenerator} = require("./patch/DeltaModelGenerator");
 const {Config} = require("./Config");
 const {PathMatching} = require("./matching/PathMatching");
 const {Parser} = require("./parse/Preprocessor");
-const {MatchDiff} = require("./diffs/MatchDiff");
+const {MatchDiff} = require("./diff/MatchDiff");
 
 
 const argv = yargs

@@ -25,7 +25,6 @@ const {AbstractComparator} = require("./AbstractComparator");
 class StandardComparator extends AbstractComparator {
 
     callPropertyExtractor;
-    codeExtractor;
     variableExtractor;
     sizeExtractor;
     matching;
@@ -39,7 +38,6 @@ class StandardComparator extends AbstractComparator {
     }
 
     sizeCompare(node, other) {
-        const nodeSize = this.sizeExtractor.get(node);
         return this.sizeExtractor.get(node) - this.sizeExtractor.get(other);
     }
 
@@ -114,7 +112,6 @@ class StandardComparator extends AbstractComparator {
         //different labels cannot be matched
         if (node.label !== other.label) return 1.0;
 
-
         //extract read variables
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
@@ -144,7 +141,7 @@ class StandardComparator extends AbstractComparator {
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
         compareLength = Math.max(nodePathSlice.length, otherPathSlice.length);
-        return Lcs.getLCS(nodePathSlice, otherPathSlice).length / compareLength;
+        return 1 - (Lcs.getLCS(nodePathSlice, otherPathSlice).length / compareLength);
     }
 
     _setCompare(setA, setB, defaultValue = 1) {
@@ -171,7 +168,7 @@ class StandardComparator extends AbstractComparator {
     }
 
     matchCompare(node, other) {
-        //TODO assign weight to nodes based on size
+        //TODO weigh nodes
         let commonCounter = 0;
         const nodeSet = new Set(node
             .toPreOrderArray()
@@ -191,11 +188,7 @@ class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        if (node.isLeaf()) {
-            return 0.9 * this.contentCompare(node, other) + 0.1 * this.structCompare(node, other);
-        } else if (node.isInnerNode()) {
-            return 0.8 * this.contentCompare(node, other) + 0.2 * this.structCompare(node, other);
-        }
+        return 0.8 * this.contentCompare(node, other) + 0.2 * this.structCompare(node, other);
 
     }
 }

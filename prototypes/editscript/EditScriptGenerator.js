@@ -18,9 +18,6 @@
 const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {Lis} = require("../lib/Lis");
 const {Config} = require("../Config");
-const {Change} = require("./Change");
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {CpeeNode} = require("../cpee/CpeeNode");
 const {EditScript} = require("./EditScript");
 
 class EditScriptGenerator {

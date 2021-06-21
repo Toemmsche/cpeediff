@@ -46,6 +46,7 @@
 //      change TNode name (maybe element or text)
 //      resolve naming conflicts (call as argunment)
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever possible
+//      no construction paramters for comparator and matching
 
 
 //TODO bugs
@@ -57,9 +58,13 @@
 //      differtnt merge output trees (dt1 and dt2)
 //      clearn up merge output (removal of empty inners)
 //      missing method, label, code and args, endpoint
-
+//      multiple otherwise (or alternatives with same condition) --> matchSimilarUnmatched top down()
+//      merge produces a lot of wrong merges (e.g. disregards semantic properties)
+//          update_conflict with differnt endpoint and argument list
+//          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      implement hash yourself
 //      make propertyExtractor reutrn an object with fields instead of map
 //      update class
 //      deltaTree is result of editScriptFActory

@@ -45,7 +45,7 @@ class TreeStringSerializer {
             line += "─";
             const lineLength = line.length;
             //TODO rework
-            line += cpeeNode.toString() + new HashExtractor().get(cpeeNode); + "\n";
+            line += cpeeNode.toString() + new HashExtractor().get(cpeeNode) + "\n";
             if (cpeeNode.hasChildren()) {
                 barList.push(lineLength + 1);
                 for (const child of cpeeNode) {

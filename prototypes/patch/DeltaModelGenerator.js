@@ -148,7 +148,6 @@ class DeltaModelGenerator {
         const moveMap = new Map();
         for (const change of editScript) {
             switch (change.changeType) {
-                //Which path (new vs old) represents the anchor depends on the change operation
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
                 case Dsl.CHANGE_TYPES.INSERTION: {
                     this._handleInsert(tree, change, moveMap);

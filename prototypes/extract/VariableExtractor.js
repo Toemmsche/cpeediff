@@ -71,7 +71,9 @@ class VariableExtractor extends AbstractExtractor {
         if (node.label === Dsl.KEYWORDS.CALL.label) {
             for (const arg of this.callPropertyExtractor.get(node).args) {
                 //do NOT use the label of the argument
-                readVariables.add(arg.replaceAll("data.", ""));
+                if(arg.includes("data.")) {
+                    readVariables.add(arg.replaceAll("data.", ""));
+                }
             }
         }
         return readVariables;

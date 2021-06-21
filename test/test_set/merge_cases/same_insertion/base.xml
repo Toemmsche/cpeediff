@@ -9,10 +9,10 @@
         <description xmlns="http://cpee.org/ns/description/1.0">
             <choose mode="inclusive">
                 <alternative condition="data.costs > 700">
-                    <call endpoint="approve">
+                    <call id="a1" endpoint="approve">
                         <parameters>
-                            <label>Approve Hotels</label>
-                            <method>:put</method>
+                            <label>Approve Hotel</label>
+                            <method>:post</method>
                             <arguments>
                                 <costs>data.costs</costs>
                             </arguments>
@@ -20,7 +20,6 @@
                     </call>
                 </alternative>
             </choose>
-            <manipulate id="a2">data.costs += 1</manipulate>
         </description>
     </dslx>
 </properties>

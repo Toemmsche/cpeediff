@@ -19,9 +19,8 @@ const vkbeautify = require("vkbeautify");
 const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {CpeeNode} = require("../cpee/CpeeNode");
 const {Dsl} = require("../Dsl");
-const {Serializable} = require("../Serializable");
 
-class Change extends Serializable {
+class Change {
 
     changeType;
     oldPath;
@@ -29,31 +28,10 @@ class Change extends Serializable {
     newData;
 
     constructor(changeType, oldPath = null, newPath = null, newData = null) {
-        super();
         this.changeType = changeType;
         this.oldPath = oldPath;
         this.newPath = newPath;
         this.newData = newData;
-    }
-
-    static parseFromXml(xml, xmlDom = false) {
-        let root;
-        if(xmlDom) {
-            root = xml;
-        } else {
-            root = new DOMParser().parseFromString(xml, "text/xml").firstChild;
-        }
-
-        const [changeType, oldPath, newPath] = [root.localName, root.attributes.get("oldPath"), root.attributes.get("newPath")];
-        let newData;
-        for (let i = 0; i <root.childNodes.length ; i++) {
-            const childTNode = root.childNodes.item(i);
-
-            if(childTNode.localName === "newData") {
-                newData = CpeeNodeFactory.getNode(childTNode, true);
-            }
-        }
-        return new Change(changeType, oldPath, newPath, newData);
     }
 
     toString() {
@@ -62,30 +40,6 @@ class Change extends Serializable {
             (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
             (this.newPath !== null ? this.newPath + " " : "") +
             (this.newData !== null ? this.newData + " " : "");
-    }
-
-    convertToXml(xmlDom = false) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
-        const root = doc.createElement(this.changeType);
-        if(this.oldPath != null) {
-            root.setAttribute("oldPath", this.oldPath);
-        }
-        if(this.newPath != null) {
-            root.setAttribute("newPath", this.newPath);
-        }
-        if(this.newData != null) {
-            const newDataElement = doc.createElement("newData");
-            newDataElement.appendChild(this.newData.convertToXml(true, true));
-            root.appendChild(newDataElement);
-        }
-
-        if(xmlDom) {
-            return root;
-        } else {
-            doc.insertBefore(root);
-            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-        }
     }
 }
 

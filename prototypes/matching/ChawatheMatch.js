@@ -36,7 +36,9 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
      *                                    The order the matching algorithms are applied in matters.
      * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
      */
-    match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator(matching)) {
+    match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator()) {
+        comparator.matching = matching;
+
         //all nodes except properties
         const oldNodes = oldModel.toPreOrderArray().filter(n => !n.isPropertyNode());
         const newNodes = newModel.toPreOrderArray().filter(n => !n.isPropertyNode());
@@ -92,7 +94,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
     }
 
     _hashMatching(oldNodes, newNodes, matching, comparator) {
-        //filter for unmatched nodes and non-empty nodes
+        //filter for unmatched nodes
         oldNodes = oldNodes.filter(n => !matching.hasAny(n));
         newNodes = newNodes.filter(n => !matching.hasAny(n));
 
@@ -142,7 +144,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
     }
 
     _similarityMatching(oldNodes, newNodes, matching, comparator) {
-        //filter leaves for unmatched nodes
+        //filter for unmatched nodes and sort ascending by size
         oldNodes = oldNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
         newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
 

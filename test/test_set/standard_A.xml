@@ -20,6 +20,7 @@
                     </call>
                 </alternative>
             </choose>
+            <manipulate id="a2">data.costs += 1</manipulate>
         </description>
     </dslx>
 </properties>

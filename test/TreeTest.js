@@ -143,12 +143,6 @@ describe("CpeeNode", () => {
         });
     });
 
-    describe("#toPropertyPathString()", () => {
-        it('should return the path from the parent leaf node to the property node using child indices', () => {
-            assert.strictEqual(toArgument.toPropertyPathString(), "arguments/to");
-        });
-    });
-
     describe("#toPreorderArray()", () => {
         it('should return a sequence of nodes equivalent to a pre-order traversal of the subtree rooted at the node', () => {
             const preOrder = bookAirCall.toPreOrderArray();

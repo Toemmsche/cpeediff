@@ -15,13 +15,15 @@
 */
 
 
+const {XmlFactory} = require("../factory/XmlFactory");
+const {Preprocessor} = require("../parse/Preprocessor");
 const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
 const {Matching} = require("../matching/Matching");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Dsl} = require("../Dsl");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
-const {MatchDiff} = require("../diffs/MatchDiff");
+const {MatchDiff} = require("../diff/MatchDiff");
 
 class DeltaMerger {
 
@@ -131,7 +133,7 @@ class DeltaMerger {
 
                 //edge case: insertion of the same node (matched insertions) at different positions/with different content
                 //TODO make merge case
-                if(node.isInsertion() && match.isInsertion()) {
+                if (node.isInsertion() && match.isInsertion()) {
                     moveConflicts.add(node);
                     if (!node.contentEquals(match)) {
                         updateConflicts.add(node);
@@ -157,8 +159,6 @@ class DeltaMerger {
             //favor T1
             match.removeFromParent();
             this._insertCorrectly(match, node, matching);
-
-            console.log("Resolved move conflict in favor of T1");
         }
     }
 
@@ -168,13 +168,13 @@ class DeltaMerger {
             const match = matching.getOther(node);
 
             //edge case: both nodes are insertions
-            if(node.isInsertion() && match.isInsertion()) {
+            if (node.isInsertion() && match.isInsertion()) {
                 //insertion is essentially an update with no pre-existing value
-                for(const [key ,value] of node.attributes) {
+                for (const [key, value] of node.attributes) {
                     node.updates.set(key, [null, value]);
                 }
                 node.updates.set("data", [null, node.data]);
-                for(const [key ,value] of match.attributes) {
+                for (const [key, value] of match.attributes) {
                     match.updates.set(key, [null, value]);
                 }
                 match.updates.set("data", [null, match.data]);
@@ -236,17 +236,19 @@ class DeltaMerger {
                 }
             }
 
-            //TODO change origin
-            console.log("Resolved update on same node conflict");
+            //TODO set actual
+            node.changeOrigin = 3;
+            match.changeOrigin = 3;
         }
     }
 
     merge(base, tree1, tree2, matchingAlgorithm = new ChawatheMatching()) {
-        const delta1 = MatchDiff.diff(base, tree1, new ChawatheMatching());
-        const delta2 = MatchDiff.diff(base, tree2, new ChawatheMatching());
+        const differ = new MatchDiff();
+        const matcher = new ChawatheMatching();
+        const delta1 = differ.diff(base, tree1, matcher);
+        const delta2 = differ.diff(base, tree2, matcher);
 
-        console.log(delta1.convertToXml());
-        console.log(delta2.convertToXml());
+        console.log(XmlFactory.serialize(delta1));
 
         const deltaTreeFactory = new DeltaModelGenerator();
         const dt1 = deltaTreeFactory.deltaTree(base, delta1).mergeCopy();
@@ -272,10 +274,9 @@ class DeltaMerger {
         this._findOrderConflicts(dt1);
         this._findOrderConflicts(dt2);
 
-        console.log(dt1.convertToXml());
-        console.log(dt2.convertToXml());
-
-        return dt1;
+        console.log(XmlFactory.serialize(dt1.root));
+        //trim model
+        return new Preprocessor().prepareModel(dt1);
     }
 
     _findOrderConflicts(deltaTree) {

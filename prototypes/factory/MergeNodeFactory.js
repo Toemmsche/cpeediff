@@ -56,11 +56,11 @@ class MergeNodeFactory extends AbstractNodeFactory {
     }
 
     static _fromXmlString(xml, includeChildNodes) {
-        return this._fromCpeeNode(CpeeNodeFactory._fromXmlString(xml, includeChildNodes), includeChildNodes);
+        return this._fromCpeeNode(CpeeNodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
     }
 
     static _fromXmlDom(xmlElement, includeChildNodes) {
-        return this._fromCpeeNode(CpeeNodeFactory._fromXmlString(xmlElement, includeChildNodes), includeChildNodes);
+        return this._fromCpeeNode(CpeeNodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
     }
 }
 

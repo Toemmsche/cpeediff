@@ -14,17 +14,22 @@
    limitations under the License.
 */
 
-class Serializable {
+class TestConfig {
 
-    convertToXml(xmlDom = false, includeChildNodes = true) {
-        throw new Error("Interface method not implemented");
-    }
+    //time limit for each individual test: 30s
+    static TIME_LIMIT = 30000;
 
-    static parseFromXml(xml, xmlDom = false) {
-        throw new Error("Interface method not implemented");
-    }
+    static MATCH_CASES_DIR = "test_set/match_cases"
+
+
+    //TODO criteria matching
+    //     #tests passed (accuracy and overall quality)
+    //      runtime
+    //      edit script size
+    //      #nodes matched
+    //      merging #tests with expected result (conflict or no conflict)
 
 
 }
 
-exports.Serializable = Serializable;
+exports.TestConfig = TestConfig

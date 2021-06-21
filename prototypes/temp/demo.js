@@ -22,7 +22,7 @@ const {Preprocessor} = require("../parse/Preprocessor");
 const {DeltaMerger} = require("../merge/DeltaMerger");
 const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
-const {MatchDiff} = require("../diffs/MatchDiff");
+const {MatchDiff} = require("../diff/MatchDiff");
 const {CpeeNode} = require("../cpee/CpeeNode");
 
 CpeeNodeFactory.getNode(new CpeeNode("label"));
@@ -64,11 +64,11 @@ console.log(TreeStringSerializer.serializeModel(model1));
 console.log(TreeStringSerializer.serializeModel(model2));
 
 
-const d = MatchDiff.diff(model1, model2, new ChawatheMatching());
+const d = new MatchDiff().diff(model1, model2, new ChawatheMatching());
 const dt = new DeltaModelGenerator().deltaTree(model1, d);
 
 
-new DeltaMerger().merge(model1, model2, model3);
+console.log(new DeltaMerger().merge(model1, model2, model3).convertToXml());
 
 
 

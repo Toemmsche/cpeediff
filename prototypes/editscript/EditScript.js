@@ -19,19 +19,13 @@ const xmldom= require("xmldom");
 const vkbeautify = require("vkbeautify");
 const {Change} = require("./Change");
 const {Dsl} = require("../Dsl");
-const {Serializable} = require("../Serializable");
 
-class EditScript extends Serializable {
+class EditScript {
 
     changes;
 
     constructor() {
-        super();
         this.changes = [];
-    }
-
-    static parseFromJson(str) {
-        return JSON.parse(str);
     }
 
     toString() {
@@ -52,26 +46,6 @@ class EditScript extends Serializable {
 
     update(oldPath, newData) {
         this.changes.push(new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newData));
-    }
-
-    convertToXml(xmlDom = false) {
-        const doc = xmldom
-            .DOMImplementation
-            .prototype
-            .createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-
-        const root = doc.createElement("delta");
-        for(const change of this.changes) {
-            const ch = change.convertToXml(true);
-            root.appendChild(change.convertToXml(true));
-        }
-
-        if(xmlDom) {
-            return root;
-        } else {
-            doc.insertBefore(root);
-            return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
-        }
     }
 
     [Symbol.iterator]() {

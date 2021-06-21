@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
+const {XmlFactory} = require("../factory/XmlFactory");
 const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
 const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
 const {MergeNode} = require("./MergeNode");
-const {Serializable} = require("../Serializable");
 const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 
-class CpeeModel extends Serializable{
+class CpeeModel {
 
     /**
      * @type CpeeNode
@@ -30,7 +30,6 @@ class CpeeModel extends Serializable{
     root;
 
     constructor(root) {
-        super();
         this.root = root;
     }
 
@@ -64,7 +63,8 @@ class CpeeModel extends Serializable{
     }
 
     convertToXml(xmlDom = false) {
-        return this.root.convertToXml(xmlDom);
+        //TODO modelfactories
+        return XmlFactory.serialize(this.root, true)
     }
 
     static parseFromXml(xml) {

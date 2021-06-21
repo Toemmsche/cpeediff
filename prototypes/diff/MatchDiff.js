@@ -17,24 +17,16 @@
 const {StandardComparator} = require("../compare/StandardComparator");
 const {CpeeModel} = require("../cpee/CpeeModel");
 const {Matching} = require("../matching/Matching");
-const {AbstractDiff} = require("./AbstractDiff");
 const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 
-class MatchDiff extends AbstractDiff {
+class MatchDiff {
 
-    static diff(oldModel, newModel, ...matchingAlgorithms) {
+    diff(oldModel, newModel, matchingAlgorithm, comparator = new StandardComparator()) {
         //this will modify the old model, hence a copy is used
         const copyOfOld = oldModel.copy();
-        let m = new Matching();
-        const start = new Date().getTime();
-        for(const matchingAlgorithm of matchingAlgorithms) {
-            m = matchingAlgorithm.match(copyOfOld, newModel, m, new StandardComparator(m));
-        }
-        const end = new Date().getTime();
-        console.log("matchtook " + (end - start) + "ms");
-
+        const matching = matchingAlgorithm.match(copyOfOld, newModel, new Matching(), comparator);
         //generate edit script
-        return new EditScriptGenerator().generateEditScript(copyOfOld, newModel, m);
+        return new EditScriptGenerator().generateEditScript(copyOfOld, newModel, matching);
     }
 }
 
