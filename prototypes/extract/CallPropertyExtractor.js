@@ -31,12 +31,18 @@ class CallPropertyExtractor extends AbstractExtractor {
         let label = parameters.childNodes.find(n => n.label === "label");
         if(label != null) {
             label = label.data;
+        } else {
+            label = "";
         }
 
         let args = parameters.childNodes.find(n => n.label === "arguments");
-        args = args
-            .childNodes
-            .map(n => n.data);
+        if(args != null) {
+            args = args
+                .childNodes
+                .map(n => n.data);
+        } else {
+            args = [];
+        }
 
         let code = node.childNodes.find(n => n.label === "code");
         if(code != null) {
@@ -44,6 +50,8 @@ class CallPropertyExtractor extends AbstractExtractor {
                 .sort((a, b) => a.label.localeCompare(b.label))
                 .map(n => n.data)
                 .join("");
+        } else {
+            code = "";
         }
 
         this._memo.set(node, new CallProperties(endpoint, method, args, code, label));

@@ -13,13 +13,43 @@
                         <parameters>
                             <label>Approve Hotels</label>
                             <method>:put</method>
-                            <arguments>
-                                <costs>data.costs</costs>
-                            </arguments>
                         </parameters>
                     </call>
                 </alternative>
+
             </choose>
+            <loop>
+                <call id="a3" endpoint="bookAir" kekw="sadf">
+                    <parameters>
+                        <label>Book Airlines</label>
+                        <method>:post</method>
+                        <arguments>
+                            <from>data.from</from>
+                            <to>data.to</to>
+                            <persons>data.persons</persons>
+                            <costs>data.costs</costs>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f'</finalize>
+                    </code>
+                </call>
+                <call id="a3" endpoint="bookAir" kekw="sadf">
+                    <parameters>
+                        <label>Book Airlines</label>
+                        <method>:post</method>
+                        <arguments>
+                            <from>data.from</from>
+                            <to>data.to</to>
+                            <persons>data.persons</persons>
+                            <costs>data.costs</costs>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f'</finalize>
+                    </code>
+                </call>
+            </loop>
             <manipulate id="a2">data.costs += 1</manipulate>
         </description>
     </dslx>

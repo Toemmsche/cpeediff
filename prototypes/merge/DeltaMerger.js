@@ -15,6 +15,8 @@
 */
 
 
+const {HashExtractor} = require("../extract/HashExtractor");
+const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {XmlFactory} = require("../factory/XmlFactory");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
@@ -247,8 +249,6 @@ class DeltaMerger {
         const matcher = new ChawatheMatching();
         const delta1 = differ.diff(base, tree1, matcher);
         const delta2 = differ.diff(base, tree2, matcher);
-
-        console.log(XmlFactory.serialize(delta1));
 
         const deltaTreeFactory = new DeltaModelGenerator();
         const dt1 = deltaTreeFactory.deltaTree(base, delta1).mergeCopy();

@@ -19,7 +19,7 @@ const {AbstractExtractor} = require("./AbstractExtractor");
 class IdExtractor extends AbstractExtractor {
 
     _extract(node) {
-        //lazily compute all ids upon first use
+        //compute all ids on first use
         let root;
         if(node.parent == null) {
             root = node;
