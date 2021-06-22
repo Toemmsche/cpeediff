@@ -118,10 +118,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 let minStructCompareValue = 2;
                 let minStructCompareNode = null;
                 for (const candidate of hashMap.get(hash)) {
-                    //TODO remove
-                    if(!newNode.contentEquals(candidate)) {
-                        throw new Error();
-                    }
                     const structCompareValue = comparator.structCompare(candidate, newNode);
                     if (structCompareValue < minStructCompareValue) {
                         minStructCompareValue = structCompareValue;

@@ -43,12 +43,14 @@ class VariableExtractor extends AbstractExtractor {
             } else if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
                 code = node.data;
             }
-            //match all variable assignments
-            const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
-            if (matches !== null) {
-                for (const variable of matches) {
-                    //match only variable name and remove data. prefix
-                    modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+            if(code != null) {
+                //match all variable assignments
+                const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
+                if (matches !== null) {
+                    for (const variable of matches) {
+                        //match only variable name and remove data. prefix
+                        modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
+                    }
                 }
             }
         }

@@ -16,6 +16,7 @@
 
 const assert = require("assert");
 const fs = require("fs");
+const {SizeExtractor} = require("../../prototypes/extract/SizeExtractor");
 const {TestConfig} = require("../TestConfig");
 const {MatchTestResult} = require("./MatchTestResult");
 const {ChawatheMatching} = require("../../prototypes/matching/ChawatheMatch");
@@ -23,25 +24,26 @@ const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
 class OurAdapter {
 
-    evalCase(oldTree, newTree, expected) {
+    evalCase(name, oldTree, newTree, expected) {
+
+        //get max tree size
+        const sizeExtractor = new SizeExtractor();
+        const treeSize = sizeExtractor.get(newTree.root);
+
         //match base and changed
         let matching;
 
-
-        let memUsage = process.memoryUsage().heapUsed;
         let runtime = new Date().getTime();
         let verdict = TestConfig.VERDICTS.OK;
         let nodesMatched;
 
+
         try {
             matching = new ChawatheMatching().match(oldTree, newTree);
             nodesMatched = matching.newToOldMap.size;
-        } catch (e) {
-            //TODO time limit
-            console.log("Failed on test");
+        } catch(e) {
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
         } finally {
-            memUsage = process.memoryUsage().heapUsed - memUsage;
             runtime = new Date().getTime() - runtime;
         }
 
@@ -49,15 +51,13 @@ class OurAdapter {
             try {
                 this._verifyResult(matching, expected)
             }catch (e) {
-                console.log("Wrong answer for test");
+
                 verdict = TestConfig.VERDICTS.WRONG_ANSWER;
             }
         }
 
-        console.log("mem usage: " + memUsage);
-        console.log("runtime: " + runtime);
 
-        return new MatchTestResult(name, verdict, runtime, memUsage, nodesMatched)
+        return new MatchTestResult(name, treeSize, verdict, runtime, nodesMatched)
 
     }
 

@@ -1,0 +1,160 @@
+<description
+    xmlns="http://cpee.org/ns/description/1.0">
+    <parallel>
+        <parallel_branch>
+            <manipulate>data.oCvueVrCwvyK = 420;data.jxFfbU = 420;</manipulate>
+            <call endpoint="XcCJydkRSguZVmjMsJMjJf">
+                <parameters>
+                    <label>yBYHWnlHkFJRLAcMHHNkTnxFfHmdb</label>
+                    <method>:get</method>
+                    <arguments>
+                        <BOaOljQHztAi>data.BOaOljQHztAi</BOaOljQHztAi>
+                        <oCvueVrCwvyK>data.oCvueVrCwvyK</oCvueVrCwvyK>
+                        <NgbnBPzxmxKl>data.NgbnBPzxmxKl</NgbnBPzxmxKl>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.TCYERUcwONgp = 420;data.OugCS = 420;</update>
+                </code>
+            </call>
+            <manipulate>data.gTxLyDSvNFh = 420;data.jxFfbU = 420;</manipulate>
+        </parallel_branch>
+        <parallel_branch>
+            <call endpoint="uomwuqRFCrXFRKbgadVOEOQfEA">
+                <parameters>
+                    <label>yBYHWnlHkFJRLAcMHHNkTnxFfHmdb</label>
+                    <method>:post</method>
+                    <arguments>
+                        <OugCS>data.OugCS</OugCS>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.gwyMsXOAOL = 420;</update>
+                </code>
+            </call>
+        </parallel_branch>
+        <parallel_branch>
+            <call endpoint="xiDShWmSVlZqjYRKRuVVpv">
+                <parameters>
+                    <label>BlwybNxescsO</label>
+                    <method>:put</method>
+                </parameters>
+                <code>
+                    <update>data.gwyMsXOAOL = 420;</update>
+                </code>
+            </call>
+        </parallel_branch>
+        <parallel_branch>
+            <escape/>
+            <call endpoint="XcCJydkRSguZVmjMsJMjJf">
+                <parameters>
+                    <label>yBYHWnlHkFJRLAcMHHNkTnxFfHmdb</label>
+                    <method>:delete</method>
+                    <arguments>
+                        <TCYERUcwONgp>data.TCYERUcwONgp</TCYERUcwONgp>
+                        <lVlmLGna>data.lVlmLGna</lVlmLGna>
+                        <jxFfbU>data.jxFfbU</jxFfbU>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.jxFfbU = 420;data.oCvueVrCwvyK = 420;</update>
+                </code>
+            </call>
+            <call endpoint="ENlMLqnlcVbGmWn">
+                <parameters>
+                    <label>rcMnljhivcPOYfxn</label>
+                    <method>:put</method>
+                    <arguments>
+                        <gTxLyDSvNFh>data.gTxLyDSvNFh</gTxLyDSvNFh>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.lVlmLGna = 420;</update>
+                </code>
+            </call>
+        </parallel_branch>
+        <parallel_branch>
+            <terminate/>
+            <call endpoint="XdpJRPfJxzmdvtGOfNDoKcYIpJf">
+                <parameters>
+                    <label>BlwybNxescsO</label>
+                    <method>:post</method>
+                    <arguments>
+                        <uIErVYcz>data.uIErVYcz</uIErVYcz>
+                        <gwyMsXOAOL>data.gwyMsXOAOL</gwyMsXOAOL>
+                        <TCYERUcwONgp>data.TCYERUcwONgp</TCYERUcwONgp>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.jxFfbU = 420;</update>
+                </code>
+            </call>
+        </parallel_branch>
+        <parallel_branch>
+            <call endpoint="uomwuqRFCrXFRKbgadVOEOQfEA">
+                <parameters>
+                    <label>AFXaYRztBxV</label>
+                    <method>:delete</method>
+                    <arguments>
+                        <jxFfbU>data.jxFfbU</jxFfbU>
+                        <gTxLyDSvNFh>data.gTxLyDSvNFh</gTxLyDSvNFh>
+                        <lVlmLGna>data.lVlmLGna</lVlmLGna>
+                        <NgbnBPzxmxKl>data.NgbnBPzxmxKl</NgbnBPzxmxKl>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.OugCS = 420;data.oCvueVrCwvyK = 420;</update>
+                </code>
+            </call>
+            <terminate/>
+            <call endpoint="XdpJRPfJxzmdvtGOfNDoKcYIpJf">
+                <parameters>
+                    <label>AFXaYRztBxV</label>
+                    <method>:put</method>
+                    <arguments>
+                        <lVlmLGna>data.lVlmLGna</lVlmLGna>
+                        <TCYERUcwONgp>data.TCYERUcwONgp</TCYERUcwONgp>
+                    </arguments>
+                </parameters>
+                <code>
+                    <update>data.lVlmLGna = 420;data.oCvueVrCwvyK = 420;</update>
+                </code>
+            </call>
+            <loop condition="data.OugCS &lt; 69">
+                <escape/>
+                <call endpoint="NIjsmKykATKvdIMekmgnGGlReiE">
+                    <parameters>
+                        <label>xcEBbAbxrZ</label>
+                        <method>:delete</method>
+                        <arguments>
+                            <jxFfbU>data.jxFfbU</jxFfbU>
+                            <uIErVYcz>data.uIErVYcz</uIErVYcz>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <update>data.jxFfbU = 420;data.NgbnBPzxmxKl = 420;data.OugCS = 420;</update>
+                    </code>
+                </call>
+                <escape/>
+            </loop>
+        </parallel_branch>
+    </parallel>
+    <call endpoint="XcCJydkRSguZVmjMsJMjJf">
+        <parameters>
+            <label>MHqnznDfUeKTodYVvapGBUW</label>
+            <method>:get</method>
+            <arguments>
+                <OugCS>data.OugCS</OugCS>
+            </arguments>
+        </parameters>
+        <code>
+            <update>data.TCYERUcwONgp = 420;data.gwyMsXOAOL = 420;</update>
+        </code>
+    </call>
+    <call endpoint="YMHjCTJmfbNEOlhhOyrZdhkQ">
+        <parameters>
+            <label>AFXaYRztBxV</label>
+            <method>:put</method>
+        </parameters>
+    </call>
+</description>

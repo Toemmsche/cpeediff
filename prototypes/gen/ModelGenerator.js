@@ -93,7 +93,7 @@ class ModelGenerator {
 
     randomString(length = this.randInt(100)) {
         const result = [];
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         for (let i = 0; i < length; i++) {
             result.push(characters.charAt(this.randInt(characters.length)));
         }
@@ -310,7 +310,10 @@ class ModelGenerator {
     changeModel(model, maxChanges) {
         //do not modify original model
         model = model.copy();
-
+        let insertionCounter = 0;
+        let updateCounter = 0;
+        let deletionCounter = 0;
+        let moveCounter = 0;
         for (let i = 0; i < maxChanges; i++) {
             const nodes = model.toPreOrderArray();
             const inners = model.innerNodes();
@@ -322,19 +325,27 @@ class ModelGenerator {
                     const newNode = this.randomInnerNode();
                     const parent = this.randomFrom(inners);
                     this.insertRandomly(parent, newNode);
+                    insertionCounter++;
+                    break;
                 }
                 case Dsl.CHANGE_TYPES.INSERTION: {
                     const newNode = this.randomLeafNode();
                     const parent = this.randomFrom(inners);
                     this.insertRandomly(parent, newNode);
+                    insertionCounter++;
+                    break;
                 }
                 case Dsl.CHANGE_TYPES.SUBTREE_DELETION: {
                     const node = this.randomFrom(inners);
                     node.removeFromParent();
+                    deletionCounter++;
+                    break;
                 }
                 case Dsl.CHANGE_TYPES.DELETION: {
                     const node = this.randomFrom(nodes.filter(n => !n.isInnerNode()));
                     node.removeFromParent();
+                    deletionCounter++;
+                    break;
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO:
                 case Dsl.CHANGE_TYPES.MOVE_FROM: {
@@ -342,6 +353,8 @@ class ModelGenerator {
                     node.removeFromParent();
                     const newParent = this.randomFrom(model.innerNodes());
                     this.insertRandomly(newParent, node);
+                    moveCounter++;
+                    break;
                 }
                 case Dsl.CHANGE_TYPES.UPDATE: {
                     let node;
@@ -364,9 +377,15 @@ class ModelGenerator {
                             node.attributes.set(key, newVal);
                         }
                     }
+                    updateCounter++;
+                    break;
                 }
             }
         }
+        console.log("updates: " + updateCounter);
+        console.log("insertions: " + insertionCounter);
+        console.log("deletions: " + deletionCounter);
+        console.log("moves: " + moveCounter);
         return model;
     }
 

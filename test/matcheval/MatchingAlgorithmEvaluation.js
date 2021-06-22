@@ -34,7 +34,6 @@ class MatchingAlgorithmEvaluation {
             let expected;
 
             fs.readdirSync(TestConfig.MATCH_CASES_DIR + "/" + dir).forEach((file) => {
-
                     const content = fs.readFileSync(TestConfig.MATCH_CASES_DIR + "/" + dir + "/" + file).toString();
                     if (file === "new.xml") {
                         newTree = parser.parseWithMetadata(content);
@@ -46,7 +45,8 @@ class MatchingAlgorithmEvaluation {
                 }
             );
 
-            new OurAdapter().evalCase(oldTree, newTree, expected);
+            const testResult = new OurAdapter().evalCase(dir, oldTree, newTree, expected);
+            console.log(testResult);
 
         });
 

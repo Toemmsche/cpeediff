@@ -21,16 +21,17 @@ const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 class MatchTestResult {
 
     name;
+    treeSize;
+
     verdict;
     runtime;
-    memoryUsage;
     nodesMatched;
 
-    constructor(name, verdict, runtime, memoryUsage, nodesMatched) {
+    constructor(name, treeSize, verdict, runtime, nodesMatched) {
         this.name = name;
+        this.treeSize = treeSize;
         this.verdict = verdict
         this.runtime = runtime;
-        this.memoryUsage = memoryUsage;
         this.nodesMatched = nodesMatched;
     }
 }

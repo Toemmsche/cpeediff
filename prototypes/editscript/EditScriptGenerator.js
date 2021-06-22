@@ -165,16 +165,16 @@ class EditScriptGenerator {
     }
 
     _insert(newNode, matching, editScript) {
-        let copy;
-        if(newNode.toPreOrderArray().find(n => matching.hasNew(n))) {
-            copy = CpeeNodeFactory.getNode(newNode, false);
-            matching.matchNew(newNode, copy);
-        } else {
-            copy = CpeeNodeFactory.getNode(newNode, true);
-            const copyPreOrder = copy.toPreOrderArray();
-            const newNodePreOrder = newNode.toPreOrderArray();
-            for (let i = 0; i < newNodePreOrder.length; i++) {
+        const copy = CpeeNodeFactory.getNode(newNode, true);
+        const copyPreOrder = copy.toPreOrderArray();
+        const newNodePreOrder = newNode.toPreOrderArray();
+
+        //TODO optimize via recursion (important for runtime)
+        for (let i = 0; i < copyPreOrder.length; i++) {
+            if(!matching.hasNew(newNodePreOrder[i])) {
                 matching.matchNew(newNodePreOrder[i], copyPreOrder[i]);
+            } else {
+                copyPreOrder[i].removeFromParent();
             }
         }
 
