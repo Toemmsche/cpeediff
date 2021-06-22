@@ -25,33 +25,35 @@ class CallPropertyExtractor extends AbstractExtractor {
             throw new Error("Cannot extract properties from non-call node");
         }
         const endpoint = node.attributes.get("endpoint");
+
+        let method, label, args;
         const parameters = node.childNodes.find(n => n.label === "parameters");
+        if (parameters != null) {
+            method = parameters.childNodes.find(n => n.label === "method");
+            if (method != null) {
+                method = method.data;
+            }
+            label = parameters.childNodes.find(n => n.label === "label");
+            if (label != null) {
+                label = label.data;
+            }
 
-        const method = parameters.childNodes.find(n => n.label === "method").data;
-        let label = parameters.childNodes.find(n => n.label === "label");
-        if(label != null) {
-            label = label.data;
-        } else {
-            label = "";
-        }
-
-        let args = parameters.childNodes.find(n => n.label === "arguments");
-        if(args != null) {
-            args = args
-                .childNodes
-                .map(n => n.data);
-        } else {
-            args = [];
+            args = parameters.childNodes.find(n => n.label === "arguments");
+            if (args != null) {
+                args = args
+                    .childNodes
+                    .map(n => n.data);
+            } else {
+                args = [];
+            }
         }
 
         let code = node.childNodes.find(n => n.label === "code");
-        if(code != null) {
+        if (code != null) {
             code = code.childNodes
                 .sort((a, b) => a.label.localeCompare(b.label))
                 .map(n => n.data)
                 .join("");
-        } else {
-            code = "";
         }
 
         this._memo.set(node, new CallProperties(endpoint, method, args, code, label));

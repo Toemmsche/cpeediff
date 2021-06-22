@@ -39,6 +39,14 @@ class CallProperties {
         return this.code != null;
     }
 
+    hasArgs() {
+        return this.args != null && this.args.length > 0;
+    }
+
+    hasMethod() {
+        return this.method != null;
+    }
+
 }
 
 exports.CallProperties= CallProperties;

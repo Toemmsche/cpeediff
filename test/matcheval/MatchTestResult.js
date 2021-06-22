@@ -14,28 +14,25 @@
    limitations under the License.
 */
 
-class TestConfig {
+const assert = require("assert");
+const fs = require("fs");
+const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
-    //time limit for each individual test: 30s
-    static TIME_LIMIT = 30000;
+class MatchTestResult {
 
-    static MATCH_CASES_DIR = "test_set/match_cases"
+    name;
+    verdict;
+    runtime;
+    memoryUsage;
+    nodesMatched;
 
-    static VERDICTS = {
-        OK: "OK",
-        WRONG_ANSWER: "WRONG ANSWER",
-        RUNTIME_ERROR: "RUNTIME ERROR"
+    constructor(name, verdict, runtime, memoryUsage, nodesMatched) {
+        this.name = name;
+        this.verdict = verdict
+        this.runtime = runtime;
+        this.memoryUsage = memoryUsage;
+        this.nodesMatched = nodesMatched;
     }
-
-
-    //TODO criteria matching
-    //     #tests passed (accuracy and overall quality)
-    //      runtime
-    //      edit script size
-    //      #nodes matched
-    //      merging #tests with expected result (conflict or no conflict)
-
-
 }
 
-exports.TestConfig = TestConfig
+exports.MatchTestResult = MatchTestResult;

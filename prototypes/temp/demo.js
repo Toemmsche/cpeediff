@@ -16,6 +16,9 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {XmlFactory} = require("../factory/XmlFactory");
+const {StandardComparator} = require("../compare/StandardComparator");
+const {ModelGenerator} = require("../gen/ModelGenerator");
 const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {Preprocessor} = require("../parse/Preprocessor");
@@ -41,6 +44,11 @@ const  b = fs.readFileSync(booking).toString();
 
 let bm = new Preprocessor().parseWithMetadata(b);
 
+let gen = new ModelGenerator(100, 10, 10, 5);
+const r = gen.randomModel();
+
+const changed = gen.changeModel(r, 10);
+console.log(XmlFactory.serialize(new MatchDiff().diff(r, changed, new ChawatheMatching(), new StandardComparator())))
 
 
 let model1 = new Preprocessor().parseWithMetadata(xmlA);

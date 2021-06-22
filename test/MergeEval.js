@@ -19,7 +19,7 @@ const fs = require("fs");
 const {DeltaMerger} = require("../prototypes/merge/DeltaMerger");
 const {IdExtractor} = require("../prototypes/extract/IdExtractor");
 const {ChawatheMatching} = require("../prototypes/matching/ChawatheMatch");
-const {ExpectedMatch} = require("./ExpectedMatch");
+const {ExpectedMatch} = require("./matcheval/ExpectedMatch");
 const {Preprocessor} = require("../prototypes/parse/Preprocessor");
 
 const matchingAlgorithm = new ChawatheMatching();

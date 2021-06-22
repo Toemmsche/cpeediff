@@ -15,15 +15,11 @@
 */
 
 
-const {HashExtractor} = require("../extract/HashExtractor");
-const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {XmlFactory} = require("../factory/XmlFactory");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
 const {Matching} = require("../matching/Matching");
 const {ChawatheMatching} = require("../matching/ChawatheMatch");
-const {Dsl} = require("../Dsl");
-const {TreeStringSerializer} = require("../serialize/TreeStringSerializer");
 const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
 const {MatchDiff} = require("../diff/MatchDiff");
 

@@ -7,6 +7,7 @@
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
 //      hash only considers semantic aspects
+//      are data passes (parallel branch) resolved correctly? => NO they arent
 
 //TODO new algos
 //      fast LIS (O nlogn)
@@ -53,7 +54,6 @@
 //      robustness against indentation and newlines/whitespaces
 //      unnecessary tree traversals during matching, edit script genreation, and merging
 //      make robust against missing root
-//      are data passes (parallel branch) resolved correctly?
 //      robust against keywrods as properties
 //      differtnt merge output trees (dt1 and dt2)
 //      clearn up merge output (removal of empty inners)

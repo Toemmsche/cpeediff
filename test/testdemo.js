@@ -1,5 +1,5 @@
 const {StandardComparator} = require("../prototypes/compare/StandardComparator");
 const {ChawatheMatching} = require("../prototypes/matching/ChawatheMatch");
-const {MatchingAlgorithmEvaluation} = require("./MatchingAlgorithmEvaluation");
+const {MatchingAlgorithmEvaluation} = require("./matcheval/MatchingAlgorithmEvaluation");
 
-new MatchingAlgorithmEvaluation(new ChawatheMatching(), new StandardComparator()).runAll();
+new MatchingAlgorithmEvaluation().evalAll();
