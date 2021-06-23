@@ -32,32 +32,24 @@ class OurAdapter {
 
         //match base and changed
         let matching;
-
-        let runtime = new Date().getTime();
         let verdict = TestConfig.VERDICTS.OK;
-        let nodesMatched;
-
 
         try {
             matching = new ChawatheMatching().match(oldTree, newTree);
-            nodesMatched = matching.newToOldMap.size;
         } catch(e) {
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
-        } finally {
-            runtime = new Date().getTime() - runtime;
         }
 
         if(verdict === TestConfig.VERDICTS.OK) {
             try {
                 this._verifyResult(matching, expected)
             }catch (e) {
-
                 verdict = TestConfig.VERDICTS.WRONG_ANSWER;
             }
         }
 
 
-        return new MatchTestResult(name, treeSize, verdict, runtime, nodesMatched)
+        return new MatchTestResult(name, verdict)
 
     }
 

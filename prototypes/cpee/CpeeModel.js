@@ -33,19 +33,6 @@ class CpeeModel {
         this.root = root;
     }
 
-    copy() {
-        return new CpeeModel(CpeeNodeFactory.getNode(this.root, true));
-    }
-
-    deltaCopy() {
-        const deltaRoot = DeltaNodeFactory.getNode(this.root, true);
-        return new CpeeModel(deltaRoot);
-    }
-
-    mergeCopy() {
-        return new CpeeModel(MergeNodeFactory.getNode(this.root, true));
-    }
-
     toPreOrderArray() {
         return this.root.toPreOrderArray();
     }
@@ -62,14 +49,6 @@ class CpeeModel {
         return this.toPreOrderArray().filter(n => !n.isLeaf() && !n.isPropertyNode());
     }
 
-    convertToXml(xmlDom = false) {
-        //TODO modelfactories
-        return XmlFactory.serialize(this.root, true)
-    }
-
-    static parseFromXml(xml) {
-        return new CpeeModel(CpeeNodeFactory.getNode(xml));
-    }
 }
 
 exports.CpeeModel = CpeeModel;

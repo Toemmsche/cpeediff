@@ -53,7 +53,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //init script is always matched
         const oldFirstChild = oldModel.root.getChild(0);
         const newFirstChild = newModel.root.getChild(0);
-        if (oldFirstChild.attributes.get("id") === "init") {
+        if (oldFirstChild != null && oldFirstChild.attributes.get("id") === "init") {
             if (newFirstChild.attributes.get("id") === "init") {
                 matching.matchNew(newFirstChild, oldModel.root.getChild(0));
             }

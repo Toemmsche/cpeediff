@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {ModelFactory} = require("../factory/ModelFactory");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {Dsl} = require("../Dsl");
 const {CpeeModel} = require("../cpee/CpeeModel");
@@ -24,9 +25,10 @@ class ModelGenerator {
     static ENDPOINT_METHODS = [":get", ":post", ":put", ":patch", ":delete"];
     static CHOOSE_MODES = ["inclusive", "exclusive"];
 
-    variables = ["costs", "persons", "duration", "val", "res", "input", "output"];
-    endpoints = ["bookAir", "bookHotel"];
-    labels = ["Book Airline", "Book Hotel"];
+
+    endpoints;
+    labels;
+    variables;
 
     maxDepth;
     maxWidth;
@@ -41,8 +43,6 @@ class ModelGenerator {
         this.maxWidth = maxWidth;
         this.maxVars = maxVars;
     }
-
-    //use prototype nodes
 
     randomModel() {
         this._currDepth = 0;
@@ -124,9 +124,9 @@ class ModelGenerator {
         const rand = this.randInt(100);
 
         //about two-third chance to add a call
-        if (this.withProbability(0.65)) {
+        if (this.withProbability(0.7)) {
             return this.randomCall();
-        } else if (this.withProbability(0.3)) {
+        } else if (this.withProbability(0.8)) {
             return this.randomManipulate();
         } else if (this.withProbability(0.3)) {
             return this.randomStop();
@@ -309,7 +309,7 @@ class ModelGenerator {
 
     changeModel(model, maxChanges) {
         //do not modify original model
-        model = model.copy();
+        model = ModelFactory.getModel(model);
         let insertionCounter = 0;
         let updateCounter = 0;
         let deletionCounter = 0;

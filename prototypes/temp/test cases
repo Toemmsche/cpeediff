@@ -4,6 +4,8 @@
 - X - mappings
 - test EXACT_EDIT_SCRIPT using patcher
 - leaf substitution (are parents still matched) ?
+- low leaf sim threshold
+- high leaf sim threshold
 
 
 

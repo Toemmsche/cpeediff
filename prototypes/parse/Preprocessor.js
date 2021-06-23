@@ -91,7 +91,7 @@ class Preprocessor {
 
             //trim irrelevant nodes
             if (node.isPropertyNode() && (Config.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
-                || (node.isInnerNode() && !node.hasChildren())) {
+                || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())) {
                 node.removeFromParent();
             }
         }

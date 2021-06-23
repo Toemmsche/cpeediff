@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+const {CpeeModel} = require("../cpee/CpeeModel");
+const {ModelFactory} = require("../factory/ModelFactory");
 const {IdExtractor} = require("../extract/IdExtractor");
 const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
 const {Dsl} = require("../Dsl");
@@ -138,7 +140,7 @@ class DeltaModelGenerator {
 
     deltaTree(tree, editScript, extended = false) {
         //copy tree
-        tree = tree.deltaCopy();
+        tree = new CpeeModel(DeltaNodeFactory.getNode(tree.root));
 
         const idExtractor = new IdExtractor();
         for(const node of tree.toPreOrderArray()) {

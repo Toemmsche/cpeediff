@@ -24,17 +24,27 @@ const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
 class MatchingAlgorithmEvaluation {
 
-    evalAll() {
+    adapters;
+
+    constructor(adapters = []) {
+        this.adapters = adapters;
+    }
+
+    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
+        console.log("Using " + caseDir);
+        const results = new Map();
+        for(const adapter of this.adapters) {
+            results.set(adapter, []);
+        }
+
         const parser = new Preprocessor();
-        let successCounter = 0;
-        let totalCounter = 0;
-        fs.readdirSync(TestConfig.MATCH_CASES_DIR).forEach((dir) => {
+        fs.readdirSync(caseDir).forEach((dir) => {
             let oldTree;
             let newTree;
             let expected;
 
-            fs.readdirSync(TestConfig.MATCH_CASES_DIR + "/" + dir).forEach((file) => {
-                    const content = fs.readFileSync(TestConfig.MATCH_CASES_DIR + "/" + dir + "/" + file).toString();
+            fs.readdirSync(caseDir + "/" + dir).forEach((file) => {
+                    const content = fs.readFileSync(caseDir + "/" + dir + "/" + file).toString();
                     if (file === "new.xml") {
                         newTree = parser.parseWithMetadata(content);
                     } else if (file === "old.xml") {
@@ -44,13 +54,34 @@ class MatchingAlgorithmEvaluation {
                     }
                 }
             );
+            if(oldTree == null || newTree == null || expected == null) {
+                //test case is incomplete => skip
+                return;
+            }
 
-            const testResult = new OurAdapter().evalCase(dir, oldTree, newTree, expected);
-            console.log(testResult);
+            for(const adapter of this.adapters) {
+                results.get(adapter).push(adapter.evalCase(dir, oldTree, newTree, expected));
+            }
 
         });
 
-        console.log("Passed " + successCounter + " out of " + totalCounter + " tests");
+        //TODO aggregate metrics
+        for(const [adapter, resultsList] of results) {
+            console.log("results for " + adapter.constructor.name);
+            let amountOk = 0;
+            let total = 0;
+            for(const result of resultsList) {
+                total++;
+                console.log(result);
+                if(result.verdict === TestConfig.VERDICTS.OK) {
+                    amountOk++;
+                } else {
+                    console.log(result.verdict + " on " + result.name);
+                }
+            }
+
+            console.log("Passed " + amountOk + " out of " + total);
+        }
     }
 
 

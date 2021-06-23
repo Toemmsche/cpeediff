@@ -45,25 +45,30 @@ const  b = fs.readFileSync(booking).toString();
 let bm = new Preprocessor().parseWithMetadata(b);
 
 /*
-let gen = new ModelGenerator(10, 5, 10, 5);
+
+let gen = new ModelGenerator(1000, 1000, 1, 10);
 const r = gen.randomModel();
 
 
-fs.writeFileSync("test/test_set/match_cases/generated/old.xml", XmlFactory.serialize(r.root));
+fs.writeFileSync("test/test_set/diff_cases/depth_only/old.xml", XmlFactory.serialize(r.root));
 
-const changed = gen.changeModel(r, 10);
-fs.writeFileSync("test/test_set/match_cases/generated/new.xml", XmlFactory.serialize(changed.root));
-const e = new MatchDiff().diff(r, changed, new ChawatheMatching(), new StandardComparator());
-console.log(XmlFactory.serialize(e));
-console.log(XmlFactory.serialize(new DeltaModelGenerator().deltaTree(r, e, true).root))
+const changed = gen.changeModel(r, 20)
+fs.writeFileSync("test/test_set/diff_cases/depth_only/new.xml", XmlFactory.serialize(changed.root));
  */
 
+//fs.writeFileSync("test/test_set/match_cases/generated/new.xml", XmlFactory.serialize(changed.root));
+
+
+
+
+/*
 const n = fs.readFileSync("test/test_set/match_cases/generated/new.xml").toString();
 const o = fs.readFileSync("test/test_set/match_cases/generated/old.xml").toString();
 const nT = new Preprocessor().parseWithMetadata(n);
 const oT = new Preprocessor().parseWithMetadata(o);
+*/
 
-console.log(XmlFactory.serialize(new MatchDiff().diff(oT, nT, new ChawatheMatching(), new StandardComparator())));
+
 
 let model1 = new Preprocessor().parseWithMetadata(xmlA);
 let model2 =  new Preprocessor().parseWithMetadata(xmlB);
@@ -90,7 +95,7 @@ const d = new MatchDiff().diff(model1, model2, new ChawatheMatching());
 const dt = new DeltaModelGenerator().deltaTree(model1, d);
 
 
-console.log(new DeltaMerger().merge(model1, model2, model3).convertToXml());
+console.log(XmlFactory.serialize(new DeltaMerger().merge(model1, model2, model3)));
 
 
 

@@ -60,12 +60,10 @@ class StandardComparator extends AbstractComparator {
         const nodeEndpoint = nodeProps.endpoint;
         const otherEndpoint = otherProps.endpoint;
 
-        const endPointLcsSimilarity = Lcs.getLCS(nodeEndpoint, otherEndpoint).length
-            / Math.max(nodeEndpoint.length, otherEndpoint.length);
-        let endPointComparisonValue = 1 - endPointLcsSimilarity * endPointLcsSimilarity;
+        let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
         if (nodeProps.hasLabel() && otherProps.hasLabel() && nodeProps.label === otherProps.label) {
             //TODO maybe use LCS, too
-            endPointComparisonValue *= 0.5;
+            endPointComparisonValue += 0.1;
         }
         if (nodeProps.method !== otherProps.method) {
             endPointComparisonValue = Math.min(endPointComparisonValue + 0.1, 1);

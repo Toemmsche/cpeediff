@@ -22,15 +22,6 @@ const {Dsl} = require("../Dsl");
 
 class CpeeNode {
 
-    /**
-     * @type {{PATH: number, CHILD_INDEX_ONLY: number, LABEL: number, CHANGE: number, LABEL_WITH_TYPE_INDEX: number, PATH_WITH_TYPE_INDEX: number}}
-     */
-    static STRING_OPTIONS = {
-        LABEL: 1,
-        LABEL_WITH_TYPE_INDEX: 2,
-        PATH: 3,
-        PATH_WITH_TYPE_INDEX: 4
-    }
     //cpee information
     /**
      * @type String

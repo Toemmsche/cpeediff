@@ -7,7 +7,7 @@
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
-            <loop condition="dat.costs > 100">
+            <loop condition="data.costs > 100">
                 <call endpoint="approve">
                     <parameters>
                         <label>Approve Hotels</label>

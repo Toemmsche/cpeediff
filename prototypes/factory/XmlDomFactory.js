@@ -15,6 +15,7 @@
 */
 
 const xmldom = require("xmldom");
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {Change} = require("../editscript/Change");
 const {Dsl} = require("../Dsl");
 const {EditScript} = require("../editscript/EditScript");
@@ -25,7 +26,7 @@ const {CpeeNode} = require("../cpee/CpeeNode");
 
 class XmlDomFactory {
 
-    static convert(object,) {
+    static convert(object) {
         switch (object.constructor) {
             case CpeeNode:
                 return this._convertCpeeNode(object);
@@ -37,6 +38,8 @@ class XmlDomFactory {
                 return this._convertEditScript(object);
             case Change:
                 return this._convertChange(object);
+            case CpeeModel:
+                return this._convertCpeeModel(object);
         }
     }
 
@@ -153,6 +156,10 @@ class XmlDomFactory {
         }
 
         return root;
+    }
+
+    static _convertCpeeModel(model) {
+        return this.convert(model.root);
     }
 }
 

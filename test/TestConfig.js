@@ -16,9 +16,6 @@
 
 class TestConfig {
 
-    //time limit for each individual test: 30s
-    static TIME_LIMIT = 30000;
-
     static MATCH_CASES_DIR = "test_set/match_cases"
 
     static VERDICTS = {

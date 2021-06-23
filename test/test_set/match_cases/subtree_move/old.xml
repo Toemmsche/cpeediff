@@ -16,7 +16,7 @@
                     </arguments>
                 </parameters>
             </call>
-            <loop condition="dat.costs > 100">
+            <loop condition="data.costs > 100">
                 <manipulate>data.costs--</manipulate>
             </loop>
         </description>

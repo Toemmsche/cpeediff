@@ -15,6 +15,7 @@
 */
 
 
+const {CpeeModel} = require("../cpee/CpeeModel");
 const {XmlFactory} = require("../factory/XmlFactory");
 const {Preprocessor} = require("../parse/Preprocessor");
 const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
@@ -247,8 +248,8 @@ class DeltaMerger {
         const delta2 = differ.diff(base, tree2, matcher);
 
         const deltaTreeFactory = new DeltaModelGenerator();
-        const dt1 = deltaTreeFactory.deltaTree(base, delta1).mergeCopy();
-        const dt2 = deltaTreeFactory.deltaTree(base, delta2).mergeCopy();
+        const dt1 = new CpeeModel(MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta1).root));
+        const dt2 = new CpeeModel(MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta2).root));
 
         const matching = this._getDeltaMatching(dt1, dt2, matchingAlgorithm);
 
