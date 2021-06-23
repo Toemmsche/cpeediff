@@ -14,26 +14,19 @@
    limitations under the License.
 */
 
-class TestConfig {
+const assert = require("assert");
+const fs = require("fs");
+const {SizeExtractor} = require("../../prototypes/extract/SizeExtractor");
+const {TestConfig} = require("../TestConfig");
+const {MatchTestResult} = require("./MatchTestResult");
+const {ChawatheMatching} = require("../../prototypes/matching/ChawatheMatch");
+const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
-    static MATCH_CASES_DIR = "test_set/match_cases"
-    static DIFF_CASES_DIR = "test_set/diff_cases"
+class OurDiffAdapter {
 
-    static VERDICTS = {
-        OK: "OK",
-        WRONG_ANSWER: "WRONG ANSWER",
-        RUNTIME_ERROR: "RUNTIME ERROR"
+    evalCase(name, oldTree, newTree) {
+
     }
-
-
-    //TODO criteria matching
-    //     #tests passed (accuracy and overall quality)
-    //      runtime
-    //      edit script size
-    //      #nodes matched
-    //      merging #tests with expected result (conflict or no conflict)
-
-
 }
 
-exports.TestConfig = TestConfig
+exports.OurDiffAdapter = OurDiffAdapter;

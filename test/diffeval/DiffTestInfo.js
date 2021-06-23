@@ -14,26 +14,26 @@
    limitations under the License.
 */
 
-class TestConfig {
+const fs = require("fs");
+const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
+const {CpeeModel} = require("../../prototypes/cpee/CpeeModel");
 
-    static MATCH_CASES_DIR = "test_set/match_cases"
-    static DIFF_CASES_DIR = "test_set/diff_cases"
+class DiffTestInfo {
 
-    static VERDICTS = {
-        OK: "OK",
-        WRONG_ANSWER: "WRONG ANSWER",
-        RUNTIME_ERROR: "RUNTIME ERROR"
+    maxSize;
+    numInsertions;
+    numMoves;
+    numUpdates;
+    numDeletions;
+
+
+    constructor(maxSize, numInsertions, numMoves, numUpdates, numDeletions) {
+        this.maxSize = maxSize;
+        this.numInsertions = numInsertions;
+        this.numMoves = numMoves;
+        this.numUpdates = numUpdates;
+        this.numDeletions = numDeletions;
     }
-
-
-    //TODO criteria matching
-    //     #tests passed (accuracy and overall quality)
-    //      runtime
-    //      edit script size
-    //      #nodes matched
-    //      merging #tests with expected result (conflict or no conflict)
-
-
 }
 
-exports.TestConfig = TestConfig
+exports.DiffTestInfo = DiffTestInfo;
