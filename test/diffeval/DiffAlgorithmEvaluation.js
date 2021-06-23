@@ -15,6 +15,7 @@
 */
 
 const fs = require("fs");
+const {DiffTestResult} = require("./DiffTestResult");
 const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
 
@@ -46,7 +47,7 @@ class DiffAlgorithmEvaluation {
                     } else if (file === "old.xml") {
                         oldTree = parser.parseWithMetadata(content);
                     } else if (file === "info.json") {
-                        testInfo = Object.assign(new ExpectedMatch(), JSON.parse(content));
+                        testInfo = Object.assign(new DiffTestResult(), JSON.parse(content));
                     }
                 }
             );

@@ -25,23 +25,25 @@ class Matching {
     newToOldMap;
     oldToNewMap;
 
-    //flag for lazy propagation
-    _needsPropagation;
-
 
     constructor(oldToNewMap = new Map(), newToOldMap = new Map() ) {
         this.newToOldMap = newToOldMap;
         this.oldToNewMap = oldToNewMap;
-        this._needsPropagation = false;
     }
 
     matchNew(newNode, oldNode) {
-        this._needsPropagation = true;
+        if(this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
+            throw new Error("Matching of already matched node");
+        }
         this.newToOldMap.set(newNode, oldNode);
+        this.oldToNewMap.set(oldNode, newNode);
     }
 
     unmatchNew(newNode) {
-        this._needsPropagation = true;
+        const match = this.newToOldMap.get(newNode);
+        if(match != null) {
+            this.oldToNewMap.delete(match);
+        }
         this.newToOldMap.delete(newNode);
     }
 
@@ -51,7 +53,6 @@ class Matching {
 
 
     getOld(oldNode) {
-        this._propagate();
         return this.oldToNewMap.get(oldNode);
     }
 
@@ -72,32 +73,13 @@ class Matching {
     }
 
     hasOld(oldNode) {
-        this._propagate();
         return this.oldToNewMap.has(oldNode);
     }
 
     areMatched(oldNode, newNode) {
-        //TODO replace wit hequals()
         return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
     }
 
-    _propagate() {
-        if (this._needsPropagation) {
-            this.oldToNewMap = new Map();
-            for(const [newNode, oldMatch] of this.newToOldMap) {
-                if(this.oldToNewMap.has(oldMatch)) {
-                    const newMatch = this.oldToNewMap.get(oldMatch);
-                    this.unmatchNew(newMatch);
-                }
-               this.oldToNewMap.set(oldMatch, newNode);
-            }
-            this._needsPropagation = false;
-        }
-    }
-
-    [Symbol.iterator]() {
-        return this.newToOldMap[Symbol.iterator]();
-    }
 }
 
 exports.Matching = Matching;

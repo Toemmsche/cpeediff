@@ -9,3 +9,4 @@
 //      run profiler and write tests
 //      confidence level for merging
 //      problem classes
+//      use multiple expected to evaluate merging accuracy

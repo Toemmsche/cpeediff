@@ -72,9 +72,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                 this._propertyMatching(matching.getNew(newLeaf), newLeaf, matching);
             }
         }
-
-        matching._propagate();
-
         return matching;
     }
 
@@ -195,12 +192,12 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
     }
 
     _matchSimilarUnmatched(matching, comparator) {
-        for (const [newNode, oldNode] of matching) {
+        for (const [newNode, oldNode] of matching.newToOldMap) {
             //TODO use method similar to 3DM, pathmatching for now
 
             //copy paths, reverse them and remove first element, discard already matched nodes
-            const newPath = newNode.path.slice().reverse().slice(1);
-            const oldPath = oldNode.path.slice().reverse().slice(1);
+            const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
+            const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
 
             const newToOldMap = new Map();
 
