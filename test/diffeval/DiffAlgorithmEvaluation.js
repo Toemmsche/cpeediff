@@ -15,6 +15,7 @@
 */
 
 const fs = require("fs");
+const {DiffTestInfo} = require("./DiffTestInfo");
 const {DiffTestResult} = require("./DiffTestResult");
 const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
@@ -27,7 +28,7 @@ class DiffAlgorithmEvaluation {
         this.adapters = adapters;
     }
 
-    evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
+    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
         console.log("Using " + caseDir);
         const results = new Map();
         for(const adapter of this.adapters) {
@@ -47,7 +48,8 @@ class DiffAlgorithmEvaluation {
                     } else if (file === "old.xml") {
                         oldTree = parser.parseWithMetadata(content);
                     } else if (file === "info.json") {
-                        testInfo = Object.assign(new DiffTestResult(), JSON.parse(content));
+                        testInfo = Object.assign(new DiffTestInfo(), JSON.parse(content));
+                        testInfo.name = dir;
                     }
                 }
             );
@@ -57,7 +59,8 @@ class DiffAlgorithmEvaluation {
             }
 
             for(const adapter of this.adapters) {
-                results.get(adapter).push(adapter.evalCase(dir, oldTree, newTree));
+                console.log("Running case " + testInfo.name + " for " + adapter.constructor.name)
+                results.get(adapter).push(adapter.evalCase(testInfo, oldTree, newTree));
             }
 
         });

@@ -20,6 +20,7 @@ const {CpeeModel} = require("../../prototypes/cpee/CpeeModel");
 
 class DiffTestInfo {
 
+    name;
     maxSize;
     numInsertions;
     numMoves;
@@ -27,7 +28,8 @@ class DiffTestInfo {
     numDeletions;
 
 
-    constructor(maxSize, numInsertions, numMoves, numUpdates, numDeletions) {
+    constructor(name, maxSize, numInsertions, numMoves, numUpdates, numDeletions) {
+        this.name = name;
         this.maxSize = maxSize;
         this.numInsertions = numInsertions;
         this.numMoves = numMoves;

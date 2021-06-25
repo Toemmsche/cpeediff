@@ -48,7 +48,9 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         const newLeaves = newModel.leafNodes();
 
         //root is always matched
-        matching.matchNew(newModel.root, oldModel.root);
+        if(!matching.areMatched(oldModel.root, newModel.root)) {
+            matching.matchNew(newModel.root, oldModel.root);
+        }
 
         //init script is always matched
         const oldFirstChild = oldModel.root.getChild(0);
@@ -62,7 +64,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //get obvious matches via hashing
         this._hashMatching(oldNodes, newNodes, matching, comparator);
 
-        this._similarityMatching(oldNodes, newNodes, matching, comparator);
+        this._similarityMatching(oldLeaves, newLeaves, matching, comparator);
 
         this._matchSimilarUnmatched(matching, comparator);
 
@@ -79,13 +81,17 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //We assume that no two properties that are siblings in the xml tree share the same label
         const oldLabelMap = new Map();
         for (const oldChild of oldNode) {
-            oldLabelMap.set(oldChild.label, oldChild);
+            if(!matching.hasOld(oldChild)) {
+                oldLabelMap.set(oldChild.label, oldChild);
+            }
         }
         for (const newChild of newNode) {
-            if (oldLabelMap.has(newChild.label)) {
-                const match = oldLabelMap.get(newChild.label);
-                matching.matchNew(newChild, match);
-                this._propertyMatching(match, newChild, matching);
+            if(!matching.hasNew(newChild)) {
+                if (oldLabelMap.has(newChild.label)) {
+                    const match = oldLabelMap.get(newChild.label);
+                    matching.matchNew(newChild, match);
+                    this._propertyMatching(match, newChild, matching);
+                }
             }
         }
     }
@@ -131,8 +137,30 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
             }
         }
 
+
+
         for (const [oldNode, bestMatch] of oldToNewMap) {
-            matching.matchNew(bestMatch.newNode, oldNode);
+
+            const oldPreOrder = oldNode.toPreOrderArray();
+            const newPreOrder = bestMatch.newNode.toPreOrderArray();
+            if(oldPreOrder.length !== newPreOrder.length) {
+                throw new Error("hash matching failed"); //TODO
+            }
+            for (let i = 0; i < oldPreOrder.length; i++) {
+                if(matching.hasOld(oldPreOrder[i]) && !matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
+                    // throw new Error("hash matching failed"); //TOD
+                    //override matching
+                    console.log("override " + oldPreOrder[i].label)
+                    matching.unMatchOld(oldPreOrder[i]);
+                } else if(matching.hasNew(newPreOrder[i]) && !matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
+                    //override matching
+                    console.log("override " + newPreOrder[i].label)
+                    matching.unMatchNew(newPreOrder[i]);
+                } else if(!matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
+                    continue;
+                }
+                matching.matchNew(newPreOrder[i], oldPreOrder[i]);
+            }
         }
     }
 

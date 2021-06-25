@@ -20,6 +20,18 @@ const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
 class AggregateMatchResult {
 
+    algorithmName;
+    okCount;
+    wrongAnswerCount;
+    runtimeErrorCount;
+
+
+    constructor(algorithmName, okCount, wrongAnswerCount, runtimeErrorCount) {
+        this.algorithmName = algorithmName;
+        this.okCount = okCount;
+        this.wrongAnswerCount = wrongAnswerCount;
+        this.runtimeErrorCount = runtimeErrorCount;
+    }
 }
 
 exports.AggregateMatchResult = AggregateMatchResult;

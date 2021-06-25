@@ -271,7 +271,6 @@ class DeltaMerger {
         this._findOrderConflicts(dt1);
         this._findOrderConflicts(dt2);
 
-        console.log(XmlFactory.serialize(dt1.root));
         //trim model
         return new Preprocessor().prepareModel(dt1);
     }

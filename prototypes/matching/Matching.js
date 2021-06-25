@@ -39,12 +39,20 @@ class Matching {
         this.oldToNewMap.set(oldNode, newNode);
     }
 
-    unmatchNew(newNode) {
+    unMatchNew(newNode) {
         const match = this.newToOldMap.get(newNode);
         if(match != null) {
             this.oldToNewMap.delete(match);
         }
         this.newToOldMap.delete(newNode);
+    }
+
+    unMatchOld(oldNode) {
+        const match = this.oldToNewMap.get(oldNode);
+        if(match != null) {
+            this.newToOldMap.delete(match);
+        }
+        this.oldToNewMap.delete(oldNode);
     }
 
     getNew(newNode) {

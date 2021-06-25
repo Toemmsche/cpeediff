@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const {ChawatheMatching} = require("../matching/ChawatheMatch");
 const {ModelFactory} = require("../factory/ModelFactory");
 const {StandardComparator} = require("../compare/StandardComparator");
 const {CpeeModel} = require("../cpee/CpeeModel");
@@ -22,7 +23,7 @@ const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 
 class MatchDiff {
 
-    diff(oldModel, newModel, matchingAlgorithm, comparator = new StandardComparator()) {
+    diff(oldModel, newModel, matchingAlgorithm = new ChawatheMatching(), comparator = new StandardComparator()) {
         //this will modify the old model, hence a copy is used
         const copyOfOld = ModelFactory.getModel(oldModel);
         const matching = matchingAlgorithm.match(copyOfOld, newModel, new Matching(), comparator);

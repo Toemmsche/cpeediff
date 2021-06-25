@@ -40,6 +40,9 @@ class CpeeNodeFactory extends AbstractNodeFactory {
     static _fromXmlDom(xmlElement, includeChildNodes) {
         let root = new CpeeNode(xmlElement.localName);
 
+        if(!(xmlElement.nodeType === 1 || xmlElement.nodeType === 3)) {
+            return null;
+        }
         //parse attributes
         for (let i = 0; i < xmlElement.attributes.length; i++) {
             const attrNode = xmlElement.attributes.item(i);
@@ -59,7 +62,9 @@ class CpeeNodeFactory extends AbstractNodeFactory {
                 }
             } else if (includeChildNodes) {
                 const child = this._fromXmlDom(childElement, includeChildNodes);
-                root.appendChild(child);
+                if(child != null) {
+                    root.appendChild(child);
+                }
             }
         }
         return root;

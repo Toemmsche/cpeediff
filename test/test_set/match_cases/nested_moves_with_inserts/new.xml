@@ -29,8 +29,7 @@
                             </arguments>
                         </parameters>
                         <code>
-                            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                                status.update 1, 'Hotel'
+                            <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'
                             </finalize>
                         </code>
                     </call>
@@ -46,8 +45,7 @@
                                 </arguments>
                             </parameters>
                             <code>
-                                <finalize output="result">data.hotels; result.value('id') data.costs +=
-                                    result.value('costs').to_f
+                                <finalize output="result">data.hotels; result.value('id') data.costs += result.value('costs').to_f
                                 </finalize>
                             </code>
                         </call>

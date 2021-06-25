@@ -44,17 +44,19 @@ const  b = fs.readFileSync(booking).toString();
 
 let bm = new Preprocessor().parseWithMetadata(b);
 
-/*
 
-let gen = new ModelGenerator(1000, 1000, 1, 10);
+
+let gen = new ModelGenerator(10000, 10, 25, 8);
 const r = gen.randomModel();
 
 
-fs.writeFileSync("test/test_set/diff_cases/depth_only/old.xml", XmlFactory.serialize(r.root));
+fs.writeFileSync("test/test_set/diff_cases/10k_nodes/old.xml", XmlFactory.serialize(r.root));
 
-const changed = gen.changeModel(r, 20)
-fs.writeFileSync("test/test_set/diff_cases/depth_only/new.xml", XmlFactory.serialize(changed.root));
- */
+const changed = gen.changeModel(r, 100)
+fs.writeFileSync("test/test_set/diff_cases/10k_nodes/new.xml", XmlFactory.serialize(changed.root));
+
+
+
 
 //fs.writeFileSync("test/test_set/match_cases/generated/new.xml", XmlFactory.serialize(changed.root));
 
@@ -70,22 +72,13 @@ const oT = new Preprocessor().parseWithMetadata(o);
 
 
 
+/*
 let model1 = new Preprocessor().parseWithMetadata(xmlA);
 let model2 =  new Preprocessor().parseWithMetadata(xmlB);
 let model3 =  new Preprocessor().parseWithMetadata(xmlC);
 
-/*
-
-let rand1 = new ModelGenerator(5, 5, 5, 5).randomModel();
 
 
-console.log(rand1.convertToXml());
-
-let rand2 = new ModelGenerator(5, 5, 5, 5).changeModel(rand1, 10);
-
-console.log(MatchDiff.diff(rand1, rand2, ChawatheMatching).convertToXml())
-
-*/
 
 console.log(TreeStringSerializer.serializeModel(model1));
 console.log(TreeStringSerializer.serializeModel(model2));
@@ -97,5 +90,7 @@ const dt = new DeltaModelGenerator().deltaTree(model1, d);
 
 console.log(XmlFactory.serialize(new DeltaMerger().merge(model1, model2, model3)));
 
+
+*/
 
 

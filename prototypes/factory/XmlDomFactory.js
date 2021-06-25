@@ -27,6 +27,7 @@ const {CpeeNode} = require("../cpee/CpeeNode");
 class XmlDomFactory {
 
     static convert(object) {
+
         switch (object.constructor) {
             case CpeeNode:
                 return this._convertCpeeNode(object);

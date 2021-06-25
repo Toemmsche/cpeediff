@@ -26,23 +26,13 @@
                         </arguments>
                     </parameters>
                     <code>
-                        <finalize output="result">data.hotels; result.value('id') data.costs +=
-                            result.value('costs').to_f
+                        <finalize output="result">data.hotels; result.value('id') data.costs += result.value('costs').to_f
                         </finalize>
                     </code>
                 </call>
                 <manipulate id="a3">data.persons -= 1</manipulate>
                 <choose mode="inclusive">
                     <alternative condition="data.costs > 700">
-                        <call id="a4" endpoint="approve">
-                            <parameters>
-                                <label>Approve Hotel</label>
-                                <method>:post</method>
-                                <arguments>
-                                    <costs>data.costs</costs>
-                                </arguments>
-                            </parameters>
-                        </call>
                         <call id="a1" endpoint="bookAir">
                             <parameters>
                                 <label>Book Airline</label>
@@ -54,10 +44,18 @@
                                 </arguments>
                             </parameters>
                             <code>
-                                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                                    status.update 1, 'Hotel'
+                                <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'
                                 </finalize>
                             </code>
+                        </call>
+                        <call id="a4" endpoint="approve">
+                            <parameters>
+                                <label>Approve Hotel</label>
+                                <method>:post</method>
+                                <arguments>
+                                    <costs>data.costs</costs>
+                                </arguments>
+                            </parameters>
                         </call>
                     </alternative>
                 </choose>

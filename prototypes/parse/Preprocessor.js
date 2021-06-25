@@ -29,7 +29,14 @@ class Preprocessor {
         const dataElements = new Map();
 
         //Parse options
-        const doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
+        let doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml")
+
+        for (let i = 0; i < doc.childNodes.length; i++) {
+            if(doc.childNodes.item(i).nodeType === 1) {
+                doc = doc.childNodes.item(i);
+                break;
+            }
+        }
 
         let model;
         if (doc.localName === "properties") {
@@ -93,6 +100,11 @@ class Preprocessor {
             if (node.isPropertyNode() && (Config.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
                 || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())) {
                 node.removeFromParent();
+            }
+
+            //trim data
+            if(node.data != null) {
+                node.data = node.data.trim();
             }
         }
 

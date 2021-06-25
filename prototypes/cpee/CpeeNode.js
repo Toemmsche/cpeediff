@@ -148,11 +148,21 @@ class CpeeNode {
      * @param {CpeeNode} other
      */
     contentEquals(other) {
+        if (this.label !== other.label) return false;
         if (this.attributes.size !== other.attributes.size) return false;
         for (const [key, value] of this.attributes) {
             if (other.attributes.get(key) !== value) return false;
         }
-        if (this.data != other.data) return false;
+        if (this.data !== other.data) return false;
+        return true;
+    }
+
+    deepEquals(other) {
+        if (!this.contentEquals(other)) return false;
+        if(this.numChildren() !== other.numChildren()) return false;
+        for (let i = 0; i < this.numChildren(); i++) {
+            if(!this.getChild(i).deepEquals(other.getChild(i))) return false;
+        }
         return true;
     }
 
@@ -160,7 +170,7 @@ class CpeeNode {
      * @returns {boolean}
      */
     hasChildren() {
-        return this._childNodes.length > 0;
+        return this.numChildren() > 0;
     }
 
     /**

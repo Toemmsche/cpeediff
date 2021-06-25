@@ -16,7 +16,7 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {OurAdapter} = require("./OurAdapter");
+const {AggregateMatchResult} = require("./AggregateMatchResult");
 const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
 const {ExpectedMatch} = require("./ExpectedMatch");
@@ -30,8 +30,10 @@ class MatchingAlgorithmEvaluation {
         this.adapters = adapters;
     }
 
-    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
-        console.log("Using " + caseDir);
+
+    evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
+        console.log("Evaluating diffs using " + caseDir);
+
         const results = new Map();
         for(const adapter of this.adapters) {
             results.set(adapter, []);
@@ -65,22 +67,23 @@ class MatchingAlgorithmEvaluation {
 
         });
 
-        //TODO aggregate metrics
         for(const [adapter, resultsList] of results) {
-            console.log("results for " + adapter.constructor.name);
-            let amountOk = 0;
-            let total = 0;
+            let okCount = 0;
+            let wrongAnswerCount = 0;
+            let runtimeErrorCount = 0;
             for(const result of resultsList) {
-                total++;
-                console.log(result);
                 if(result.verdict === TestConfig.VERDICTS.OK) {
-                    amountOk++;
-                } else {
-                    console.log(result.verdict + " on " + result.name);
+                    okCount++;
+                } else if(result.verdict === TestConfig.VERDICTS.WRONG_ANSWER) {
+                   wrongAnswerCount++;
+                } else if(result.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
+                    runtimeErrorCount++;
                 }
             }
 
-            console.log("Passed " + amountOk + " out of " + total);
+            const aggregateResult = new AggregateMatchResult(adapter.constructor.name, okCount, wrongAnswerCount, runtimeErrorCount);
+
+            console.log(aggregateResult);
         }
     }
 

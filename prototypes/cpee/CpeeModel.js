@@ -14,12 +14,6 @@
    limitations under the License.
 */
 
-const {XmlFactory} = require("../factory/XmlFactory");
-const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
-const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
-const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
-const {MergeNode} = require("./MergeNode");
-const {DeltaNode} = require("./DeltaNode");
 const {CpeeNode} = require("./CpeeNode");
 
 class CpeeModel {

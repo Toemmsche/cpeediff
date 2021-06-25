@@ -62,7 +62,8 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
-//      if model doesnt have own attributes, -> remove and replace with root
+//      comparator and matching as config variables
+//      if model doesnt have own attributes, -> remove and replace with root, rename cpeemodel to tree, rename cpeenode to basenode
 //      implement hash yourself
 //      make propertyExtractor reutrn an object with fields instead of map
 //      update class
@@ -101,5 +102,8 @@ Tekli et al.: Move operation is not considered
 XCC: parent match condition -> not suitable for operation focused edit scripts
 Cobena - XyDiff: Perofmrance is not an issue -> subtree hashing is sensitive to small changes.
 brazil - Similarity matching: Too expensive, hungarian algorithm is O(n³)
-wang K-Diff+: No move operation, weird matching
+wang K-Diff+: No move operation, weird matchin
+
+3dm: doesnt consider semantics, may produce syntactically wrong matches (because of copies)
+mohald: Requires UIDs, doesn't support arbitrary XML (not ours)
  */

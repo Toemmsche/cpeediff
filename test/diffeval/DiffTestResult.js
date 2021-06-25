@@ -20,7 +20,7 @@ const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
 
 class DiffTestResult {
 
-    name;
+    info;
     runtime;
 
     changesFound;
@@ -31,8 +31,8 @@ class DiffTestResult {
 
     diffSize;
 
-    constructor(name, runtime, changesFound, insertionsFound, movesFound, updatesFound, deletesFound, diffSize) {
-        this.name = name;
+    constructor(info, runtime, changesFound, insertionsFound, movesFound, updatesFound, deletesFound, diffSize) {
+        this.info = info;
         this.runtime = runtime;
         this.changesFound = changesFound;
         this.insertionsFound = insertionsFound;

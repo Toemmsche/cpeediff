@@ -342,7 +342,7 @@ class ModelGenerator {
                     break;
                 }
                 case Dsl.CHANGE_TYPES.DELETION: {
-                    const node = this.randomFrom(nodes.filter(n => !n.isInnerNode()));
+                    const node = this.randomFrom(leaves);
                     node.removeFromParent();
                     deletionCounter++;
                     break;
@@ -386,6 +386,7 @@ class ModelGenerator {
         console.log("insertions: " + insertionCounter);
         console.log("deletions: " + deletionCounter);
         console.log("moves: " + moveCounter);
+        console.log("size: " + model.toPreOrderArray().length);
         return model;
     }
 
