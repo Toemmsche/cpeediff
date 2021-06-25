@@ -16,6 +16,9 @@ limitations under the License.
 
 
 const fs = require("fs");
+const {ModelFactory} = require("../factory/ModelFactory");
+const {TestConfig} = require("../../test/TestConfig");
+const {TreeGenerator} = require("../gen/TreeGenerator");
 const {XmlFactory} = require("../factory/XmlFactory");
 const {StandardComparator} = require("../compare/StandardComparator");
 const {ModelGenerator} = require("../gen/ModelGenerator");
@@ -42,20 +45,26 @@ const xmlC = fs.readFileSync(file3).toString();
 
 const  b = fs.readFileSync(booking).toString();
 
-let bm = new Preprocessor().parseWithMetadata(b);
 
 
 
-let gen = new ModelGenerator(10000, 10, 25, 8);
+
+let gen = new TreeGenerator(100000, 10, 25, 8);
+
+
 const r = gen.randomModel();
 
+const r2 = gen.randomModel();
 
-fs.writeFileSync("test/test_set/diff_cases/10k_nodes/old.xml", XmlFactory.serialize(r.root));
+//const r = new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/diff_cases/10k_nodes/old.xml").toString());
 
-const changed = gen.changeModel(r, 100)
-fs.writeFileSync("test/test_set/diff_cases/10k_nodes/new.xml", XmlFactory.serialize(changed.root));
+console.log(r.toPreOrderArray().length);
 
-
+const rcopy = ModelFactory.getModel(r);
+let time = new Date().getTime();
+const dleta  = new MatchDiff().diff(r, rcopy)
+console.log(new Date().getTime() - time);
+console.log(dleta);
 
 
 //fs.writeFileSync("test/test_set/match_cases/generated/new.xml", XmlFactory.serialize(changed.root));

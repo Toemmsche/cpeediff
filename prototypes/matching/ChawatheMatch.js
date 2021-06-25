@@ -48,7 +48,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         const newLeaves = newModel.leafNodes();
 
         //root is always matched
-        if(!matching.areMatched(oldModel.root, newModel.root)) {
+        if (!matching.areMatched(oldModel.root, newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
         }
 
@@ -66,6 +66,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
 
         this._similarityMatching(oldLeaves, newLeaves, matching, comparator);
 
+        //TODO speed this up if large parts are matched
         this._matchSimilarUnmatched(matching, comparator);
 
         //match properties of leaf nodes
@@ -81,12 +82,12 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         //We assume that no two properties that are siblings in the xml tree share the same label
         const oldLabelMap = new Map();
         for (const oldChild of oldNode) {
-            if(!matching.hasOld(oldChild)) {
+            if (!matching.hasOld(oldChild)) {
                 oldLabelMap.set(oldChild.label, oldChild);
             }
         }
         for (const newChild of newNode) {
-            if(!matching.hasNew(newChild)) {
+            if (!matching.hasNew(newChild)) {
                 if (oldLabelMap.has(newChild.label)) {
                     const match = oldLabelMap.get(newChild.label);
                     matching.matchNew(newChild, match);
@@ -97,37 +98,67 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
     }
 
     _hashMatching(oldNodes, newNodes, matching, comparator) {
-        //filter for unmatched nodes
+        //filter for unmatched nodes and sort new Nodes descending by size
         oldNodes = oldNodes.filter(n => !matching.hasAny(n));
-        newNodes = newNodes.filter(n => !matching.hasAny(n));
+        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a,b) => -comparator.sizeCompare(a,b));
 
         const hashExtractor = new HashExtractor();
 
-        //build hash map using old nodes
+        //build hash map node hashes
+        //build with new Nodes first to allow ascending size traversal later on
         const hashMap = new Map();
-        for (const oldNode of oldNodes) {
-            const hash = hashExtractor.get(oldNode);
-            if (!hashMap.has(hash)) {
-                hashMap.set(hash, []);
-            }
-            hashMap.get(hash).push(oldNode);
-        }
-
-        const oldToNewMap = new Map();
-        //probe hash map with new nodes
         for (const newNode of newNodes) {
             const hash = hashExtractor.get(newNode);
+            if (!hashMap.has(hash)) {
+                hashMap.set(hash, {
+                    oldNodes: [],
+                    newNodes: []
+                });
+            }
+            hashMap.get(hash).newNodes.push(newNode);
+        }
+        for (const oldNode of oldNodes) {
+            const hash = hashExtractor.get(oldNode);
+            //if the node's hash wil never find a partner, we don't bother adding it
             if (hashMap.has(hash)) {
+                hashMap.get(hash).oldNodes.push(oldNode);
+            }
+        }
+
+        //map remembers insertion order (see https://developer.mozilla.org/de/docs/orphaned/Web/JavaScript/Reference/Global_Objects/Map)
+        for(const [hash, nodes] of hashMap) {
+            const oldToNewMap = new Map();
+
+            newNodeLoop: for(const newNode of nodes.newNodes) {
+                //existing matchings cannot be altered
+                if(matching.hasNew(newNode))  {
+                    continue;
+                }
                 let minStructCompareValue = 2;
                 let minStructCompareNode = null;
-                for (const candidate of hashMap.get(hash)) {
-                    const structCompareValue = comparator.structCompare(candidate, newNode);
-                    if (structCompareValue < minStructCompareValue) {
+                for(const oldNode of nodes.oldNodes) {
+                    //existing matchings cannot be altered
+                    if(matching.hasOld(oldNode)) {
+                        continue;
+                    }
+                    //compare structurally only, content equality is guaranteed through hash equality
+                    const structCompareValue = comparator.structCompare(oldNode, newNode);
+                    if(structCompareValue === 0) {
+                        //found a perfect match, remove both nodes from candidates list
+                        const newPreOrder = newNode.toPreOrderArray();
+                        const oldPreOrder = oldNode.toPreOrderArray();
+                        if(newPreOrder.length !== oldPreOrder.length) {
+                            throw new Error();
+                        }
+                        for (let i = 0; i < newPreOrder.length; i++) {
+                            matching.matchNew(newPreOrder[i], oldPreOrder[i]);
+                        }
+                        continue newNodeLoop;
+                    } else if (structCompareValue < minStructCompareValue) {
                         minStructCompareValue = structCompareValue;
-                        minStructCompareNode = candidate;
+                        minStructCompareNode = oldNode;
                     }
                 }
-                //ensure (partial) one-to-one matching
                 if (!oldToNewMap.has(minStructCompareNode) || minStructCompareValue < oldToNewMap.get(minStructCompareNode).compareValue) {
                     oldToNewMap.set(minStructCompareNode, {
                         newNode: newNode,
@@ -135,39 +166,16 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                     })
                 }
             }
-        }
-
-
-
-        for (const [oldNode, bestMatch] of oldToNewMap) {
-
-            const oldPreOrder = oldNode.toPreOrderArray();
-            const newPreOrder = bestMatch.newNode.toPreOrderArray();
-            if(oldPreOrder.length !== newPreOrder.length) {
-                throw new Error("hash matching failed"); //TODO
-            }
-            for (let i = 0; i < oldPreOrder.length; i++) {
-                if(matching.hasOld(oldPreOrder[i]) && !matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
-                    // throw new Error("hash matching failed"); //TOD
-                    //override matching
-                    console.log("override " + oldPreOrder[i].label)
-                    matching.unMatchOld(oldPreOrder[i]);
-                } else if(matching.hasNew(newPreOrder[i]) && !matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
-                    //override matching
-                    console.log("override " + newPreOrder[i].label)
-                    matching.unMatchNew(newPreOrder[i]);
-                } else if(!matching.areMatched(oldPreOrder[i], newPreOrder[i])) {
-                    continue;
-                }
-                matching.matchNew(newPreOrder[i], oldPreOrder[i]);
+            for (const [oldNode, bestMatch] of oldToNewMap) {
+                matching.matchNew(bestMatch.newNode, oldNode);
             }
         }
     }
 
     _similarityMatching(oldNodes, newNodes, matching, comparator) {
         //filter for unmatched nodes and sort ascending by size
-        oldNodes = oldNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
-        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a,b));
+        oldNodes = oldNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a, b));
+        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a, b));
 
         //Only matchings of nodes with the same label are allowed
         const oldLabelMap = new Map();
@@ -190,7 +198,6 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                     if (newNode.isLeaf()) {
                         //compare leaf nodes
                         compareValue = comparator.compare(newNode, oldNode);
-
                     } else {
                         //compare inner nodes
                         compareValue = (comparator.compare(newNode, oldNode) + comparator.matchCompare(newNode, oldNode)) / 2;
@@ -240,7 +247,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                     }
                     const compareValue = comparator.compare(newPath[k], oldPath[i]);
                     if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
-                        if(!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue) {
+                        if (!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue) {
                             newToOldMap.set(newPath[k], {
                                 oldNode: oldPath[i],
                                 compareValue: compareValue
@@ -255,7 +262,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
 
             //ensure (partial) one-to-one matching
             const oldToNewMap = new Map();
-            for(const [newNode, bestMatch] of newToOldMap) {
+            for (const [newNode, bestMatch] of newToOldMap) {
                 if (!oldToNewMap.has(bestMatch.oldNode) || bestMatch.compareValue < oldToNewMap.get(bestMatch.oldNode).compareValue) {
                     oldToNewMap.set(bestMatch.oldNode, {
                         newNode: newNode,

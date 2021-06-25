@@ -144,6 +144,9 @@ class Dsl {
         DELTA_NAMESPACE_PREFIX: "delta"
     }
 
+    static ENDPOINT_METHODS = [":get", ":post", ":put", ":patch", ":delete"];
+    static CHOOSE_MODES = ["inclusive", "exclusive"];
+
 
 }
 

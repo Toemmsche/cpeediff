@@ -98,7 +98,8 @@ class Preprocessor {
 
             //trim irrelevant nodes
             if (node.isPropertyNode() && (Config.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
-                || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())) {
+                || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())
+                || (node.label === Dsl.KEYWORDS.MANIPULATE.label) && (node.data == null || node.data == "")) {
                 node.removeFromParent();
             }
 

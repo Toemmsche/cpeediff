@@ -6,6 +6,7 @@
 - leaf substitution (are parents still matched) ?
 - low leaf sim threshold
 - high leaf sim threshold
+- n² poath model for matching
 
 
 

@@ -8,6 +8,9 @@
 //      hash only considers semantic aspects
 //      data passses in parallel branches
 
+//TODO gen
+//      models are still too small because of preprocessor, check that out
+
 //TODO new algos
 //      fast LIS (O nlogn)
 //      q-gram distance for string comparison and similarity
