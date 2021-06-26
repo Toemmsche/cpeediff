@@ -15,6 +15,8 @@
 */
 
 const fs = require("fs");
+const {TreeGenerator} = require("../../prototypes/gen/TreeGenerator");
+const {GeneratorParameters} = require("../../prototypes/gen/GeneratorParameters");
 const {DiffTestInfo} = require("./DiffTestInfo");
 const {DiffTestResult} = require("./DiffTestResult");
 const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
@@ -28,10 +30,10 @@ class DiffAlgorithmEvaluation {
         this.adapters = adapters;
     }
 
-    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
-        console.log("Using " + caseDir);
+    evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
+        console.log("Using " + caseDir + " to evaluate diff algorithms");
         const results = new Map();
-        for(const adapter of this.adapters) {
+        for (const adapter of this.adapters) {
             results.set(adapter, []);
         }
 
@@ -41,24 +43,37 @@ class DiffAlgorithmEvaluation {
             let newTree;
             let testInfo;
 
-            fs.readdirSync(caseDir + "/" + dir).forEach((file) => {
-                    const content = fs.readFileSync(caseDir + "/" + dir + "/" + file).toString();
-                    if (file === "new.xml") {
-                        newTree = parser.parseWithMetadata(content);
-                    } else if (file === "old.xml") {
-                        oldTree = parser.parseWithMetadata(content);
-                    } else if (file === "info.json") {
-                        testInfo = Object.assign(new DiffTestInfo(), JSON.parse(content));
-                        testInfo.name = dir;
+            if (dir.startsWith("gen_")) {
+                const genParamsJson = fs.readFileSync(caseDir + "/" + dir + "/genParams.json").toString();
+                const genParams = Object.assign(new GeneratorParameters(), JSON.parse(genParamsJson));
+                const treeGen = new TreeGenerator(genParams);
+
+                console.log("Generating random process tree of size " + genParams.maxSize + "...");
+                oldTree = treeGen.randomModel();
+                const changedInfo = treeGen.changeModel(oldTree, genParams.numChanges);
+                newTree = changedInfo.model;
+                testInfo = changedInfo.info;
+                testInfo.name = dir;
+            } else {
+                fs.readdirSync(caseDir + "/" + dir).forEach((file) => {
+                        const content = fs.readFileSync(caseDir + "/" + dir + "/" + file).toString();
+                        if (file === "new.xml") {
+                            newTree = parser.parseWithMetadata(content);
+                        } else if (file === "old.xml") {
+                            oldTree = parser.parseWithMetadata(content);
+                        } else if (file === "info.json") {
+                            testInfo = Object.assign(new DiffTestInfo(), JSON.parse(content));
+                            testInfo.name = dir;
+                        }
                     }
+                );
+                if (oldTree == null || newTree == null || testInfo == null) {
+                    //test case is incomplete => skip
+                    return;
                 }
-            );
-            if(oldTree == null || newTree == null || testInfo == null) {
-                //test case is incomplete => skip
-                return;
             }
 
-            for(const adapter of this.adapters) {
+            for (const adapter of this.adapters) {
                 console.log("Running case " + testInfo.name + " for " + adapter.constructor.name)
                 results.get(adapter).push(adapter.evalCase(testInfo, oldTree, newTree));
             }
@@ -66,14 +81,13 @@ class DiffAlgorithmEvaluation {
         });
 
         //TODO aggregate metrics
-        for(const [adapter, resultsList] of results) {
+        for (const [adapter, resultsList] of results) {
             console.log("results for " + adapter.constructor.name);
-            for(const result of resultsList) {
+            for (const result of resultsList) {
                 console.log(result);
             }
         }
     }
-
 
 
 }

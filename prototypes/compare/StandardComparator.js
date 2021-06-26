@@ -135,6 +135,7 @@ class StandardComparator extends AbstractComparator {
     }
 
     structCompare(node, other) {
+        //TODO maybe use contentEquals()
         let compareLength = Config.PATH_COMPARE_RANGE;
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);

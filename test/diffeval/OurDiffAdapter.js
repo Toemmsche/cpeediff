@@ -35,6 +35,7 @@ class OurDiffAdapter {
             delta = this.diffAlgorithm.diff(oldTree, newTree);
             // const dt = new DeltaModelGenerator().deltaTree(oldTree, delta).root.deepEquals(newTree.root);
         } catch(e) {
+            console.log(e);
             //no test result available since diff algorithm crashed
             return null;
         }

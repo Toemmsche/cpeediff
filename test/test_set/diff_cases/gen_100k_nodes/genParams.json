@@ -1,0 +1,5 @@
+{
+  "maxSize": 100000,
+  "maxVars": 20,
+  "numChanges": 1000
+}

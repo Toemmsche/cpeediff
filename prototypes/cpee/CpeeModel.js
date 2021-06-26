@@ -43,6 +43,10 @@ class CpeeModel {
         return this.toPreOrderArray().filter(n => !n.isLeaf() && !n.isPropertyNode());
     }
 
+    nodes() {
+        return this.toPreOrderArray().filter(n => !n.isPropertyNode());
+    }
+
 }
 
 exports.CpeeModel = CpeeModel;

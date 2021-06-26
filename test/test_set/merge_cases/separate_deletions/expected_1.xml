@@ -13,19 +13,21 @@
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
-            <choose mode="inclusive">
-                <alternative condition="data.costs > 700">
-                    <call id="a4" endpoint="approve">
-                        <parameters>
-                            <label>Approve Hotel</label>
-                            <method>:post</method>
-                            <arguments>
-                                <costs>data.costs</costs>
-                            </arguments>
-                        </parameters>
-                    </call>
-                </alternative>
-            </choose>
+            <loop mode="pre_test" condition="data.persons > 0">
+                <call id="a2" endpoint="bookHotel">
+                    <parameters>
+                        <label>Book Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <to>data.to</to>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.hotels; result.value('id') data.costs += result.value('costs').to_f</finalize>
+                    </code>
+                </call>
+                <manipulate id="a3">data.persons -= 1</manipulate>
+            </loop>
         </description>
     </dslx>
 </properties>

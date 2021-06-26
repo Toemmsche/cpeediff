@@ -32,7 +32,7 @@ class MatchingAlgorithmEvaluation {
 
 
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
-        console.log("Evaluating diffs using " + caseDir);
+        console.log("Using " + caseDir + " to evaluate matching algorithms");
 
         const results = new Map();
         for(const adapter of this.adapters) {

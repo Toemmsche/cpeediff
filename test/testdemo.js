@@ -8,8 +8,8 @@ const {OurMatchAdapter} = require("./matcheval/OurMatchAdapter");
 
 const {MatchingAlgorithmEvaluation} = require("./matcheval/MatchingAlgorithmEvaluation");
 
-new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
+//new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
 //new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter()]).evalAll();
 
-//new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();
+new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();

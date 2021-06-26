@@ -51,6 +51,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         if (!matching.areMatched(oldModel.root, newModel.root)) {
             matching.matchNew(newModel.root, oldModel.root);
         }
+        //TODO move root matching downwrads
 
         //init script is always matched
         const oldFirstChild = oldModel.root.getChild(0);
@@ -159,7 +160,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
                         minStructCompareNode = oldNode;
                     }
                 }
-                if (!oldToNewMap.has(minStructCompareNode) || minStructCompareValue < oldToNewMap.get(minStructCompareNode).compareValue) {
+                if (minStructCompareNode != null && (!oldToNewMap.has(minStructCompareNode) || minStructCompareValue < oldToNewMap.get(minStructCompareNode).compareValue)) {
                     oldToNewMap.set(minStructCompareNode, {
                         newNode: newNode,
                         compareValue: minStructCompareValue

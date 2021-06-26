@@ -28,7 +28,8 @@ class MergeAlgorithmEvaluation {
     }
 
     evalAll(caseDir = TestConfig.MERGE_CASES_DIR) {
-        console.log("Using " + caseDir);
+        console.log("Using " + caseDir + " to evaluate merge algorithms");
+
         const results = new Map();
         for (const adapter of this.adapters) {
             results.set(adapter, []);
