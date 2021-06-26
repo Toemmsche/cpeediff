@@ -39,10 +39,7 @@ class OurDiffAdapter {
             //no test result available since diff algorithm crashed
             return null;
         }
-
         time = new Date().getTime() - time;
-
-
 
         let updateCounter = 0;
         let insertionCounter = 0;

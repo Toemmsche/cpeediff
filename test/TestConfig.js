@@ -31,6 +31,7 @@ class TestConfig {
 
     static _3DM_PATH = "/home/tom/Documents/xml_diff_algos/3dm";
     static XMLDIFF_PATH = "/home/tom/Documents/xml_diff_algos/XmlDiff";
+    static DIFFXML_PATH = "/home/tom/Documents/xml_diff_algos/diffxml";
 
     //TODO criteria matching
     //     #tests passed (accuracy and overall quality)

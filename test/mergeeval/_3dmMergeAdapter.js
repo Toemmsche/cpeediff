@@ -51,8 +51,7 @@ class _3dmMergeAdapter {
         //TODO prettier
         let mergedXml;
         try {
-            mergedXml = execSync("java -cp " + TestConfig._3DM_PATH + "/contrib/jar/*:" + TestConfig._3DM_PATH + "/3dm.jar tdm.tool.TreeDiffMerge -m "
-                + baseFilePath + " " + branch1Filepath + " " + branch2FilePath).toString();
+            mergedXml = execSync(TestConfig._3DM_PATH + "/run.sh " + baseFilePath + " " + branch1Filepath + " " + branch2FilePath).toString();
         } catch (e) {
             //something went wrong...
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;

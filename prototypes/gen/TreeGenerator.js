@@ -434,7 +434,7 @@ class TreeGenerator {
             node.data += this._randomString(10);
         } else {
             node = this._randomFrom(model.nodes().filter(n => n.hasAttributes()));
-            const changedAttributeKey = this._randomFrom(node.attributes.keys());
+            const changedAttributeKey = this._randomFrom(Array.of(...node.attributes.keys()));
             //With a 80% chance (or if we selected the "endpoint" attribute), change the attribute value
             if (this._withProbability(0.8) || changedAttributeKey === "endpoint") {
                 const oldVal = node.attributes.get(changedAttributeKey);

@@ -1,3 +1,4 @@
+const {DiffXmlAdapter} = require("./diffeval/DiffXmlAdapter");
 const {XmlDiffAdapter} = require("./diffeval/XmlDiffAdapter");
 const {_3dmMergeAdapter} = require("./mergeeval/_3dmMergeAdapter");
 const {OurMergeAdapter} = require("./mergeeval/OurMergeAdapter");
@@ -10,6 +11,6 @@ const {MatchingAlgorithmEvaluation} = require("./matcheval/MatchingAlgorithmEval
 
 //new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-//new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter()]).evalAll();
+new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter()]).evalAll();
 
-new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();
+//new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();

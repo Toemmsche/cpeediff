@@ -52,6 +52,13 @@ class DiffAlgorithmEvaluation {
                 oldTree = treeGen.randomModel();
                 const changedInfo = treeGen.changeModel(oldTree, genParams.numChanges);
                 newTree = changedInfo.model;
+                for(const node of newTree.toPreOrderArray()) {
+                    for(const [key, val] of node.attributes) {
+                        if(val.includes("undefined")) {
+                            throw new Error();
+                        }
+                    }
+                }
                 testInfo = changedInfo.info;
                 testInfo.name = dir;
             } else {

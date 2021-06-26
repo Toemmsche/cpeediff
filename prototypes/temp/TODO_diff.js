@@ -1,8 +1,5 @@
 //TODO features
-//      weights during inner node matching, fully matched code induces matching
-//      IMPORTANT make exact edit script toggleable
 //      compare path with weights depending on closeness
-//      implement change agent
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
 //      hash only considers semantic aspects
