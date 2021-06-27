@@ -16,7 +16,7 @@
 
 const fs = require("fs");
 const {AggregateMergeResult} = require("./AggregateMatchResult");
-const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
+const {Preprocessor} = require("../../src/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
 
 class MergeAlgorithmEvaluation {

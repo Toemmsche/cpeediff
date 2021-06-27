@@ -15,9 +15,9 @@
 */
 
 const assert = require("assert");
-const {CpeeNodeFactory} = require("../prototypes/factory/CpeeNodeFactory");
+const {CpeeNodeFactory} = require("../src/factory/CpeeNodeFactory");
 const {TestRepository} = require("./TestRepository");
-const {CpeeNode} = require("../prototypes/cpee/CpeeNode");
+const {CpeeNode} = require("../src/cpee/CpeeNode");
 
 describe("CpeeNode", () => {
 

@@ -15,8 +15,8 @@
 */
 
 const fs = require("fs");
-const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
-const {CpeeModel} = require("../../prototypes/cpee/CpeeModel");
+const {Preprocessor} = require("../../src/parse/Preprocessor");
+const {CpeeModel} = require("../../src/cpee/CpeeModel");
 
 class ExpectedMatch {
 

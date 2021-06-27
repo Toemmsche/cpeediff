@@ -15,11 +15,11 @@
 */
 
 const fs = require("fs");
-const {TreeGenerator} = require("../../prototypes/gen/TreeGenerator");
-const {GeneratorParameters} = require("../../prototypes/gen/GeneratorParameters");
+const {TreeGenerator} = require("../../src/gen/TreeGenerator");
+const {GeneratorParameters} = require("../../src/gen/GeneratorParameters");
 const {DiffTestInfo} = require("./DiffTestInfo");
 const {DiffTestResult} = require("./DiffTestResult");
-const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
+const {Preprocessor} = require("../../src/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
 
 class DiffAlgorithmEvaluation {
@@ -44,22 +44,31 @@ class DiffAlgorithmEvaluation {
             let testInfo;
 
             if (dir.startsWith("gen_")) {
+                if(!fs.existsSync(caseDir + "/" + dir + "/genParams.json")) {
+                   return;
+                }
                 const genParamsJson = fs.readFileSync(caseDir + "/" + dir + "/genParams.json").toString();
                 const genParams = Object.assign(new GeneratorParameters(), JSON.parse(genParamsJson));
                 const treeGen = new TreeGenerator(genParams);
 
-                console.log("Generating random process tree of size " + genParams.maxSize + "...");
-                oldTree = treeGen.randomModel();
-                const changedInfo = treeGen.changeModel(oldTree, genParams.numChanges);
-                newTree = changedInfo.model;
-                for(const node of newTree.toPreOrderArray()) {
-                    for(const [key, val] of node.attributes) {
-                        if(val.includes("undefined")) {
-                            throw new Error();
-                        }
+                switch(dir) {
+                    case "gen_leaves_only_shuffled":  {
+                        console.log("Generating process tree with only leaves of size " + genParams.maxSize + "...");
+                        oldTree = treeGen.randomLeavesOnly();
+                        const changedInfo = treeGen.reshuffleAll(oldTree);
+                        newTree = changedInfo.model;
+                        testInfo = changedInfo.info;
+                        break;
+                    }
+                    default: {
+                        console.log("Generating random process tree of size " + genParams.maxSize + "...");
+                        oldTree = treeGen.randomModel();
+                        const changedInfo = treeGen.changeModel(oldTree, genParams.numChanges);
+                        newTree = changedInfo.model;
+                        testInfo = changedInfo.info;
+                        break;
                     }
                 }
-                testInfo = changedInfo.info;
                 testInfo.name = dir;
             } else {
                 fs.readdirSync(caseDir + "/" + dir).forEach((file) => {

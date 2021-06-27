@@ -17,14 +17,14 @@
 const execSync = require('child_process').execSync;
 const assert = require("assert");
 const fs = require("fs");
-const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
-const {XmlFactory} = require("../../prototypes/factory/XmlFactory");
+const {Preprocessor} = require("../../src/parse/Preprocessor");
+const {XmlFactory} = require("../../src/factory/XmlFactory");
 const {MergeTestResult} = require("./MergeTestResult");
-const {DeltaMerger} = require("../../prototypes/merge/DeltaMerger");
-const {SizeExtractor} = require("../../prototypes/extract/SizeExtractor");
+const {DeltaMerger} = require("../../src/merge/DeltaMerger");
+const {SizeExtractor} = require("../../src/extract/SizeExtractor");
 const {TestConfig} = require("../TestConfig");
-const {ChawatheMatching} = require("../../prototypes/matching/ChawatheMatch");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class _3dmMergeAdapter {
 
@@ -60,7 +60,7 @@ class _3dmMergeAdapter {
             const actual = new Preprocessor().parseWithMetadata(mergedXml);
             verdict = this._verifyResult(actual, expected, accepted);
         }
-        return new MergeTestResult(name, verdict);
+        return new MergeTestResult(name, "3DM", verdict);
     }
 
     _verifyResult(actual, expected, accepted) {

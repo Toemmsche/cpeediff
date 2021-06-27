@@ -1,4 +1,4 @@
 /.idea
 /node_modules
 /node_modules/*
-/prototypes/temp/Report
+/src/temp/Report

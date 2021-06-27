@@ -16,7 +16,7 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class AggregateMatchResult {
 

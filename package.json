@@ -4,7 +4,7 @@
   "description": "",
   "main": "demo.js",
   "scripts": {
-    "start": "node prototypes/main.js",
+    "start": "node main.js",
     "test": "mocha"
   },
   "keywords": [],

@@ -16,12 +16,12 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {Config} = require("../../prototypes/Config");
-const {SizeExtractor} = require("../../prototypes/extract/SizeExtractor");
+const {Config} = require("../../src/Config");
+const {SizeExtractor} = require("../../src/extract/SizeExtractor");
 const {TestConfig} = require("../TestConfig");
 const {MatchTestResult} = require("./MatchTestResult");
-const {ChawatheMatching} = require("../../prototypes/matching/ChawatheMatch");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class OurMatchAdapter {
 
@@ -37,20 +37,22 @@ class OurMatchAdapter {
 
         try {
             matching = new ChawatheMatching().match(oldTree, newTree);
-        } catch(e) {
+        } catch (e) {
+            console.log("Test " + name + " failed for " + OurMatchAdapter.constructor.name + ":" + e.toString());
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
         }
 
-        if(verdict === TestConfig.VERDICTS.OK) {
+        if (verdict === TestConfig.VERDICTS.OK) {
             try {
                 this._verifyResult(matching, expected)
-            }catch (e) {
+            } catch (e) {
+                console.log("Test " + name + " failed for " + OurMatchAdapter.constructor.name + ":" + e.toString());
                 verdict = TestConfig.VERDICTS.WRONG_ANSWER;
             }
         }
 
 
-        return new MatchTestResult(name, verdict)
+        return new MatchTestResult(name, "OurMatchingAlgorithm", verdict)
 
     }
 
@@ -71,32 +73,32 @@ class OurMatchAdapter {
         for (const matchPair of expected.matchPairs) {
             const oldId = matchPair[0];
             const newId = matchPair[1];
-            assert.ok(oldToNewIdMap.has(oldId));
-            assert.strictEqual(oldToNewIdMap.get(oldId), newId);
+            assert.ok(oldToNewIdMap.has(oldId), "old node " + oldId + " is not matched");
+            assert.strictEqual(oldToNewIdMap.get(oldId), newId, "old node " + oldId + " is matched with " + oldToNewIdMap.get(oldId) + " instead of " + newId);
         }
 
         for (const notMatchPair of expected.notMatchPairs) {
             const oldId = notMatchPair[0];
             const newId = notMatchPair[1];
             if (oldToNewIdMap.has(oldId)) {
-                assert.notStrictEqual(oldToNewIdMap.get(oldId), newId);
+                assert.notStrictEqual(oldToNewIdMap.get(oldId), newId, "old node " + oldId + " is wrongfully matched with " + newId);
             }
         }
 
         for (const oldId of expected.oldMatched) {
-            assert.ok(oldToNewIdMap.has(oldId));
+            assert.ok(oldToNewIdMap.has(oldId), "old node " + oldId + " is not matched");
         }
 
         for (const newId of expected.newMatched) {
-            assert.ok(newToOldIdMap.has(newId));
+            assert.ok(newToOldIdMap.has(newId), "mew node " + newId + " is not matched");
         }
 
         for (const oldId of expected.notOldMatched) {
-            assert.ok(!oldToNewIdMap.has(oldId));
+            assert.ok(!oldToNewIdMap.has(oldId), "old node " + oldId + " is wrongfully matched");
         }
 
         for (const newId of expected.notNewMatched) {
-            assert.ok(!newToOldIdMap.has(newId));
+            assert.ok(!newToOldIdMap.has(newId), "mew node " + newId + " is wrongfully matched");
         }
     }
 }

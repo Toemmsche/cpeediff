@@ -16,13 +16,13 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {XmlFactory} = require("../../prototypes/factory/XmlFactory");
+const {XmlFactory} = require("../../src/factory/XmlFactory");
 const {MergeTestResult} = require("./MergeTestResult");
-const {DeltaMerger} = require("../../prototypes/merge/DeltaMerger");
-const {SizeExtractor} = require("../../prototypes/extract/SizeExtractor");
+const {DeltaMerger} = require("../../src/merge/DeltaMerger");
+const {SizeExtractor} = require("../../src/extract/SizeExtractor");
 const {TestConfig} = require("../TestConfig");
-const {ChawatheMatching} = require("../../prototypes/matching/ChawatheMatch");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class OurMergeAdapter {
 
@@ -44,7 +44,7 @@ class OurMergeAdapter {
         if (verdict === TestConfig.VERDICTS.OK) {
             verdict = this._verifyResult(merged, expected, accepted);
         }
-        return new MergeTestResult(name, verdict);
+        return new MergeTestResult(name, "DeltaMerge", verdict);
     }
 
     _verifyResult(actual, expected, accepted) {

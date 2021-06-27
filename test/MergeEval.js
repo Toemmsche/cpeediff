@@ -16,11 +16,11 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {DeltaMerger} = require("../prototypes/merge/DeltaMerger");
-const {IdExtractor} = require("../prototypes/extract/IdExtractor");
-const {ChawatheMatching} = require("../prototypes/matching/ChawatheMatch");
+const {DeltaMerger} = require("../src/merge/DeltaMerger");
+const {IdExtractor} = require("../src/extract/IdExtractor");
+const {ChawatheMatching} = require("../src/matching/ChawatheMatch");
 const {ExpectedMatch} = require("./matcheval/ExpectedMatch");
-const {Preprocessor} = require("../prototypes/parse/Preprocessor");
+const {Preprocessor} = require("../src/parse/Preprocessor");
 
 const matchingAlgorithm = new ChawatheMatching();
 describe("merge cases", () => {

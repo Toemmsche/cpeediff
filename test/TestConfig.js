@@ -16,22 +16,21 @@
 
 class TestConfig {
 
-    static MATCH_CASES_DIR = "test_set/match_cases";
-    static DIFF_CASES_DIR = "test_set/diff_cases";
-    static MERGE_CASES_DIR = "test_set/merge_cases";
-
+    static MATCH_CASES_DIR = "test/test_set/match_cases";
+    static DIFF_CASES_DIR = "test/test_set/diff_cases";
+    static MERGE_CASES_DIR = "test/test_set/merge_cases";
 
     static VERDICTS = {
         OK: "OK",
         ACCEPTABLE: "ACCEPTABLE",
         WRONG_ANSWER: "WRONG ANSWER",
         RUNTIME_ERROR: "RUNTIME ERROR"
-
     }
 
     static _3DM_PATH = "/home/tom/Documents/xml_diff_algos/3dm";
     static XMLDIFF_PATH = "/home/tom/Documents/xml_diff_algos/XmlDiff";
     static DIFFXML_PATH = "/home/tom/Documents/xml_diff_algos/diffxml";
+    static DELTAJS_PATH = "/home/tom/Documents/xml_diff_algos/deltajs";
 
     //TODO criteria matching
     //     #tests passed (accuracy and overall quality)

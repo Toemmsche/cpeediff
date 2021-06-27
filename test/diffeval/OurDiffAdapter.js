@@ -16,30 +16,36 @@
 
 const assert = require("assert");
 const fs = require("fs");
+const {DeltaModelGenerator} = require("../../src/patch/DeltaModelGenerator");
+const {XmlFactory} = require("../../src/factory/XmlFactory");
 const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../prototypes/Config");
-const {Dsl} = require("../../prototypes/Dsl");
-const {MatchDiff} = require("../../prototypes/diff/MatchDiff");
+const {Config} = require("../../src/Config");
+const {Dsl} = require("../../src/Dsl");
+const {MatchDiff} = require("../../src/diff/MatchDiff");
 
 class OurDiffAdapter {
-
-    diffAlgorithm;
-    constructor() {
-        this.diffAlgorithm = new MatchDiff();
-    }
 
     evalCase(info, oldTree, newTree) {
         let time = new Date().getTime();
         let delta;
         try {
-            delta = this.diffAlgorithm.diff(oldTree, newTree);
-            // const dt = new DeltaModelGenerator().deltaTree(oldTree, delta).root.deepEquals(newTree.root);
+            delta = new MatchDiff().diff(oldTree, newTree);
+
         } catch(e) {
             console.log(e);
             //no test result available since diff algorithm crashed
             return null;
         }
         time = new Date().getTime() - time;
+
+        //verify the correctness of our diff by patching the original tree with it
+        const deltaTree = new DeltaModelGenerator().deltaTree(oldTree, delta);
+        const correctDiff = deltaTree.root.deepEquals(newTree.root);
+
+        if(!correctDiff) {
+            //signal failure
+            return null;
+        }
 
         let updateCounter = 0;
         let insertionCounter = 0;
@@ -64,7 +70,12 @@ class OurDiffAdapter {
             }
         }
         const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, null )
+        const diffSize = XmlFactory.serialize(delta).length;
+        return new DiffTestResult(info, "OurDiffAlgorithm", time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, diffSize )
+    }
+
+    static register(diffAdapters) {
+        diffAdapters.push(new OurDiffAdapter());
     }
 }
 

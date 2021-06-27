@@ -18,11 +18,11 @@ const execSync = require('child_process').execSync;
 const assert = require("assert");
 const fs = require("fs");
 const {TestConfig} = require("../TestConfig");
-const {XmlFactory} = require("../../prototypes/factory/XmlFactory");
+const {XmlFactory} = require("../../src/factory/XmlFactory");
 const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../prototypes/Config");
-const {Dsl} = require("../../prototypes/Dsl");
-const {MatchDiff} = require("../../prototypes/diff/MatchDiff");
+const {Config} = require("../../src/Config");
+const {Dsl} = require("../../src/Dsl");
+const {MatchDiff} = require("../../src/diff/MatchDiff");
 
 class XmlDiffAdapter {
 
@@ -70,7 +70,13 @@ class XmlDiffAdapter {
         }
 
         const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, null )
+        return new DiffTestResult(info, "XmlDiff", time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length)
+    }
+
+    static register(diffAdapters) {
+        if(fs.existsSync(TestConfig.XMLDIFF_PATH)) {
+            diffAdapters.push(new XmlDiffAdapter());
+        }
     }
 }
 

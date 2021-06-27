@@ -16,11 +16,12 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class DiffTestResult {
 
     info;
+    algorithm;
     runtime;
 
     changesFound;
@@ -31,8 +32,9 @@ class DiffTestResult {
 
     diffSize;
 
-    constructor(info, runtime, changesFound, insertionsFound, movesFound, updatesFound, deletesFound, diffSize) {
+    constructor(info,algorithm, runtime, changesFound, insertionsFound, movesFound, updatesFound, deletesFound, diffSize) {
         this.info = info;
+        this.algorithm = algorithm;
         this.runtime = runtime;
         this.changesFound = changesFound;
         this.insertionsFound = insertionsFound;

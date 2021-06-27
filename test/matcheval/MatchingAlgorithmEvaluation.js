@@ -17,10 +17,10 @@
 const assert = require("assert");
 const fs = require("fs");
 const {AggregateMatchResult} = require("./AggregateMatchResult");
-const {Preprocessor} = require("../../prototypes/parse/Preprocessor");
+const {Preprocessor} = require("../../src/parse/Preprocessor");
 const {TestConfig} = require("../TestConfig");
 const {ExpectedMatch} = require("./ExpectedMatch");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class MatchingAlgorithmEvaluation {
 
@@ -31,7 +31,7 @@ class MatchingAlgorithmEvaluation {
     }
 
 
-    evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
+    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
         console.log("Using " + caseDir + " to evaluate matching algorithms");
 
         const results = new Map();

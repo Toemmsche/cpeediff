@@ -16,14 +16,16 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {IdExtractor} = require("../../prototypes/extract/IdExtractor");
+const {IdExtractor} = require("../../src/extract/IdExtractor");
 
 class MergeTestResult {
 
     name;
+    algorithm;
     verdict;
 
-    constructor(name, verdict) {
+    constructor(name, algorithm, verdict) {
+        this.algorithm = algorithm;
         this.name = name;
         this.verdict = verdict;
     }
