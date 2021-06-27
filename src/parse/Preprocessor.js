@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+const fs = require("fs");
 const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
 const {Dsl} = require("../Dsl");
 const {Config} = require("../Config");
@@ -22,6 +23,10 @@ const {CpeeModel} = require("../cpee/CpeeModel");
 const {DOMParser} = require("xmldom");
 
 class Preprocessor {
+
+    parseFromFile(path) {
+        return this.parseWithMetadata(fs.readFileSync(path).toString())
+    }
 
     parseWithMetadata(xml) {
 

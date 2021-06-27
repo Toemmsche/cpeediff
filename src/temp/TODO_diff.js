@@ -51,8 +51,8 @@
 
 
 //TODO bugs
-//      align children missing matching
-//      delta tree with movfr is still going crazy
+//      add null checks for appropriate methods
+//      edit script not applicable
 //      robustness against indentation and newlines/whitespaces
 //      unnecessary tree traversals during matching, edit script genreation, and merging
 //      make robust against missing root

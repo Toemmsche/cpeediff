@@ -38,6 +38,7 @@ class OurDiffAdapter {
         }
         time = new Date().getTime() - time;
 
+        Config.EXACT_EDIT_SCRIPT  =true;
         //verify the correctness of our diff by patching the original tree with it
         const deltaTree = new DeltaModelGenerator().deltaTree(oldTree, delta);
         const correctDiff = deltaTree.root.deepEquals(newTree.root);

@@ -101,7 +101,7 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
     _hashMatching(oldNodes, newNodes, matching, comparator) {
         //filter for unmatched nodes and sort new Nodes descending by size
         oldNodes = oldNodes.filter(n => !matching.hasAny(n));
-        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a,b) => -comparator.sizeCompare(a,b));
+        newNodes = newNodes.filter(n => !matching.hasAny(n)).sort((a, b) => -comparator.sizeCompare(a, b));
 
         const hashExtractor = new HashExtractor();
 
@@ -127,33 +127,34 @@ class ChawatheMatching extends AbstractMatchingAlgorithm {
         }
 
         //map remembers insertion order (see https://developer.mozilla.org/de/docs/orphaned/Web/JavaScript/Reference/Global_Objects/Map)
-        for(const [hash, nodes] of hashMap) {
+        for (const [hash, nodes] of hashMap) {
             const oldToNewMap = new Map();
 
-            newNodeLoop: for(const newNode of nodes.newNodes) {
+            newNodeLoop: for (const newNode of nodes.newNodes) {
                 //existing matchings cannot be altered
-                if(matching.hasNew(newNode))  {
+                if (matching.hasNew(newNode)) {
                     continue;
                 }
                 let minStructCompareValue = 2;
                 let minStructCompareNode = null;
-                for(const oldNode of nodes.oldNodes) {
+                for (const oldNode of nodes.oldNodes) {
                     //existing matchings cannot be altered
-                    if(matching.hasOld(oldNode)) {
+                    if (matching.hasOld(oldNode)) {
                         continue;
                     }
                     //compare structurally only, content equality is guaranteed through hash equality
                     const structCompareValue = comparator.structCompare(oldNode, newNode);
-                    if(structCompareValue === 0) {
+                    if (structCompareValue === 0) {
                         //found a perfect match, remove both nodes from candidates list
                         const newPreOrder = newNode.toPreOrderArray();
                         const oldPreOrder = oldNode.toPreOrderArray();
-                        if(newPreOrder.length !== oldPreOrder.length) {
+                        if (newPreOrder.length !== oldPreOrder.length) {
                             throw new Error();
                         }
                         for (let i = 0; i < newPreOrder.length; i++) {
                             matching.matchNew(newPreOrder[i], oldPreOrder[i]);
                         }
+                        oldToNewMap.delete(oldNode);
                         continue newNodeLoop;
                     } else if (structCompareValue < minStructCompareValue) {
                         minStructCompareValue = structCompareValue;

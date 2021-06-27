@@ -36,7 +36,6 @@ class EditScriptGenerator {
     generateEditScript(oldModel, newModel, matching, options = []) {
         const editScript = new EditScript();
 
-        const oldPostOrderArray = oldModel.toPostOrderArray();
         const newPreOrderArray = newModel.toPreOrderArray();
 
         //iterate in pre order through new model
@@ -46,10 +45,11 @@ class EditScriptGenerator {
             if (matching.hasNew(newNode)) {
                 //new Node has a match in the old model
                 const match = matching.getNew(newNode);
+                const newParent = newNode.parent;
+                const matchParent = matching.getNew(newParent);
                 if (matching.getNew(newNode.parent) !== match.parent) {
                     this._move(match, matching, editScript);
                 }
-
                 if (!newNode.contentEquals(match)) {
                     this._update(match, matching, editScript);
                 }
@@ -60,6 +60,7 @@ class EditScriptGenerator {
         }
 
         const oldDeletedNodes = [];
+        const oldPostOrderArray = oldModel.toPostOrderArray();
         for (const oldNode of oldPostOrderArray) {
             if (!matching.hasOld(oldNode)) {
                 //delete node
@@ -78,7 +79,17 @@ class EditScriptGenerator {
             oldDeletedNodes.splice(0, subTreeSize);
 
             this._delete(node, editScript);
+        }
 
+        for(const newNode of newModel.toPreOrderArray()) {
+            if(!matching.hasNew(newNode)) {
+                throw new Error();
+            }
+        }
+        for(const oldNode of oldModel.toPreOrderArray()) {
+            if(!matching.hasOld(oldNode)) {
+                throw new Error();
+            }
         }
 
         //All nodes have the right parent and are matched or deleted later
@@ -88,6 +99,8 @@ class EditScriptGenerator {
                 this._alignChildren(oldNode, matching, editScript);
             }
         }
+
+
         return editScript;
     }
 
@@ -102,9 +115,14 @@ class EditScriptGenerator {
         for (const newNode of matching.getOld(oldParent)) {
             const match = matching.getNew(newNode);
             if (match.childIndex !== newNode.childIndex) {
+                const oldIndex = match.childIndex;
                 const oldPath = match.toChildIndexPathString();
                 match.changeChildIndex(newNode.childIndex);
                 const newPath = match.toChildIndexPathString();
+                const newIndex = match.childIndex;
+                if(oldIndex === newIndex ) {
+                    throw new Error();
+                }
                 editScript.move(oldPath, newPath);
             }
         }
@@ -159,6 +177,12 @@ class EditScriptGenerator {
 
          */
 
+
+        for(const node of oldParent) {
+            if(!matching.hasOld(node) || matching.getOld(node) == null) {
+                throw new Error();
+            }
+        }
         const order = oldParent.childNodes.map(n => matching.getOld(n).childIndex);
         for (let i = 0; i < order.length - 1; i++) {
             if (order[i] >= order[i + 1]) {
@@ -200,18 +224,22 @@ class EditScriptGenerator {
 
     _insert(newNode, matching, editScript) {
         const copy = CpeeNodeFactory.getNode(newNode, true);
-        const copyPreOrder = copy.toPreOrderArray();
-        const newNodePreOrder = newNode.toPreOrderArray();
 
-        //TODO optimize via recursion (important for runtime)
-        for (let i = 0; i < copyPreOrder.length; i++) {
-            if (!matching.hasNew(newNodePreOrder[i])) {
-                matching.matchNew(newNodePreOrder[i], copyPreOrder[i]);
+        const removeLater = [];
+        const matchOrRemove = (copiedNode, newNode) => {
+            if(matching.hasNew(newNode)) {
+               removeLater.push(copiedNode);
             } else {
-                copyPreOrder[i].removeFromParent();
+                matching.matchNew(newNode, copiedNode);
+                for (let i = 0; i < copiedNode.numChildren(); i++) {
+                    matchOrRemove(copiedNode.getChild(i), newNode.getChild(i));
+                }
             }
         }
-
+        matchOrRemove(copy, newNode);
+        for(const copiedNode of removeLater) {
+            copiedNode.removeFromParent();
+        }
 
         //find appropriate insertion index
         let insertionIndex;

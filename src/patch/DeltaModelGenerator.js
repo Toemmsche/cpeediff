@@ -52,6 +52,7 @@ class DeltaModelGenerator {
 
         //configure move_from placeholder node
         let movfrParent;
+        const noMovfrNode = movfrNode == null;
         if (movfrNode == null) {
             movfrNode = DeltaNodeFactory.getNode(node, true);
             movfrNode._childIndex = node.childIndex;
@@ -187,6 +188,9 @@ class DeltaModelGenerator {
                 throw new Error("Edit script not applicable to tree");
             }
             if (moveFromPlaceHolder != null) {
+                if (index > moveFromPlaceHolder.numChildren()) {
+                    throw new Error("Edit script not applicable to tree");
+                }
                 moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
             }
             currNode = currNode.getChild(index);

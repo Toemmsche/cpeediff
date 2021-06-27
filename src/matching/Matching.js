@@ -33,7 +33,10 @@ class Matching {
 
     matchNew(newNode, oldNode) {
         if(this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
-            console.log("Matching of already matched node");
+            throw new Error("matching of already matched node");
+        }
+        if(newNode == null || oldNode == null) {
+            throw new Error();
         }
         this.newToOldMap.set(newNode, oldNode);
         this.oldToNewMap.set(oldNode, newNode);
