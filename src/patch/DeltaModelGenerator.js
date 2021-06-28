@@ -33,7 +33,7 @@ class DeltaModelGenerator {
 
         this._applyInsert(parent, newNode, childIndex);
         if (movfrParent != null) {
-          this._applyInsert(movfrParent, newNode, childIndex);
+            this._applyInsert(movfrParent, newNode, childIndex);
         }
     }
 
@@ -102,11 +102,11 @@ class DeltaModelGenerator {
         for (const [key, value] of newData.attributes) {
             if (node.attributes.has(key)) {
                 if (node.attributes.get(key) !== value) {
-                    node.updates.set(key, [node.attributes.get(key), value]);
+                    node.updates.set(key, {oldVal: node.attributes.get(key), newVal: value});
                     node.attributes.set(key, value);
                 }
             } else {
-                node.updates.set(key, [null, value]);
+                node.updates.set(key, {oldVal: null, newVal: value});
                 node.attributes.set(key, value);
             }
         }
@@ -114,7 +114,7 @@ class DeltaModelGenerator {
         //detect deleted attributes
         for (const [key, value] of node.attributes) {
             if (!newData.attributes.has(key)) {
-                node.updates.set(key, [value, null])
+                node.updates.set(key, {oldVal: value, newVal: null})
                 node.attributes.delete(key);
             }
         }
@@ -149,7 +149,7 @@ class DeltaModelGenerator {
         tree = new CpeeModel(DeltaNodeFactory.getNode(tree.root));
 
         const idExtractor = new IdExtractor();
-        for(const node of tree.toPreOrderArray()) {
+        for (const node of tree.toPreOrderArray()) {
             node.baseNode = idExtractor.get(node);
         }
 

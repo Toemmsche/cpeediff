@@ -67,12 +67,13 @@ class DeltaMerger {
     }
 
     _applyUpdate(fromNode, toNode) {
+        toNode.attributes = new Map();
         for (const [key, val] of fromNode.attributes) {
             toNode.attributes.set(key, val);
         }
         toNode.data = fromNode.data;
         for (const [updateKey, updateVal] of fromNode.updates) {
-            toNode.updates.set(updateKey, updateVal.slice());
+            toNode.updates.set(updateKey, Object.assign({}, updateVal));
         }
         toNode.changeOrigin = fromNode.changeOrigin;
     }
@@ -98,6 +99,7 @@ class DeltaMerger {
                 }
                 if (node.isUpdate() && !match.isUpdate()) {
                     //update match
+                    //TODO check for insertion
                     this._applyUpdate(node, match);
                 }
 
@@ -170,21 +172,21 @@ class DeltaMerger {
             if (node.isInsertion() && match.isInsertion()) {
                 //insertion is essentially an update with no pre-existing value
                 for (const [key, value] of node.attributes) {
-                    node.updates.set(key, [null, value]);
+                    node.updates.set(key, {oldVal: null, newVal: value});
                 }
-                node.updates.set("data", [null, node.data]);
+                node.updates.set("data", {oldVal: null, newVal: node.data});
                 for (const [key, value] of match.attributes) {
-                    match.updates.set(key, [null, value]);
+                    match.updates.set(key, {oldVal: null, newVal: value});
                 }
-                match.updates.set("data", [null, match.data]);
+                match.updates.set("data", {oldVal: null, newVal: match.data});
             }
 
             //detect attribute and data conflicts
             for (const [key, change] of node.updates) {
-                const oldVal = change[0];
-                const newVal = change[1];
+                const oldVal = change.oldVal;
+                const newVal = change.newVal;
                 if (!match.updates.has(key)) {
-                    match.updates.set(key, change.slice());
+                    match.updates.set(key, Object.assign({}, change));
                     if (key === "data") {
                         match.data = newVal;
                     } else if (newVal == null) {
@@ -193,12 +195,12 @@ class DeltaMerger {
                         match.attributes.set(key, newVal);
                     }
                 } else {
-                    const matchNewVal = match.updates.get(key)[1];
+                    const matchNewVal = match.updates.get(key).newVal;
                     if (newVal !== matchNewVal) {
                         //true conflict, pick longer version
                         if (matchNewVal == null || (newVal != null && newVal.length >= matchNewVal.length)) {
                             //adopt this version
-                            match.updates.get(key)[1] = newVal;
+                            match.updates.get(key).newVal = newVal;
                             if (key === "data") {
                                 match.data = newVal;
                             } else {
@@ -206,7 +208,7 @@ class DeltaMerger {
                             }
                         } else {
                             //adopt the version of the match
-                            node.updates.get(key)[1] = matchNewVal;
+                            node.updates.get(key).newVal = matchNewVal;
                             if (key === "data") {
                                 node.data = matchNewVal;
                             } else {
@@ -222,9 +224,9 @@ class DeltaMerger {
 
             //consider non-conflicting changes from other node
             for (const [key, change] of match.updates) {
-                const newVal = change[1];
+                const newVal = change.newVal;
                 if (!node.updates.has(key)) {
-                    node.updates.set(key, change.slice());
+                    node.updates.set(key, Object.assign({}, change));
                     if (key === "data") {
                         node.data = newVal;
                     } else if (newVal == null) {

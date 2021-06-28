@@ -20,9 +20,9 @@ const {MatchingAlgorithmEvaluation} = require("./test/matcheval/MatchingAlgorith
 
 //new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter()]).evalAll();
+//new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter()]).evalAll();
 
-//new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();
+new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();
 
 /*
 const diff = new OurDiffAdapter();

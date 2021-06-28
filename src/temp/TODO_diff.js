@@ -65,6 +65,7 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      rename moveCount
 //      rename parent (no undewrscore)
 //      delete includes deleted tree
 //      matching as config variable
