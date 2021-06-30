@@ -19,26 +19,26 @@ const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
 const {Matching} = require("./Matching");
-const {CpeeModel} = require("../cpee/CpeeModel");
+const {CpeeTree} = require("../tree/CpeeTree");
 
 
-class PathMatching extends AbstractMatchingAlgorithm {
+export class PathMatching extends AbstractMatchingAlgorithm {
 
     /**
-     * Matches nodes in the two process models according to the matching algorithm
+     * Matches nodes in the two process trees according to the matching algorithm
      * described by
      * Kyong-Ho et al., "An Efficient Algorithm to Compute Differences between Structured Documents", 2004
-     * @param {CpeeModel} oldModel The old process model
-     * @param {CpeeModel} newModel The new process model
+     * @param {CpeeTree} oldTree The old process tree
+     * @param {CpeeTree} newTree The new process tree
      * @param matching
      * @param comparator
      *                                    The order the matching algorithms are applied in matters.
-     * @return {Matching} A matching containing a mapping of nodes from oldModel to newModel
+     * @return {Matching} A matching containing a mapping of nodes from oldTree to newTree
      */
-    static match(oldModel, newModel, matching = new Matching(), comparator = new StandardComparator()) {
-        //get all nodes, leaf nodes and inner nodes of the models
-        const oldLeaves = oldModel.leafNodes();
-        const newLeaves = newModel.leafNodes();
+    static match(oldTree, newTree, matching = new Matching(), comparator = new StandardComparator()) {
+        //get all nodes, leaf nodes and inner nodes of the trees
+        const oldLeaves = oldTree.leaves()();
+        const newLeaves = newTree.leaves()();
 
         /*
         Step 1: Match leaf nodes.
@@ -182,8 +182,8 @@ class PathMatching extends AbstractMatchingAlgorithm {
         }
 
         //always match root and initializer script
-        matching.matchNew(newModel.root, oldModel.root);
-        matching.matchNew(newModel.root.getChild(0), oldModel.root.getChild(0));
+        matching.matchNew(newTree, oldTree);
+        matching.matchNew(newTree.getChild(0), oldTree.getChild(0));
 
 
         start = new Date().getTime();
@@ -218,4 +218,3 @@ class PathMatching extends AbstractMatchingAlgorithm {
     }
 }
 
-exports.PathMatching = PathMatching;

@@ -14,15 +14,12 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
-const {Dsl} = require("../Dsl");
-const {Config} = require("../Config");
-const {CpeeNode} = require("../cpee/CpeeNode");
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {DOMParser} = require("xmldom");
+import {Node} from "../tree/Node.js"
+import fs from "fs";
+import {NodeFactory} from "../factory/NodeFactory.js";
+import {Dsl} from "../Dsl.js";
 
-class Preprocessor {
+export class Preprocessor {
 
     parseFromFile(path) {
         return this.parseWithMetadata(fs.readFileSync(path).toString())
@@ -40,7 +37,7 @@ class Preprocessor {
             doc = doc.nextSibling;
         }
 
-        let model;
+        let tree;
         if (doc.localName === "properties") {
             let root;
             for (let i = 0; i < doc.childNodes.length; i++) {
@@ -48,7 +45,7 @@ class Preprocessor {
                 if (childTNode.localName === "dslx") {
                     let j = 0;
                     while (childTNode.childNodes.item(j).localName !== "description") j++;
-                    model = new CpeeModel(CpeeNodeFactory.getNode(childTNode.childNodes.item(j), true));
+                    tree = NodeFactory.getNode(childTNode.childNodes.item(j), true);
                 } else if (childTNode.localName === "endpoints") {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
@@ -70,17 +67,17 @@ class Preprocessor {
 
         } else {
             //no information about declared Variables available
-            model = new CpeeModel(CpeeNodeFactory.getNode(doc, true));
+            tree = NodeFactory.getNode(doc, true);
         }
 
 
-        return this.prepareModel(model, endpointToUrl, dataElements);
+        return this.prepareTree(tree, endpointToUrl, dataElements);
 
     }
 
-    prepareModel(model, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false) {
-        //traverse model in post-order (bottom-up)
-        for (const node of model.toPostOrderArray()) {
+    prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false) {
+        //traverse tree in post-order (bottom-up)
+        for (const node of tree.toPostOrderArray()) {
             //only preserve semantically relevant attributes
             for (const key of node.attributes.keys()) {
                 if (Dsl.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
@@ -112,19 +109,16 @@ class Preprocessor {
         }
 
         if (withInitScript) {
-            //insert initializer for all declared variables at beginning of model
-            const script = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
-            script.data = "";
+            //insert initializer for all declared variables at beginning of tree
+            const script = new Node(Dsl.KEYWORDS.MANIPULATE.label);
+            script.data = ".js";
             script.attributes.set("id", "init");
             for (const [dataElement, initialValue] of dataElements) {
                 script.data += "data." + dataElement + " = " + initialValue + ";";
             }
-            model.root.insertChild(0, script);
+            tree.insertChild(0, script);
         }
 
-        return model;
+        return tree;
     }
-
 }
-
-exports.Preprocessor = Preprocessor;

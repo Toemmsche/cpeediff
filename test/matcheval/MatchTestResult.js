@@ -14,11 +14,7 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
-
-class MatchTestResult {
+export class MatchTestResult {
 
     name;
     algorithm;
@@ -31,4 +27,4 @@ class MatchTestResult {
     }
 }
 
-exports.MatchTestResult = MatchTestResult;
+

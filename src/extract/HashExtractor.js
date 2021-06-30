@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-const {PrimeGenerator} = require("../lib/PrimeGenerator");
-const {StringHash} = require("../lib/StringHash");
-const {AbstractExtractor} = require("./AbstractExtractor");
+import {AbstractExtractor} from "./AbstractExtractor.js";
+import {StringHash} from "../lib/StringHash.js";
+import {PrimeGenerator} from "../lib/PrimeGenerator.js";
 
-class HashExtractor extends AbstractExtractor {
+export class HashExtractor extends AbstractExtractor {
 
     _extract(node) {
         this._memo.set(node, this._contentHash(node) + this._childHash(node));
@@ -58,5 +58,3 @@ class HashExtractor extends AbstractExtractor {
 
 
 }
-
-exports.HashExtractor = HashExtractor;

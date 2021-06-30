@@ -14,10 +14,10 @@
    limitations under the License.
 */
 
-const {Change} = require("./Change");
-const {Dsl} = require("../Dsl");
+import {Change} from "./Change.js";
+import {Dsl} from "../Dsl.js";
 
-class EditScript {
+export class EditScript {
 
     changes;
 
@@ -50,5 +50,3 @@ class EditScript {
     }
 
 }
-
-exports.EditScript = EditScript;

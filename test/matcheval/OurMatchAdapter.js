@@ -14,29 +14,34 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {Config} = require("../../src/Config");
-const {SizeExtractor} = require("../../src/extract/SizeExtractor");
-const {TestConfig} = require("../TestConfig");
-const {MatchTestResult} = require("./MatchTestResult");
-const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
+import {SizeExtractor} from "../../src/extract/SizeExtractor.js";
+import {TestConfig} from "../TestConfig.js";
+import {MatchPipeline} from "../../src/matching/MatchPipeline.js";
+import {MatchTestResult} from "./MatchTestResult.js";
+import assert from "assert.js";
+import {IdExtractor} from "../../src/extract/IdExtractor.js";
 
-class OurMatchAdapter {
+export class OurMatchAdapter {
+
+    matchPipeline;
+
+    constructor() {
+        this.matchPipeline = MatchPipeline.standard();
+    }
+
 
     evalCase(name, oldTree, newTree, expected) {
 
         //get max tree size
         const sizeExtractor = new SizeExtractor();
-        const treeSize = sizeExtractor.get(newTree.root);
+        const treeSize = sizeExtractor.get(newTree);
 
         //match base and changed
         let matching;
         let verdict = TestConfig.VERDICTS.OK;
 
         try {
-            matching = new ChawatheMatching().match(oldTree, newTree);
+            matching = this.matchPipeline.execute(oldTree, newTree);
         } catch (e) {
             console.log("Test " + name + " failed for " + OurMatchAdapter.constructor.name + ":" + e.toString());
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
@@ -103,4 +108,4 @@ class OurMatchAdapter {
     }
 }
 
-exports.OurMatchAdapter = OurMatchAdapter;
+

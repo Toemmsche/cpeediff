@@ -13,8 +13,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-const murmur32 = require('murmur-32')
-class StringHash {
+
+import murmur32 from "murmur-32";
+
+export class StringHash {
 
     static hash(str) {
         const m32 = murmur32(str);
@@ -24,4 +26,3 @@ class StringHash {
 
 }
 
-exports.StringHash = StringHash;

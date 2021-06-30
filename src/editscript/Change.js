@@ -16,7 +16,7 @@
 
 
 
-class Change {
+export class Change {
 
     changeType;
     oldPath;
@@ -38,5 +38,3 @@ class Change {
             (this.newData !== null ? this.newData + " " : "");
     }
 }
-
-exports.Change = Change;

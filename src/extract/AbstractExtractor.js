@@ -15,7 +15,7 @@
 */
 
 
-class AbstractExtractor  {
+export class AbstractExtractor  {
    
    _memo;
    
@@ -34,5 +34,3 @@ class AbstractExtractor  {
       throw new Error("Interface method not implemented");
    }
 }
-
-exports.AbstractExtractor = AbstractExtractor;

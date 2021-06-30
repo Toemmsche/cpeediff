@@ -14,16 +14,10 @@
    limitations under the License.
 */
 
-const xmldom = require("xmldom");
-const vkbeautify = require("vkbeautify");
-const {CpeeNodeFactory} = require("./CpeeNodeFactory");
-const {Change} = require("../editscript/Change");
-const {XmlDomFactory} = require("./XmlDomFactory");
-const {Dsl} = require("../Dsl");
+import {NodeFactory} from "./NodeFactory.js";
+import {Change} from "../editscript/Change.js";
 
-
-
-class ChangeFactory {
+export class ChangeFactory {
 
     static getChange(source) {
         switch (source.constructor) {
@@ -39,7 +33,7 @@ class ChangeFactory {
             const childTNode = xmlDom.childNodes.item(i);
 
             if(childTNode.localName === "newData") {
-                newData = CpeeNodeFactory.getNode(childTNode, true);
+                newData = NodeFactory.getNode(childTNode, true);
             }
         }
         return new Change(changeType, oldPath, newPath, newData);
@@ -49,6 +43,3 @@ class ChangeFactory {
         //TODO
     }
 }
-
-
-exports.ChangeFactory = ChangeFactory;

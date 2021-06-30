@@ -14,19 +14,17 @@
    limitations under the License.
 */
 
+import {MatchPipeline} from "../matching/MatchPipeline.js";
+import {StandardComparator} from "../compare/StandardComparator.js";
+import {Matching} from "../matching/Matching.js";
+import {MergeNodeFactory} from "../factory/MergeNodeFactory.js";
+import {MatchDiff} from "../diff/MatchDiff.js";
+import {DeltaTreeGenerator} from "../patch/DeltaModelGenerator.js";
+import {Preprocessor} from "../parse/Preprocessor.js";
 
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {XmlFactory} = require("../factory/XmlFactory");
-const {Preprocessor} = require("../parse/Preprocessor");
-const {MergeNodeFactory} = require("../factory/MergeNodeFactory");
-const {Matching} = require("../matching/Matching");
-const {ChawatheMatching} = require("../matching/ChawatheMatch");
-const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
-const {MatchDiff} = require("../diff/MatchDiff");
+export class DeltaMerger {
 
-class DeltaMerger {
-
-    _getDeltaMatching(deltaTree1, deltaTree2, matchingAlgorithm) {
+    _getDeltaMatching(deltaTree1, deltaTree2) {
         const baseNodeMap = new Map();
         for (const node1 of deltaTree1.toPreOrderArray()) {
             if (node1.baseNode != null) {
@@ -40,7 +38,7 @@ class DeltaMerger {
             }
         }
         //find duplicate insertions
-        return matchingAlgorithm.match(deltaTree1, deltaTree2, matching);
+        return MatchPipeline.standard().execute(deltaTree1, deltaTree2, new StandardComparator(), matching);
     }
 
     _setChangeOrigin(deltaTree, origin) {
@@ -243,17 +241,17 @@ class DeltaMerger {
         }
     }
 
-    merge(base, tree1, tree2, matchingAlgorithm = new ChawatheMatching()) {
-        const differ = new MatchDiff();
-        const matcher = new ChawatheMatching();
-        const delta1 = differ.diff(base, tree1, matcher);
-        const delta2 = differ.diff(base, tree2, matcher);
+    merge(base, tree1, tree2) {
+        const differ = new MatchDiff(MatchPipeline.standard());
 
-        const deltaTreeFactory = new DeltaModelGenerator();
-        const dt1 = new CpeeModel(MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta1).root));
-        const dt2 = new CpeeModel(MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta2).root));
+        const delta1 = differ.diff(base, tree1, new StandardComparator());
+        const delta2 = differ.diff(base, tree2, new StandardComparator());
 
-        const matching = this._getDeltaMatching(dt1, dt2, matchingAlgorithm);
+        const deltaTreeFactory = new DeltaTreeGenerator();
+        const dt1 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta1));
+        const dt2 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta2));
+
+        const matching = this._getDeltaMatching(dt1, dt2);
 
         this._setChangeOrigin(dt1, 1);
         this._setChangeOrigin(dt2, 2);
@@ -273,8 +271,8 @@ class DeltaMerger {
         this._findOrderConflicts(dt1);
         this._findOrderConflicts(dt2);
 
-        //trim model
-        return new Preprocessor().prepareModel(dt1);
+        //trim tree
+        return new Preprocessor().prepareTree(dt1);
     }
 
     _findOrderConflicts(deltaTree) {
@@ -295,4 +293,3 @@ class DeltaMerger {
     }
 }
 
-exports.DeltaMerger = DeltaMerger;

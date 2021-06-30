@@ -15,8 +15,7 @@
 */
 
 
-class Lis {
-
+export class Lis {
 
     static getLis(arr) {
         /*
@@ -72,7 +71,7 @@ class Lis {
             const j = low;
 
             /*
-            We can now safely set the value of m[j + i] to i.
+            Set the value of m[j + i] to i.
             If m[j + 1] already contained a value, we can safely overwrite it,
             because we just found a smaller element arr[i] that represents the end to an increasing subsequence of length
             j + 1. If arr[i] was bigger than arr[m[j + 1]], the binary search would not have terminated at the value j.
@@ -101,4 +100,3 @@ class Lis {
 
 }
 
-exports.Lis = Lis;

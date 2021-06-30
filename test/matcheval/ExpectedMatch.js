@@ -14,11 +14,7 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {CpeeModel} = require("../../src/cpee/CpeeModel");
-
-class ExpectedMatch {
+export class ExpectedMatch {
 
     matchPairs;
     notMatchPairs;
@@ -39,4 +35,4 @@ class ExpectedMatch {
     }
 }
 
-exports.ExpectedMatch = ExpectedMatch;
+

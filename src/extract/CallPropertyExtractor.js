@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-const {CallProperties} = require("./CallProperties");
-const {Dsl} = require("../Dsl");
-const {AbstractExtractor} = require("./AbstractExtractor");
+import {AbstractExtractor} from "./AbstractExtractor.js";
+import {Dsl} from "../Dsl.js";
+import {CallProperties} from "./CallProperties.js";
 
-class CallPropertyExtractor extends AbstractExtractor {
+export class CallPropertyExtractor extends AbstractExtractor {
 
     _extract(node) {
         if (node.label !== Dsl.KEYWORDS.CALL.label) {
@@ -60,5 +60,3 @@ class CallPropertyExtractor extends AbstractExtractor {
     }
 
 }
-
-exports.CallPropertyExtractor = CallPropertyExtractor;

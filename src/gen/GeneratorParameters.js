@@ -14,8 +14,7 @@
    limitations under the License.
 */
 
-
-class GeneratorParameters {
+export class GeneratorParameters {
 
     maxSize;
     maxDepth;
@@ -32,5 +31,3 @@ class GeneratorParameters {
         this.numChanges = numChanges;
     }
 }
-
-exports.GeneratorParameters = GeneratorParameters;

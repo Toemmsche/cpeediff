@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-class TestConfig {
+export class TestConfig {
 
     static MATCH_CASES_DIR = "test/test_set/match_cases";
     static DIFF_CASES_DIR = "test/test_set/diff_cases";
@@ -27,10 +27,27 @@ class TestConfig {
         RUNTIME_ERROR: "RUNTIME ERROR"
     }
 
-    static _3DM_PATH = "/home/tom/Documents/xml_diff_algos/3dm";
-    static XMLDIFF_PATH = "/home/tom/Documents/xml_diff_algos/XmlDiff";
-    static DIFFXML_PATH = "/home/tom/Documents/xml_diff_algos/diffxml";
-    static DELTAJS_PATH = "/home/tom/Documents/xml_diff_algos/deltajs";
+    static DIFFS = {
+        XMLDIFF: {
+            displayName: "XmlDiff",
+            path: "/home/tom/Documents/xml_diff_algos/XmlDiff"
+        },
+        DIFFXML: {
+            displayName: "DiffXml",
+            path: "/home/tom/Documents/xml_diff_algos/diffxml"
+        },
+        DELTAJS: {
+            displayName: "Delta.js",
+            path: "/home/tom/Documents/xml_diff_algos/deltajs"
+        }
+    }
+
+    static MERGES = {
+        _3DM: {
+            displayName: "3DM",
+            path:"/home/tom/Documents/xml_diff_algos/3dm"
+        }
+    }
 
     //TODO criteria matching
     //     #tests passed (accuracy and overall quality)
@@ -42,4 +59,3 @@ class TestConfig {
 
 }
 
-exports.TestConfig = TestConfig

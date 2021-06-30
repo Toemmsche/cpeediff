@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-const {DeltaNode} = require("./DeltaNode");
+import {DeltaNode} from "./DeltaNode.js";
 
-class MergeNode extends DeltaNode {
+export class MergeNode extends DeltaNode {
 
     //merge related information
     changeOrigin;
@@ -34,4 +34,3 @@ class MergeNode extends DeltaNode {
     }
 }
 
-exports.MergeNode = MergeNode;

@@ -14,28 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import {Node} from "../tree/Node.js"
+import {NodeFactory} from "../factory/NodeFactory.js";
+import {TreeGenerator} from "../gen/TreeGenerator.js";
+import {GeneratorParameters} from "../gen/GeneratorParameters.js";
+import {XmlFactory} from "../factory/XmlFactory.js";
+import {MatchDiff} from "../diff/MatchDiff.js";
+import fs from "fs";
 
-const fs = require("fs");
-const {Lis} = require("../lib/Lis");
-const {GeneratorParameters} = require("../gen/GeneratorParameters");
-const {ModelFactory} = require("../factory/ModelFactory");
-const {TestConfig} = require("../../test/TestConfig");
-const {TreeGenerator} = require("../gen/TreeGenerator");
-const {XmlFactory} = require("../factory/XmlFactory");
-const {StandardComparator} = require("../compare/StandardComparator");
-const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
-const {ChawatheMatching} = require("../matching/ChawatheMatch");
-const {Preprocessor} = require("../parse/Preprocessor");
-const {DeltaMerger} = require("../merge/DeltaMerger");
-const {TreeStringSerializer} = require("../visual/TreeStringSerializer");
-const {DeltaModelGenerator} = require("../patch/DeltaModelGenerator");
-const {MatchDiff} = require("../diff/MatchDiff");
-const {CpeeNode} = require("../cpee/CpeeNode");
-
-
-
-
-CpeeNodeFactory.getNode(new CpeeNode("label"));
+NodeFactory.getNode(new Node("label"));
 
 let file1 = process.argv[2];
 let file2 = process.argv[3];
@@ -51,25 +38,23 @@ const  b = fs.readFileSync(booking).toString();
 
 
 
-
-
 let gen = new TreeGenerator(new GeneratorParameters(10000, 10, 25, 8));
 
 
 const r = gen.randomLeavesOnly();
 
-console.log("leafs: " + r.leafNodes().length);
+console.log("leafs: " + r.leaves().length);
 console.log("inners: " + r.innerNodes().length);
 console.log("properties: " + r.toPreOrderArray().filter(n => n.isPropertyNode()).length);
 
-const shuffled = gen.reshuffleAll(r);
+const shuffled = gen.reshuffleAll(r).tree;
 
 console.log(XmlFactory.serialize(r));
 console.log(XmlFactory.serialize(shuffled));
 
 console.log(XmlFactory.serialize(new MatchDiff().diff(r, shuffled)));
 
-const r2 = gen.changeModel(r, 10).model;
+const r2 = gen.changeTree(r, 10).tree;
 
 
 
@@ -84,22 +69,22 @@ const oT = new Preprocessor().parseWithMetadata(o);
 
 
 /*
-let model1 = new Preprocessor().parseWithMetadata(xmlA);
-let model2 =  new Preprocessor().parseWithMetadata(xmlB);
-let model3 =  new Preprocessor().parseWithMetadata(xmlC);
+let tree1 = new Preprocessor().parseWithMetadata(xmlA);
+let tree2 =  new Preprocessor().parseWithMetadata(xmlB);
+let tree3 =  new Preprocessor().parseWithMetadata(xmlC);
 
 
 
 
-console.log(TreeStringSerializer.serializeModel(model1));
-console.log(TreeStringSerializer.serializeModel(model2));
+console.log(TreeStringSerializer.serializeTree(tree1));
+console.log(TreeStringSerializer.serializeTree(tree2));
 
 
-const d = new MatchDiff().diff(model1, model2, new ChawatheMatching());
-const dt = new DeltaModelGenerator().deltaTree(model1, d);
+const d = new MatchDiff().diff(tree1, tree2, new ChawatheMatching());
+const dt = new DeltaTreeGenerator().deltaTree(tree1, d);
 
 
-console.log(XmlFactory.serialize(new DeltaMerger().merge(model1, model2, model3)));
+console.log(XmlFactory.serialize(new DeltaMerger().merge(tree1, tree2, tree3)));
 
 
 */

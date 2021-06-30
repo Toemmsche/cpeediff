@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-const {Dsl} = require("../Dsl");
+import {Dsl} from "../Dsl.js";
 
-class CpeeNode {
+export class Node {
 
     //cpee information
     /**
@@ -45,13 +45,13 @@ class CpeeNode {
 
     //structural information
     /**
-     * @type CpeeNode
+     * @type Node
      * @private
      */
     _parent;
 
     /**
-     * @returns {CpeeNode}
+     * @returns {Node}
      */
     get parent() {
         return this._parent;
@@ -71,13 +71,13 @@ class CpeeNode {
     }
 
     /**
-     * @type CpeeNode[]
+     * @type Node[]
      * @private
      */
     _childNodes;
 
     /**
-     * @returns {CpeeNode[]}
+     * @returns {Node[]}
      */
     get childNodes() {
         return this._childNodes;
@@ -85,14 +85,14 @@ class CpeeNode {
 
     /**
      *
-     * @param {CpeeNode[]} newChildNodes
+     * @param {Node[]} newChildNodes
      */
     set childNodes(childNodes) {
         this._childNodes = childNodes;
     }
 
     /**
-     * @returns {CpeeNode[]}
+     * @returns {Node[]}
      */
     get path() {
         const pathArr = [];
@@ -108,7 +108,7 @@ class CpeeNode {
     }
 
     /**
-     * @returns {IterableIterator<CpeeNode>}
+     * @returns {IterableIterator<Node>}
      */
     [Symbol.iterator]() {
         return this._childNodes[Symbol.iterator]();
@@ -125,7 +125,7 @@ class CpeeNode {
     /**
      *
      * @param index
-     * @returns {CpeeNode}
+     * @returns {Node}
      */
     getChild(index) {
         return this._childNodes[index];
@@ -133,7 +133,7 @@ class CpeeNode {
 
     /**
      *
-     * @returns {CpeeNode[]}
+     * @returns {Node[]}
      */
     getSiblings() {
         return this._parent._childNodes;
@@ -141,7 +141,7 @@ class CpeeNode {
 
     /**
      *
-     * @param {CpeeNode} other
+     * @param {Node} other
      */
     contentEquals(other) {
         if (this.label !== other.label) return false;
@@ -238,7 +238,7 @@ class CpeeNode {
 
     /**
      *
-     * @param {CpeeNode} node
+     * @param {Node} node
      */
     appendChild(node) {
         node._childIndex = this._childNodes.push(node) - 1;
@@ -249,7 +249,7 @@ class CpeeNode {
     /**
      *
      * @param {Number} index
-     * @param {CpeeNode} node
+     * @param {Node} node
      */
     insertChild(index, node) {
         this._childNodes.splice(index, 0, node);
@@ -300,8 +300,8 @@ class CpeeNode {
 
     /**
      *
-     * @param {CpeeNode[]} arr
-     * @returns {CpeeNode[]}
+     * @param {Node[]} arr
+     * @returns {Node[]}
      */
     toPreOrderArray(arr = []) {
         arr.push(this);
@@ -313,8 +313,8 @@ class CpeeNode {
 
     /**
      *
-     * @param {CpeeNode[]} arr
-     * @returns {CpeeNode[]}
+     * @param {Node[]} arr
+     * @returns {Node[]}
      */
     toPostOrderArray(arr = []) {
         for (const child of this) {
@@ -324,6 +324,22 @@ class CpeeNode {
         return arr;
     }
 
+    innerNodes() {
+        return this.toPreOrderArray()
+            .filter(n => n.isInnerNode());
+    }
+
+    leaves() {
+        return this.toPreOrderArray()
+            .filter(n => n.isLeaf());
+    }
+
+    nonPropertyNodes() {
+        return this.toPreOrderArray()
+            .filter(n => !n.isPropertyNode());
+    }
+
+
+
 }
 
-exports.CpeeNode = CpeeNode;

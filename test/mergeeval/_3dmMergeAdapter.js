@@ -14,34 +14,23 @@
    limitations under the License.
 */
 
-const execSync = require('child_process').execSync;
-const assert = require("assert");
-const fs = require("fs");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {MergeTestResult} = require("./MergeTestResult");
-const {DeltaMerger} = require("../../src/merge/DeltaMerger");
-const {SizeExtractor} = require("../../src/extract/SizeExtractor");
-const {TestConfig} = require("../TestConfig");
-const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
+import {execSync} from "child_process";
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {TestConfig} from "../TestConfig.js";
+import fs from "fs";
+import {MergeTestResult} from "./MergeTestResult.js";
 
-class _3dmMergeAdapter {
-
-    mergeAlgorithm;
-
-    constructor() {
-        this.mergeAlgorithm = new DeltaMerger();
-    }
+export class _3dmMergeAdapter {
 
     evalCase(name, base, branch1, branch2, expected, accepted) {
+
         const baseString = XmlFactory.serialize(base);
         const branch1String = XmlFactory.serialize(branch1);
         const branch2String = XmlFactory.serialize(branch2);
 
-        const baseFilePath = TestConfig._3DM_PATH + "/base.xml";
-        const branch1Filepath = TestConfig._3DM_PATH + "/1.xml";
-        const branch2FilePath = TestConfig._3DM_PATH + "/2.xml";
+        const baseFilePath = TestConfig.MERGES._3DM.path + "/base.xml";
+        const branch1Filepath = TestConfig.MERGES._3DM.path + "/1.xml";
+        const branch2FilePath = TestConfig.MERGES._3DM.path + "/2.xml";
 
         fs.writeFileSync(baseFilePath, baseString);
         fs.writeFileSync(branch1Filepath, branch1String);
@@ -51,7 +40,7 @@ class _3dmMergeAdapter {
         //TODO prettier
         let mergedXml;
         try {
-            mergedXml = execSync(TestConfig._3DM_PATH + "/run.sh " + baseFilePath + " " + branch1Filepath + " " + branch2FilePath).toString();
+            mergedXml = execSync(TestConfig.MERGES._3DM.path + "/run.sh " + baseFilePath + " " + branch1Filepath + " " + branch2FilePath).toString();
         } catch (e) {
             //something went wrong...
             verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
@@ -60,13 +49,13 @@ class _3dmMergeAdapter {
             const actual = new Preprocessor().parseWithMetadata(mergedXml);
             verdict = this._verifyResult(actual, expected, accepted);
         }
-        return new MergeTestResult(name, "3DM", verdict);
+        return new MergeTestResult(name, TestConfig.MERGES._3DM.displayName, verdict);
     }
 
     _verifyResult(actual, expected, accepted) {
-        if (expected.some(t => t.root.deepEquals(actual.root))) {
+        if (expected.some(t => t.deepEquals(actual))) {
             return TestConfig.VERDICTS.OK;
-        } else if (accepted.some(t => t.root.deepEquals(actual.root))) {
+        } else if (accepted.some(t => t.deepEquals(actual))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;
@@ -74,4 +63,4 @@ class _3dmMergeAdapter {
     }
 }
 
-exports._3dmMergeAdapter = _3dmMergeAdapter;
+

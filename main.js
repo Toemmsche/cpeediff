@@ -27,7 +27,7 @@ const {DiffXmlAdapter} = require("./test/diffeval/DiffXmlAdapter");
 const {XmlDiffAdapter} = require("./test/diffeval/XmlDiffAdapter");
 const {TestConfig} = require("./test/TestConfig");
 const {TreeStringSerializer} = require("./src/visual/TreeStringSerializer");
-const {DeltaTreeGenerator} = require("./src/patch/DeltaModelGenerator");
+const {DeltaTreeGenerator} = require("./src/patch/DeltaTreeGenerator");
 const {Config} = require("./src/Config");
 const {PathMatching} = require("./src/matching/PathMatching");
 const {Parser} = require("./src/parse/Preprocessor");
@@ -35,14 +35,14 @@ const {MatchDiff} = require("./src/diff/MatchDiff");
 
 
 const argv = yargs
-    .command("diff <oldFile> <newFile>", "Calculcates and shows the difference between two CPEE process models", (yargs) => {
+    .command("diff <oldFile> <newFile>", "Calculcates and shows the difference between two CPEE process trees", (yargs) => {
         yargs
             .positional("oldFile", {
-                description: "The original CPEE process model as an XML document",
+                description: "The original CPEE process tree as an XML document",
                 type: "string"
             })
             .positional("newFile", {
-                description: "The changed CPEE process model as an XML document",
+                description: "The changed CPEE process tree as an XML document",
                 type: "string"
             })
             .option("leafThreshold", {
@@ -86,19 +86,19 @@ const argv = yargs
         Config.LEAF_SIMILARITY_THRESHOLD = argv.leafThreshold;
         Config.INNER_NODE_SIMILARITY_THRESHOLD = argv.innerThreshold;
 
-        const oldModel = Parser.fromCpee(fs.readFileSync(argv.oldFile).toString());
-        const newModel = Parser.fromCpee(fs.readFileSync(argv.newFile).toString());
+        const oldTree = Parser.fromCpee(fs.readFileSync(argv.oldFile).toString());
+        const newTree = Parser.fromCpee(fs.readFileSync(argv.newFile).toString());
 
-        const editScript = MatchDiff.diff(oldModel, newModel, PathMatching);
+        const editScript = MatchDiff.diff(oldTree, newTree, PathMatching);
 
         switch (argv.format) {
             case "deltaTree": {
-                const deltaTree = DeltaTreeGenerator.deltaTree(oldModel, editScript);
+                const deltaTree = DeltaTreeGenerator.deltaTree(oldTree, editScript);
                 console.log(TreeStringSerializer.serializeDeltaTree(deltaTree));
                 break;
             }
             case "deltaXml": {
-                const deltaTree = DeltaTreeGenerator.deltaTree(oldModel, editScript);
+                const deltaTree = DeltaTreeGenerator.deltaTree(oldTree, editScript);
                 console.log(XmlFactory.serialize(deltaTree));
                 break;
             }

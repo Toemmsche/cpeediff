@@ -14,19 +14,19 @@
    limitations under the License.
 */
 
-const {CpeeNodeFactory} = require("./CpeeNodeFactory");
-const {MergeNode} = require("../cpee/MergeNode");
-const {AbstractNodeFactory} = require("./AbstractNodeFactory");
+import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
+import {MergeNode} from "../tree/MergeNode.js";
+import {NodeFactory} from "./NodeFactory.js";
 
-class MergeNodeFactory extends AbstractNodeFactory {
+export class MergeNodeFactory extends AbstractNodeFactory {
 
-    static _fromCpeeNode(cpeeNode, includeChildNodes) {
-        const mergeNode = new MergeNode(cpeeNode.label, cpeeNode.data);
-        for (const [key, value] of cpeeNode.attributes) {
+    static _fromNode(node, includeChildNodes) {
+        const mergeNode = new MergeNode(node.label, node.data);
+        for (const [key, value] of node.attributes) {
             mergeNode.attributes.set(key, value);
         }
         if (includeChildNodes) {
-            for (const child of cpeeNode) {
+            for (const child of node) {
                 mergeNode.appendChild(this.getNode(child, includeChildNodes))
             }
         }
@@ -34,7 +34,7 @@ class MergeNodeFactory extends AbstractNodeFactory {
     }
 
     static _fromDeltaNode(deltaNode, includeChildNodes) {
-        const mergeNode = this._fromCpeeNode(deltaNode, includeChildNodes);
+        const mergeNode = this._fromNode(deltaNode, includeChildNodes);
         mergeNode.changeType = deltaNode.changeType;
         mergeNode.baseNode = deltaNode.baseNode;
         for (const [key, change] of deltaNode.updates) {
@@ -56,12 +56,10 @@ class MergeNodeFactory extends AbstractNodeFactory {
     }
 
     static _fromXmlString(xml, includeChildNodes) {
-        return this._fromCpeeNode(CpeeNodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
+        return this._fromNode(NodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
     }
 
     static _fromXmlDom(xmlElement, includeChildNodes) {
-        return this._fromCpeeNode(CpeeNodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
+        return this._fromNode(NodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
     }
 }
-
-exports.MergeNodeFactory = MergeNodeFactory;

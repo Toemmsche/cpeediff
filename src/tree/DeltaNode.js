@@ -15,10 +15,10 @@
 */
 
 
-const {Dsl} = require("../Dsl");
-const {CpeeNode} = require("./CpeeNode");
+import {Node} from "../tree/Node.js"
+import {Dsl} from "../Dsl.js";
 
-class DeltaNode extends CpeeNode {
+export class DeltaNode extends Node {
 
     //delta related information
     /**
@@ -83,10 +83,10 @@ class DeltaNode extends CpeeNode {
 
     toString() {
         let res = this.label;
-        res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.baseNode !== null ? "_" + this.baseNode : "") + ">";
+        res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.baseNode !== null ? "_" + this.baseNode : "") + ">.js";
         if (this.isUpdate()) {
             for (const [key, change]  of this.updates) {
-                res += " " + key + ": [" + change[0] + "] -> [" + change[1] + "]";
+                res += " " + key + ": [" + change[0] + "] -> [" + change[1] + "].js";
             }
         }
         return res;
@@ -94,4 +94,3 @@ class DeltaNode extends CpeeNode {
 
 }
 
-exports.DeltaNode = DeltaNode;

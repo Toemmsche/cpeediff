@@ -14,11 +14,7 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
-
-class DiffTestResult {
+export class DiffTestResult {
 
     info;
     algorithm;
@@ -43,6 +39,10 @@ class DiffTestResult {
         this.deletesFound = deletesFound;
         this.diffSize = diffSize;
     }
+
+    static fail(info, algorithm) {
+        return new DiffTestResult(info, algorithm, "FAILED", "FAILED", "FAILED", "FAILED", "FAILED", "FAILED", "FAILED");
+    }
 }
 
-exports.DiffTestResult = DiffTestResult;
+

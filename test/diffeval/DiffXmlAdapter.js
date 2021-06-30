@@ -14,25 +14,21 @@
    limitations under the License.
 */
 
-const execSync = require('child_process').execSync;
-const assert = require("assert");
-const fs = require("fs");
-const xmldom = require("xmldom");
-const {TestConfig} = require("../TestConfig");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../src/Config");
-const {Dsl} = require("../../src/Dsl");
-const {MatchDiff} = require("../../src/diff/MatchDiff");
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {TestConfig} from "../TestConfig.js";
+import fs from "fs";
+import {DiffTestResult} from "./DiffTestResult.js";
+import {execSync} from "child_process";
+import xmldom from "xmldom";
 
-class DiffXmlAdapter {
+export class DiffXmlAdapter {
 
     evalCase(info, oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = TestConfig.DIFFXML_PATH + "/old.xml";
-        const newFilePath = TestConfig.DIFFXML_PATH + "/new.xml";
+        const oldFilePath = TestConfig.DIFFS.DIFFXML.path + "/old.xml";
+        const newFilePath = TestConfig.DIFFS.DIFFXML.path + "/new.xml";
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
@@ -40,13 +36,13 @@ class DiffXmlAdapter {
         let output;
         let time = new Date().getTime();
         try {
-            output = execSync(TestConfig.DIFFXML_PATH + "/run.sh " + oldFilePath + " " + newFilePath).toString();
+            output = execSync(TestConfig.DIFFS.DIFFXML.path + "/run.sh " + oldFilePath + " " + newFilePath).toString();
         } catch (e) {
             //for some reason the execution of diffxml is always flagged as "failed", even when it executes fine
             output = e.output.toString();
             //check for actual failure
             if(output == null || output === "") {
-                return null;
+                return DiffTestResult.fail(info, TestConfig.DIFFS.DIFFXML.displayName);
             }
         }
         time = new Date().getTime() - time;
@@ -64,7 +60,7 @@ class DiffXmlAdapter {
         }
         for (let i = 0; i < delta.childNodes.length; i++) {
             const childNode = delta.childNodes.item(i);
-            if(childNode.nodeType === 1) {
+            if(childNode.localName != null) {
                switch (childNode.localName) {
                    case "move": moveCounter++; break;
                    case "insert": insertionCounter++; break;
@@ -75,14 +71,14 @@ class DiffXmlAdapter {
         }
 
         const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, "DiffXml", time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length )
+        return new DiffTestResult(info, TestConfig.DIFFS.DIFFXML.displayName, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length )
     }
 
     static register(diffAdapters) {
-        if(fs.existsSync(TestConfig.DIFFXML_PATH + "/run.sh")) {
+        if(fs.existsSync(TestConfig.DIFFS.DIFFXML.path + "/run.sh")) {
             diffAdapters.push(new DiffXmlAdapter());
         }
     }
 }
 
-exports.DiffXmlAdapter = DiffXmlAdapter;
+

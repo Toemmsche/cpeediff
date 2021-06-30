@@ -14,13 +14,10 @@
    limitations under the License.
 */
 
-const {CpeeModel} = require("../cpee/CpeeModel");
-
-
-class Matching {
+export class Matching {
 
     /**
-     * @type Map<CpeeNode,CpeeNode>
+     * @type Map<Node,Node>
      */
     newToOldMap;
     oldToNewMap;
@@ -93,4 +90,3 @@ class Matching {
 
 }
 
-exports.Matching = Matching;

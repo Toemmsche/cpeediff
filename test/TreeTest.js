@@ -14,31 +14,31 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const {CpeeNodeFactory} = require("../src/factory/CpeeNodeFactory");
-const {TestRepository} = require("./TestRepository");
-const {CpeeNode} = require("../src/cpee/CpeeNode");
+import {Node} from "../src/tree/Node.js"
+import {TestRepository} from "./TestRepository.js";
+import {NodeFactory} from "../src/factory/NodeFactory.js";
+import assert from "assert.js";
 
-describe("CpeeNode", () => {
+describe("Node", () => {
 
     //a new dummy node
     let newNode;
-    const newNodeLabel = "123456789";
+    const newNodeLabel = "123456789.js";
 
     //some nodes from the booking example
-    let model;
+    let tree;
     let bookAirCall;
     let toArgument;
 
     beforeEach(() => {
-        newNode = new CpeeNode(newNodeLabel);
+        newNode = new Node(newNodeLabel);
         newNode.attributes.set("attrA", "valA");
         newNode.attributes.set("attrB", "valB");
-        newNode.data = "dataVal";
+        newNode.data = "dataVal.js";
 
-        model = TestRepository.bookingModel();
-        bookAirCall = model.root.getChild(0);
-        toArgument = model.root
+        tree = TestRepository.bookingTree();
+        bookAirCall = tree.getChild(0);
+        toArgument = tree
             .getChild(0) //bookAirCall
             .getChild(0) //parameters
             .getChild(2) //arguments
@@ -48,26 +48,26 @@ describe("CpeeNode", () => {
     describe("#contentEquals()", () => {
         it('should detect content equality between two nodes, excluding child nodes', () => {
             //do not copy child nodes
-            const copy = CpeeNodeFactory.getNode(newNode, false);
+            const copy = NodeFactory.getNode(newNode, false);
             //insert one child
-            copy.appendChild(new CpeeNode("dummy"));
+            copy.appendChild(new Node("dummy"));
 
             assert.ok(newNode.contentEquals(copy));
 
             //change the copy a bit
-            copy.data = "123";
+            copy.data = "123.js";
             assert.strictEqual(newNode.contentEquals(copy), false);
         });
     });
 
     describe("#appendChild()", () => {
         it('should append child at the end of node', () => {
-            model.root.appendChild(newNode);
+            tree.appendChild(newNode);
 
-            const lastChild = model.root.getChild(model.root.numChildren() - 1);
+            const lastChild = tree.getChild(tree.numChildren() - 1);
             assert.ok(newNode.contentEquals(lastChild));
 
-            assert.strictEqual(newNode.parent, model.root);
+            assert.strictEqual(newNode.parent, tree);
         });
     });
 
@@ -75,22 +75,22 @@ describe("CpeeNode", () => {
         it('should insert child at specified index', () => {
             const insertionIndex = 1;
 
-            model.root.insertChild(insertionIndex, newNode);
+            tree.insertChild(insertionIndex, newNode);
 
-            const child = model.root.getChild(insertionIndex);
+            const child = tree.getChild(insertionIndex);
             assert.ok(newNode.contentEquals(child));
 
-            assert.strictEqual(newNode.parent, model.root);
+            assert.strictEqual(newNode.parent, tree);
         });
     });
 
     describe("#removeFromParent()", () => {
         it('should remove the node from its parent', () => {
             bookAirCall.removeFromParent();
-            assert.notStrictEqual(model.root.getChild(0), bookAirCall);
+            assert.notStrictEqual(tree.getChild(0), bookAirCall);
 
             //child indices should be adjust accordingly
-            assert.strictEqual(model.root.getChild(1).childIndex, 1);
+            assert.strictEqual(tree.getChild(1).childIndex, 1);
         });
     });
 
@@ -102,27 +102,27 @@ describe("CpeeNode", () => {
 
             assert.strictEqual(bookAirCall.childIndex, newIndex);
             //parent should not change
-            assert.strictEqual(bookAirCall.parent , model.root);
+            assert.strictEqual(bookAirCall.parent , tree);
         });
     });
 
     describe("#hash()", () => {
         it('should produce a unique hash for the subtree rooted at the node', () => {
             //hash should be a number
-            assert.ok(model.root.hash().constructor === Number);
+            assert.ok(tree.hash().constructor === Number);
 
             //hash should be equal for equal subtrees
-            assert.strictEqual(model.copy().root.hash(), model.root.hash());
+            assert.strictEqual(tree.copy().hash(), tree.hash());
 
             //hash should be different for different subtrees
-            let copy = model.copy();
+            let copy = tree.copy();
             bookAirCall.attributes.set("newAttribute", "newVal");
-            assert.notStrictEqual(model.root.hash(), copy.root.hash());
+            assert.notStrictEqual(tree.hash(), copy.hash());
 
             //permutation of unordered child lists should not affect the hash
-            copy = model.copy();
+            copy = tree.copy();
             bookAirCall.getChild(0).changeChildIndex(2);
-            assert.strictEqual(model.root.hash(), copy.root.hash());
+            assert.strictEqual(tree.hash(), copy.hash());
         });
     });
 
@@ -130,10 +130,10 @@ describe("CpeeNode", () => {
     describe("#path()", () => {
         it('should return a sequence of nodes excluding the root that represent the path from the root to the node', () => {
             const parameters = bookAirCall.getChild(0);
-            const arguments = parameters.getChild(2);
+            const args = parameters.getChild(2);
 
             const path = toArgument.path;
-            strictArrayEqual(path, [bookAirCall, parameters, arguments, toArgument])
+            strictArrayEqual(path, [bookAirCall, parameters, args, toArgument])
         });
     });
 
@@ -150,13 +150,13 @@ describe("CpeeNode", () => {
             const parameters = bookAirCall.getChild(0);
             const label = parameters.getChild(0);
             const method = parameters.getChild(1);
-            const arguments = parameters.getChild(2);
-            const fromArgument = arguments.getChild(0);
-            const personsArgument = arguments.getChild(2);
+            const args = parameters.getChild(2);
+            const fromArgument = args.getChild(0);
+            const personsArgument = args.getChild(2);
             const code = bookAirCall.getChild(1);
             const finalize = code.getChild(0);
 
-            strictArrayEqual(preOrder, [bookAirCall, parameters, label, method, arguments, fromArgument, toArgument, personsArgument, code, finalize]);
+            strictArrayEqual(preOrder, [bookAirCall, parameters, label, method, args, fromArgument, toArgument, personsArgument, code, finalize]);
         });
     });
 
@@ -167,13 +167,13 @@ describe("CpeeNode", () => {
             const parameters = bookAirCall.getChild(0);
             const label = parameters.getChild(0);
             const method = parameters.getChild(1);
-            const arguments = parameters.getChild(2);
-            const fromArgument = arguments.getChild(0);
-            const personsArgument = arguments.getChild(2);
+            const args = parameters.getChild(2);
+            const fromArgument = args.getChild(0);
+            const personsArgument = args.getChild(2);
             const code = bookAirCall.getChild(1);
             const finalize = code.getChild(0);
 
-            strictArrayEqual(postOrder, [label, method, fromArgument, toArgument, personsArgument, arguments, parameters, finalize, code, bookAirCall]);
+            strictArrayEqual(postOrder, [label, method, fromArgument, toArgument, personsArgument, args, parameters, finalize, code, bookAirCall]);
         });
     });
 });

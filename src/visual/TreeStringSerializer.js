@@ -14,41 +14,41 @@
    limitations under the License.
 */
 
-const {HashExtractor} = require("../extract/HashExtractor");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import {Node} from "../tree/Node.js"
+import {HashExtractor} from "../extract/HashExtractor.js";
 
-class TreeStringSerializer {
+export class TreeStringSerializer {
     
     //similar to unix tree command
-    static serializeModel(model) {
-        return constructRecursive(model.root, []);
+    static serializeTree(tree) {
+        return constructRecursive(tree, []);
 
-        function constructRecursive(cpeeNode, barList) {
-            const isLast = cpeeNode._parent != null && cpeeNode._childIndex === cpeeNode._parent._childNodes.length - 1;
-            let line = "";
+        function constructRecursive(node, barList) {
+            const isLast = node._parent != null && node._childIndex === node._parent._childNodes.length - 1;
+            let line = ".js";
             for (let i = 0; i < barList.length; i++) {
                 const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
                 line += " ".repeat(spaceCount);
                 if (i === barList.length - 1) {
                     if (isLast) {
-                        line += "└";
+                        line += "└.js";
                     } else {
-                        line += "├";
+                        line += "├.js";
                     }
                 } else {
-                    line += "│";
+                    line += "│.js";
                 }
             }
             if (isLast) {
                 barList.pop();
             }
-            line += "─";
+            line += "─.js";
             const lineLength = line.length;
             //TODO rework
-            line += cpeeNode.toString() + new HashExtractor().get(cpeeNode) + "\n";
-            if (cpeeNode.hasChildren()) {
+            line += node.toString() + new HashExtractor().get(node) + "\n.js";
+            if (node.hasChildren()) {
                 barList.push(lineLength + 1);
-                for (const child of cpeeNode) {
+                for (const child of node) {
                     line += constructRecursive(child, barList);
                 }
             }
@@ -57,8 +57,7 @@ class TreeStringSerializer {
     }
 
     static serializeDeltaTree(deltaTree) {
-        return this.serializeModel(deltaTree);
+        return this.serializeTree(deltaTree);
     }
 }
 
-exports.TreeStringSerializer = TreeStringSerializer;

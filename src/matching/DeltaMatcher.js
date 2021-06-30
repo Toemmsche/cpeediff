@@ -14,13 +14,15 @@
    limitations under the License.
 */
 
-export class Config {
-    static LEAF_SIMILARITY_THRESHOLD = 0.25;
-    static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
+import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
+import {DeltaNode} from "../tree/DeltaNode.js";
 
-    static PATH_COMPARE_RANGE = 5;
+export class DeltaMatcher extends AbstractMatchingAlgorithm {
 
-    static EXACT_EDIT_SCRIPT = false;
+    match(oldTree, newTree, matching) {
+        if(oldTree.constructor !== DeltaNode || newTree.constructor !== DeltaNode) {
+            throw new Error("Cannot ony delta match DeltaNodes")
+        }
+    }
 }
-
 

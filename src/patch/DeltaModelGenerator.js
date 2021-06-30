@@ -14,21 +14,17 @@
    limitations under the License.
 */
 
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {ModelFactory} = require("../factory/ModelFactory");
-const {IdExtractor} = require("../extract/IdExtractor");
-const {DeltaNodeFactory} = require("../factory/DeltaNodeFactory");
-const {Dsl} = require("../Dsl");
-const {TreeStringSerializer} = require("../visual/TreeStringSerializer");
-const {DeltaNode} = require("../cpee/DeltaNode");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import {Node} from "../tree/Node.js"
+import {DeltaNodeFactory} from "../factory/DeltaNodeFactory.js";
+import {Dsl} from "../Dsl.js";
+import {IdExtractor} from "../extract/IdExtractor.js";
 
-class DeltaModelGenerator {
+export class DeltaTreeGenerator {
 
     _handleInsert(tree, change, moveMap) {
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
         const childIndex = indexArr.pop();
-        const [parent, movfrParent] = this._findNodeByIndexArr(tree, indexArr, moveMap);
+        const [parent, movfrParent] = this._findNode(tree, indexArr.join("/"), moveMap);
         const newNode = DeltaNodeFactory.getNode(change.newData);
 
         this._applyInsert(parent, newNode, childIndex);
@@ -47,8 +43,7 @@ class DeltaModelGenerator {
 
     _handleMove(tree, change, moveMap) {
         //find moved node
-        const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-        let [node, movfrNode] = this._findNodeByIndexArr(tree, nodeIndexArr, moveMap);
+        let [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
 
         //configure move_from placeholder node
         let movfrParent;
@@ -68,7 +63,7 @@ class DeltaModelGenerator {
         //find new parent
         const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
         const targetIndex = parentIndexArr.pop();
-        const [parent] = this._findNodeByIndexArr(tree, parentIndexArr, moveMap);
+        const [parent] = this._findNode(tree, parentIndexArr.join("/"), moveMap);
 
         //insert node
         parent.insertChild(targetIndex, node);
@@ -83,8 +78,7 @@ class DeltaModelGenerator {
     }
 
     _handleUpdate(tree, change, moveMap) {
-        const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-        const [node, movfrNode] = this._findNodeByIndexArr(tree, nodeIndexArr, moveMap);
+        const [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
         const newData = change.newData;
 
         this._applyUpdate(node, newData);
@@ -121,8 +115,7 @@ class DeltaModelGenerator {
     }
 
     _handleDelete(tree, change, moveMap) {
-        const nodeIndexArr = change.oldPath.split("/").map(str => parseInt(str));
-        const [node, movfrNode] = this._findNodeByIndexArr(tree, nodeIndexArr, moveMap);
+        const [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
 
         this._applyDelete(node);
         if (movfrNode != null) {
@@ -141,12 +134,12 @@ class DeltaModelGenerator {
 
     extendedDeltaTree(tree, editScript) {
         const deltaTree = this.deltaTree(tree, editScript)
-        this._resolvePlaceholders(tree.root);
+        this._resolvePlaceholders(tree);
     }
 
     deltaTree(tree, editScript) {
         //copy tree
-        tree = new CpeeModel(DeltaNodeFactory.getNode(tree.root));
+        tree = DeltaNodeFactory.getNode(tree);
 
         const idExtractor = new IdExtractor();
         for (const node of tree.toPreOrderArray()) {
@@ -180,22 +173,27 @@ class DeltaModelGenerator {
     }
 
 
-    _findNodeByIndexArr(tree, indexArr, moveMap) {
-        let currNode = tree.root;
+    _findNode(tree, indexPath, moveMap) {
+        let currNode = tree;
         let moveFromPlaceHolder = null;
-        for (let index of indexArr) {
-            if (index > currNode.numChildren()) {
-                throw new Error("Edit script not applicable to tree");
-            }
-            if (moveFromPlaceHolder != null) {
-                if (index > moveFromPlaceHolder.numChildren()) {
+        if(indexPath !== "") {
+            for (let index of indexPath.split("/").map(str => parseInt(str))) {
+                if (index > currNode.numChildren()) {
                     throw new Error("Edit script not applicable to tree");
                 }
-                moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
-            }
-            currNode = currNode.getChild(index);
-            if (moveMap.has(currNode)) {
-                moveFromPlaceHolder = moveMap.get(currNode);
+                if (moveFromPlaceHolder != null) {
+                    /*
+                    if (index > moveFromPlaceHolder.numChildren()) {
+                        throw new Error("Edit script not applicable to tree");
+                    }
+                    */
+                    //TODO
+                    moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
+                }
+                currNode = currNode.getChild(index);
+                if (moveMap.has(currNode)) {
+                    moveFromPlaceHolder = moveMap.get(currNode);
+                }
             }
         }
         return [currNode, moveFromPlaceHolder];
@@ -214,4 +212,3 @@ class DeltaModelGenerator {
     }
 }
 
-exports.DeltaModelGenerator = DeltaModelGenerator;

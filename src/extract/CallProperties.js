@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-class CallProperties {
+export class CallProperties {
 
     endpoint;
     method;
@@ -47,5 +47,3 @@ class CallProperties {
     }
 
 }
-
-exports.CallProperties= CallProperties;

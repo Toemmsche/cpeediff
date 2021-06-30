@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-class Dsl {
+export class Dsl {
 
     static KEYWORDS = {
         ROOT: {
@@ -149,4 +149,4 @@ class Dsl {
 
 }
 
-exports.Dsl = Dsl;
+

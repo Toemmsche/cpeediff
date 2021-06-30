@@ -14,25 +14,25 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const {CpeeNodeFactory} = require("../src/factory/CpeeNodeFactory");
-const {TestRepository} = require("./TestRepository");
-const {CpeeNode} = require("../src/cpee/CpeeNode");
+import {Node} from "../src/tree/Node.js"
+import {TestRepository} from "./TestRepository.js";
+import assert from "assert.js";
+import {NodeFactory} from "../src/factory/NodeFactory.js";
 
-describe("CpeeNodeFactory", () => {
+describe("NodeFactory", () => {
 
     let bookAirCall;
 
     beforeEach(() => {
-        const model = TestRepository.bookingModel();
-        bookAirCall = model.root.getChild(1);
+        const tree = TestRepository.bookingTree();
+        bookAirCall = tree.getChild(1);
 
     });
 
     describe("#getNode()", () => {
-        it("if input is CpeeNode, should return a copy", () => {
+        it("if input is Node, should return a copy", () => {
             //do not copy child nodes
-            let copy = CpeeNodeFactory.getNode(bookAirCall);
+            let copy = NodeFactory.getNode(bookAirCall);
 
             //verify content equality
             assert.strictEqual(copy.numChildren(), bookAirCall.numChildren());
@@ -46,10 +46,10 @@ describe("CpeeNodeFactory", () => {
             assert.strictEqual(copy === bookAirCall, false);
 
             //insert one child
-            bookAirCall.insertChild(0, new CpeeNode("dummy"));
+            bookAirCall.insertChild(0, new Node("dummy"));
 
             //do copy child nodes
-            copy = CpeeNodeFactory.getNode(bookAirCall, true);
+            copy = NodeFactory.getNode(bookAirCall, true);
 
             //verify structural equality
             assert.strictEqual(copy.numChildren(), bookAirCall.numChildren());

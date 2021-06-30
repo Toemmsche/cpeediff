@@ -14,16 +14,7 @@
    limitations under the License.
 */
 
-const xmldom = require("xmldom");
-const vkbeautify = require("vkbeautify");
-const {CpeeNodeFactory} = require("./CpeeNodeFactory");
-const {Change} = require("../editscript/Change");
-const {XmlDomFactory} = require("./XmlDomFactory");
-const {Dsl} = require("../Dsl");
-
-
-
-class EditScriptFactory {
+export class EditScriptFactory {
 
     static getEditScript(source) {
         switch (source.constructor) {
@@ -40,6 +31,3 @@ class EditScriptFactory {
         //TODO
     }
 }
-
-
-exports.EditScriptFactory = EditScriptFactory;

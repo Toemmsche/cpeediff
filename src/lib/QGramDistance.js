@@ -14,13 +14,10 @@
    limitations under the License.
 */
 
-class QGramDistance {
-
+export class QGramDistance {
 
     static getQGramDistance(strA, strB) {
         //TODO
     }
-
 }
 
-exports.QGramDistance = QGramDistance;

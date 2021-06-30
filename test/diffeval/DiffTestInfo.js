@@ -14,11 +14,7 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {CpeeModel} = require("../../src/cpee/CpeeModel");
-
-class DiffTestInfo {
+export class DiffTestInfo {
 
     name;
     maxSize;
@@ -38,4 +34,4 @@ class DiffTestInfo {
     }
 }
 
-exports.DiffTestInfo = DiffTestInfo;
+

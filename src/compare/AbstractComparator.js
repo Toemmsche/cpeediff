@@ -14,15 +14,13 @@
    limitations under the License.
 */
 
-class AbstractComparator {
+export class AbstractComparator {
 
     constructor() {
         if (this.constructor === AbstractComparator) {
-            throw new Error("Instantiation of abstract class 'AbstractComparator'");
+            throw new Error("Instantiation of abstract export class 'AbstractComparator'");
         }
     }
 
     compare(node, other) {}
 }
-
-exports.AbstractComparator = AbstractComparator;

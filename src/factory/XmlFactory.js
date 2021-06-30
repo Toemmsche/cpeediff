@@ -14,25 +14,17 @@
    limitations under the License.
 */
 
-const xmldom = require("xmldom");
-const vkbeautify = require("vkbeautify");
-const {XmlDomFactory} = require("./XmlDomFactory");
-const {Dsl} = require("../Dsl");
-const {EditScript} = require("../editscript/EditScript");
-const {MergeNode} = require("../cpee/MergeNode");
-const {DeltaNode} = require("../cpee/DeltaNode");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import xmldom from "xmldom";
+import vkbeautify from "vkbeautify";
+import {XmlDomFactory} from "./XmlDomFactory.js";
+import {Dsl} from "../Dsl.js";
 
+export class XmlFactory {
 
-class XmlFactory {
-
-    static serialize(object = true) {
+    static serialize(object) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
         const root = XmlDomFactory.convert(object);
         doc.insertBefore(root, null);
         return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
     }
 }
-
-
-exports.XmlFactory = XmlFactory;

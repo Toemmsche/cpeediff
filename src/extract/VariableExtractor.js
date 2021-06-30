@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-const {CallPropertyExtractor} = require("./CallPropertyExtractor");
-const {Dsl} = require("../Dsl");
-const {AbstractExtractor} = require("./AbstractExtractor");
+import {AbstractExtractor} from "./AbstractExtractor.js";
+import {CallPropertyExtractor} from "./CallPropertyExtractor.js";
+import {Dsl} from "../Dsl.js";
 
-class VariableExtractor extends AbstractExtractor {
+export class VariableExtractor extends AbstractExtractor {
 
     callPropertyExtractor;
 
@@ -83,8 +83,4 @@ class VariableExtractor extends AbstractExtractor {
         }
         return readVariables;
     }
-
-
 }
-
-exports.VariableExtractor = VariableExtractor;

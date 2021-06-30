@@ -14,17 +14,12 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {MergeTestResult} = require("./MergeTestResult");
-const {DeltaMerger} = require("../../src/merge/DeltaMerger");
-const {SizeExtractor} = require("../../src/extract/SizeExtractor");
-const {TestConfig} = require("../TestConfig");
-const {ChawatheMatching} = require("../../src/matching/ChawatheMatch");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
+import {Node} from "../tree/Node.js"
+import {DeltaMerger} from "../../src/merge/DeltaMerger.js";
+import {TestConfig} from "../TestConfig.js";
+import {MergeTestResult} from "./MergeTestResult.js";
 
-class OurMergeAdapter {
+export class OurMergeAdapter {
 
     mergeAlgorithm;
 
@@ -48,9 +43,9 @@ class OurMergeAdapter {
     }
 
     _verifyResult(actual, expected, accepted) {
-        if (expected.some(t => t.root.deepEquals(actual.root))) {
+        if (expected.some(t => t.deepEquals(actual))) {
             return TestConfig.VERDICTS.OK;
-        } else if(accepted.some(t => t.root.deepEquals(actual.root))) {
+        } else if(accepted.some(t => t.deepEquals(actual))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;
@@ -58,4 +53,4 @@ class OurMergeAdapter {
     }
 }
 
-exports.OurMergeAdapter = OurMergeAdapter;
+

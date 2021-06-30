@@ -14,15 +14,13 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {AggregateMatchResult} = require("./AggregateMatchResult");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {TestConfig} = require("../TestConfig");
-const {ExpectedMatch} = require("./ExpectedMatch");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
+import {TestConfig} from "../TestConfig.js";
+import {Preprocessor} from "../../src/parse/Preprocessor.js";
+import * as fs from "fs";
+import {ExpectedMatch} from "./ExpectedMatch.js";
+import {AggregateMatchResult} from "./AggregateMatchResult.js";
 
-class MatchingAlgorithmEvaluation {
+export class MatchingAlgorithmEvaluation {
 
     adapters;
 
@@ -91,4 +89,3 @@ class MatchingAlgorithmEvaluation {
 
 }
 
-exports.MatchingAlgorithmEvaluation = MatchingAlgorithmEvaluation;

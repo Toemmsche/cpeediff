@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-const {AbstractExtractor} = require("./AbstractExtractor");
+import {AbstractExtractor} from "./AbstractExtractor.js";
 
-class IdExtractor extends AbstractExtractor {
+export class IdExtractor extends AbstractExtractor {
 
     _extract(node) {
         //compute all ids on first use
@@ -33,5 +33,3 @@ class IdExtractor extends AbstractExtractor {
     }
 
 }
-
-exports.IdExtractor = IdExtractor;

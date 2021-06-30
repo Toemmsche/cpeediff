@@ -14,16 +14,14 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {DeltaModelGenerator} = require("../../src/patch/DeltaModelGenerator");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../src/Config");
-const {Dsl} = require("../../src/Dsl");
-const {MatchDiff} = require("../../src/diff/MatchDiff");
+import {MatchDiff} from "../../src/diff/MatchDiff.js";
+import {DiffTestResult} from "./DiffTestResult.js";
+import {Config} from "../../src/Config.js";
+import {DeltaTreeGenerator} from "../../src/patch/DeltaModelGenerator.js";
+import {Dsl} from "../../src/Dsl.js";
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
 
-class OurDiffAdapter {
+export class OurDiffAdapter {
 
     evalCase(info, oldTree, newTree) {
         let time = new Date().getTime();
@@ -34,14 +32,14 @@ class OurDiffAdapter {
         } catch(e) {
             console.log(e);
             //no test result available since diff algorithm crashed
-            return null;
+            return DiffTestResult.fail(info, "OurDiff");
         }
         time = new Date().getTime() - time;
 
         Config.EXACT_EDIT_SCRIPT  =true;
         //verify the correctness of our diff by patching the original tree with it
-        const deltaTree = new DeltaModelGenerator().deltaTree(oldTree, delta);
-        const correctDiff = deltaTree.root.deepEquals(newTree.root);
+        const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);
+        const correctDiff = deltaTree.deepEquals(newTree);
 
         if(!correctDiff) {
             //signal failure
@@ -80,4 +78,4 @@ class OurDiffAdapter {
     }
 }
 
-exports.OurDiffAdapter = OurDiffAdapter;
+

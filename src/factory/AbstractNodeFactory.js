@@ -14,16 +14,17 @@
    limitations under the License.
 */
 
-const {MergeNode} = require("../cpee/MergeNode");
-const {DeltaNode} = require("../cpee/DeltaNode");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import {Node} from "../tree/Node.js";
+import {DeltaNode} from "../tree/DeltaNode.js";
+import {MergeNode} from "../tree/MergeNode.js";
 
-class AbstractNodeFactory {
+
+export class AbstractNodeFactory {
 
     static getNode(source, includeChildNodes = true) {
         switch (source.constructor) {
-            case CpeeNode:
-                return this._fromCpeeNode(source, includeChildNodes);
+            case Node:
+                return this._fromNode(source, includeChildNodes);
             case DeltaNode:
                 return this._fromDeltaNode(source, includeChildNodes);
             case MergeNode:
@@ -35,7 +36,7 @@ class AbstractNodeFactory {
         }
     }
 
-    static _fromCpeeNode(cpeeNode, includeChildNodes) {
+    static _fromNode(node, includeChildNodes) {
         throw new Error("Interface method not implemented");
     }
 
@@ -56,5 +57,3 @@ class AbstractNodeFactory {
     }
 
 }
-
-exports.AbstractNodeFactory = AbstractNodeFactory;

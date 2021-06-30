@@ -14,12 +14,12 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {AggregateMergeResult} = require("./AggregateMatchResult");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {TestConfig} = require("../TestConfig");
+import {TestConfig} from "../TestConfig.js";
+import {Preprocessor} from "../../src/parse/Preprocessor.js";
+import * as fs from "fs";
+import {AggregateMergeResult} from "./AggregateMatchResult.js";
 
-class MergeAlgorithmEvaluation {
+export class MergeAlgorithmEvaluation {
 
     adapters;
 
@@ -95,4 +95,3 @@ class MergeAlgorithmEvaluation {
 
 }
 
-exports.MergeAlgorithmEvaluation = MergeAlgorithmEvaluation;

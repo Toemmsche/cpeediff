@@ -14,22 +14,19 @@
    limitations under the License.
 */
 
-const {GeneratorParameters} = require("./GeneratorParameters");
-const {DiffTestInfo} = require("../../test/diffeval/DiffTestInfo");
-const {Config} = require("../Config");
-const {ModelFactory} = require("../factory/ModelFactory");
-const {Preprocessor} = require("../parse/Preprocessor");
-const {Dsl} = require("../Dsl");
-const {CpeeModel} = require("../cpee/CpeeModel");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import {Node} from "../tree/Node.js"
+import {Preprocessor} from "../parse/Preprocessor.js";
+import {Dsl} from "../Dsl.js";
+import {DiffTestInfo} from "../../test/diffeval/DiffTestInfo.js";
+import {NodeFactory} from "../factory/NodeFactory.js";
 
-class TreeGenerator {
+export class TreeGenerator {
+
+    genParams;
 
     endpoints;
     labels;
     variables;
-
-    genParams;
 
     constructor(genParams) {
         this.genParams = genParams;
@@ -46,7 +43,7 @@ class TreeGenerator {
         }
     }
 
-    randomModel(root = this._randomRoot()) {
+    randomTree(root = this._randomRoot()) {
         const inners = new Set();
         inners.add(root);
         let currSize = 1;
@@ -75,7 +72,7 @@ class TreeGenerator {
             currSize += newNode.toPreOrderArray().length;
         }
 
-        return new Preprocessor().prepareModel(new CpeeModel(root));
+        return new Preprocessor().prepareTree(root);
     }
 
     randomLeavesOnly(root = this._randomRoot()) {
@@ -85,7 +82,7 @@ class TreeGenerator {
             this._appendRandomly(root, newNode);
             currSize += newNode.toPreOrderArray().length;
         }
-        return new Preprocessor().prepareModel(new CpeeModel(root));
+        return new Preprocessor().prepareTree(root);
     }
 
     _insertBetween(parent) {
@@ -107,7 +104,7 @@ class TreeGenerator {
     }
 
     _randomRoot() {
-        return new CpeeNode(Dsl.KEYWORDS.ROOT.label);
+        return new Node(Dsl.KEYWORDS.ROOT.label);
     }
 
     _randomLeaf() {
@@ -148,26 +145,26 @@ class TreeGenerator {
 
 
     _randomCall() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CALL.label);
+        const node = new Node(Dsl.KEYWORDS.CALL.label);
         node.attributes.set("endpoint", this._randomFrom(this.endpoints));
 
-        const parameters = new CpeeNode("parameters");
+        const parameters = new Node("parameters");
 
         //random label
-        const label = new CpeeNode("label");
+        const label = new Node("label");
         //TODO label shouldnt be random
         label.data = this._randomFrom(this.labels);
         parameters.appendChild(label);
 
         //random method
-        const method = new CpeeNode("method");
+        const method = new Node("method");
         method.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
         parameters.appendChild(method);
 
         //random arguments (read Variables)
-        const args = new CpeeNode("arguments");
-        for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.maxVars))) {
-            const arg = new CpeeNode(readVariable);
+        const args = new Node("arguments");
+        for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
+            const arg = new Node(readVariable);
             arg.data = "data." + readVariable;
             args.appendChild(arg);
         }
@@ -177,9 +174,9 @@ class TreeGenerator {
         node.appendChild(parameters);
 
         //random modified Variables
-        const code = new CpeeNode("code");
-        const codeUpdate = new CpeeNode("update");
-        codeUpdate.data = "";
+        const code = new Node("code");
+        const codeUpdate = new Node("update");
+        codeUpdate.data = ".js";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             codeUpdate.data += "data." + modifiedVariable + " = 420;"
         }
@@ -192,10 +189,10 @@ class TreeGenerator {
     }
 
     _randomManipulate() {
-        const node = new CpeeNode(Dsl.KEYWORDS.MANIPULATE.label);
+        const node = new Node(Dsl.KEYWORDS.MANIPULATE.label);
 
         //random modified Variables
-        node.data = "";
+        node.data = ".js";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             node.data += "data." + modifiedVariable + " = 420;"
         }
@@ -205,38 +202,38 @@ class TreeGenerator {
     }
 
     _randomStop() {
-        const node = new CpeeNode(Dsl.KEYWORDS.STOP.label);
+        const node = new Node(Dsl.KEYWORDS.STOP.label);
         return node;
     }
 
     _randomEscape() {
-        const node = new CpeeNode(Dsl.KEYWORDS.ESCAPE.label);
+        const node = new Node(Dsl.KEYWORDS.ESCAPE.label);
         return node;
     }
 
     _randomTerminate() {
-        const node = new CpeeNode(Dsl.KEYWORDS.TERMINATE.label);
+        const node = new Node(Dsl.KEYWORDS.TERMINATE.label);
         return node;
     }
 
     _randomParallel() {
-        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL.label);
+        const node = new Node(Dsl.KEYWORDS.PARALLEL.label);
         return node;
     }
 
     _randomParallelBranch() {
-        const node = new CpeeNode(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
+        const node = new Node(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
         return node;
     }
 
     _randomChoose() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CHOOSE.label);
+        const node = new Node(Dsl.KEYWORDS.CHOOSE.label);
         node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
         return node;
     }
 
     _randomAlternative() {
-        const node = new CpeeNode(Dsl.KEYWORDS.ALTERNATIVE.label);
+        const node = new Node(Dsl.KEYWORDS.ALTERNATIVE.label);
 
         //random condition
         const readVariable = this._randomFrom(this.variables);
@@ -246,12 +243,12 @@ class TreeGenerator {
     }
 
     _randomOtherwise() {
-        const node = new CpeeNode(Dsl.KEYWORDS.OTHERWISE.label);
+        const node = new Node(Dsl.KEYWORDS.OTHERWISE.label);
         return node;
     }
 
     _randomLoop() {
-        const node = new CpeeNode(Dsl.KEYWORDS.LOOP.label);
+        const node = new Node(Dsl.KEYWORDS.LOOP.label);
         //random condition
         const readVariable = this._randomFrom(this.variables);
         node.attributes.set("condition", "data." + readVariable + " < 69");
@@ -259,7 +256,7 @@ class TreeGenerator {
     }
 
     _randomCritical() {
-        const node = new CpeeNode(Dsl.KEYWORDS.CRITICAL.label);
+        const node = new Node(Dsl.KEYWORDS.CRITICAL.label);
         return node;
     }
 
@@ -313,10 +310,10 @@ class TreeGenerator {
     }
 
 
-    changeModel(model, numChanges) {
-        //do not modify original model
-        model = ModelFactory.getModel(model);
-        const oldSize = model.toPreOrderArray().length;
+    changeTree(tree, numChanges) {
+        //do not modify original tree
+        tree = NodeFactory.getNode(tree);
+        const oldSize = tree.toPreOrderArray().length;
         let insertionCounter = 0;
         let updateCounter = 0;
         let deletionCounter = 0;
@@ -325,110 +322,109 @@ class TreeGenerator {
             switch (this._randomFrom(Array.of(...Dsl.CHANGE_TYPE_SET).filter(c => c !== Dsl.CHANGE_TYPES.MOVE_FROM && c !== Dsl.CHANGE_TYPES.NIL))) {
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION: {
                     insertionCounter++;
-                    this._insertSubtreeRandomly(model);
+                    this._insertSubtreeRandomly(tree);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.INSERTION: {
                     insertionCounter++;
-                    this._insertLeafRandomly(model);
+                    this._insertLeafRandomly(tree);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.SUBTREE_DELETION: {
                     deletionCounter++;
-                    this._deleteSubtreeRandomly(model);
+                    this._deleteSubtreeRandomly(tree);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.DELETION: {
                     deletionCounter++;
-                    this._deleteLeafRandomly(model);
+                    this._deleteLeafRandomly(tree);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO:
                 case Dsl.CHANGE_TYPES.MOVE_FROM: {
                     moveCounter++;
-                    if (this._moveRandomly(model)) {
+                    if (this._moveRandomly(tree)) {
                         insertionCounter++;
                     }
                     break;
                 }
                 case Dsl.CHANGE_TYPES.UPDATE: {
                     updateCounter++;
-                    this._updateRandomly(model);
+                    this._updateRandomly(tree);
                     break;
                 }
             }
         }
         return {
-            model: new Preprocessor().prepareModel(model),
-            info: new DiffTestInfo(null, Math.max(oldSize, model.toPreOrderArray().length), insertionCounter, moveCounter, updateCounter, deletionCounter)
+            tree: new Preprocessor().prepareTree(tree),
+            info: new DiffTestInfo(null, Math.max(oldSize, tree.toPreOrderArray().length), insertionCounter, moveCounter, updateCounter, deletionCounter)
         };
 
     }
 
-    _insertSubtreeRandomly(model) {
-        const currSize = model.toPreOrderArray().length;
+    _insertSubtreeRandomly(tree) {
+        const currSize = tree.toPreOrderArray().length;
 
-        let parent = this._randomFrom(model.innerNodes());
+        let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent)
 
         let newNode = this._randomInner();
         this._appendRandomly(parent, newNode);
         newNode = this._insertBetween(newNode);
 
-        //construct new model with less nodes
+        //construct new tree with less nodes
         //store old max size value
         const oldMaxSize = this.genParams.maxSize;
         this.genParams.maxSize = Math.max(Math.sqrt(oldMaxSize), 5);
         //construct random subtree around the new inner node
-        this.randomModel(newNode);
+        this.randomTree(newNode);
         //restore old max size
         this.genParams.maxSize = oldMaxSize;
 
-        const newSize = model.toPreOrderArray().length;
-        if (model.toPreOrderArray().length <= currSize) {
+        const newSize = tree.toPreOrderArray().length;
+        if (tree.toPreOrderArray().length <= currSize) {
             throw new Error();
         }
     }
 
 
-    _insertLeafRandomly(model) {
-        const currSize = model.toPreOrderArray().length;
+    _insertLeafRandomly(tree) {
+        const currSize = tree.toPreOrderArray().length;
 
-
-        let parent = this._randomFrom(model.innerNodes());
+        let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent)
 
         const newNode = this._randomLeaf();
         this._appendRandomly(parent, newNode);
 
-        if (model.toPreOrderArray().length <= currSize) {
+        if (tree.toPreOrderArray().length <= currSize) {
             throw new Error();
         }
     }
 
-    _deleteSubtreeRandomly(model) {
-        const node = this._randomFrom(model.innerNodes().filter(n => !n.isRoot()));
+    _deleteSubtreeRandomly(tree) {
+        const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot()));
         if (node != null) {
             node.removeFromParent();
         }
 
     }
 
-    _deleteLeafRandomly(model) {
-        const node = this._randomFrom(model.leafNodes());
+    _deleteLeafRandomly(tree) {
+        const node = this._randomFrom(tree.leaves());
         if (node != null) {
             node.removeFromParent();
         }
     }
 
-    _moveRandomly(model) {
+    _moveRandomly(tree) {
         let increaseInsertionCounter = false;
-        let parent = this._randomFrom(model.innerNodes());
+        let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent);
         if (parent !== (parent = this._insertBetween(parent))) {
             increaseInsertionCounter = true;
         }
-        let movedNode = this._randomFrom(model.nodes()
+        let movedNode = this._randomFrom(tree.nonPropertyNodes()
             .filter(n => !n.isRoot()
                 && n.label !== Dsl.KEYWORDS.PARALLEL_BRANCH.label
                 && n.label !== Dsl.KEYWORDS.CHOOSE.label));
@@ -437,14 +433,14 @@ class TreeGenerator {
         return increaseInsertionCounter;
     }
 
-    _updateRandomly(model) {
+    _updateRandomly(tree) {
         let node;
         if (this._withProbability(0.6)) {
-            node = this._randomFrom(model.toPreOrderArray().filter(n => n.data !== null));
+            node = this._randomFrom(tree.toPreOrderArray().filter(n => n.data !== null));
             //if node has data, there's a 50% chance we alter this data and return
             node.data += this._randomString(10);
         } else {
-            node = this._randomFrom(model.nodes().filter(n => n.hasAttributes()));
+            node = this._randomFrom(tree.nonPropertyNodes().filter(n => n.hasAttributes()));
             const changedAttributeKey = this._randomFrom(Array.of(...node.attributes.keys()));
             //With a 80% chance (or if we selected the "endpoint" attribute), change the attribute value
             if (this._withProbability(0.8) || changedAttributeKey === "endpoint") {
@@ -461,10 +457,10 @@ class TreeGenerator {
         }
     }
 
-    reshuffleAll(model) {
-        model = ModelFactory.getModel(model);
+    reshuffleAll(tree) {
+        tree = NodeFactory.getNode(tree);
         let moveCounter = 0;
-        for (const inner of model.innerNodes()) {
+        for (const inner of tree.innerNodes()) {
             for (let i = 0; i < inner.numChildren(); i++) {
                 moveCounter++
                 const node = this._randomFrom(inner.childNodes);
@@ -473,11 +469,10 @@ class TreeGenerator {
             }
         }
         return {
-            model: new Preprocessor().prepareModel(model),
-            info: new DiffTestInfo(null, model.toPreOrderArray().length, 0, moveCounter, 0, 0)
+            tree: new Preprocessor().prepareTree(tree),
+            info: new DiffTestInfo(null, tree.toPreOrderArray().length, 0, moveCounter, 0, 0)
         };
     }
 
 }
 
-exports.TreeGenerator = TreeGenerator;

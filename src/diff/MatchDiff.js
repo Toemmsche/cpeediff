@@ -14,21 +14,27 @@
    limitations under the License.
 */
 
-const {ChawatheMatching} = require("../matching/ChawatheMatch");
-const {ModelFactory} = require("../factory/ModelFactory");
-const {StandardComparator} = require("../compare/StandardComparator");
-const {Matching} = require("../matching/Matching");
-const {EditScriptGenerator} = require("../editscript/EditScriptGenerator");
 
-class MatchDiff {
+import {StandardComparator} from "../compare/StandardComparator.js";
+import {EditScriptGenerator} from "../editscript/EditScriptGenerator.js";
+import {NodeFactory} from "../factory/NodeFactory.js";
+import {MatchPipeline} from "../matching/MatchPipeline.js";
 
-    diff(oldModel, newModel, matchingAlgorithm = new ChawatheMatching(), comparator = new StandardComparator()) {
-        //this will modify the old model, hence a copy is used
-        const copyOfOld = ModelFactory.getModel(oldModel);
-        const matching = matchingAlgorithm.match(copyOfOld, newModel, new Matching(), comparator);
+export class MatchDiff {
+    
+    matchPipeline;
+    editScriptGenerator;
+    
+    constructor(matchPipeline = MatchPipeline.standard()) {
+        this.matchPipeline = matchPipeline;
+        this.editScriptGenerator = new EditScriptGenerator();
+    }
+
+    diff(oldTree, newTree, comparator = new StandardComparator()) {
+        //this will modify the old tree, hence a copy is used
+        const oldTreeCopy = NodeFactory.getNode(oldTree);
+        const matching = this.matchPipeline.execute(oldTreeCopy, newTree, comparator);
         //generate edit script
-        return new EditScriptGenerator().generateEditScript(copyOfOld, newModel, matching);
+        return this.editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
     }
 }
-
-exports.MatchDiff = MatchDiff;

@@ -14,20 +14,19 @@
    limitations under the License.
 */
 
-const xmldom = require("xmldom");
-const {AbstractNodeFactory} = require("./AbstractNodeFactory");
-const {CpeeNode} = require("../cpee/CpeeNode");
+import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
+import {Node} from "../tree/Node.js"
 
-class CpeeNodeFactory extends AbstractNodeFactory {
+export class NodeFactory extends AbstractNodeFactory {
 
-    static _fromCpeeNode(cpeeNode, includeChildNodes) {
-        const copy = new CpeeNode(cpeeNode.label, cpeeNode.data);
-        for (const [key, value] of cpeeNode.attributes) {
+    static _fromNode(node, includeChildNodes) {
+        const copy = new Node(node.label, node.data);
+        for (const [key, value] of node.attributes) {
             copy.attributes.set(key, value);
         }
         if (includeChildNodes) {
-            for (const child of cpeeNode) {
-                copy.appendChild(this._fromCpeeNode(child, includeChildNodes));
+            for (const child of node) {
+                copy.appendChild(this._fromNode(child, includeChildNodes));
             }
         }
         return copy;
@@ -38,7 +37,7 @@ class CpeeNodeFactory extends AbstractNodeFactory {
     }
 
     static _fromXmlDom(xmlElement, includeChildNodes) {
-        let root = new CpeeNode(xmlElement.localName);
+        let root = new Node(xmlElement.localName);
 
         if(!(xmlElement.nodeType === 1 || xmlElement.nodeType === 3)) {
             return null;
@@ -69,7 +68,4 @@ class CpeeNodeFactory extends AbstractNodeFactory {
         }
         return root;
     }
-
 }
-
-exports.CpeeNodeFactory = CpeeNodeFactory;

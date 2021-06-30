@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {TreeGenerator} = require("../../src/gen/TreeGenerator");
-const {GeneratorParameters} = require("../../src/gen/GeneratorParameters");
-const {DiffTestInfo} = require("./DiffTestInfo");
-const {DiffTestResult} = require("./DiffTestResult");
-const {Preprocessor} = require("../../src/parse/Preprocessor");
-const {TestConfig} = require("../TestConfig");
+import {TestConfig} from "../TestConfig.js";
+import {Preprocessor} from "../../src/parse/Preprocessor.js";
+import * as fs from "fs";
+import {TreeGenerator} from "../../src/gen/TreeGenerator.js";
+import {GeneratorParameters} from "../../src/gen/GeneratorParameters.js";
+import {DiffTestInfo} from "./DiffTestInfo.js";
+import {MarkDownFactory} from "../MarkDownFactory.js";
 
-class DiffAlgorithmEvaluation {
+export class DiffAlgorithmEvaluation {
 
     adapters;
 
@@ -32,9 +32,10 @@ class DiffAlgorithmEvaluation {
 
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
         console.log("Using " + caseDir + " to evaluate diff algorithms");
-        const results = new Map();
+        const resultsPerAdapter = new Map();
+        const resultsPerTest = new Map();
         for (const adapter of this.adapters) {
-            results.set(adapter, []);
+            resultsPerAdapter.set(adapter, []);
         }
 
         const parser = new Preprocessor();
@@ -56,15 +57,15 @@ class DiffAlgorithmEvaluation {
                         console.log("Generating process tree with only leaves of size " + genParams.maxSize + "...");
                         oldTree = treeGen.randomLeavesOnly();
                         const changedInfo = treeGen.reshuffleAll(oldTree);
-                        newTree = changedInfo.model;
+                        newTree = changedInfo.tree;
                         testInfo = changedInfo.info;
                         break;
                     }
                     default: {
                         console.log("Generating random process tree of size " + genParams.maxSize + "...");
-                        oldTree = treeGen.randomModel();
-                        const changedInfo = treeGen.changeModel(oldTree, genParams.numChanges);
-                        newTree = changedInfo.model;
+                        oldTree = treeGen.randomTree();
+                        const changedInfo = treeGen.changeTree(oldTree, genParams.numChanges);
+                        newTree = changedInfo.tree;
                         testInfo = changedInfo.info;
                         break;
                     }
@@ -89,23 +90,28 @@ class DiffAlgorithmEvaluation {
                 }
             }
 
+
+            resultsPerTest.set(testInfo, []);
             for (const adapter of this.adapters) {
-                console.log("Running case " + testInfo.name + " for " + adapter.constructor.name)
-                results.get(adapter).push(adapter.evalCase(testInfo, oldTree, newTree));
+                console.log("Running case " + testInfo.name + " for " + adapter.constructor.name);
+
+                const result = adapter.evalCase(testInfo, oldTree, newTree);
+                resultsPerAdapter.get(adapter).push(result);
+                resultsPerTest.get(testInfo).push(result);
             }
+
+
 
         });
 
         //TODO aggregate metrics
-        for (const [adapter, resultsList] of results) {
-            console.log("results for " + adapter.constructor.name);
-            for (const result of resultsList) {
-                console.log(result);
-            }
+        for(const [testInfo, results] of resultsPerTest) {
+            console.log("Results for case");
+            console.log(testInfo);
+            console.log(MarkDownFactory.tabularize(results));
         }
     }
 
 
 }
 
-exports.DiffAlgorithmEvaluation = DiffAlgorithmEvaluation;

@@ -4,10 +4,9 @@
 //      configurable separator between data and variable name (make "data." configurable)
 //      hash only considers semantic aspects
 //      data passses in parallel branches
-//      make hash oblivous to child order
 
 //TODO gen
-//      models are still too small because of preprocessor, check that out
+//      trees are still too small because of preprocessor, check that out
 
 //TODO new algos
 //      reshuffling with fast lis
@@ -17,7 +16,7 @@
 
 //TODO maybe features
 //      conflict groups for reshuffling (toggleable)
-//      model validator
+//      tree validator
 //      append updates even in the case of insertion
 
 //TODO semi-features
@@ -34,8 +33,7 @@
 //      colors in delta output
 
 //TODO tidy
-//      rename model to tree (thesis title is prroces tree diff aferter all)
-//      use custom objects as return values (e.g. change in updates)
+//      rename tree to tree (thesis title is prroces tree diff aferter all)
 //      no static methods
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
@@ -65,17 +63,20 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      subsystem organization and export class variables
+//      switch to ES pacakges
 //      rename moveCount
 //      rename parent (no undewrscore)
 //      delete includes deleted tree
 //      matching as config variable
-//      if model doesnt have own attributes, -> remove and replace with root, rename cpeemodel to tree, rename cpeenode to basenode
+//      if tree doesnt have own attributes, -> remove and replace with root, rename cpeetree to tree, rename cpeenode to basenode
 //      implement hash yourself
-//      update class
+//      update export class
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
-//      MatchedNode subclass instead of matching class (with maxSimilarity, etc)
+//      MatchedNode subexport class instead of matching export class (with maxSimilarity, etc)
 //      add some patterns
+//      type and test coverage similar to markdwon-tables
 
 //TODO advanced semantics
 //     if parallel_branch matched, match paralell (same for choose and otherwise/alternative)
@@ -92,7 +93,7 @@ idea 2: Merge the set of leaf nodes, then
 /*
 pipeline
 
-Parser -> preprocessor -> validator (for old and new model --> warnings and forbidden moves) -> match -> editScript -> deltaTree -> merge
+Parser -> preprocessor -> validator (for old and new tree --> warnings and forbidden moves) -> match -> editScript -> deltaTree -> merge
  */
 
 /*

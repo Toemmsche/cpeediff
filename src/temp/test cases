@@ -1,17 +1,17 @@
 - obscure Attribute changes (wait or probability)
 - deep inserts (multiple layers, thin subtrees)
-- invalid models
+- invalid trees
 - X - mappings
 - test EXACT_EDIT_SCRIPT using patcher
 - leaf substitution (are parents still matched) ?
 - low leaf sim threshold
 - high leaf sim threshold
-- n² poath model for matching
+- n² poath tree for matching
 
 
 
 unit tests:
-- no root (empty model)
+- no root (empty tree)
 - no init script
 - one init script
 - one root

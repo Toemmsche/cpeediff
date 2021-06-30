@@ -14,40 +14,8 @@
    limitations under the License.
 */
 
-const {CpeeModel} = require("../cpee/CpeeModel");
+export class AbstractMatchingAlgorithm {
 
-/**
- * Abstract super class for all matching algorithms.
- * @abstract
- */
-class AbstractMatchingAlgorithm {
-    /**
-     * Additional options for the difference calculation
-     * @type {String[]}
-     */
-    options;
 
-    /**
-     * Instantiate an AbstractMatchingAlgorithm object with the given options.
-     * @throws {Error} If not called from within a subclass
-     */
-    constructor() {
-        if (this.constructor === AbstractMatchingAlgorithm) {
-            throw new Error("Instantiation of Abstract class 'AbstractDiff'");
-        }
-
-    }
-
-    /**
-     * Matches nodes in the two process models
-     * @param {CpeeModel} oldModel The old process model
-     * @param {CpeeModel} newModel The new process model
-     * @param {Matching} existingMatching An existing matching that is extended.
-     *                                    The order the matching algorithms are applied in matters.
-     * @param comparator
-     * @return {Matching} A matching containing a mapping of nodes from model1 to model2
-     */
-    static match(oldModel, newModel,existingMatching, comparator) {}
 }
 
-exports.AbstractMatchingAlgorithm = AbstractMatchingAlgorithm;

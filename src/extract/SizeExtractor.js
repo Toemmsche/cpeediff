@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-const {AbstractExtractor} = require("./AbstractExtractor");
+import {AbstractExtractor} from "./AbstractExtractor.js";
 
-class SizeExtractor extends AbstractExtractor {
+export class SizeExtractor extends AbstractExtractor {
 
     _extract(node) {
         let size = 1;
@@ -27,5 +27,3 @@ class SizeExtractor extends AbstractExtractor {
     }
 
 }
-
-exports.SizeExtractor = SizeExtractor;

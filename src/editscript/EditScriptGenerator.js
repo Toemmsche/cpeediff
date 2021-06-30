@@ -15,38 +15,35 @@
 */
 
 
-const {CpeeNodeFactory} = require("../factory/CpeeNodeFactory");
-const {Lis} = require("../lib/Lis");
-const {Config} = require("../Config");
-const {EditScript} = require("./EditScript");
+import {EditScript} from "./EditScript.js";
+import {NodeFactory} from "../factory/NodeFactory.js";
+import {Config} from "../Config.js";
 
-class EditScriptGenerator {
+export class EditScriptGenerator {
 
     /**
      * Given a (partial) matching between the nodes of two process trees,
      * generates an edit script that includes (subtree) insert, (subree) delete and subtree move operations.
      * Based on the edit script algorithm by
      * Chawathe et al., "Change Detection in Hierarchically Structured Information"
-     * @param oldModel
-     * @param newModel
+     * @param oldTree
+     * @param newTree
      * @param matching
      * @param options
      * @return {EditScript}
      */
-    generateEditScript(oldModel, newModel, matching, options = []) {
+    generateEditScript(oldTree, newTree, matching) {
         const editScript = new EditScript();
 
-        const newPreOrderArray = newModel.toPreOrderArray();
+        const newPreOrderArray = newTree.toPreOrderArray();
 
-        //iterate in pre order through new model
+        //iterate in pre order through new tree
         for (const newNode of newPreOrderArray) {
-            //We can safely skip the root node, as it will always be mapped between two cpee models
+            //We can safely skip the root node, as it will always be mapped between two cpee trees
             if (newNode.parent == null) continue;
             if (matching.hasNew(newNode)) {
-                //new Node has a match in the old model
+                //new Node has a match in the old tree
                 const match = matching.getNew(newNode);
-                const newParent = newNode.parent;
-                const matchParent = matching.getNew(newParent);
                 if (matching.getNew(newNode.parent) !== match.parent) {
                     this._move(match, matching, editScript);
                 }
@@ -54,13 +51,12 @@ class EditScriptGenerator {
                     this._update(match, matching, editScript);
                 }
             } else {
-                //TODO subtree insert
                 this._insert(newNode, matching, editScript);
             }
         }
 
         const oldDeletedNodes = [];
-        const oldPostOrderArray = oldModel.toPostOrderArray();
+        const oldPostOrderArray = oldTree.toPostOrderArray();
         for (const oldNode of oldPostOrderArray) {
             if (!matching.hasOld(oldNode)) {
                 //delete node
@@ -81,20 +77,20 @@ class EditScriptGenerator {
             this._delete(node, editScript);
         }
 
-        for(const newNode of newModel.toPreOrderArray()) {
-            if(!matching.hasNew(newNode)) {
+        for (const newNode of newTree.toPreOrderArray()) {
+            if (!matching.hasNew(newNode)) {
                 throw new Error();
             }
         }
-        for(const oldNode of oldModel.toPreOrderArray()) {
-            if(!matching.hasOld(oldNode)) {
+        for (const oldNode of oldTree.toPreOrderArray()) {
+            if (!matching.hasOld(oldNode)) {
                 throw new Error();
             }
         }
 
         //All nodes have the right parent and are matched or deleted later
-        //However, order of child nodes might not be right, we must verify that it matches the new model.
-        for (const oldNode of oldModel.toPreOrderArray()) {
+        //However, order of child nodes might not be right, we must verify that it matches the new tree.
+        for (const oldNode of oldTree.toPreOrderArray()) {
             if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
                 this._alignChildren(oldNode, matching, editScript);
             }
@@ -120,7 +116,7 @@ class EditScriptGenerator {
                 match.changeChildIndex(newNode.childIndex);
                 const newPath = match.toChildIndexPathString();
                 const newIndex = match.childIndex;
-                if(oldIndex === newIndex ) {
+                if (oldIndex === newIndex) {
                     throw new Error();
                 }
                 editScript.move(oldPath, newPath);
@@ -178,8 +174,8 @@ class EditScriptGenerator {
          */
 
 
-        for(const node of oldParent) {
-            if(!matching.hasOld(node) || matching.getOld(node) == null) {
+        for (const node of oldParent) {
+            if (!matching.hasOld(node) || matching.getOld(node) == null) {
                 throw new Error();
             }
         }
@@ -223,12 +219,12 @@ class EditScriptGenerator {
     }
 
     _insert(newNode, matching, editScript) {
-        const copy = CpeeNodeFactory.getNode(newNode, true);
+        const copy = NodeFactory.getNode(newNode, true);
 
         const removeLater = [];
         const matchOrRemove = (copiedNode, newNode) => {
-            if(matching.hasNew(newNode)) {
-               removeLater.push(copiedNode);
+            if (matching.hasNew(newNode)) {
+                removeLater.push(copiedNode);
             } else {
                 matching.matchNew(newNode, copiedNode);
                 for (let i = 0; i < copiedNode.numChildren(); i++) {
@@ -237,7 +233,7 @@ class EditScriptGenerator {
             }
         }
         matchOrRemove(copy, newNode);
-        for(const copiedNode of removeLater) {
+        for (const copiedNode of removeLater) {
             copiedNode.removeFromParent();
         }
 
@@ -256,15 +252,13 @@ class EditScriptGenerator {
         newParent.insertChild(insertionIndex, copy);
         const newPath = copy.toChildIndexPathString();
 
-        editScript.insert(newPath, CpeeNodeFactory.getNode(copy, true), copy.hasChildren());
+        editScript.insert(newPath, NodeFactory.getNode(copy, true), copy.hasChildren());
     }
 
     _update(oldNode, matching, editScript) {
         const newNode = matching.getOld(oldNode);
         const oldPath = oldNode.toChildIndexPathString();
         //during edit script generation, we don't need to update the data/attributes of the match
-        editScript.update(oldPath, CpeeNodeFactory.getNode(newNode, false));
+        editScript.update(oldPath, NodeFactory.getNode(newNode, false));
     }
 }
-
-exports.EditScriptGenerator = EditScriptGenerator;

@@ -14,25 +14,21 @@
    limitations under the License.
 */
 
-const execSync = require('child_process').execSync;
-const assert = require("assert");
-const fs = require("fs");
-const xmldom = require("xmldom");
-const {TestConfig} = require("../TestConfig");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../src/Config");
-const {Dsl} = require("../../src/Dsl");
-const {MatchDiff} = require("../../src/diff/MatchDiff");
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {TestConfig} from "../TestConfig.js";
+import fs from "fs";
+import {DiffTestResult} from "./DiffTestResult.js";
+import xmldom from "xmldom";
+import {execSync} from "child_process";
 
-class DeltaJsAdapter {
+export class DeltaJsAdapter {
 
     evalCase(info, oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = TestConfig.DELTAJS_PATH + "/old.xml";
-        const newFilePath = TestConfig.DELTAJS_PATH + "/new.xml";
+        const oldFilePath = TestConfig.DIFFS.DELTAJS.path + "/old.xml";
+        const newFilePath = TestConfig.DIFFS.DELTAJS.path + "/new.xml";
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
@@ -40,10 +36,10 @@ class DeltaJsAdapter {
         let output;
         let time = new Date().getTime();
         try {
-            output = execSync(TestConfig.DELTAJS_PATH + "/run.sh " + oldFilePath + " " + newFilePath).toString();
+            output = execSync(TestConfig.DIFFS.DELTAJS.path + "/run.sh " + oldFilePath + " " + newFilePath).toString();
         } catch (e) {
             //something went wrong...
-            return null;
+            return DiffTestResult.fail(info, TestConfig.DIFFS.DELTAJS.displayName);
         }
         time = new Date().getTime() - time;
 
@@ -53,17 +49,37 @@ class DeltaJsAdapter {
         let deletionCounter = 0;
 
         //parse output
-        //TODO
+        let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
+        //look for delta node that encloses the diff
+        while(delta.localName !== "delta") {
+            delta = delta.nextSibling;
+        }
+        for (let i = 0; i < delta.childNodes.length; i++) {
+            const node = delta.childNodes.item(i);
+            if(node.childNodes != null) {
+                for (let j = 0; j < node.childNodes.length; j++) {
+                    const childNode = node.childNodes.item(j);
+                    if(childNode.localName != null) {
+                        switch (childNode.localName) {
+                            case "move": moveCounter++; break;
+                            case "insert": insertionCounter++; break;
+                            case "remove": deletionCounter++; break;
+                            case "update": updateCounter++; break;
+                        }
+                    }
+                }
+            }
+        }
 
         const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, "Delta.js", time, changesFound, insertionCounter, moveCounter, updateCounter, deletionCounter, output.length)
+        return new DiffTestResult(info, TestConfig.DIFFS.DELTAJS.displayName, time, changesFound, insertionCounter, moveCounter, updateCounter, deletionCounter, output.length)
     }
 
     static register(diffAdapters) {
-        if(fs.existsSync(TestConfig.DELTAJS_PATH + "/run.sh")) {
+        if(fs.existsSync(TestConfig.DIFFS.DELTAJS.path + "/run.sh")) {
             diffAdapters.push(new DeltaJsAdapter());
         }
     }
 }
 
-exports.DeltaJsAdapter = DeltaJsAdapter;
+

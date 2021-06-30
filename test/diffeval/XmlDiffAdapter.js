@@ -14,24 +14,20 @@
    limitations under the License.
 */
 
-const execSync = require('child_process').execSync;
-const assert = require("assert");
-const fs = require("fs");
-const {TestConfig} = require("../TestConfig");
-const {XmlFactory} = require("../../src/factory/XmlFactory");
-const {DiffTestResult} = require("./DiffTestResult");
-const {Config} = require("../../src/Config");
-const {Dsl} = require("../../src/Dsl");
-const {MatchDiff} = require("../../src/diff/MatchDiff");
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {TestConfig} from "../TestConfig.js";
+import fs from "fs";
+import {DiffTestResult} from "./DiffTestResult.js";
+import {execSync} from "child_process";
 
-class XmlDiffAdapter {
+export class XmlDiffAdapter {
 
     evalCase(info, oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = TestConfig.XMLDIFF_PATH + "/old.xml";
-        const newFilePath = TestConfig.XMLDIFF_PATH + "/new.xml";
+        const oldFilePath = TestConfig.DIFFS.XMLDIFF.path + "/old.xml";
+        const newFilePath = TestConfig.DIFFS.XMLDIFF.path + "/new.xml";
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
@@ -41,8 +37,8 @@ class XmlDiffAdapter {
         try {
             output = execSync("xmldiff " + oldFilePath + " " + newFilePath).toString();
         } catch (e) {
-            //something went wrong, not test result available
-            return null;
+            //something went wrong, no test result available
+            return DiffTestResult.fail(info, TestConfig.DIFFS.XMLDIFF.displayName)
         }
         time = new Date().getTime() - time;
 
@@ -70,14 +66,14 @@ class XmlDiffAdapter {
         }
 
         const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, "XmlDiff", time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length)
+        return new DiffTestResult(info, TestConfig.DIFFS.XMLDIFF.displayName, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length)
     }
 
     static register(diffAdapters) {
-        if(fs.existsSync(TestConfig.XMLDIFF_PATH)) {
+        if(fs.existsSync(TestConfig.DIFFS.XMLDIFF.path)) {
             diffAdapters.push(new XmlDiffAdapter());
         }
     }
 }
 
-exports.XmlDiffAdapter = XmlDiffAdapter;
+

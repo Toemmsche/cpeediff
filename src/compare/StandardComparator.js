@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
-const {CallPropertyExtractor} = require("../extract/CallPropertyExtractor");
-const {Config} = require("../Config");
-const {SizeExtractor} = require("../extract/SizeExtractor");
-const {Dsl} = require("../Dsl");
-const {VariableExtractor} = require("../extract/VariableExtractor");
-const {Lcs} = require("../lib/Lcs");
-const {AbstractComparator} = require("./AbstractComparator");
+import {CallPropertyExtractor} from "../extract/CallPropertyExtractor.js";
+import {VariableExtractor} from "../extract/VariableExtractor.js";
+import {SizeExtractor} from "../extract/SizeExtractor.js";
+import {Dsl} from "../Dsl.js";
+import {Lcs} from "../lib/Lcs.js";
+import {Config} from "../Config.js";
+import {AbstractComparator} from "./AbstractComparator.js";
 
-class StandardComparator extends AbstractComparator {
+export class StandardComparator extends AbstractComparator {
 
     callPropertyExtractor;
     variableExtractor;
@@ -191,5 +191,3 @@ class StandardComparator extends AbstractComparator {
 
     }
 }
-
-exports.StandardComparator = StandardComparator

@@ -14,19 +14,19 @@
    limitations under the License.
 */
 
-const {CpeeNodeFactory} = require("./CpeeNodeFactory");
-const {DeltaNode} = require("../cpee/DeltaNode");
-const {AbstractNodeFactory} = require("./AbstractNodeFactory");
+import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
+import {NodeFactory} from "./NodeFactory.js";
+import {DeltaNode} from "../tree/DeltaNode.js";
 
-class DeltaNodeFactory extends AbstractNodeFactory{
+export class DeltaNodeFactory extends AbstractNodeFactory{
 
-    static _fromCpeeNode(cpeeNode, includeChildNodes) {
-        const deltaNode = new DeltaNode(cpeeNode.label, cpeeNode.data);
-        for (const [key, value] of cpeeNode.attributes) {
+    static _fromNode(node, includeChildNodes) {
+        const deltaNode = new DeltaNode(node.label, node.data);
+        for (const [key, value] of node.attributes) {
             deltaNode.attributes.set(key, value);
         }
         if (includeChildNodes) {
-            for (const child of cpeeNode) {
+            for (const child of node) {
                 deltaNode.appendChild(this.getNode(child, includeChildNodes))
             }
         }
@@ -34,7 +34,7 @@ class DeltaNodeFactory extends AbstractNodeFactory{
     }
 
     static _fromDeltaNode(deltaNode, includeChildNodes) {
-        const copy = this._fromCpeeNode(deltaNode, includeChildNodes);
+        const copy = this._fromNode(deltaNode, includeChildNodes);
         copy.changeType = deltaNode.changeType;
         copy.baseNode = deltaNode.baseNode;
         for (const [key, change] of deltaNode.updates) {
@@ -49,13 +49,10 @@ class DeltaNodeFactory extends AbstractNodeFactory{
     }
 
     static _fromXmlString(xml, includeChildNodes) {
-       return this._fromCpeeNode(CpeeNodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
+       return this._fromNode(NodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
     }
 
     static _fromXmlDom(xmlElement, includeChildNodes) {
-        return this._fromCpeeNode(CpeeNodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
+        return this._fromNode(NodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
     }
-
 }
-
-exports.DeltaNodeFactory = DeltaNodeFactory;

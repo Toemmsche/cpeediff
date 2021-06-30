@@ -14,17 +14,15 @@
    limitations under the License.
 */
 
-const fs = require("fs");
-const {Preprocessor} = require("../src/parse/Preprocessor");
-const {CpeeModel} = require("../src/cpee/CpeeModel");
+import {Preprocessor} from "../src/parse/Preprocessor.js";
 
-class TestRepository {
+export class TestRepository {
 
-    static _bookingModel =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
+    static _bookingTree =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
 
-    static bookingModel() {
-        return this._bookingModel.copy(true);
+    static bookingTree() {
+        return this._bookingTree.copy(true);
     }
 }
 
-exports.TestRepository = TestRepository;
+

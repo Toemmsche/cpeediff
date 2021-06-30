@@ -14,11 +14,7 @@
    limitations under the License.
 */
 
-const assert = require("assert");
-const fs = require("fs");
-const {IdExtractor} = require("../../src/extract/IdExtractor");
-
-class AggregateMatchResult {
+export class AggregateMatchResult {
 
     algorithmName;
     okCount;
@@ -34,4 +30,4 @@ class AggregateMatchResult {
     }
 }
 
-exports.AggregateMatchResult = AggregateMatchResult;
+
