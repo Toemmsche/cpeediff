@@ -14,20 +14,33 @@
    limitations under the License.
 */
 
+import xmldom from "xmldom";
+import {EditScript} from "../editscript/EditScript.js";
+import {ChangeFactory} from "./ChangeFactory.js";
+
 export class EditScriptFactory {
 
     static getEditScript(source) {
         switch (source.constructor) {
-            case String: return this._fromXml(source);
-            default: return this._fromXmlDom(source);
+            case String:
+                return this._fromXml(source);
+            default:
+                return this._fromXmlDom(source);
         }
     }
 
-    static _fromXmlDom(xmlDom) {
-       //TODO
+    static _fromXmlDom(xmlElement) {
+        const editScript = new EditScript();
+        for (let i = 0; i < xmlElement.childNodes.length; i++) {
+            const childNode = xmlElement.childNodes.item(i);
+            if (childNode.nodeType === 1) {
+                editScript.changes.push(ChangeFactory._fromXmlDom(childNode));
+            }
+        }
+        return editScript;
     }
 
-    static _fromXml(source) {
-        //TODO
+    static _fromXml(xml) {
+        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml").firstChild);
     }
 }

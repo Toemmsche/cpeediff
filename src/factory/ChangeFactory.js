@@ -16,6 +16,7 @@
 
 import {NodeFactory} from "./NodeFactory.js";
 import {Change} from "../editscript/Change.js";
+import xmldom from "xmldom";
 
 export class ChangeFactory {
 
@@ -26,11 +27,11 @@ export class ChangeFactory {
         }
     }
 
-    static _fromXmlDom(xmlDom) {
-        const [changeType, oldPath, newPath] = [xmlDom.localName, xmlDom.attributes.get("oldPath"), xmlDom.attributes.get("newPath")];
+    static _fromXmlDom(xmlElement) {
+        const [changeType, oldPath, newPath] = [xmlElement.localName, xmlElement.attributes.getNamedItem("oldPath"), xmlElement.attributes.getNamedItem("newPath")];
         let newData;
-        for (let i = 0; i <xmlDom.childNodes.length ; i++) {
-            const childTNode = xmlDom.childNodes.item(i);
+        for (let i = 0; i <xmlElement.childNodes.length ; i++) {
+            const childTNode = xmlElement.childNodes.item(i);
 
             if(childTNode.localName === "newData") {
                 newData = NodeFactory.getNode(childTNode, true);
@@ -39,7 +40,7 @@ export class ChangeFactory {
         return new Change(changeType, oldPath, newPath, newData);
     }
 
-    static _fromXml(source) {
-        //TODO
+    static _fromXml(xml) {
+        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml"));
     }
 }

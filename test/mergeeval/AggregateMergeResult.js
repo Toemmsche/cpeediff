@@ -14,13 +14,20 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+export class AggregateMergeResult {
 
-export class XccAdapter extends AbstractDiffAdapter{
+    algorithmName;
+    ok;
+    acceptable
+    wrongAnswer;
+    runtimeError;
 
-    constructor() {
-        super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+    constructor(algorithmName, ok, acceptable, wrongAnswer, runtimeError) {
+        this.algorithmName = algorithmName;
+        this.ok = ok;
+        this.acceptable = acceptable;
+        this.wrongAnswer = wrongAnswer;
+        this.runtimeError = runtimeError;
     }
 }
 

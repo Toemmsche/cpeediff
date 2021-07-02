@@ -14,16 +14,17 @@
    limitations under the License.
 */
 
-import {Node} from "../tree/Node.js"
 import {DeltaMerger} from "../../src/merge/DeltaMerger.js";
 import {TestConfig} from "../TestConfig.js";
 import {MergeTestResult} from "./MergeTestResult.js";
+import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
 
-export class OurMergeAdapter {
+export class CpeeMergeAdapter extends AbstractMergeAdapter {
 
     mergeAlgorithm;
 
     constructor() {
+        super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
         this.mergeAlgorithm = new DeltaMerger();
     }
 
@@ -39,13 +40,14 @@ export class OurMergeAdapter {
         if (verdict === TestConfig.VERDICTS.OK) {
             verdict = this._verifyResult(merged, expected, accepted);
         }
-        return new MergeTestResult(name, "DeltaMerge", verdict);
+        return new MergeTestResult(name, this.displayName, verdict);
     }
 
-    _verifyResult(actual, expected, accepted) {
-        if (expected.some(t => t.deepEquals(actual))) {
+    _verifyResult(output, expected, accepted) {
+        //TODO disregard child order where applicable
+        if (expected.some(t => t.deepEquals(output))) {
             return TestConfig.VERDICTS.OK;
-        } else if(accepted.some(t => t.deepEquals(actual))) {
+        } else if (accepted.some(t => t.deepEquals(output))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;

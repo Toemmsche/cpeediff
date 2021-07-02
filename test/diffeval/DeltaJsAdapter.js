@@ -63,12 +63,6 @@ export class DeltaJsAdapter extends AbstractDiffAdapter{
         }
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
-
-    static register(diffAdapters) {
-        if (fs.existsSync(TestConfig.DIFFS.DELTAJS.path + "/run.sh")) {
-            diffAdapters.push(new DeltaJsAdapter());
-        }
-    }
 }
 
 

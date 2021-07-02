@@ -1,15 +1,13 @@
+
+import {MergeAlgorithmEvaluation} from "./test/mergeeval/MergeAlgorithmEvaluation.js";
 import {DiffAlgorithmEvaluation} from "./test/diffeval/DiffAlgorithmEvaluation.js";
-import {OurDiffAdapter} from "./test/diffeval/OurDiffAdapter.js";
-import {XmlDiffAdapter} from "./test/diffeval/XmlDiffAdapter.js";
-import {DiffXmlAdapter} from "./test/diffeval/DiffXmlAdapter.js";
-import {DeltaJsAdapter} from "./test/diffeval/DeltaJsAdapter.js";
-import {XccAdapter} from "./test/diffeval/XccAdapter.js";
+
 
 //new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-new DiffAlgorithmEvaluation([new OurDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()]).evalAll();
+DiffAlgorithmEvaluation.all().evalAll();
 
-//new MergeAlgorithmEvaluation([new OurMergeAdapter(), new _3dmMergeAdapter()]).evalAll();
+//MergeAlgorithmEvaluation.all().evalAll();
 
 /*
 const diff = new OurDiffAdapter();

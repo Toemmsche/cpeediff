@@ -17,7 +17,11 @@
 import {TestConfig} from "../TestConfig.js";
 import {Preprocessor} from "../../src/parse/Preprocessor.js";
 import * as fs from "fs";
-import {AggregateMergeResult} from "./AggregateMatchResult.js";
+import {AggregateMergeResult} from "./AggregateMergeResult.js";
+import {MarkDownFactory} from "../MarkDownFactory.js";
+import {_3dmAdapter} from "./_3dmAdapter.js";
+import {CpeeMergeAdapter} from "./CpeeMergeAdapter.js";
+import {XccPatchAdapter} from "./XccPatchAdapter.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -27,12 +31,20 @@ export class MergeAlgorithmEvaluation {
         this.adapters = adapters;
     }
 
+    static all() {
+        let adapters = [new _3dmAdapter(), new XccPatchAdapter()];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
+        adapters.unshift(new CpeeMergeAdapter());
+        return new MergeAlgorithmEvaluation(adapters);
+    }
+
     evalAll(caseDir = TestConfig.MERGE_CASES_DIR) {
         console.log("Using " + caseDir + " to evaluate merge algorithms");
 
-        const results = new Map();
+        const resultsPerAdapter = new Map();
+        const resultsPerTest = new Map();
         for (const adapter of this.adapters) {
-            results.set(adapter, []);
+            resultsPerAdapter.set(adapter, []);
         }
 
         const parser = new Preprocessor();
@@ -63,33 +75,38 @@ export class MergeAlgorithmEvaluation {
                 return;
             }
 
+            resultsPerTest.set(dir, []);
             for (const adapter of this.adapters) {
-                results.get(adapter).push(adapter.evalCase(dir, base, branch1, branch2, expected, accepted));
+                console.log("Running merge case " + dir + " for " + adapter.displayName);
+
+                const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
+                resultsPerAdapter.get(adapter).push(result);
+                resultsPerTest.get(dir).push(result);
             }
 
         });
 
-        for(const [adapter, resultsList] of results) {
+        const aggregateResults = [];
+        for (const [adapter, resultsList] of resultsPerAdapter) {
             let okCount = 0;
             let acceptableCount = 0;
             let wrongAnswerCount = 0;
             let runtimeErrorCount = 0;
-            for(const result of resultsList) {
-                if(result.verdict === TestConfig.VERDICTS.OK) {
+            for (const result of resultsList) {
+                if (result.verdict === TestConfig.VERDICTS.OK) {
                     okCount++;
-                } else if(result.verdict === TestConfig.VERDICTS.ACCEPTABLE) {
+                } else if (result.verdict === TestConfig.VERDICTS.ACCEPTABLE) {
                     acceptableCount++;
-                } else if(result.verdict === TestConfig.VERDICTS.WRONG_ANSWER) {
+                } else if (result.verdict === TestConfig.VERDICTS.WRONG_ANSWER) {
                     wrongAnswerCount++;
-                } else if(result.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
+                } else if (result.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
                     runtimeErrorCount++;
                 }
             }
 
-            const aggregateResult = new AggregateMergeResult(adapter.constructor.name, okCount, acceptableCount, wrongAnswerCount, runtimeErrorCount);
-
-            console.log(aggregateResult);
+            aggregateResults.push(new AggregateMergeResult(adapter.displayName, okCount, acceptableCount, wrongAnswerCount, runtimeErrorCount));
         }
+        console.log(MarkDownFactory.tabularize(aggregateResults));
     }
 
 

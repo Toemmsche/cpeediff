@@ -14,21 +14,13 @@
    limitations under the License.
 */
 
-export class AggregateMergeResult {
+import {TestConfig} from "../TestConfig.js";
+import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
 
-    algorithmName;
-    okCount;
-    acceptableCount
-    wrongAnswerCount;
-    runtimeErrorCount;
+export class _3dmAdapter extends AbstractMergeAdapter  {
 
-
-    constructor(algorithmName, okCount, acceptableCount, wrongAnswerCount, runtimeErrorCount) {
-        this.algorithmName = algorithmName;
-        this.okCount = okCount;
-        this.acceptableCount = acceptableCount;
-        this.wrongAnswerCount = wrongAnswerCount;
-        this.runtimeErrorCount = runtimeErrorCount;
+    constructor() {
+        super(TestConfig.MERGES._3DM.path, TestConfig.MERGES._3DM.displayName);
     }
 }
 

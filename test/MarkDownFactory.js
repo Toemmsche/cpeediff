@@ -14,21 +14,20 @@
    limitations under the License.
 */
 
-import {DiffTestResult} from "./diffeval/DiffTestResult.js";
-import {markdownTable} from "./MarkDownTable.js";
+import {markdownTable} from "markdown-table";
 
 export class MarkDownFactory {
 
     static tabularize(sources) {
         if (sources.length > 0) {
             switch (sources[0].constructor) {
-                case DiffTestResult:
-                    return this._tabularizeDiffTestResult(sources);
+                default:
+                    return this._tabularizePrimitives(sources);
             }
         }
     }
 
-    static _tabularizeDiffTestResult(diffResults) {
+    static _tabularizePrimitives(diffResults) {
         const table = [];
         const header = [];
         for (const property in diffResults[0]) {

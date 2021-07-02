@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "markdown-table": "^3.0.1",
     "murmur-32": "^0.2.0",
     "node": "^16.4.0",
     "vkbeautify": "^0.99.3",

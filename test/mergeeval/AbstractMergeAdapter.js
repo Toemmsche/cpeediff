@@ -14,48 +14,55 @@
    limitations under the License.
 */
 
-import {execSync} from "child_process";
+import {execFileSync} from "child_process";
 import {XmlFactory} from "../../src/factory/XmlFactory.js";
 import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
 import {MergeTestResult} from "./MergeTestResult.js";
+import {Preprocessor} from "../../src/parse/Preprocessor.js";
 
-export class _3dmMergeAdapter {
+export class AbstractMergeAdapter {
 
-    evalCase(name, base, branch1, branch2, expected, accepted) {
+    pathPrefix;
+    displayName;
 
-        const pathPrefix = TestConfig.MERGES._3DM.path;
-        const displayName = TestConfig.MERGES._3DM.displayName
+    constructor(pathPrefix, displayName) {
+        this.pathPrefix = pathPrefix;
+        this.displayName = displayName;
+    }
 
+    _run(name, base, branch1, branch2) {
         const baseString = XmlFactory.serialize(base);
         const branch1String = XmlFactory.serialize(branch1);
         const branch2String = XmlFactory.serialize(branch2);
 
-        const baseFilePath = pathPrefix + "/base.xml";
-        const branch1Filepath = pathPrefix + "/1.xml";
-        const branch2FilePath = pathPrefix + "/2.xml";
+        const baseFilePath = this.pathPrefix + "/base.xml";
+        const branch1Filepath = this.pathPrefix + "/1.xml";
+        const branch2FilePath = this.pathPrefix + "/2.xml";
 
         fs.writeFileSync(baseFilePath, baseString);
         fs.writeFileSync(branch1Filepath, branch1String);
         fs.writeFileSync(branch2FilePath, branch2String);
 
-        let verdict = TestConfig.VERDICTS.OK;
         //TODO prettier
-        let mergedXml;
-        try {
-            mergedXml = execSync(pathPrefix + "/run.sh " + baseFilePath + " " + branch1Filepath + " " + branch2FilePath).toString();
-        } catch (e) {
-            //something went wrong...
-            verdict = TestConfig.VERDICTS.RUNTIME_ERROR;
-        }
-        if (verdict === TestConfig.VERDICTS.OK) {
-            const actual = new Preprocessor().parseWithMetadata(mergedXml);
-            verdict = this._verifyResult(actual, expected, accepted);
-        }
-        return new MergeTestResult(name, displayName, verdict);
+        return execFileSync(this.pathPrefix + "/run.sh", [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+
     }
 
-    _verifyResult(actual, expected, accepted) {
+    evalCase(name, base, branch1, branch2, expected, accepted) {
+        let exec;
+        try {
+            exec = this._run(name, base, branch1, branch2);
+        } catch (e) {
+            return new MergeTestResult(name, this.displayName, TestConfig.VERDICTS.RUNTIME_ERROR);
+        }
+
+        return new MergeTestResult(name, this.displayName, this._verifyResult(exec, expected, accepted));
+    }
+
+    _verifyResult(output, expected, accepted) {
+        const actual = new Preprocessor().parseWithMetadata(output);
+        //TODO disregard child order where applicable
         if (expected.some(t => t.deepEquals(actual))) {
             return TestConfig.VERDICTS.OK;
         } else if (accepted.some(t => t.deepEquals(actual))) {

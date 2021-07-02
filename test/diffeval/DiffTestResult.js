@@ -22,23 +22,23 @@ export class DiffTestResult {
     algorithm;
     runtime;
 
-    changesFound;
-    insertionsFound;
-    movesFound;
-    updatesFound;
-    deletesFound;
+    changes;
+    insertions;
+    moves;
+    updates;
+    deletions;
 
     diffSize;
 
-    constructor(info,algorithm, runtime, changesFound, insertionsFound, movesFound, updatesFound, deletesFound, diffSize) {
+    constructor(info,algorithm, runtime, changes, insertions, moves, updates, deletions, diffSize) {
         this.info = info;
         this.algorithm = algorithm;
         this.runtime = runtime;
-        this.changesFound = changesFound;
-        this.insertionsFound = insertionsFound;
-        this.movesFound = movesFound;
-        this.updatesFound = updatesFound;
-        this.deletesFound = deletesFound;
+        this.changes = changes;
+        this.insertions = insertions;
+        this.moves = moves;
+        this.updates = updates;
+        this.deletions = deletions;
         this.diffSize = diffSize;
     }
 

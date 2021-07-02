@@ -15,44 +15,47 @@
 */
 
 import {MatchDiff} from "../../src/diff/MatchDiff.js";
-import {DiffTestResult} from "./DiffTestResult.js";
 import {Config} from "../../src/Config.js";
 import {DeltaTreeGenerator} from "../../src/patch/DeltaModelGenerator.js";
 import {Dsl} from "../../src/Dsl.js";
 import {XmlFactory} from "../../src/factory/XmlFactory.js";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {TestConfig} from "../TestConfig.js";
+import {EditScriptFactory} from "../../src/factory/EditScriptFactory.js";
 
-export class OurDiffAdapter extends AbstractDiffAdapter {
+export class CpeeDiffAdapter extends AbstractDiffAdapter {
 
-    evalCase(info, oldTree, newTree) {
+    constructor() {
+        super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
+    }
+
+    _run(oldTree, newTree) {
+        //TODO child order hash
+        Config.EXACT_EDIT_SCRIPT = true;
         let time = new Date().getTime();
-        let delta;
-        try {
-            delta = new MatchDiff().diff(oldTree, newTree);
-
-        } catch(e) {
-            console.log(e);
-            //no test result available since diff algorithm crashed
-            return DiffTestResult.fail(info, "OurDiff");
-        }
+        const delta = new MatchDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;
-
-        Config.EXACT_EDIT_SCRIPT  =true;
         //verify the correctness of our diff by patching the original tree with it
         const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);
-        const correctDiff = deltaTree.deepEquals(newTree);
-
-        if(!correctDiff) {
-            //signal failure
-            return null;
+        if (!deltaTree.deepEquals(newTree)) {
+            throw new Error();
         }
+        return {
+            output: XmlFactory.serialize(delta),
+            runtime: time
+        };
+    }
 
+    _parseOutput(output) {
         let updateCounter = 0;
         let insertionCounter = 0;
         let moveCounter = 0;
         let deletionCounter = 0;
-        for(const change of delta.changes) {
-            switch(change.changeType) {
+
+        //parse output
+        let delta = EditScriptFactory.getEditScript(output);
+        for (const change of delta.changes) {
+            switch (change.changeType) {
                 case Dsl.CHANGE_TYPES.INSERTION:
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
                     insertionCounter++;
@@ -69,13 +72,7 @@ export class OurDiffAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
-        const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        const diffSize = XmlFactory.serialize(delta).length;
-        return new DiffTestResult(info, "OurDiffAlgorithm", time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, diffSize )
-    }
-
-    static register(diffAdapters) {
-        diffAdapters.push(new OurDiffAdapter());
+        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }
 

@@ -24,12 +24,6 @@ export class XmlDiffAdapter extends AbstractDiffAdapter {
         super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);
     }
 
-    static register(diffAdapters) {
-        if (fs.existsSync(TestConfig.DIFFS.XMLDIFF.path)) {
-            diffAdapters.push(new XmlDiffAdapter());
-        }
-    }
-
     _parseOutput(output) {
         let updateCounter = 0;
         let insertionCounter = 0;

@@ -15,12 +15,12 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
 
-export class XccAdapter extends AbstractDiffAdapter{
+export class XccPatchAdapter extends AbstractMergeAdapter  {
 
     constructor() {
-        super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+        super(TestConfig.MERGES.XCC.path, TestConfig.MERGES.XCC.displayName);
     }
 }
 

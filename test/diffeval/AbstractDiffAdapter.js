@@ -31,10 +31,6 @@ export class AbstractDiffAdapter {
         this.displayName = displayName;
     }
 
-    static register(diffAdapters) {
-
-    }
-
     _run(oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
@@ -45,19 +41,12 @@ export class AbstractDiffAdapter {
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
 
-        let output;
         let time = new Date().getTime();
-        try {
-            output = execFileSync(this.pathPrefix + "/run.sh", [oldFilePath, newFilePath], {timeout: TestConfig.EXECUTION_TIMEOUT}).toString();
-        } catch (e) {
-            return e;
-        }
-        time = new Date().getTime() - time;
-
         return {
-            runtime: time,
-            output: output
+            output:execFileSync(this.pathPrefix + "/run.sh", [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            runtime: new Date().getTime() - time
         }
+
     }
 
     _parseOutput(output) {
@@ -95,10 +84,12 @@ export class AbstractDiffAdapter {
     }
 
     evalCase(info, oldTree, newTree) {
-        const exec = this._run(oldTree, newTree);
-        //check if timeout or runtime error
-        if (exec instanceof Error) {
-            if (exec.code === "ETIMEDOUT") {
+        let exec;
+        try {
+            exec = this._run(oldTree, newTree);
+        } catch (e) {
+            //check if timeout or runtime error
+            if (e.code === "ETIMEDOUT") {
                 return DiffTestResult.timeout(info, this.displayName);
             } else {
                 return DiffTestResult.fail(info, this.displayName)

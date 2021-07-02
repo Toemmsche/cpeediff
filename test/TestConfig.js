@@ -20,8 +20,10 @@ export class TestConfig {
     static DIFF_CASES_DIR = "test/test_set/diff_cases";
     static MERGE_CASES_DIR = "test/test_set/merge_cases";
 
-    //Individual tests have 30s to finish
-    static EXECUTION_TIMEOUT = 30000;
+    static EXECUTION_OPTIONS = {
+        timeout: 30000, //30s
+        maxBuffer: 100 * 1024 * 1024 //100 MiB
+    }
     static VERDICTS = {
         OK: "OK",
         ACCEPTABLE: "ACCEPTABLE",
@@ -32,6 +34,10 @@ export class TestConfig {
     }
 
     static DIFFS = {
+        CPEEDIFF: {
+            displayName: "CpeeDiff",
+            path: ""
+        },
         XMLDIFF: {
             displayName: "XmlDiff",
             path: "/home/tom/Documents/xml_diff_algos/XmlDiff"
@@ -45,15 +51,24 @@ export class TestConfig {
             path: "/home/tom/Documents/xml_diff_algos/deltajs"
         },
         XCC: {
-            displayName: "XCC",
+            displayName: "XCC Diff",
             path: "/home/tom/Documents/xml_diff_algos/xcc"
-        }
+        },
+
     }
 
     static MERGES = {
+        CPEEMERGE: {
+            displayName: "CpeeMerge",
+            path: ""
+        },
         _3DM: {
             displayName: "3DM",
-            path:"/home/tom/Documents/xml_diff_algos/3dm"
+            path: "/home/tom/Documents/xml_merge_algos/3dm"
+        },
+        XCC: {
+            displayName: "XCC Diff & Patch",
+            path: "/home/tom/Documents/xml_merge_algos/xcc"
         }
     }
 

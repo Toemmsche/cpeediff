@@ -19,7 +19,7 @@
 
 const yargs = require("yargs");
 const fs = require("fs");
-const {OurDiffAdapter} = require("./test/diffeval/OurDiffAdapter");
+const {CpeeDiffAdapter} = require("./test/diffeval/OurDiffAdapter");
 const {DiffAlgorithmEvaluation} = require("./test/diffeval/DiffAlgorithmEvaluation");
 const {XmlFactory} = require("./src/factory/XmlFactory");
 const {DeltaJsAdapter} = require("./test/diffeval/DeltaJsAdapter");
@@ -122,7 +122,7 @@ const argv = yargs
         if(argv.suite === "all" || argv.suite === "diff") {
             //ensure the existence of the algorithms to be compared against
             const diffAdapters = [];
-            OurDiffAdapter.register(diffAdapters);
+            CpeeDiffAdapter.register(diffAdapters);
             XmlDiffAdapter.register(diffAdapters);
             DiffXmlAdapter.register(diffAdapters);
             DeltaJsAdapter.register(diffAdapters);

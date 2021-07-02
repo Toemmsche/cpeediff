@@ -9,8 +9,9 @@
 //      run profiler and write tests
 //      confidence level for merging
 //      problem export classes
-//      use multiple expected to evaluate merging accuracy
 //      use callpath in run scripts
+//      use caseDir as member variable
+//      further reduce duplicate code amond evaluator
 
 
 /*

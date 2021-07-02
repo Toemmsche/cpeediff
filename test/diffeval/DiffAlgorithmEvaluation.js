@@ -21,6 +21,11 @@ import {TreeGenerator} from "../../src/gen/TreeGenerator.js";
 import {GeneratorParameters} from "../../src/gen/GeneratorParameters.js";
 import {DiffTestInfo} from "./DiffTestInfo.js";
 import {MarkDownFactory} from "../MarkDownFactory.js";
+import {CpeeDiffAdapter} from "./CpeeDiffAdapter.js";
+import {XmlDiffAdapter} from "./XmlDiffAdapter.js";
+import {DiffXmlAdapter} from "./DiffXmlAdapter.js";
+import {DeltaJsAdapter} from "./DeltaJsAdapter.js";
+import {XccAdapter} from "./XccAdapter.js";
 
 export class DiffAlgorithmEvaluation {
 
@@ -28,6 +33,13 @@ export class DiffAlgorithmEvaluation {
 
     constructor(adapters = []) {
         this.adapters = adapters;
+    }
+
+    static all() {
+        let adapters = [new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
+        adapters.unshift(new CpeeDiffAdapter());
+        return new DiffAlgorithmEvaluation(adapters);
     }
 
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
@@ -55,7 +67,7 @@ export class DiffAlgorithmEvaluation {
 
                 switch(dir) {
                     case "gen_leaves_only_shuffled":  {
-                        console.log("Generating process tree with only leaves of size " + genParams.maxSize + "...");
+                        console.log("Generating process tree with only leaves of size " + genParams.maxSize);
                         oldTree = treeGen.randomLeavesOnly();
                         const changedInfo = treeGen.reshuffleAll(oldTree);
                         newTree = changedInfo.tree;
@@ -63,7 +75,7 @@ export class DiffAlgorithmEvaluation {
                         break;
                     }
                     default: {
-                        console.log("Generating random process tree of size " + genParams.maxSize + "...");
+                        console.log("Generating random process tree of size " + genParams.maxSize);
                         oldTree = treeGen.randomTree();
                         const changedInfo = treeGen.changeTree(oldTree, genParams.numChanges);
                         newTree = changedInfo.tree;
@@ -94,7 +106,7 @@ export class DiffAlgorithmEvaluation {
 
             resultsPerTest.set(testInfo, []);
             for (const adapter of this.adapters) {
-                console.log("Running case " + testInfo.name + " for " + adapter.constructor.name);
+                console.log("Running diff case " + testInfo.name + " for " + adapter.displayName);
 
                 const result = adapter.evalCase(testInfo, oldTree, newTree);
                 resultsPerAdapter.get(adapter).push(result);

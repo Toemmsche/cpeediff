@@ -47,6 +47,7 @@
 
 
 //TODO bugs
+//      robus against processing instruction (delta not first child)
 //      add null checks for appropriate methods
 //      edit script not applicable
 //      robustness against indentation and newlines/whitespaces

@@ -15,10 +15,8 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import fs from "fs";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
-import {XmlFactory} from "../../src/factory/XmlFactory.js";
-import {execFileSync} from "child_process";
+import {DiffTestResult} from "./DiffTestResult.js";
 
 export class DiffXmlAdapter extends AbstractDiffAdapter {
 
@@ -26,43 +24,32 @@ export class DiffXmlAdapter extends AbstractDiffAdapter {
         super(TestConfig.DIFFS.DIFFXML.path, TestConfig.DIFFS.DIFFXML.displayName);
     }
 
-    _run(oldTree, newTree) {
-        const oldTreeString = XmlFactory.serialize(oldTree);
-        const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = this.pathPrefix + "/old.xml";
-        const newFilePath = this.pathPrefix + "/new.xml";
 
-        fs.writeFileSync(oldFilePath, oldTreeString);
-        fs.writeFileSync(newFilePath, newTreeString);
-
-        let output;
+    evalCase(info, oldTree, newTree) {
+        let exec = {};
         let time = new Date().getTime();
         try {
-            output = execFileSync(this.pathPrefix + "/run.sh", [oldFilePath, newFilePath], {timeout: TestConfig.EXECUTION_TIMEOUT}).toString();
+            exec = this._run(oldTree, newTree);
         } catch (e) {
-            //for some reason, diffxml always returns raises an error even if the execution finished normally
-            if(e.code !== "ETIMEDOUT" && e.output != null && e.output !== "") {
-                output = e.output.toString();
+            time = new Date().getTime() - time
+            //For some reason, diffxml returns error even though the program executed
+            if (e.code === "ETIMEDOUT") {
+                return DiffTestResult.timeout(info, this.displayName);
             } else {
-                return e;
+                if(e.output[1].length > 0) {
+                    exec.output = e.output[1].toString();
+                    exec.runtime = time;
+                } else {
+                    return DiffTestResult.fail(info, this.displayName);
+                }
             }
-
         }
-        time = new Date().getTime() - time;
-
-        return {
-            runtime: time,
-            output: output
-        }
+        const counters = this._parseOutput(exec.output);
+        const changesFound = counters.reduce((a, b) => a + b, 0);
+        return new DiffTestResult(info, this.displayName, exec.runtime, changesFound, ...counters, exec.output.length)
     }
 
-
-    static register(diffAdapters) {
-        if(fs.existsSync(TestConfig.DIFFS.DIFFXML.path + "/run.sh")) {
-            diffAdapters.push(new DiffXmlAdapter());
-        }
-    }
 }
 
 

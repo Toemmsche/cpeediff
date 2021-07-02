@@ -18,6 +18,7 @@ import {Node} from "../tree/Node.js"
 import fs from "fs";
 import {NodeFactory} from "../factory/NodeFactory.js";
 import {Dsl} from "../Dsl.js";
+import xmldom from "xmldom";
 
 export class Preprocessor {
 
@@ -31,7 +32,7 @@ export class Preprocessor {
         const dataElements = new Map();
 
         //Parse options
-        let doc = new DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
+        let doc = new xmldom.DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
 
         while (doc.nodeType !== 1) {
             doc = doc.nextSibling;

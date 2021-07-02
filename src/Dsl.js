@@ -111,8 +111,8 @@ export class Dsl {
         //TODO turn into objects with more info (e.g. namespaces)
         INSERTION: "INSERT",
         DELETION: "DELETE",
-        SUBTREE_INSERTION: "INSERT SUBTREE",
-        SUBTREE_DELETION: "DELETE SUBTREE",
+        SUBTREE_INSERTION: "INSERT_SUBTREE",
+        SUBTREE_DELETION: "DELETE_SUBTREE",
         MOVE_TO: "MOVE_TO",
         MOVE_FROM: "MOVE_FROM",
         UPDATE: "UPDATE",
