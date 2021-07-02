@@ -20,7 +20,7 @@ import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
 export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
-        //TODO speed this up if large parts are unmatched
+        //TODO speed this up if large parts are matched
         for (const [newNode, oldNode] of matching.newToOldMap) {
             //TODO use method similar to 3DM, pathmatching for now
 

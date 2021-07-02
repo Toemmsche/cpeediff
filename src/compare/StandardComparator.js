@@ -63,21 +63,23 @@ export class StandardComparator extends AbstractComparator {
         let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
         if (nodeProps.hasLabel() && otherProps.hasLabel() && nodeProps.label !== otherProps.label) {
             //TODO maybe use LCS, too
-            endPointComparisonValue += 0.1;
+            endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
         }
         if (nodeProps.method !== otherProps.method) {
-            endPointComparisonValue = Math.min(endPointComparisonValue + 0.1, 1);
+            endPointComparisonValue = Math.min(endPointComparisonValue + Config.COMPARATOR.METHOD_PENALTY, 1);
         }
 
         let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, endPointComparisonValue);
         let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
 
         //endpoint and modified variables have higher weight
-        let contentCompareValue = endPointComparisonValue * 0.6 + modifiedVariablesComparisonValue * 0.25 + readVariablesComparisonValue * 0.15;
+        let contentCompareValue = endPointComparisonValue * Config.COMPARATOR.CALL_ENDPOINT_WEIGHT
+            + modifiedVariablesComparisonValue * Config.COMPARATOR.CALL_MODVAR_WEIGHT
+            + readVariablesComparisonValue * Config.COMPARATOR.CALL_READVAR_WEIGHT;
 
         //small penalty for code string inequality
         if (nodeProps.code !== otherProps.code) {
-            contentCompareValue += 0.01;
+            contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
         }
 
         return contentCompareValue;
@@ -95,11 +97,11 @@ export class StandardComparator extends AbstractComparator {
         let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, 1);
         let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, modifiedVariablesComparisonValue);
 
-        let contentCompareValue = 0.7 * modifiedVariablesComparisonValue + 0.3 * readVariablesComparisonValue;
+        let contentCompareValue = Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT * modifiedVariablesComparisonValue + Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT * readVariablesComparisonValue;
 
         //small penalty for code string inequality
         if (node.data !== other.data) {
-            contentCompareValue += 0.01;
+            contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
         }
 
         return contentCompareValue;
@@ -136,7 +138,7 @@ export class StandardComparator extends AbstractComparator {
 
     structCompare(node, other) {
         //TODO maybe use contentEquals()
-        let compareLength = Config.PATH_COMPARE_RANGE;
+        let compareLength = Config.COMPARATOR.PATH_COMPARE_RANGE;
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
         compareLength = Math.max(nodePathSlice.length, otherPathSlice.length);
@@ -187,7 +189,6 @@ export class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        return 0.8 * this.contentCompare(node, other) + 0.2 * this.structCompare(node, other);
-
+        return Config.COMPARATOR.CONTENT_WEIGHT * this.contentCompare(node, other) + Config.COMPARATOR.STRUCTURE_WEIGHT * this.structCompare(node, other);
     }
 }

@@ -21,7 +21,7 @@ export class TestConfig {
     static MERGE_CASES_DIR = "test/test_set/merge_cases";
 
     static EXECUTION_OPTIONS = {
-        timeout: 120000, //30s
+        timeout: 30000, //30s
         maxBuffer: 100 * 1024 * 1024 //100 MiB
     }
     static VERDICTS = {

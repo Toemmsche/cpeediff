@@ -15,10 +15,24 @@
 */
 
 export class Config {
+    static COMPARATOR = {
+        PATH_COMPARE_RANGE: 5,
+        CALL_ENDPOINT_WEIGHT: 0.6,
+        CALL_MODVAR_WEIGHT: 0.25,
+        CALL_READVAR_WEIGHT: 0.15,
+        EPSILON_PENALTY: 0.01,
+        LABEL_PENALTY: 0.1,
+        METHOD_PENALTY: 0.1,
+        MANIPULATE_MODVAR_WEIGHT: 0.7,
+        MANIPULATE_READVAR_WEIGHT: 0.3,
+        CONTENT_WEIGHT: 0.8,
+        STRUCTURE_WEIGHT: 0.2
+    }
+
+
     static LEAF_SIMILARITY_THRESHOLD = 0.25;
     static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
 
-    static PATH_COMPARE_RANGE = 5;
 
     static EXACT_EDIT_SCRIPT = false;
 }
