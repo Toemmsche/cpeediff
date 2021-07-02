@@ -21,24 +21,17 @@ import {GeneratorParameters} from "../gen/GeneratorParameters.js";
 import {XmlFactory} from "../factory/XmlFactory.js";
 import {MatchDiff} from "../diff/MatchDiff.js";
 import fs from "fs";
-
-NodeFactory.getNode(new Node("label"));
-
-let file1 = process.argv[2];
-let file2 = process.argv[3];
-let file3 = process.argv[4];
+import {Preprocessor} from "../parse/Preprocessor.js";
 
 let booking = "test/test_set/examples/booking.xml";
 
-const xmlA = fs.readFileSync(file1).toString();
-const xmlB = fs.readFileSync(file2).toString();
-const xmlC = fs.readFileSync(file3).toString();
 
 const  b = fs.readFileSync(booking).toString();
+const bm = new Preprocessor().parseWithMetadata(b);
 
 
 
-let gen = new TreeGenerator(new GeneratorParameters(10000, 10, 25, 8));
+let gen = new TreeGenerator(new GeneratorParameters(10, 10, 25, 8));
 
 
 const r = gen.randomLeavesOnly();
@@ -47,12 +40,7 @@ console.log("leafs: " + r.leaves().length);
 console.log("inners: " + r.innerNodes().length);
 console.log("properties: " + r.toPreOrderArray().filter(n => n.isPropertyNode()).length);
 
-const shuffled = gen.reshuffleAll(r).tree;
-
-console.log(XmlFactory.serialize(r));
-console.log(XmlFactory.serialize(shuffled));
-
-console.log(XmlFactory.serialize(new MatchDiff().diff(r, shuffled)));
+console.log(XmlFactory.serialize(new MatchDiff().diff(r, bm)));
 
 const r2 = gen.changeTree(r, 10).tree;
 

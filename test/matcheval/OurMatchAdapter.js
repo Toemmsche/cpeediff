@@ -18,7 +18,7 @@ import {SizeExtractor} from "../../src/extract/SizeExtractor.js";
 import {TestConfig} from "../TestConfig.js";
 import {MatchPipeline} from "../../src/matching/MatchPipeline.js";
 import {MatchTestResult} from "./MatchTestResult.js";
-import assert from "assert.js";
+import assert from "assert";
 import {IdExtractor} from "../../src/extract/IdExtractor.js";
 
 export class OurMatchAdapter {

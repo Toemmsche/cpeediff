@@ -161,7 +161,7 @@ export class TreeGenerator {
         method.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
         parameters.appendChild(method);
 
-        //random arguments (read Variables)
+        //random read variables as service call arguments
         const args = new Node("arguments");
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             const arg = new Node(readVariable);
@@ -176,14 +176,24 @@ export class TreeGenerator {
         //random modified Variables
         const code = new Node("code");
         const codeUpdate = new Node("finalize");
-        codeUpdate.data = ".js";
+        codeUpdate.data = "";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             codeUpdate.data += "data." + modifiedVariable + " = 420;"
         }
+
+        //random read variables in code
+        const codePrepare = new Node("prepare");
+        codePrepare.data = "";
+        for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
+            codePrepare.data += "fun(data." + readVariable + ");";
+        }
         if (codeUpdate.data !== "") {
             code.appendChild(codeUpdate);
-            node.appendChild(code);
         }
+        if(codePrepare.data !== "") {
+            code.appendChild(codePrepare);
+        }
+        node.appendChild(code);
 
         return node;
     }
@@ -192,11 +202,13 @@ export class TreeGenerator {
         const node = new Node(Dsl.KEYWORDS.MANIPULATE.label);
 
         //random modified Variables
-        node.data = ".js";
+        node.data = "";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             node.data += "data." + modifiedVariable + " = 420;"
         }
-        //TODO read variables
+        for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
+            node.data += "fun(data." + readVariable + ");";
+        }
 
         return node;
     }
@@ -375,7 +387,7 @@ export class TreeGenerator {
         //construct new tree with less nodes
         //store old max size value
         const oldMaxSize = this.genParams.maxSize;
-        this.genParams.maxSize = Math.max(Math.sqrt(oldMaxSize), 5);
+        this.genParams.maxSize = Math.max(Math.log2(oldMaxSize), 5);
         //construct random subtree around the new inner node
         this.randomTree(newNode);
         //restore old max size
@@ -418,17 +430,20 @@ export class TreeGenerator {
     }
 
     _moveRandomly(tree) {
+        let movedNode = this._randomFrom(tree.nonPropertyNodes()
+            .filter(n => !n.isRoot()
+                && n.label !== Dsl.KEYWORDS.PARALLEL_BRANCH.label
+                && n.label !== Dsl.KEYWORDS.ALTERNATIVE.label
+                && n.label !== Dsl.KEYWORDS.OTHERWISE.label));
+        movedNode.removeFromParent();
+
         let increaseInsertionCounter = false;
         let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent);
         if (parent !== (parent = this._insertBetween(parent))) {
             increaseInsertionCounter = true;
         }
-        let movedNode = this._randomFrom(tree.nonPropertyNodes()
-            .filter(n => !n.isRoot()
-                && n.label !== Dsl.KEYWORDS.PARALLEL_BRANCH.label
-                && n.label !== Dsl.KEYWORDS.CHOOSE.label));
-        movedNode.removeFromParent();
+
         this._appendRandomly(parent, movedNode);
         return increaseInsertionCounter;
     }

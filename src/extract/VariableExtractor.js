@@ -35,52 +35,62 @@ export class VariableExtractor extends AbstractExtractor {
     }
 
     _getModifiedVariables(node) {
-        const modifiedVariables = new Set();
-        if (node.containsCode()) {
-            let code;
-            if (node.label === Dsl.KEYWORDS.CALL.label) {
-                code = this.callPropertyExtractor.get(node).code;
-            } else if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
-                code = node.data;
-            }
-            if(code != null) {
-                //match all variable assignments
-                const matches = code.match(/data\.[a-zA-Z]+\w*(?: *( =|\+\+|--|-=|\+=|\*=|\/=))/g);
-                if (matches !== null) {
-                    for (const variable of matches) {
-                        //match only variable name and remove data. prefix
-                        modifiedVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                    }
-                }
-            }
+        let modifiedVariables = new Set();
+        let code;
+        if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
+            code = node.data;
+        } else if (node.label === Dsl.KEYWORDS.CALL.label) {
+            code = this.callPropertyExtractor.get(node).code;
+        }
+        if (code != null) {
+            modifiedVariables = new Set(this._modVarsFromString(code));
         }
         return modifiedVariables;
     }
 
     _getReadVariables(node) {
         const readVariables = new Set();
-        //TODO read variables from code
-        if (node.containsCondition()) {
+        if (node.attributes.has("condition")) {
             const condition = node.attributes.get("condition");
-            const matches = condition.match(/data\.[a-zA-Z]+\w*(?: *(<|<=|>|>=|==|===|!=|!==))/g);
-            if (matches !== null) {
-                for (const variable of matches) {
-                    //match only variable name and remove data. prefix
-                    readVariables.add(variable.match(/(?:data\.)[a-zA-Z]+\w*/g)[0].replace(/data\./, ""));
-                }
+            for (const readVar of this._readVarsFromString(condition)) {
+                readVariables.add(readVar);
+            }
+        }
+        let code;
+        if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
+            code = node.data;
+        } else if (node.label === Dsl.KEYWORDS.CALL.label) {
+            code = this.callPropertyExtractor.get(node).code;
+        }
+        if (code != null) {
+            for (const readVar of this._readVarsFromString(code)) {
+                readVariables.add(readVar);
             }
         }
         if (node.label === Dsl.KEYWORDS.CALL.label) {
             const callProps = this.callPropertyExtractor.get(node);
-            if(callProps.hasArgs()) {
+            if (callProps.hasArgs()) {
                 for (const arg of callProps.args) {
                     //do NOT use the label of the argument
-                    if(arg.includes("data.")) {
+                    if (arg.includes("data.")) {
                         readVariables.add(arg.replaceAll("data.", ""));
                     }
                 }
             }
         }
         return readVariables;
+    }
+
+    _modVarsFromString(str) {
+        //positive lookahead for assignment operators and positive lookbehind for "data." prefix
+        const matches = str.match((/(?<=data\.)[a-zA-Z]\w*(?=\s*(=[^=]|\+=|\+\+|-=|--|\*=|\/=))/g));
+        return matches == null ? [] : matches;
+    }
+
+    _readVarsFromString(str) {
+        //negative lookahead for assignment operators and positive lookbehind for "data." prefix
+        //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
+        const matches = str.match(/(?<=data\.)[a-zA-Z]\w*(?=\s*\W)(?!\s*(=[^=]|\+=|\+\+|-=|--|\*=|\/=))/g);
+        return matches == null ? [] : matches;
     }
 }

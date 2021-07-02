@@ -61,7 +61,7 @@ export class StandardComparator extends AbstractComparator {
         const otherEndpoint = otherProps.endpoint;
 
         let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
-        if (nodeProps.hasLabel() && otherProps.hasLabel() && nodeProps.label === otherProps.label) {
+        if (nodeProps.hasLabel() && otherProps.hasLabel() && nodeProps.label !== otherProps.label) {
             //TODO maybe use LCS, too
             endPointComparisonValue += 0.1;
         }
@@ -73,7 +73,7 @@ export class StandardComparator extends AbstractComparator {
         let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
 
         //endpoint and modified variables have higher weight
-        let contentCompareValue = endPointComparisonValue * 0.4 + modifiedVariablesComparisonValue * 0.4 + readVariablesComparisonValue * 0.2;
+        let contentCompareValue = endPointComparisonValue * 0.6 + modifiedVariablesComparisonValue * 0.25 + readVariablesComparisonValue * 0.15;
 
         //small penalty for code string inequality
         if (nodeProps.code !== otherProps.code) {

@@ -20,6 +20,7 @@
 //      append updates even in the case of insertion
 
 //TODO semi-features
+//      weight call argsd and read code variables differently
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml

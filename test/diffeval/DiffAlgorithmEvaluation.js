@@ -74,6 +74,13 @@ export class DiffAlgorithmEvaluation {
                         testInfo = changedInfo.info;
                         break;
                     }
+                    case "gen_totally_different": {
+                        console.log("Generating two unrelated process trees of size " + genParams.maxSize);
+                        oldTree = treeGen.randomTree();
+                        newTree = treeGen.randomTree();
+                        testInfo = new DiffTestInfo(dir, Math.max(newTree.toPreOrderArray().length, oldTree.toPreOrderArray().length));
+                        break;
+                    }
                     default: {
                         console.log("Generating random process tree of size " + genParams.maxSize);
                         oldTree = treeGen.randomTree();
@@ -116,7 +123,7 @@ export class DiffAlgorithmEvaluation {
 
         //TODO aggregate metrics
         for(const [testInfo, results] of resultsPerTest) {
-            console.log("Results for case");
+            console.log("Results for case " + testInfo.name);
             console.log(testInfo);
             console.log(MarkDownFactory.tabularize(results));
         }

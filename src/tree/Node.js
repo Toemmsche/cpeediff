@@ -222,22 +222,6 @@ export class Node {
 
     /**
      *
-     * @returns {boolean}
-     */
-    containsCode() {
-        return this.label === "manipulate"
-            || this._childNodes.some(n => n.label === "code");
-    }
-
-    /**
-     *  @returns {boolean}
-     */
-    containsCondition() {
-        return this.attributes.has("condition");
-    }
-
-    /**
-     *
      * @param {Node} node
      */
     appendChild(node) {

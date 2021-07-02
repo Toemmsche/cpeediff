@@ -1,11 +1,13 @@
 
 import {MergeAlgorithmEvaluation} from "./test/mergeeval/MergeAlgorithmEvaluation.js";
 import {DiffAlgorithmEvaluation} from "./test/diffeval/DiffAlgorithmEvaluation.js";
+import {MatchingAlgorithmEvaluation} from "./test/matcheval/MatchingAlgorithmEvaluation.js";
+import {OurMatchAdapter} from "./test/matcheval/OurMatchAdapter.js";
 
 
-//new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
+new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-DiffAlgorithmEvaluation.all().evalAll();
+//DiffAlgorithmEvaluation.all().evalAll();
 
 //MergeAlgorithmEvaluation.all().evalAll();
 
