@@ -32,6 +32,7 @@ export class DiffAlgorithmEvaluation {
 
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
         console.log("Using " + caseDir + " to evaluate diff algorithms");
+
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
         for (const adapter of this.adapters) {
@@ -99,9 +100,6 @@ export class DiffAlgorithmEvaluation {
                 resultsPerAdapter.get(adapter).push(result);
                 resultsPerTest.get(testInfo).push(result);
             }
-
-
-
         });
 
         //TODO aggregate metrics

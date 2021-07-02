@@ -20,8 +20,9 @@ import {Config} from "../../src/Config.js";
 import {DeltaTreeGenerator} from "../../src/patch/DeltaModelGenerator.js";
 import {Dsl} from "../../src/Dsl.js";
 import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 
-export class OurDiffAdapter {
+export class OurDiffAdapter extends AbstractDiffAdapter {
 
     evalCase(info, oldTree, newTree) {
         let time = new Date().getTime();

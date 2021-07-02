@@ -14,65 +14,54 @@
    limitations under the License.
 */
 
-import {XmlFactory} from "../../src/factory/XmlFactory.js";
 import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {DiffTestResult} from "./DiffTestResult.js";
-import {execSync} from "child_process";
+import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 
-export class XmlDiffAdapter {
+export class XmlDiffAdapter extends AbstractDiffAdapter {
 
-    evalCase(info, oldTree, newTree) {
-        const oldTreeString = XmlFactory.serialize(oldTree);
-        const newTreeString = XmlFactory.serialize(newTree);
+    constructor() {
+        super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);
+    }
 
-        const oldFilePath = TestConfig.DIFFS.XMLDIFF.path + "/old.xml";
-        const newFilePath = TestConfig.DIFFS.XMLDIFF.path + "/new.xml";
-
-        fs.writeFileSync(oldFilePath, oldTreeString);
-        fs.writeFileSync(newFilePath, newTreeString);
-
-        let output;
-        let time = new Date().getTime();
-        try {
-            output = execSync("xmldiff " + oldFilePath + " " + newFilePath).toString();
-        } catch (e) {
-            //something went wrong, no test result available
-            return DiffTestResult.fail(info, TestConfig.DIFFS.XMLDIFF.displayName)
+    static register(diffAdapters) {
+        if (fs.existsSync(TestConfig.DIFFS.XMLDIFF.path)) {
+            diffAdapters.push(new XmlDiffAdapter());
         }
-        time = new Date().getTime() - time;
+    }
 
+    _parseOutput(output) {
         let updateCounter = 0;
         let insertionCounter = 0;
         let moveCounter = 0;
         let deletionCounter = 0;
 
         //parse output
-        for(const line of output.split("\n")) {
-            if(line !== "") {
-                if( !line.startsWith("[")) {
+        for (const line of output.split("\n")) {
+            if (line !== "") {
+                if (!line.startsWith("[")) {
                     throw new Error("unknown output");
                 }
 
                 //xmldiff output pattern: [{changeType}, {path} {description of the change}]
                 const changeType = line.split(",")[0].slice(1);
-                switch(changeType) {
-                    case "delete": deletionCounter++; break;
-                    case "insert": insertionCounter++; break;
-                    case "move": moveCounter++; break;
-                    default: updateCounter++; break;
+                switch (changeType) {
+                    case "delete":
+                        deletionCounter++;
+                        break;
+                    case "insert":
+                        insertionCounter++;
+                        break;
+                    case "move":
+                        moveCounter++;
+                        break;
+                    default:
+                        updateCounter++;
+                        break;
                 }
             }
         }
-
-        const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, TestConfig.DIFFS.XMLDIFF.displayName, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length)
-    }
-
-    static register(diffAdapters) {
-        if(fs.existsSync(TestConfig.DIFFS.XMLDIFF.path)) {
-            diffAdapters.push(new XmlDiffAdapter());
-        }
+        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }
 

@@ -33,8 +33,6 @@
 //      colors in delta output
 
 //TODO tidy
-//      rename tree to tree (thesis title is prroces tree diff aferter all)
-//      no static methods
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)

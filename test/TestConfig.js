@@ -20,11 +20,15 @@ export class TestConfig {
     static DIFF_CASES_DIR = "test/test_set/diff_cases";
     static MERGE_CASES_DIR = "test/test_set/merge_cases";
 
+    //Individual tests have 30s to finish
+    static EXECUTION_TIMEOUT = 30000;
     static VERDICTS = {
         OK: "OK",
         ACCEPTABLE: "ACCEPTABLE",
         WRONG_ANSWER: "WRONG ANSWER",
-        RUNTIME_ERROR: "RUNTIME ERROR"
+        RUNTIME_ERROR: "RUNTIME ERROR",
+        FAILED: "FAILED",
+        TIMEOUT: "TIMEOUT"
     }
 
     static DIFFS = {
@@ -39,6 +43,10 @@ export class TestConfig {
         DELTAJS: {
             displayName: "Delta.js",
             path: "/home/tom/Documents/xml_diff_algos/deltajs"
+        },
+        XCC: {
+            displayName: "XCC",
+            path: "/home/tom/Documents/xml_diff_algos/xcc"
         }
     }
 

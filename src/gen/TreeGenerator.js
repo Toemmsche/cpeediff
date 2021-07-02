@@ -175,7 +175,7 @@ export class TreeGenerator {
 
         //random modified Variables
         const code = new Node("code");
-        const codeUpdate = new Node("update");
+        const codeUpdate = new Node("finalize");
         codeUpdate.data = ".js";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             codeUpdate.data += "data." + modifiedVariable + " = 420;"

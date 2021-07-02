@@ -14,21 +14,24 @@
    limitations under the License.
 */
 
-import {XmlFactory} from "../../src/factory/XmlFactory.js";
 import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {DiffTestResult} from "./DiffTestResult.js";
-import {execSync} from "child_process";
-import xmldom from "xmldom";
+import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {XmlFactory} from "../../src/factory/XmlFactory.js";
+import {execFileSync} from "child_process";
 
-export class DiffXmlAdapter {
+export class DiffXmlAdapter extends AbstractDiffAdapter {
 
-    evalCase(info, oldTree, newTree) {
+    constructor() {
+        super(TestConfig.DIFFS.DIFFXML.path, TestConfig.DIFFS.DIFFXML.displayName);
+    }
+
+    _run(oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = TestConfig.DIFFS.DIFFXML.path + "/old.xml";
-        const newFilePath = TestConfig.DIFFS.DIFFXML.path + "/new.xml";
+        const oldFilePath = this.pathPrefix + "/old.xml";
+        const newFilePath = this.pathPrefix + "/new.xml";
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
@@ -36,43 +39,24 @@ export class DiffXmlAdapter {
         let output;
         let time = new Date().getTime();
         try {
-            output = execSync(TestConfig.DIFFS.DIFFXML.path + "/run.sh " + oldFilePath + " " + newFilePath).toString();
+            output = execFileSync(this.pathPrefix + "/run.sh", [oldFilePath, newFilePath], {timeout: TestConfig.EXECUTION_TIMEOUT}).toString();
         } catch (e) {
-            //for some reason the execution of diffxml is always flagged as "failed", even when it executes fine
-            output = e.output.toString();
-            //check for actual failure
-            if(output == null || output === "") {
-                return DiffTestResult.fail(info, TestConfig.DIFFS.DIFFXML.displayName);
+            //for some reason, diffxml always returns raises an error even if the execution finished normally
+            if(e.code !== "ETIMEDOUT" && e.output != null && e.output !== "") {
+                output = e.output.toString();
+            } else {
+                return e;
             }
+
         }
         time = new Date().getTime() - time;
 
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
-
-        //parse output
-        let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
-        //look for delta node that encloses the diff
-        while(delta.localName !== "delta") {
-            delta = delta.nextSibling;
+        return {
+            runtime: time,
+            output: output
         }
-        for (let i = 0; i < delta.childNodes.length; i++) {
-            const childNode = delta.childNodes.item(i);
-            if(childNode.localName != null) {
-               switch (childNode.localName) {
-                   case "move": moveCounter++; break;
-                   case "insert": insertionCounter++; break;
-                   case "delete": deletionCounter++; break;
-                   case "update": updateCounter++; break;
-               }
-            }
-        }
-
-        const changesFound = updateCounter + deletionCounter + insertionCounter + moveCounter;
-        return new DiffTestResult(info, TestConfig.DIFFS.DIFFXML.displayName, time, changesFound, insertionCounter, moveCounter, updateCounter,deletionCounter, output.length )
     }
+
 
     static register(diffAdapters) {
         if(fs.existsSync(TestConfig.DIFFS.DIFFXML.path + "/run.sh")) {
