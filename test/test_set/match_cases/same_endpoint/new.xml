@@ -1,8 +1,7 @@
 <properties xmlns="http://cpee.org/ns/properties/2.0">
     <dataelements>
         <to>Prague</to>
-        <costs>0</costs>
-        <hotels>[]</hotels>
+        <hotel>null</hotel>
         <persons>3</persons>
     </dataelements>
     <endpoints>
@@ -20,7 +19,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.hotels.push(result.value('id')); data.costs += result.value('costs').to_f; data.persons = 0;</finalize>
+                    <finalize output="result">data.hotel = result.value('hotel_id');</finalize>
                 </code>
             </call>
         </description>

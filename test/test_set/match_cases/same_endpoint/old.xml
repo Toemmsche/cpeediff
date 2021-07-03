@@ -1,9 +1,8 @@
 <properties xmlns="http://cpee.org/ns/properties/2.0">
     <dataelements>
-        <to>Prague</to>
         <costs>0</costs>
         <hotels>[]</hotels>
-        <persons>3</persons>
+        <to>Prague</to>
     </dataelements>
     <endpoints>
         <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
@@ -16,11 +15,10 @@
                     <method>:post</method>
                     <arguments>
                         <to>data.to</to>
-                        <persons>data.persons</persons>
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.hotels.push(result.value('id')); data.costs += result.value('costs').to_f; data.persons = 0;</finalize>
+                    <finalize output="result">data.hotels.push(result.value('id')); data.costs += result.value('costs').to_f;</finalize>
                 </code>
             </call>
         </description>

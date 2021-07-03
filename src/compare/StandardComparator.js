@@ -60,19 +60,28 @@ export class StandardComparator extends AbstractComparator {
         const nodeEndpoint = nodeProps.endpoint;
         const otherEndpoint = otherProps.endpoint;
 
+        //endpoint URL has to match perfectly. This is reasonable as large chunks of the URL can equal
+        //e.g. www.example.com/docs and www.example.com/dirs
         let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
-        if (nodeProps.hasLabel() && otherProps.hasLabel() && nodeProps.label !== otherProps.label) {
-            //TODO maybe use LCS, too
+        if (nodeProps.label !== otherProps.label) {
             endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
         }
         if (nodeProps.method !== otherProps.method) {
-            endPointComparisonValue = Math.min(endPointComparisonValue + Config.COMPARATOR.METHOD_PENALTY, 1);
+            endPointComparisonValue += Config.COMPARATOR.METHOD_PENALTY;
         }
 
+        //If the endpoint of two calls perfectly equals, we can assume they fulfill the same semantic purpose
+        if(endPointComparisonValue === 0) {
+            return endPointComparisonValue;
+        }
+        //normalize comparison value
+        endPointComparisonValue = Math.min(endPointComparisonValue, 1);
+
+        //compare modified and read variables
         let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, endPointComparisonValue);
         let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
 
-        //endpoint and modified variables have higher weight
+        //weight comparison values
         let contentCompareValue = endPointComparisonValue * Config.COMPARATOR.CALL_ENDPOINT_WEIGHT
             + modifiedVariablesComparisonValue * Config.COMPARATOR.CALL_MODVAR_WEIGHT
             + readVariablesComparisonValue * Config.COMPARATOR.CALL_READVAR_WEIGHT;
