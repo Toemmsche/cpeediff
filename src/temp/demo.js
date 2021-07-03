@@ -15,13 +15,13 @@ limitations under the License.
 */
 
 import {Node} from "../tree/Node.js"
-import {NodeFactory} from "../factory/NodeFactory.js";
+import {NodeFactory} from "../tree/NodeFactory.js";
 import {TreeGenerator} from "../gen/TreeGenerator.js";
 import {GeneratorParameters} from "../gen/GeneratorParameters.js";
-import {XmlFactory} from "../factory/XmlFactory.js";
+import {XmlFactory} from "../io/XmlFactory.js";
 import {CpeeDiff} from "../diff/CpeeDiff.js";
 import fs from "fs";
-import {Preprocessor} from "../parse/Preprocessor.js";
+import {Preprocessor} from "../io/Preprocessor.js";
 import {Config} from "../Config.js";
 import {CpeeMerge} from "../merge/CpeeMerge.js";
 

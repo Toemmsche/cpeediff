@@ -14,14 +14,18 @@
    limitations under the License.
 */
 
-import {Preprocessor} from "../src/io/Preprocessor.js";
+export class AggregateMatchResult {
 
-export class TestRepository {
+    algorithmName;
+    ok;
+    wrongAnswer;
+    runtimeError;
 
-    static _bookingTree =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
-
-    static bookingTree() {
-        return this._bookingTree.copy(true);
+    constructor(algorithmName, ok, wrongAnswer, runtimeError) {
+        this.algorithmName = algorithmName;
+        this.ok = ok;
+        this.wrongAnswer = wrongAnswer;
+        this.runtimeError = runtimeError;
     }
 }
 

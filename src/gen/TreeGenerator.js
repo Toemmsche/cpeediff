@@ -15,10 +15,10 @@
 */
 
 import {Node} from "../tree/Node.js"
-import {Preprocessor} from "../parse/Preprocessor.js";
+import {Preprocessor} from "../io/Preprocessor.js";
 import {Dsl} from "../Dsl.js";
-import {DiffTestInfo} from "../../test/diffeval/DiffTestInfo.js";
-import {NodeFactory} from "../factory/NodeFactory.js";
+import {DiffTestInfo} from "../../test/diff_eval/DiffTestInfo.js";
+import {NodeFactory} from "../tree/NodeFactory.js";
 
 export class TreeGenerator {
 

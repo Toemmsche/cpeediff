@@ -31,6 +31,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      hide private properties everywhere
 //      model type in geneartor params
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names

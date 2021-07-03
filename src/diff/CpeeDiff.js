@@ -15,10 +15,10 @@
 */
 
 
-import {StandardComparator} from "../compare/StandardComparator.js";
-import {EditScriptGenerator} from "../editscript/EditScriptGenerator.js";
-import {NodeFactory} from "../factory/NodeFactory.js";
-import {MatchPipeline} from "../matching/MatchPipeline.js";
+import {StandardComparator} from "../match/compare/StandardComparator.js";
+import {EditScriptGenerator} from "./delta/EditScriptGenerator.js";
+import {NodeFactory} from "../tree/NodeFactory.js";
+import {MatchPipeline} from "../match/MatchPipeline.js";
 
 export class CpeeDiff {
     

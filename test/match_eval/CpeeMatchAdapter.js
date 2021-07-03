@@ -14,14 +14,21 @@
    limitations under the License.
 */
 
-import {Preprocessor} from "../src/io/Preprocessor.js";
+import {TestConfig} from "../TestConfig.js";
+import {MatchPipeline} from "../../src/match/MatchPipeline.js";
+import {AbstractMatchAdapter} from "./AbstractMatchAdapter.js";
 
-export class TestRepository {
+export class CpeeMatchAdapter extends AbstractMatchAdapter{
 
-    static _bookingTree =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
+    matchPipeline;
 
-    static bookingTree() {
-        return this._bookingTree.copy(true);
+    constructor() {
+        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName);
+        this.matchPipeline = MatchPipeline.standard();
+    }
+
+    _run(oldTree, newTree) {
+        return this.matchPipeline.execute(oldTree, newTree);
     }
 }
 

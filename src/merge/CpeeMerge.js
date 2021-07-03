@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import {MatchPipeline} from "../matching/MatchPipeline.js";
-import {StandardComparator} from "../compare/StandardComparator.js";
-import {Matching} from "../matching/Matching.js";
-import {MergeNodeFactory} from "../factory/MergeNodeFactory.js";
+import {MatchPipeline} from "../match/MatchPipeline.js";
+import {StandardComparator} from "../match/compare/StandardComparator.js";
+import {Matching} from "../match/Matching.js";
+import {MergeNodeFactory} from "../tree/MergeNodeFactory.js";
 import {CpeeDiff} from "../diff/CpeeDiff.js";
-import {DeltaTreeGenerator} from "../patch/DeltaModelGenerator.js";
-import {Preprocessor} from "../parse/Preprocessor.js";
-import {Update} from "../editscript/Update.js";
+import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
+import {Preprocessor} from "../io/Preprocessor.js";
+import {Update} from "../diff/delta/Update.js";
 
 export class CpeeMerge {
 

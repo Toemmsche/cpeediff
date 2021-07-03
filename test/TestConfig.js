@@ -1,7 +1,7 @@
 /*
     Copyright 2021 Tom Papke
 
-   Licensed under the Apache License, Version 2.0 (the "License");
+   Licensed under the Apache License, Version 2.0 (the "License"),
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
@@ -14,61 +14,67 @@
    limitations under the License.
 */
 
-export class TestConfig {
+export const TestConfig = {
 
-    static MATCH_CASES_DIR = "test/test_set/match_cases";
-    static DIFF_CASES_DIR = "test/test_set/diff_cases";
-    static MERGE_CASES_DIR = "test/test_set/merge_cases";
+    MATCH_CASES_DIR: "test/test_set/match_cases",
+    DIFF_CASES_DIR: "test/test_set/diff_cases",
+    MERGE_CASES_DIR: "test/test_set/merge_cases",
 
-    static EXECUTION_OPTIONS = {
+    EXECUTION_OPTIONS: {
         timeout: 30000, //30s
         maxBuffer: 100 * 1024 * 1024 //100 MiB
-    }
-    static VERDICTS = {
+    },
+    VERDICTS: {
         OK: "OK",
         ACCEPTABLE: "ACCEPTABLE",
         WRONG_ANSWER: "WRONG ANSWER",
         RUNTIME_ERROR: "RUNTIME ERROR",
         FAILED: "FAILED",
         TIMEOUT: "TIMEOUT"
-    }
+    },
 
-    static DIFFS = {
+    MATCHINGS: {
+        CPEEMATCH: {
+            displayName: "CpeeMatch",
+            path: ""
+        }
+    },
+
+    DIFFS: {
         CPEEDIFF: {
             displayName: "CpeeDiff",
             path: ""
         },
         XMLDIFF: {
             displayName: "XmlDiff",
-            path: "/home/tom/Documents/xml_diff_algos/XmlDiff"
+            path: "../xml_diff_algos/xmldiff"
         },
         DIFFXML: {
             displayName: "DiffXml",
-            path: "/home/tom/Documents/xml_diff_algos/diffxml"
+            path: "../xml_diff_algos/diffxml"
         },
         DELTAJS: {
             displayName: "Delta.js",
-            path: "/home/tom/Documents/xml_diff_algos/deltajs"
+            path: "../xml_diff_algos/deltajs"
         },
         XCC: {
             displayName: "XCC Diff",
-            path: "/home/tom/Documents/xml_diff_algos/xcc"
+            path: "../xml_diff_algos/xcc"
         },
+    },
 
-    }
-
-    static MERGES = {
+    MERGES: {
         CPEEMERGE: {
             displayName: "CpeeMerge",
             path: ""
         },
         _3DM: {
             displayName: "3DM",
-            path: "/home/tom/Documents/xml_merge_algos/3dm"
+            path: "../xml_merge_algos/3dm"
         },
         XCC: {
             displayName: "XCC Diff & Patch",
-            path: "/home/tom/Documents/xml_merge_algos/xcc"
+            path: "../xml_merge_algos/xcc"
         }
     }
 
@@ -78,7 +84,6 @@ export class TestConfig {
     //      edit script size
     //      #nodes matched
     //      merging #tests with expected result (conflict or no conflict)
-
 
 }
 

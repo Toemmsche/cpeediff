@@ -1,7 +1,7 @@
 /*
     Copyright 2021 Tom Papke
 
-   Licensed under the Apache License, Version 2.0 (the "License");
+   Licensed under the Apache License, Version 2.0 (the "License"),
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-export class Dsl {
+export const Dsl = {
 
-    static KEYWORDS = {
+    KEYWORDS: {
         ROOT: {
             label: "description",
             isLeaf: false,
@@ -82,32 +82,10 @@ export class Dsl {
             isLeaf: true,
             isOrdered: false
         }
-    }
+    },
 
-    static KEYWORD_SET = new Set(Object
-        .keys(Dsl.KEYWORDS)
-        .map(key => Dsl.KEYWORDS[key])
-        .map(k => k.label));
 
-    static LEAF_NODE_SET = new Set(Object
-        .keys(Dsl.KEYWORDS)
-        .map(key => Dsl.KEYWORDS[key])
-        .filter(k => k.isLeaf)
-        .map(k => k.label));
-
-    static INNER_NODE_SET = new Set(Object
-        .keys(Dsl.KEYWORDS)
-        .map(key => Dsl.KEYWORDS[key])
-        .filter(k => !k.isLeaf)
-        .map(k => k.label));
-
-    static INTERNAL_ORDERING_SET = new Set(Object
-        .keys(Dsl.KEYWORDS)
-        .map(key => Dsl.KEYWORDS[key])
-        .filter(k => k.isOrdered)
-        .map(k => k.label));
-
-    static CHANGE_TYPES = {
+    CHANGE_TYPES: {
         //TODO turn into objects with more info (e.g. namespaces)
         INSERTION: "INSERT",
         DELETION: "DELETE",
@@ -117,13 +95,9 @@ export class Dsl {
         MOVE_FROM: "MOVE_FROM",
         UPDATE: "UPDATE",
         NIL: "NIL"
-    }
+    },
 
-    static CHANGE_TYPE_SET = new Set(Object
-        .keys(Dsl.CHANGE_TYPES)
-        .map(key => Dsl.CHANGE_TYPES[key]));
-
-    static NAMESPACES = {
+    NAMESPACES: {
         DEFAULT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0",
         NIL_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/nil",
         NIL_NAMESPACE_PREFIX: "nil",
@@ -140,13 +114,37 @@ export class Dsl {
 
         DELTA_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/delta",
         DELTA_NAMESPACE_PREFIX: "delta"
-    }
+    },
 
-    static ENDPOINT_METHODS = [":get", ":post", ":put", ":patch", ":delete"];
-    static CHOOSE_MODES = ["inclusive", "exclusive"];
+    ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
+    CHOOSE_MODES: ["inclusive", "exclusive"],
 
-    static PROPERTY_IGNORE_LIST = ["id", "description", "xmlns"];
-
+    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns"],
 }
+Dsl.KEYWORD_SET = new Set(Object
+    .keys(Dsl.KEYWORDS)
+    .map(key => Dsl.KEYWORDS[key])
+    .map(k => k.label));
 
+Dsl.LEAF_NODE_SET = new Set(Object
+    .keys(Dsl.KEYWORDS)
+    .map(key => Dsl.KEYWORDS[key])
+    .filter(k => k.isLeaf)
+    .map(k => k.label));
+
+Dsl.INNER_NODE_SET = new Set(Object
+    .keys(Dsl.KEYWORDS)
+    .map(key => Dsl.KEYWORDS[key])
+    .filter(k => !k.isLeaf)
+    .map(k => k.label));
+
+Dsl.INTERNAL_ORDERING_SET = new Set(Object
+    .keys(Dsl.KEYWORDS)
+    .map(key => Dsl.KEYWORDS[key])
+    .filter(k => k.isOrdered)
+    .map(k => k.label));
+
+Dsl.CHANGE_TYPE_SET = new Set(Object
+    .keys(Dsl.CHANGE_TYPES)
+    .map(key => Dsl.CHANGE_TYPES[key]));
 

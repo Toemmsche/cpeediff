@@ -1,15 +1,15 @@
 
-import {MergeAlgorithmEvaluation} from "./test/mergeeval/MergeAlgorithmEvaluation.js";
-import {DiffAlgorithmEvaluation} from "./test/diffeval/DiffAlgorithmEvaluation.js";
-import {MatchingAlgorithmEvaluation} from "./test/matcheval/MatchingAlgorithmEvaluation.js";
-import {OurMatchAdapter} from "./test/matcheval/OurMatchAdapter.js";
+import {MergeAlgorithmEvaluation} from "./test/merge_eval/MergeAlgorithmEvaluation.js";
+import {DiffAlgorithmEvaluation} from "./test/diff_eval/DiffAlgorithmEvaluation.js";
+import {MatchingAlgorithmEvaluation} from "./test/match_eval/MatchingAlgorithmEvaluation.js";
+import {CpeeMatchAdapter} from "./test/match_eval/OurMatchAdapter.js";
 
 
-//new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
+MatchingAlgorithmEvaluation.all().evalAll();
 
-//DiffAlgorithmEvaluation.fast().evalAll();
+//DiffAlgorithmEvaluation.all().evalAll();
 
-MergeAlgorithmEvaluation.all().evalAll();
+//MergeAlgorithmEvaluation.all().evalAll();
 
 /*
 const diff = new OurDiffAdapter();

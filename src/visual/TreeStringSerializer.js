@@ -15,7 +15,7 @@
 */
 
 import {Node} from "../tree/Node.js"
-import {HashExtractor} from "../extract/HashExtractor.js";
+import {HashExtractor} from "../match/extract/HashExtractor.js";
 
 export class TreeStringSerializer {
     
@@ -25,27 +25,27 @@ export class TreeStringSerializer {
 
         function constructRecursive(node, barList) {
             const isLast = node._parent != null && node._childIndex === node._parent._childNodes.length - 1;
-            let line = ".js";
+            let line = "";
             for (let i = 0; i < barList.length; i++) {
                 const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
                 line += " ".repeat(spaceCount);
                 if (i === barList.length - 1) {
                     if (isLast) {
-                        line += "└.js";
+                        line += "└";
                     } else {
-                        line += "├.js";
+                        line += "├";
                     }
                 } else {
-                    line += "│.js";
+                    line += "│";
                 }
             }
             if (isLast) {
                 barList.pop();
             }
-            line += "─.js";
+            line += "─";
             const lineLength = line.length;
             //TODO rework
-            line += node.toString() + new HashExtractor().get(node) + "\n.js";
+            line += node.toString() + new HashExtractor().get(node) + "\n";
             if (node.hasChildren()) {
                 barList.push(lineLength + 1);
                 for (const child of node) {

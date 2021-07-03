@@ -13,6 +13,7 @@
 //      use caseDir as member variable
 //      further reduce duplicate code amond evaluator
 //      TestCase as class and parameter
+//      timeout to our algorithms
 
 
 /*

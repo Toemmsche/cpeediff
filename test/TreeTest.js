@@ -16,7 +16,7 @@
 
 import {Node} from "../src/tree/Node.js"
 import {TestRepository} from "./TestRepository.js";
-import {NodeFactory} from "../src/factory/NodeFactory.js";
+import {NodeFactory} from "../src/tree/NodeFactory.js";
 import assert from "assert.js";
 
 describe("Node", () => {
