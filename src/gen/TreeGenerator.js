@@ -36,7 +36,7 @@ export class TreeGenerator {
         this.variables = [];
 
         //about sqrt(n) variables, labels, and endpoints to choose from
-        for (let i = 0; i < Math.max(Math.sqrt(this.genParams.maxSize), 10); i++) {
+        for (let i = 0; i < Math.max(2 * Math.log2(this.genParams.maxSize), 10); i++) {
             this.endpoints.push(this._randomString(this._randInt(20) + 10));
             this.labels.push(this._randomString(this._randInt(20) + 10));
             this.variables.push(this._randomString(this._randInt(10) + 5));
@@ -190,7 +190,7 @@ export class TreeGenerator {
         if (codeUpdate.data !== "") {
             code.appendChild(codeUpdate);
         }
-        if(codePrepare.data !== "") {
+        if (codePrepare.data !== "") {
             code.appendChild(codePrepare);
         }
         node.appendChild(code);
@@ -339,7 +339,11 @@ export class TreeGenerator {
                 }
                 case Dsl.CHANGE_TYPES.INSERTION: {
                     insertionCounter++;
-                    this._insertLeafRandomly(tree);
+                    if(this._withProbability(0.9)) {
+                        this._insertLeafRandomly(tree);
+                    } else {
+                        this._insertArgRandomly(tree);
+                    }
                     break;
                 }
                 case Dsl.CHANGE_TYPES.SUBTREE_DELETION: {
@@ -414,6 +418,13 @@ export class TreeGenerator {
         }
     }
 
+    _insertArgRandomly(tree) {
+        const parent = this._randomFrom(tree.toPreOrderArray().filter(n => n.label === "arguments"));
+        let newArg = this._randomFrom(this.variables);
+        newArg = new Node(newArg, "data." + newArg);
+        this._appendRandomly(parent, newArg);
+    }
+
     _deleteSubtreeRandomly(tree) {
         const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot()));
         if (node != null) {
@@ -451,14 +462,54 @@ export class TreeGenerator {
     _updateRandomly(tree) {
         let node;
         if (this._withProbability(0.6)) {
-            node = this._randomFrom(tree.toPreOrderArray().filter(n => n.data !== null));
-            //if node has data, there's a 50% chance we alter this data and return
+            node = this._randomFrom(tree.toPreOrderArray().filter(n => n.data != null));
+            //Change node data depending on type
+            switch (node.label) {
+                case "label": {
+                    node.data = this._randomFrom(this.labels);
+                    break;
+                }
+                case "method": {
+                    //method change
+                    node.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
+                    break;
+                }
+                case "prepare":
+                case "update":
+                case "rescue":
+                case "finalize":
+                case Dsl.KEYWORDS.MANIPULATE.label: {
+                    //code change
+                    const statements = node.data.split(";");
+                    statements.splice(this._randInt(statements.length), 1);
+                    if (this._withProbability(0.5)) {
+                        //modify new variable
+                        const newModVariable = this._randomFrom(this.variables);
+                        statements.push("data." + newModVariable + " = 420;")
+                    } else {
+                        //read new variable
+                        const newReadVariable = this._randomFrom(this.variables);
+                        statements.push("fun(data." + newReadVariable + ");")
+                    }
+                    break;
+                }
+                default: {
+                    node.data += this._randomString(10);
+                }
+            }
+
             node.data += this._randomString(10);
         } else {
             node = this._randomFrom(tree.nonPropertyNodes().filter(n => n.hasAttributes()));
             const changedAttributeKey = this._randomFrom(Array.of(...node.attributes.keys()));
-            //With a 80% chance (or if we selected the "endpoint" attribute), change the attribute value
-            if (this._withProbability(0.8) || changedAttributeKey === "endpoint") {
+            if (changedAttributeKey === "endpoint") {
+                //change endpoint
+                node.attributes.set("endpoint", this._randomFrom(this.endpoints));
+            } else if(changedAttributeKey === "mode") {
+                //change choose mode
+                node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
+            } else if (this._withProbability(0.8)) {
+                //20% chance to change string value
                 const oldVal = node.attributes.get(changedAttributeKey);
                 node.attributes.set(changedAttributeKey, oldVal + this._randomString(10));
             } else {

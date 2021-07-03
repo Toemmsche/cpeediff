@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-export class Config {
-    static COMPARATOR = {
+export const Config =  {
+    COMPARATOR: {
         PATH_COMPARE_RANGE: 5,
         CALL_ENDPOINT_WEIGHT: 0.6,
         CALL_MODVAR_WEIGHT: 0.25,
@@ -27,14 +27,13 @@ export class Config {
         MANIPULATE_READVAR_WEIGHT: 0.3,
         CONTENT_WEIGHT: 0.8,
         STRUCTURE_WEIGHT: 0.2
-    }
+    },
+
+    LEAF_SIMILARITY_THRESHOLD: 0.25,
+    INNER_NODE_SIMILARITY_THRESHOLD: 0.4,
 
 
-    static LEAF_SIMILARITY_THRESHOLD = 0.25;
-    static INNER_NODE_SIMILARITY_THRESHOLD = 0.4;
-
-
-    static EXACT_EDIT_SCRIPT = false;
+    EXACT_EDIT_SCRIPT: false
 }
 
 

@@ -21,18 +21,10 @@ import {Config} from "../Config.js";
 
 export class EditScriptGenerator {
 
-    /**
-     * Given a (partial) matching between the nodes of two process trees,
-     * generates an edit script that includes (subtree) insert, (subree) delete and subtree move operations.
-     * Based on the edit script algorithm by
-     * Chawathe et al., "Change Detection in Hierarchically Structured Information"
-     * @param oldTree
-     * @param newTree
-     * @param matching
-     * @param options
-     * @return {EditScript}
-     */
+    matching;
+
     generateEditScript(oldTree, newTree, matching) {
+        this.matching = matching;
         const editScript = new EditScript();
 
         const newPreOrderArray = newTree.toPreOrderArray();
@@ -45,13 +37,13 @@ export class EditScriptGenerator {
                 //new Node has a match in the old tree
                 const match = matching.getNew(newNode);
                 if (matching.getNew(newNode.parent) !== match.parent) {
-                    this._move(match, matching, editScript);
+                    this._move(match, editScript);
                 }
                 if (!newNode.contentEquals(match)) {
-                    this._update(match, matching, editScript);
+                    this._update(match, editScript);
                 }
             } else {
-                this._insert(newNode, matching, editScript);
+                this._insert(newNode, editScript);
             }
         }
 
@@ -92,7 +84,7 @@ export class EditScriptGenerator {
         //However, order of child nodes might not be right, we must verify that it matches the new tree.
         for (const oldNode of oldTree.toPreOrderArray()) {
             if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
-                this._alignChildren(oldNode, matching, editScript);
+                this._alignChildren(oldNode, editScript);
             }
         }
 
@@ -100,16 +92,16 @@ export class EditScriptGenerator {
         return editScript;
     }
 
-    _alignChildren(oldParent, matching, editScript) {
+    _alignChildren(oldParent, editScript) {
         //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
-        const reshuffle = oldParent.childNodes.filter(n => matching.hasOld(n));
+        const reshuffle = oldParent.childNodes.filter(n => this.matching.hasOld(n));
         if (reshuffle.length === 0) {
             return;
         }
 
-        for (const newNode of matching.getOld(oldParent)) {
-            const match = matching.getNew(newNode);
+        for (const newNode of this.matching.getOld(oldParent)) {
+            const match = this.matching.getNew(newNode);
             if (match.childIndex !== newNode.childIndex) {
                 const oldIndex = match.childIndex;
                 const oldPath = match.toChildIndexPathString();
@@ -175,11 +167,11 @@ export class EditScriptGenerator {
 
 
         for (const node of oldParent) {
-            if (!matching.hasOld(node) || matching.getOld(node) == null) {
+            if (!this.matching.hasOld(node) || this.matching.getOld(node) == null) {
                 throw new Error();
             }
         }
-        const order = oldParent.childNodes.map(n => matching.getOld(n).childIndex);
+        const order = oldParent.childNodes.map(n => this.matching.getOld(n).childIndex);
         for (let i = 0; i < order.length - 1; i++) {
             if (order[i] >= order[i + 1]) {
                 throw new Error("children were not aligned");
@@ -195,38 +187,31 @@ export class EditScriptGenerator {
         editScript.delete(oldPath, oldNode.hasChildren());
     }
 
-    _move(oldNode, matching, editScript) {
-        const newNode = matching.getOld(oldNode);
+    _move(oldNode, editScript) {
+        const newNode = this.matching.getOld(oldNode);
         const oldPath = oldNode.toChildIndexPathString();
 
         //move oldNode to newParent
         oldNode.removeFromParent();
 
         //find appropriate insertion index
-        let insertionIndex;
-        if (newNode.childIndex > 0) {
-            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
-            //left sibling has a match
-            insertionIndex = matching.getNew(leftSibling).childIndex + 1;
-        } else {
-            insertionIndex = 0;
-        }
+        const insertionIndex = this._findInsertionIndex(newNode);
 
-        const newParent = matching.getNew(newNode.parent);
+        const newParent = this.matching.getNew(newNode.parent);
         newParent.insertChild(insertionIndex, oldNode);
         const newPath = oldNode.toChildIndexPathString();
         editScript.move(oldPath, newPath);
     }
 
-    _insert(newNode, matching, editScript) {
+    _insert(newNode, editScript) {
         const copy = NodeFactory.getNode(newNode, true);
 
         const removeLater = [];
         const matchOrRemove = (copiedNode, newNode) => {
-            if (matching.hasNew(newNode)) {
+            if (this.matching.hasNew(newNode)) {
                 removeLater.push(copiedNode);
             } else {
-                matching.matchNew(newNode, copiedNode);
+                this.matching.matchNew(newNode, copiedNode);
                 for (let i = 0; i < copiedNode.numChildren(); i++) {
                     matchOrRemove(copiedNode.getChild(i), newNode.getChild(i));
                 }
@@ -238,25 +223,31 @@ export class EditScriptGenerator {
         }
 
         //find appropriate insertion index
-        let insertionIndex;
-        if (newNode.childIndex > 0) {
-            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
-            //left sibling has a match
-            insertionIndex = matching.getNew(leftSibling).childIndex + 1;
-        } else {
-            insertionIndex = 0;
-        }
+        const insertionIndex = this._findInsertionIndex(newNode);
+
 
         //perform insert operation at match of the parent node
-        const newParent = matching.getNew(newNode.parent);
+        const newParent = this.matching.getNew(newNode.parent);
         newParent.insertChild(insertionIndex, copy);
         const newPath = copy.toChildIndexPathString();
 
         editScript.insert(newPath, NodeFactory.getNode(copy, true), copy.hasChildren());
     }
 
-    _update(oldNode, matching, editScript) {
-        const newNode = matching.getOld(oldNode);
+    _findInsertionIndex(newNode) {
+        let insertionIndex;
+        if (newNode.childIndex > 0) {
+            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+            //left sibling has a match
+            insertionIndex = this.matching.getNew(leftSibling).childIndex + 1;
+        } else {
+            insertionIndex = 0;
+        }
+        return insertionIndex;
+    }
+
+    _update(oldNode, editScript) {
+        const newNode = this.matching.getOld(oldNode);
         const oldPath = oldNode.toChildIndexPathString();
         //during edit script generation, we don't need to update the data/attributes of the match
         editScript.update(oldPath, NodeFactory.getNode(newNode, false));

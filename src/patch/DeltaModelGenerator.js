@@ -20,11 +20,14 @@ import {Dsl} from "../Dsl.js";
 import {IdExtractor} from "../extract/IdExtractor.js";
 
 export class DeltaTreeGenerator {
+    
+    tree;
+   moveMap;
 
-    _handleInsert(tree, change, moveMap) {
+    _handleInsert( change) {
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
         const childIndex = indexArr.pop();
-        const [parent, movfrParent] = this._findNode(tree, indexArr.join("/"), moveMap);
+        const [parent, movfrParent] = this._findNode( indexArr.join("/"));
         const newNode = DeltaNodeFactory.getNode(change.newData);
 
         this._applyInsert(parent, newNode, childIndex);
@@ -41,9 +44,9 @@ export class DeltaTreeGenerator {
         }
     }
 
-    _handleMove(tree, change, moveMap) {
+    _handleMove( change) {
         //find moved node
-        let [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
+        let [node, movfrNode] = this._findNode(change.oldPath);
 
         //configure move_from placeholder node
         let movfrParent;
@@ -63,7 +66,7 @@ export class DeltaTreeGenerator {
         //find new parent
         const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
         const targetIndex = parentIndexArr.pop();
-        const [parent] = this._findNode(tree, parentIndexArr.join("/"), moveMap);
+        const [parent] = this._findNode( parentIndexArr.join("/"));
 
         //insert node
         parent.insertChild(targetIndex, node);
@@ -74,11 +77,11 @@ export class DeltaTreeGenerator {
 
         movfrParent.placeholders.push(movfrNode);
         //create entry in move map
-        moveMap.set(node, movfrNode);
+        this.moveMap.set(node, movfrNode);
     }
 
-    _handleUpdate(tree, change, moveMap) {
-        const [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
+    _handleUpdate( change) {
+        const [node, movfrNode] = this._findNode(change.oldPath);
         const newData = change.newData;
 
         this._applyUpdate(node, newData);
@@ -114,8 +117,8 @@ export class DeltaTreeGenerator {
         }
     }
 
-    _handleDelete(tree, change, moveMap) {
-        const [node, movfrNode] = this._findNode(tree, change.oldPath, moveMap);
+    _handleDelete( change) {
+        const [node, movfrNode] = this._findNode(change.oldPath);
 
         this._applyDelete(node);
         if (movfrNode != null) {
@@ -133,48 +136,49 @@ export class DeltaTreeGenerator {
     }
 
     extendedDeltaTree(tree, editScript) {
-        const deltaTree = this.deltaTree(tree, editScript)
-        this._resolvePlaceholders(tree);
+        const deltaTree = this.deltaTree(this.tree, editScript)
+        this._resolvePlaceholders(this.tree);
     }
 
     deltaTree(tree, editScript) {
-        //copy tree
+        //copy this.tree
         tree = DeltaNodeFactory.getNode(tree);
+        this.tree = tree;
+        this.moveMap = new Map();
 
         const idExtractor = new IdExtractor();
-        for (const node of tree.toPreOrderArray()) {
+        for (const node of this.tree.toPreOrderArray()) {
             node.baseNode = idExtractor.get(node);
         }
 
-        const moveMap = new Map();
         for (const change of editScript) {
             switch (change.changeType) {
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
                 case Dsl.CHANGE_TYPES.INSERTION: {
-                    this._handleInsert(tree, change, moveMap);
+                    this._handleInsert( change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO: {
-                    this._handleMove(tree, change, moveMap);
+                    this._handleMove( change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.UPDATE: {
-                    this._handleUpdate(tree, change, moveMap);
+                    this._handleUpdate( change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
                 case Dsl.CHANGE_TYPES.DELETION: {
-                    this._handleDelete(tree, change, moveMap);
+                    this._handleDelete( change);
                     break;
                 }
             }
         }
-        return tree;
+        return this.tree;
     }
 
 
-    _findNode(tree, indexPath, moveMap) {
-        let currNode = tree;
+    _findNode(indexPath) {
+        let currNode = this.tree;
         let moveFromPlaceHolder = null;
         if(indexPath !== "") {
             for (let index of indexPath.split("/").map(str => parseInt(str))) {
@@ -191,8 +195,8 @@ export class DeltaTreeGenerator {
                     moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
                 }
                 currNode = currNode.getChild(index);
-                if (moveMap.has(currNode)) {
-                    moveFromPlaceHolder = moveMap.get(currNode);
+                if (this.moveMap.has(currNode)) {
+                    moveFromPlaceHolder = this.moveMap.get(currNode);
                 }
             }
         }

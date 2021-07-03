@@ -42,6 +42,9 @@ export class PropertyMatcher extends AbstractMatchingAlgorithm {
                 if (oldLabelMap.has(newChild.label)) {
                     const match = oldLabelMap.get(newChild.label);
                     matching.matchNew(newChild, match);
+                    //Theoretically, a repeated matching can occur if two arguments in the new tree have the same name
+                    //Even though this situation is highly unlikely, we delete the entry in the label map to prevent it.
+                    oldLabelMap.delete(newChild.label);
                     this._matchProperties(match, newChild, matching);
                 }
             }

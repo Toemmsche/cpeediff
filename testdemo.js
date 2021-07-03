@@ -7,9 +7,9 @@ import {OurMatchAdapter} from "./test/matcheval/OurMatchAdapter.js";
 
 //new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-DiffAlgorithmEvaluation.all().evalAll();
+//DiffAlgorithmEvaluation.all().evalAll();
 
-//MergeAlgorithmEvaluation.all().evalAll();
+MergeAlgorithmEvaluation.all().evalAll();
 
 /*
 const diff = new OurDiffAdapter();

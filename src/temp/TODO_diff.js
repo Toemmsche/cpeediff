@@ -2,7 +2,6 @@
 //      compare path with weights depending on closeness
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
-//      hash only considers semantic aspects
 //      data passses in parallel branches
 
 //TODO gen
@@ -11,7 +10,6 @@
 //TODO new algos
 //      reshuffling with fast lis
 //      q-gram distance for string comparison and similarity
-//      optimize matching
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO maybe features
@@ -27,13 +25,12 @@
 //      chnage origin for ujpdates -->> own object ( with undefined meaning not present -> insertion or deletion)
 //      ignore comments during xml parsing (and processing isntruction)
 //      command line interface (help, error messages, logging, etc.)
-//      use global variable for options
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      IMPORTANT use default parameters to simplify postorder methods etc.
-//      readVariables considers Code, too
 //      colors in delta output
 
 //TODO tidy
+//      model type in geneartor params
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
@@ -41,7 +38,6 @@
 //      use xpath like syntax
 //      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
-//      change TNode name (maybe element or text)
 //      resolve naming conflicts (call as argunment)
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever possible
 //      no construction paramters for comparator and matching

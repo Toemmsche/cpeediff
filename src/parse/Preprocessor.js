@@ -26,8 +26,7 @@ export class Preprocessor {
         return this.parseWithMetadata(fs.readFileSync(path).toString())
     }
 
-    parseWithMetadata(xml) {
-
+    parseWithMetadata(xml, withInitScript = false) {
         const endpointToUrl = new Map();
         const dataElements = new Map();
 
@@ -72,7 +71,7 @@ export class Preprocessor {
         }
 
 
-        return this.prepareTree(tree, endpointToUrl, dataElements);
+        return this.prepareTree(tree, endpointToUrl, dataElements, withInitScript);
 
     }
 
@@ -112,7 +111,7 @@ export class Preprocessor {
         if (withInitScript) {
             //insert initializer for all declared variables at beginning of tree
             const script = new Node(Dsl.KEYWORDS.MANIPULATE.label);
-            script.data = ".js";
+            script.data = "";
             script.attributes.set("id", "init");
             for (const [dataElement, initialValue] of dataElements) {
                 script.data += "data." + dataElement + " = " + initialValue + ";";

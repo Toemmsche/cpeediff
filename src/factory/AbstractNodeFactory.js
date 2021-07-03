@@ -18,7 +18,6 @@ import {Node} from "../tree/Node.js";
 import {DeltaNode} from "../tree/DeltaNode.js";
 import {MergeNode} from "../tree/MergeNode.js";
 
-
 export class AbstractNodeFactory {
 
     static getNode(source, includeChildNodes = true) {

@@ -19,8 +19,8 @@ import {VariableExtractor} from "../extract/VariableExtractor.js";
 import {SizeExtractor} from "../extract/SizeExtractor.js";
 import {Dsl} from "../Dsl.js";
 import {Lcs} from "../lib/Lcs.js";
-import {Config} from "../Config.js";
 import {AbstractComparator} from "./AbstractComparator.js";
+import {Config} from "../Config.js";
 
 export class StandardComparator extends AbstractComparator {
 
