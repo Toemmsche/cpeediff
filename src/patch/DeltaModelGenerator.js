@@ -14,20 +14,20 @@
    limitations under the License.
 */
 
-import {Node} from "../tree/Node.js"
 import {DeltaNodeFactory} from "../factory/DeltaNodeFactory.js";
 import {Dsl} from "../Dsl.js";
 import {IdExtractor} from "../extract/IdExtractor.js";
+import {Update} from "../editscript/Update.js";
 
 export class DeltaTreeGenerator {
-    
-    tree;
-   moveMap;
 
-    _handleInsert( change) {
+    tree;
+    moveMap;
+
+    _handleInsert(change) {
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
         const childIndex = indexArr.pop();
-        const [parent, movfrParent] = this._findNode( indexArr.join("/"));
+        const [parent, movfrParent] = this._findNode(indexArr.join("/"));
         const newNode = DeltaNodeFactory.getNode(change.newData);
 
         this._applyInsert(parent, newNode, childIndex);
@@ -44,7 +44,7 @@ export class DeltaTreeGenerator {
         }
     }
 
-    _handleMove( change) {
+    _handleMove(change) {
         //find moved node
         let [node, movfrNode] = this._findNode(change.oldPath);
 
@@ -66,7 +66,7 @@ export class DeltaTreeGenerator {
         //find new parent
         const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
         const targetIndex = parentIndexArr.pop();
-        const [parent] = this._findNode( parentIndexArr.join("/"));
+        const [parent] = this._findNode(parentIndexArr.join("/"));
 
         //insert node
         parent.insertChild(targetIndex, node);
@@ -80,7 +80,7 @@ export class DeltaTreeGenerator {
         this.moveMap.set(node, movfrNode);
     }
 
-    _handleUpdate( change) {
+    _handleUpdate(change) {
         const [node, movfrNode] = this._findNode(change.oldPath);
         const newData = change.newData;
 
@@ -92,18 +92,18 @@ export class DeltaTreeGenerator {
 
     _applyUpdate(node, newData) {
         if (node.data !== newData.data) {
-            node.updates.set("data", [node.data, newData.data]);
+            node.updates.set("data", new Update(node.data, newData.data));
             node.data = newData.data;
         }
         //detected updated and inserted attributes
         for (const [key, value] of newData.attributes) {
             if (node.attributes.has(key)) {
                 if (node.attributes.get(key) !== value) {
-                    node.updates.set(key, {oldVal: node.attributes.get(key), newVal: value});
+                    node.updates.set(key, new Update(node.attributes.get(key), value));
                     node.attributes.set(key, value);
                 }
             } else {
-                node.updates.set(key, {oldVal: null, newVal: value});
+                node.updates.set(key, new Update(null, value));
                 node.attributes.set(key, value);
             }
         }
@@ -111,13 +111,13 @@ export class DeltaTreeGenerator {
         //detect deleted attributes
         for (const [key, value] of node.attributes) {
             if (!newData.attributes.has(key)) {
-                node.updates.set(key, {oldVal: value, newVal: null})
+                node.updates.set(key, new Update(value, null))
                 node.attributes.delete(key);
             }
         }
     }
 
-    _handleDelete( change) {
+    _handleDelete(change) {
         const [node, movfrNode] = this._findNode(change.oldPath);
 
         this._applyDelete(node);
@@ -155,20 +155,20 @@ export class DeltaTreeGenerator {
             switch (change.changeType) {
                 case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
                 case Dsl.CHANGE_TYPES.INSERTION: {
-                    this._handleInsert( change);
+                    this._handleInsert(change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.MOVE_TO: {
-                    this._handleMove( change);
+                    this._handleMove(change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.UPDATE: {
-                    this._handleUpdate( change);
+                    this._handleUpdate(change);
                     break;
                 }
                 case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
                 case Dsl.CHANGE_TYPES.DELETION: {
-                    this._handleDelete( change);
+                    this._handleDelete(change);
                     break;
                 }
             }
@@ -180,7 +180,7 @@ export class DeltaTreeGenerator {
     _findNode(indexPath) {
         let currNode = this.tree;
         let moveFromPlaceHolder = null;
-        if(indexPath !== "") {
+        if (indexPath !== "") {
             for (let index of indexPath.split("/").map(str => parseInt(str))) {
                 if (index > currNode.numChildren()) {
                     throw new Error("Edit script not applicable to tree");

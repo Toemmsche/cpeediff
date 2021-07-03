@@ -18,11 +18,12 @@ import {MatchPipeline} from "../matching/MatchPipeline.js";
 import {StandardComparator} from "../compare/StandardComparator.js";
 import {Matching} from "../matching/Matching.js";
 import {MergeNodeFactory} from "../factory/MergeNodeFactory.js";
-import {MatchDiff} from "../diff/MatchDiff.js";
+import {CpeeDiff} from "../diff/CpeeDiff.js";
 import {DeltaTreeGenerator} from "../patch/DeltaModelGenerator.js";
 import {Preprocessor} from "../parse/Preprocessor.js";
+import {Update} from "../editscript/Update.js";
 
-export class DeltaMerger {
+export class CpeeMerge {
 
     _getDeltaMatching(deltaTree1, deltaTree2) {
         const baseNodeMap = new Map();
@@ -44,6 +45,9 @@ export class DeltaMerger {
     _setChangeOrigin(deltaTree, origin) {
         for (const node of deltaTree.toPreOrderArray()) {
             node.changeOrigin = origin;
+            for (const [key, update] of node.updates) {
+                update.origin = origin;
+            }
         }
     }
 
@@ -71,9 +75,9 @@ export class DeltaMerger {
         }
         toNode.data = fromNode.data;
         for (const [updateKey, updateVal] of fromNode.updates) {
-            toNode.updates.set(updateKey, Object.assign({}, updateVal));
+            toNode.updates.set(updateKey, updateVal.copy());
+            toNode.updates.set(updateKey, updateVal.copy());
         }
-        toNode.changeOrigin = fromNode.changeOrigin;
     }
 
     _applyDeletions(deltaTree, matching) {
@@ -95,7 +99,7 @@ export class DeltaMerger {
                     match.removeFromParent();
                     this._insertCorrectly(match, node, matching);
                 }
-                if (node.isUpdate() && !match.isUpdate()) {
+                if (node.isUpdate() && !match.isUpdate() && !match.isInsertion()) {
                     //update match
                     //TODO check for insertion
                     this._applyUpdate(node, match);
@@ -132,7 +136,7 @@ export class DeltaMerger {
 
                 //edge case: insertion of the same node (matched insertions) at different positions/with different content
                 //TODO make merge case
-                if (node.isInsertion() && match.isInsertion()) {
+                if (node.isInsertion() && (match.isInsertion() || match.isUpdate())) {
                     moveConflicts.add(node);
                     if (!node.contentEquals(match)) {
                         updateConflicts.add(node);
@@ -166,25 +170,29 @@ export class DeltaMerger {
         for (const node of updateConflicts) {
             const match = matching.getOther(node);
 
-            //edge case: both nodes are insertions
-            if (node.isInsertion() && match.isInsertion()) {
+            //edge case: a node is an insertion
+            if (node.isInsertion()) {
                 //insertion is essentially an update with no pre-existing value
                 for (const [key, value] of node.attributes) {
-                    node.updates.set(key, {oldVal: null, newVal: value});
+                    node.updates.set(key, new Update(null, value, node.changeOrigin));
                 }
-                node.updates.set("data", {oldVal: null, newVal: node.data});
+                node.updates.set("data", new Update(null, node.data, node.changeOrigin));
+            }
+
+            if (match.isInsertion()) {
+                //insertion is essentially an update with no pre-existing value
                 for (const [key, value] of match.attributes) {
-                    match.updates.set(key, {oldVal: null, newVal: value});
+                    match.updates.set(key, new Update(null, value, match.changeOrigin));
                 }
-                match.updates.set("data", {oldVal: null, newVal: match.data});
+                match.updates.set("data", new Update(null, match.data, match.changeOrigin));
             }
 
             //detect attribute and data conflicts
-            for (const [key, change] of node.updates) {
-                const oldVal = change.oldVal;
-                const newVal = change.newVal;
+            for (const [key, update] of node.updates) {
+                const oldVal = update.oldVal;
+                const newVal = update.newVal;
                 if (!match.updates.has(key)) {
-                    match.updates.set(key, Object.assign({}, change));
+                    match.updates.set(key, update.copy());
                     if (key === "data") {
                         match.data = newVal;
                     } else if (newVal == null) {
@@ -199,6 +207,7 @@ export class DeltaMerger {
                         if (matchNewVal == null || (newVal != null && newVal.length >= matchNewVal.length)) {
                             //adopt this version
                             match.updates.get(key).newVal = newVal;
+                            match.updates.get(key).origin = update.origin;
                             if (key === "data") {
                                 match.data = newVal;
                             } else {
@@ -207,6 +216,7 @@ export class DeltaMerger {
                         } else {
                             //adopt the version of the match
                             node.updates.get(key).newVal = matchNewVal;
+                            node.updates.get(key).origin = match.updates.get(key).origin;
                             if (key === "data") {
                                 node.data = matchNewVal;
                             } else {
@@ -220,11 +230,11 @@ export class DeltaMerger {
                 }
             }
 
-            //consider non-conflicting changes from other node
-            for (const [key, change] of match.updates) {
-                const newVal = change.newVal;
+            //consider non-conflicting updates from other node
+            for (const [key, update] of match.updates) {
+                const newVal = update.newVal;
                 if (!node.updates.has(key)) {
-                    node.updates.set(key, Object.assign({}, change));
+                    node.updates.set(key, update.copy());
                     if (key === "data") {
                         node.data = newVal;
                     } else if (newVal == null) {
@@ -234,15 +244,11 @@ export class DeltaMerger {
                     }
                 }
             }
-
-            //TODO set actual
-            node.changeOrigin = 3;
-            match.changeOrigin = 3;
         }
     }
 
     merge(base, tree1, tree2) {
-        const differ = new MatchDiff(MatchPipeline.standard());
+        const differ = new CpeeDiff(MatchPipeline.standard());
 
         const delta1 = differ.diff(base, tree1, new StandardComparator());
         const delta2 = differ.diff(base, tree2, new StandardComparator());

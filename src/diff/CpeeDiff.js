@@ -20,7 +20,7 @@ import {EditScriptGenerator} from "../editscript/EditScriptGenerator.js";
 import {NodeFactory} from "../factory/NodeFactory.js";
 import {MatchPipeline} from "../matching/MatchPipeline.js";
 
-export class MatchDiff {
+export class CpeeDiff {
     
     matchPipeline;
     editScriptGenerator;

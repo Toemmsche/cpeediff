@@ -11,10 +11,10 @@
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
-            <call id="a1"  newAttr="newVal" endpoint="bookAir" >
+            <call id="a1" endpoint="bookAir">
                 <parameters>
-                    <label>Book Airlines for everybody</label>
-                    <method>:post</method>
+                    <label>Book Airlines</label>
+                    <method>:put</method>
                     <arguments>
                         <from>data.from</from>
                         <to>data.to</to>
@@ -22,7 +22,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f; data *= 1.19;</finalize>
                 </code>
             </call>
         </description>

@@ -31,7 +31,7 @@ const {DeltaTreeGenerator} = require("./src/patch/DeltaTreeGenerator");
 const {Config} = require("./src/Config");
 const {PathMatching} = require("./src/matching/PathMatching");
 const {Parser} = require("./src/parse/Preprocessor");
-const {MatchDiff} = require("./src/diff/MatchDiff");
+const {CpeeDiff} = require("./src/diff/CpeeDiff");
 
 
 const argv = yargs
@@ -89,7 +89,7 @@ const argv = yargs
         const oldTree = Parser.fromCpee(fs.readFileSync(argv.oldFile).toString());
         const newTree = Parser.fromCpee(fs.readFileSync(argv.newFile).toString());
 
-        const editScript = MatchDiff.diff(oldTree, newTree, PathMatching);
+        const editScript = CpeeDiff.diff(oldTree, newTree, PathMatching);
 
         switch (argv.format) {
             case "deltaTree": {

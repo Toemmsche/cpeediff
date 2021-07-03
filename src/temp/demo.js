@@ -19,9 +19,11 @@ import {NodeFactory} from "../factory/NodeFactory.js";
 import {TreeGenerator} from "../gen/TreeGenerator.js";
 import {GeneratorParameters} from "../gen/GeneratorParameters.js";
 import {XmlFactory} from "../factory/XmlFactory.js";
-import {MatchDiff} from "../diff/MatchDiff.js";
+import {CpeeDiff} from "../diff/CpeeDiff.js";
 import fs from "fs";
 import {Preprocessor} from "../parse/Preprocessor.js";
+import {Config} from "../Config.js";
+import {CpeeMerge} from "../merge/CpeeMerge.js";
 
 let booking = "test/test_set/examples/booking.xml";
 
@@ -31,20 +33,28 @@ const bm = new Preprocessor().parseWithMetadata(b);
 
 
 
-let gen = new TreeGenerator(new GeneratorParameters(10, 10, 25, 8));
+let gen = new TreeGenerator(new GeneratorParameters(10000, 10, 25, 8));
 
 
-const r = gen.randomLeavesOnly();
+const base = "test/test_set/merge_cases/update_conflict/base.xml";
+const b1 = "test/test_set/merge_cases/update_conflict/1.xml";
+const b2 = "test/test_set/merge_cases/update_conflict/2.xml";
 
-console.log("leafs: " + r.leaves().length);
-console.log("inners: " + r.innerNodes().length);
-console.log("properties: " + r.toPreOrderArray().filter(n => n.isPropertyNode()).length);
+const bt = new Preprocessor().parseFromFile(base);
+const t1 = new Preprocessor().parseFromFile(b1);
+const t2 = new Preprocessor().parseFromFile(b2);
 
-console.log(XmlFactory.serialize(new MatchDiff().diff(r, bm)));
-
-const r2 = gen.changeTree(r, 10).tree;
+new CpeeMerge().merge(bt, t1, t2);
 
 
+
+Config.EXACT_EDIT_SCRIPT = true;
+let time = new Date().getTime();
+new CpeeDiff().diff(r, r2);
+
+time = new Date().getTime() - time;
+
+console.log(time);
 
 
 /*
@@ -68,11 +78,11 @@ console.log(TreeStringSerializer.serializeTree(tree1));
 console.log(TreeStringSerializer.serializeTree(tree2));
 
 
-const d = new MatchDiff().diff(tree1, tree2, new ChawatheMatching());
+const d = new CpeeDiff().diff(tree1, tree2, new ChawatheMatching());
 const dt = new DeltaTreeGenerator().deltaTree(tree1, d);
 
 
-console.log(XmlFactory.serialize(new DeltaMerger().merge(tree1, tree2, tree3)));
+console.log(XmlFactory.serialize(new CpeeMerge().merge(tree1, tree2, tree3)));
 
 
 */

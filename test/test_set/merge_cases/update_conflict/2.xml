@@ -5,7 +5,6 @@
         <from>Vienna</from>
         <to>Prague</to>
         <costs>0</costs>
-        <date>11-01-2022</date>
     </dataelements>
     <endpoints>
         <bookAir>http://gruppe.wst.univie.ac.at/~mangler/services/airline.php</bookAir>
@@ -20,11 +19,10 @@
                         <from>data.from</from>
                         <to>data.to</to>
                         <persons>data.persons</persons>
-                        <date>data.date</date>
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f; data *= 1.19;</finalize>
                 </code>
             </call>
         </description>

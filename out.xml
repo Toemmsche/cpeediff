@@ -21,7 +21,7 @@
             </nil:arguments>
         </nil:parameters>
         <nil:code>
-            <nil:finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</nil:finalize>
+            <nil:finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</nil:finalize>
             <ins:update output="result"/>
             <ins:rescue output="result"/>
         </nil:code>
@@ -52,7 +52,7 @@
                         </nil:arguments>
                     </nil:parameters>
                     <nil:code>
-                        <nil:finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</nil:finalize>
+                        <nil:finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</nil:finalize>
                         <ins:update output="result"/>
                         <ins:rescue output="result"/>
                     </nil:code>

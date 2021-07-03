@@ -37,8 +37,8 @@ export class MergeNodeFactory extends AbstractNodeFactory {
         const mergeNode = this._fromNode(deltaNode, includeChildNodes);
         mergeNode.changeType = deltaNode.changeType;
         mergeNode.baseNode = deltaNode.baseNode;
-        for (const [key, change] of deltaNode.updates) {
-            mergeNode.updates.set(key, Object.assign({}, change));
+        for (const [key, update] of deltaNode.updates) {
+            mergeNode.updates.set(key, update.copy());
         }
         if (includeChildNodes) {
             for (const placeholder of mergeNode.placeholders) {

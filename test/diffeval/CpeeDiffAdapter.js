@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {MatchDiff} from "../../src/diff/MatchDiff.js";
+import {CpeeDiff} from "../../src/diff/CpeeDiff.js";
 import {Config} from "../../src/Config.js";
 import {DeltaTreeGenerator} from "../../src/patch/DeltaModelGenerator.js";
 import {Dsl} from "../../src/Dsl.js";
@@ -33,7 +33,7 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         //TODO child order hash
         Config.EXACT_EDIT_SCRIPT = true;
         let time = new Date().getTime();
-        const delta = new MatchDiff().diff(oldTree, newTree);
+        const delta = new CpeeDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;
         //verify the correctness of our diff by patching the original tree with it
         const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);

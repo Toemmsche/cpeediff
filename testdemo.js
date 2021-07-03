@@ -5,11 +5,11 @@ import {MatchingAlgorithmEvaluation} from "./test/matcheval/MatchingAlgorithmEva
 import {OurMatchAdapter} from "./test/matcheval/OurMatchAdapter.js";
 
 
-new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
+//new MatchingAlgorithmEvaluation([new OurMatchAdapter()]).evalAll();
 
-//DiffAlgorithmEvaluation.all().evalAll();
+//DiffAlgorithmEvaluation.fast().evalAll();
 
-//MergeAlgorithmEvaluation.all().evalAll();
+MergeAlgorithmEvaluation.all().evalAll();
 
 /*
 const diff = new OurDiffAdapter();
@@ -28,7 +28,7 @@ for (let i = 0; i < 10; i++) {
 const r = new Preprocessor().parseFromFile("A.xml");
 const s = new Preprocessor().parseFromFile("B.xml");
 
-const delta = new MatchDiff().diff(r,s);
+const delta = new CpeeDiff().diff(r,s);
 
 console.log(new DeltaTreeGenerator().deltaTree(r, delta).deepEquals(s));
 

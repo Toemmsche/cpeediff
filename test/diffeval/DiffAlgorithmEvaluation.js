@@ -42,6 +42,13 @@ export class DiffAlgorithmEvaluation {
         return new DiffAlgorithmEvaluation(adapters);
     }
 
+    static fast() {
+        let adapters = [ new DeltaJsAdapter(), new XccAdapter()];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
+        adapters.unshift(new CpeeDiffAdapter());
+        return new DiffAlgorithmEvaluation(adapters);
+    }
+
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
         console.log("Using " + caseDir + " to evaluate diff algorithms");
 

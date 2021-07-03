@@ -16,7 +16,7 @@
 
 const assert = require("assert");
 const fs = require("fs");
-const {DeltaMerger} = require("../src/merge/DeltaMerger");
+const {CpeeMerge} = require("../src/merge/CpeeMerge");
 const {IdExtractor} = require("../src/extract/IdExtractor");
 const {ChawatheMatching} = require("../src/matching/ChawatheMatch");
 const {ExpectedMatch} = require("./matcheval/ExpectedMatch");
@@ -46,7 +46,7 @@ describe("merge cases", () => {
 
         describe(dir, () => {
             //merge
-            const merger = new DeltaMerger();
+            const merger = new CpeeMerge();
 
             it("should produce a valid merge result of the two branches", () => {
                 const mergedTree = merger.merge(baseTree, branch1, branch2, new ChawatheMatching())

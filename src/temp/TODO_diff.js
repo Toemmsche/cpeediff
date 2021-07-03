@@ -3,6 +3,7 @@
 //      command line visualization including "live" patching and filtered changes
 //      configurable separator between data and variable name (make "data." configurable)
 //      data passses in parallel branches
+//      use _assign() to make copies
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -81,7 +82,7 @@ Merge Ideas:
 
 
 3way:
-idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree (DeltaMerger)
+idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree (CpeeMerge)
 
 idea 2: Merge the set of leaf nodes, then
  */

@@ -22,7 +22,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f status.update 1, 'Hotel'</finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
                 </code>
             </call>
         </description>

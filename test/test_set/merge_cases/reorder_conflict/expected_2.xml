@@ -34,8 +34,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.hotels; result.value('id') data.costs += result.value('costs').to_f
-                    </finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
                 </code>
             </call>
             <call id="a1" endpoint="bookAir">
@@ -49,8 +48,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id') data.costs += result.value('costs').to_f
-                        status.update 1, 'Hotel'
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;
                     </finalize>
                 </code>
             </call>

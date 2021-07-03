@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {DeltaMerger} from "../../src/merge/DeltaMerger.js";
+import {CpeeMerge} from "../../src/merge/CpeeMerge.js";
 import {TestConfig} from "../TestConfig.js";
 import {MergeTestResult} from "./MergeTestResult.js";
 import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
@@ -25,7 +25,7 @@ export class CpeeMergeAdapter extends AbstractMergeAdapter {
 
     constructor() {
         super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
-        this.mergeAlgorithm = new DeltaMerger();
+        this.mergeAlgorithm = new CpeeMerge();
     }
 
     evalCase(name, base, branch1, branch2, expected, accepted) {
