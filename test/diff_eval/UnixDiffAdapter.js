@@ -16,14 +16,27 @@
 
 import {TestConfig} from "../TestConfig.js";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
-import {DiffTestResult} from "./DiffTestResult.js";
 
-export class DiffXmlAdapter extends AbstractDiffAdapter {
+export class UnixDiffAdapter extends AbstractDiffAdapter {
 
     constructor() {
-        super(TestConfig.DIFFS.DIFFXML.path, TestConfig.DIFFS.DIFFXML.displayName);
+        super(TestConfig.DIFFS.UNIXDIFF.path, TestConfig.DIFFS.UNIXDIFF.displayName);
     }
 
+    _parseOutput(output) {
+        let insertionCounter = 0;
+        let deletionCounter = 0;
+
+        for (const line of output.split("\n")) {
+            if (line.startsWith("<")) {
+                deletionCounter++;
+            } else if (line.startsWith(">")) {
+                insertionCounter++;
+            }
+        }
+        //unix diff cannot detect moves or updates
+        return [insertionCounter, 0, 0, deletionCounter];
+    }
 }
 
 

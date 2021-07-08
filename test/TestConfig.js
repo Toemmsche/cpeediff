@@ -63,6 +63,11 @@ export const TestConfig = {
             displayName: "XCC Diff",
             path: "../xml_diff_algos/xcc"
         },
+        UNIXDIFF: {
+            displayName: "UNIX diff",
+            path: "../xml_diff_algos/unixdiff"
+        }
+
     },
 
     MERGES: {
