@@ -18,19 +18,19 @@ export class DiffTestInfo {
 
     name;
     maxSize;
-    numInsertions;
-    numMoves;
-    numUpdates;
-    numDeletions;
+    insertions;
+    moves;
+    updates;
+    deletions;
 
 
-    constructor(name, maxSize, numInsertions, numMoves, numUpdates, numDeletions) {
+    constructor(name, maxSize, insertions = 0, moves = 0, updates = 0, deletions  = 0) {
         this.name = name;
         this.maxSize = maxSize;
-        this.numInsertions = numInsertions;
-        this.numMoves = numMoves;
-        this.numUpdates = numUpdates;
-        this.numDeletions = numDeletions;
+        this.insertions = insertions;
+        this.moves = moves;
+        this.updates = updates;
+        this.deletions = deletions;
     }
 }
 

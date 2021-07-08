@@ -46,6 +46,7 @@
 
 
 //TODO bugs
+//      mhasmatching when child order changed but internalordering = false
 //      robus against processing instruction (delta not first child)
 //      add null checks for appropriate methods
 //      edit script not applicable

@@ -1,7 +1,7 @@
 {
   "maxSize": 10,
-  "numInsertions": 0,
-  "numMoves": 0,
-  "numUpdates": 1,
-  "numDeletions": 1
+  "insertions": 0,
+  "moves": 0,
+  "updates": 1,
+  "deletions": 1
 }

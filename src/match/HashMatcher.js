@@ -66,12 +66,15 @@ export class HashMatcher extends AbstractMatchingAlgorithm {
                     //compare structurally only, content equality is guaranteed through hash equality
                     const structCompareValue = comparator.structCompare(oldNode, newNode);
                     if (structCompareValue === 0) {
-                        //found a perfect match, remove both nodes from candidates list
+                        //found a perfect match, match entire subtrees
                         const newPreOrder = newNode.toPreOrderArray();
                         const oldPreOrder = oldNode.toPreOrderArray();
                         if (newPreOrder.length !== oldPreOrder.length) {
-                            throw new Error();
+                            throw new Error("Subtrees with equal hash do not contain the same number of nodes");
                         }
+                        //stable sort both arrays because hash may ignore child order of certain nodes
+                        newPreOrder.sort((a,b) => hashExtractor.get(a) - hashExtractor.get(b));
+                        oldPreOrder.sort((a,b) => hashExtractor.get(a) - hashExtractor.get(b));
                         for (let i = 0; i < newPreOrder.length; i++) {
                             matching.matchNew(newPreOrder[i], oldPreOrder[i]);
                         }
