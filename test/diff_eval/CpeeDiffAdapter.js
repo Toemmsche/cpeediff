@@ -22,6 +22,7 @@ import {XmlFactory} from "../../src/io/XmlFactory.js";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {EditScriptFactory} from "../../src/diff/delta/EditScriptFactory.js";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
 export class CpeeDiffAdapter extends AbstractDiffAdapter {
 

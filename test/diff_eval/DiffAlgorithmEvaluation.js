@@ -108,14 +108,18 @@ export class DiffAlgorithmEvaluation {
                             oldTree = parser.parseWithMetadata(content);
                         } else if (file === "info.json") {
                             testInfo = Object.assign(new DiffTestInfo(), JSON.parse(content));
-                            testInfo.name = dir;
                         }
                     }
                 );
-                if (oldTree == null || newTree == null || testInfo == null) {
+                if (oldTree == null || newTree == null) {
                     //test case is incomplete => skip
                     return;
                 }
+                if(testInfo == null) {
+                    testInfo = new DiffTestInfo();
+                }
+                testInfo.name = dir;
+                testInfo.maxSize = Math.max(oldTree.toPreOrderArray().length, newTree.toPreOrderArray().length);
             }
 
 

@@ -18,6 +18,7 @@
 import {EditScript} from "./EditScript.js";
 import {NodeFactory} from "../../tree/NodeFactory.js";
 import {Config} from "../../Config.js";
+import {Lis} from "../../lib/Lis.js";
 
 export class EditScriptGenerator {
 
@@ -95,10 +96,12 @@ export class EditScriptGenerator {
     _alignChildren(oldParent, editScript) {
         //Based on A. Marian, "Detecting Changes in XML Documents", 2002
 
-        const reshuffle = oldParent.childNodes.filter(n => this.matching.hasOld(n));
+        let reshuffle = oldParent.childNodes.filter(n => this.matching.hasOld(n));
         if (reshuffle.length === 0) {
             return;
         }
+
+
 
         for (const newNode of this.matching.getOld(oldParent)) {
             const match = this.matching.getNew(newNode);
@@ -115,69 +118,50 @@ export class EditScriptGenerator {
             }
         }
 
+
+
         /*
-        //map each old child node to the child index of its matching partner
-        const arr = reshuffle.map(n => matching.getOld(n).childIndex);
-
-        //TODO
-        //find conflict groups based on read and modified variables
-        //find the Longest Increasing Subsequence (LIS) and move every child that is not part of this sequence
-
-
-        let lis = Lis.getLis(arr);
-        const indexMap = new Array(arr.length);
-        for (let i = 0; i < indexMap.length; i++) {
-            indexMap[i] = -1;
-        }
-        for (const i of lis) {
-            indexMap[arr[i]] = i;
-        }
-        lis = lis.map(i => arr[i]);
-
-        //filter out all nodes that are part of the LIS
-        const needMove = [];
-        for (let i = 0; i < arr.length; i++) {
-            if (indexMap[i] === -1) {
-                needMove.push(i);
-            }
-        }
-
-        //TODO in onlogn with linked lists
-
-        for (const index of needMove) {
-            let j;
-            for (j = 0; j < lis.length && lis[j] < index; j++) ;
-
-            const oldNode = matching.getNew(matching.getOld(oldParent).getChild(index));
-            const oldPath = oldNode.toChildIndexPathString();
-            oldNode.changeChildIndex(j === lis.length ? oldParent.numChildren() - 1 : indexMap[lis[j]]);
-            for (let i = 0; i < lis[j]; i++) {
-                //update pointer values for lis elements
-                if(indexMap[i] !== -1) {
-                    indexMap[i]++;
-                }
-            }
-            lis.splice(j, 0, index);
-            indexMap[index] = oldNode.childIndex;
-            const newPath = oldNode.toChildIndexPathString();
-            editScript.move(oldPath, newPath);
-        }
-
+         Map every node in the child node list to its matching partner's child index.
+         Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
          */
+        const nodes = oldParent.childNodes;
+        const arr = nodes.map(n => this.matching.getOld(n).childIndex);
+        let lis = Lis.getLis(arr);
 
 
-        for (const node of oldParent) {
-            if (!this.matching.hasOld(node) || this.matching.getOld(node) == null) {
-                throw new Error();
-            }
-        }
-        const order = oldParent.childNodes.map(n => this.matching.getOld(n).childIndex);
-        for (let i = 0; i < order.length - 1; i++) {
-            if (order[i] >= order[i + 1]) {
-                throw new Error("children were not aligned");
-            }
+        const inLis= new Set();
+        for (const index of lis) {
+            inLis.add(nodes[index]);
         }
 
+        outer: for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if(!inLis.has(node)) {
+                /*
+                 The node may be moved further back in the node list.
+                 In order to also consider the following node, we must move the iteration index back.
+                */
+                i--;
+                const oldPath = node.toChildIndexPathString();
+                const thisMatchIndex = this.matching.getOld(node).childIndex;
+                for (let j = 0; j < nodes.length; j++) {
+                    const lisMatchIndex = this.matching.getOld(nodes[j]).childIndex;
+                    if(inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
+                        //move within node list
+                        node.changeChildIndex(j);
+                        const newPath = node.toChildIndexPathString();
+                        editScript.move(oldPath, newPath);
+                        inLis.add(node);
+                        continue outer;
+                    }
+                }
+                //move to end of node list
+                node.changeChildIndex(nodes.length);
+                const newPath = node.toChildIndexPathString();
+                editScript.move(oldPath, newPath);
+                inLis.add(node);
+            }
+        }
     }
 
     _delete(oldNode, editScript) {

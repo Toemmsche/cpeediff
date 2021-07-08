@@ -21,13 +21,13 @@ export class Change {
     changeType;
     oldPath;
     newPath;
-    newData;
+    newContent;
 
-    constructor(changeType, oldPath = null, newPath = null, newData = null) {
+    constructor(changeType, oldPath = null, newPath = null, newContent = null) {
         this.changeType = changeType;
         this.oldPath = oldPath;
         this.newPath = newPath;
-        this.newData = newData;
+        this.newContent = newContent;
     }
 
     toString() {
@@ -35,6 +35,6 @@ export class Change {
             (this.oldPath !== null ? this.oldPath + " " : "") +
             (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
             (this.newPath !== null ? this.newPath + " " : "") +
-            (this.newData !== null ? this.newData + " " : "");
+            (this.newContent !== null ? this.newContent + " " : "");
     }
 }

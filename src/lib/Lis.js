@@ -19,7 +19,7 @@ export class Lis {
 
     static getLis(arr) {
         /*
-        The problem of finding the longest increasing subsequence within an array of integers can be solved in O(n*log(n))
+        The problem of finding the longest increasing subsequence within an array of numbers can be solved in O(n*log(n))
         using binary search.
          */
 

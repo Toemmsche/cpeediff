@@ -155,9 +155,9 @@ export class Node {
 
     deepEquals(other) {
         if (!this.contentEquals(other)) return false;
-        if(this.numChildren() !== other.numChildren()) return false;
+        if (this.numChildren() !== other.numChildren()) return false;
         for (let i = 0; i < this.numChildren(); i++) {
-            if(!this.getChild(i).deepEquals(other.getChild(i))) return false;
+            if (!this.getChild(i).deepEquals(other.getChild(i))) return false;
         }
         return true;
     }
@@ -246,7 +246,8 @@ export class Node {
      * @param {Number} newIndex
      */
     changeChildIndex(newIndex) {
-        if(newIndex > this._childIndex) {
+        //The node currently residing at position newIndex will be pushed back, no matter what.
+        if (newIndex > this._childIndex) {
             newIndex--;
         }
         //delete
@@ -322,7 +323,6 @@ export class Node {
         return this.toPreOrderArray()
             .filter(n => !n.isPropertyNode());
     }
-
 
 
 }

@@ -145,10 +145,10 @@ export class XmlDomFactory {
         if (change.newPath != null) {
             xmlNode.setAttribute("newPath", change.newPath);
         }
-        if (change.newData != null) {
-            const newDataElement = doc.createElement("newData");
-            newDataElement.appendChild(this._convertNode(change.newData, true));
-            xmlNode.appendChild(newDataElement);
+        if (change.newContent != null) {
+            const newContentElement = doc.createElement("newContent");
+            newContentElement.appendChild(this._convertNode(change.newContent, true));
+            xmlNode.appendChild(newContentElement);
         }
 
         return xmlNode;

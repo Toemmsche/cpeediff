@@ -28,7 +28,7 @@ export class DeltaTreeGenerator {
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
         const childIndex = indexArr.pop();
         const [parent, movfrParent] = this._findNode(indexArr.join("/"));
-        const newNode = DeltaNodeFactory.getNode(change.newData);
+        const newNode = DeltaNodeFactory.getNode(change.newContent);
 
         this._applyInsert(parent, newNode, childIndex);
         if (movfrParent != null) {
@@ -82,21 +82,21 @@ export class DeltaTreeGenerator {
 
     _handleUpdate(change) {
         const [node, movfrNode] = this._findNode(change.oldPath);
-        const newData = change.newData;
+        const newContent = change.newContent;
 
-        this._applyUpdate(node, newData);
+        this._applyUpdate(node, newContent);
         if (movfrNode != null) {
-            this._applyUpdate(movfrNode, newData);
+            this._applyUpdate(movfrNode, newContent);
         }
     }
 
-    _applyUpdate(node, newData) {
-        if (node.data !== newData.data) {
-            node.updates.set("data", new Update(node.data, newData.data));
-            node.data = newData.data;
+    _applyUpdate(node, newContent) {
+        if (node.data !== newContent.data) {
+            node.updates.set("data", new Update(node.data, newContent.data));
+            node.data = newContent.data;
         }
         //detected updated and inserted attributes
-        for (const [key, value] of newData.attributes) {
+        for (const [key, value] of newContent.attributes) {
             if (node.attributes.has(key)) {
                 if (node.attributes.get(key) !== value) {
                     node.updates.set(key, new Update(node.attributes.get(key), value));
@@ -110,7 +110,7 @@ export class DeltaTreeGenerator {
 
         //detect deleted attributes
         for (const [key, value] of node.attributes) {
-            if (!newData.attributes.has(key)) {
+            if (!newContent.attributes.has(key)) {
                 node.updates.set(key, new Update(value, null))
                 node.attributes.delete(key);
             }

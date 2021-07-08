@@ -29,15 +29,15 @@ export class ChangeFactory {
 
     static _fromXmlDom(xmlElement) {
         const [changeType, oldPath, newPath] = [xmlElement.localName, xmlElement.attributes.getNamedItem("oldPath"), xmlElement.attributes.getNamedItem("newPath")];
-        let newData;
+        let newContent;
         for (let i = 0; i <xmlElement.childNodes.length ; i++) {
             const childTNode = xmlElement.childNodes.item(i);
 
-            if(childTNode.localName === "newData") {
-                newData = NodeFactory.getNode(childTNode, true);
+            if(childTNode.localName === "newContent") {
+                newContent = NodeFactory.getNode(childTNode, true);
             }
         }
-        return new Change(changeType, oldPath, newPath, newData);
+        return new Change(changeType, oldPath, newPath, newContent);
     }
 
     static _fromXmlString(xml) {

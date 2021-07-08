@@ -13,6 +13,7 @@
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO maybe features
+//      lis with custom comparator (why?)
 //      conflict groups for reshuffling (toggleable)
 //      tree validator
 //      append updates even in the case of insertion
