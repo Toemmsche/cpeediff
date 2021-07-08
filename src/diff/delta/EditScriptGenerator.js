@@ -94,32 +94,6 @@ export class EditScriptGenerator {
     }
 
     _alignChildren(oldParent, editScript) {
-        //Based on A. Marian, "Detecting Changes in XML Documents", 2002
-
-        let reshuffle = oldParent.childNodes.filter(n => this.matching.hasOld(n));
-        if (reshuffle.length === 0) {
-            return;
-        }
-
-
-
-        for (const newNode of this.matching.getOld(oldParent)) {
-            const match = this.matching.getNew(newNode);
-            if (match.childIndex !== newNode.childIndex) {
-                const oldIndex = match.childIndex;
-                const oldPath = match.toChildIndexPathString();
-                match.changeChildIndex(newNode.childIndex);
-                const newPath = match.toChildIndexPathString();
-                const newIndex = match.childIndex;
-                if (oldIndex === newIndex) {
-                    throw new Error();
-                }
-                editScript.move(oldPath, newPath);
-            }
-        }
-
-
-
         /*
          Map every node in the child node list to its matching partner's child index.
          Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
