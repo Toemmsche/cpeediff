@@ -54,6 +54,12 @@ const argv = yargs(hideBin(process.argv))
                 type: "number",
                 default: 0.4
             })
+            .option("variablePrefix", {
+            description: "Prefix used to detect read/modified variables in code and arguments",
+            alias: "p",
+            type: "string",
+            default: "data."
+        })
             .option("format", {
                 description: "Output format",
                 alias: "f",
@@ -61,6 +67,7 @@ const argv = yargs(hideBin(process.argv))
                 choices: ["editScript", "deltaTree"],
                 default: "editScript"
             })
+
             .check(argv => {
                 if (!fs.existsSync(argv.old)) {
                     throw new Error(argv.old + " ist not a valid file path");
@@ -80,6 +87,7 @@ const argv = yargs(hideBin(process.argv))
             })
         ;
     }, (argv) => {
+        Config.VARIABLE_PREFIX = argv.variablePrefix;
         Config.LEAF_SIMILARITY_THRESHOLD = argv.leafThreshold;
         Config.INNER_NODE_SIMILARITY_THRESHOLD = argv.innerThreshold;
 

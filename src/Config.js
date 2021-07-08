@@ -32,8 +32,9 @@ export const Config =  {
     LEAF_SIMILARITY_THRESHOLD: 0.25,
     INNER_NODE_SIMILARITY_THRESHOLD: 0.4,
 
+    EXACT_EDIT_SCRIPT: false,
 
-    EXACT_EDIT_SCRIPT: false
+    VARIABLE_PREFIX: "data."
 }
 
 

@@ -19,6 +19,7 @@ import {Preprocessor} from "../io/Preprocessor.js";
 import {Dsl} from "../Dsl.js";
 import {DiffTestInfo} from "../../test/diff_eval/DiffTestInfo.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
+import {Config} from "../Config.js";
 
 export class TreeGenerator {
 
@@ -165,7 +166,7 @@ export class TreeGenerator {
         const args = new Node("arguments");
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             const arg = new Node(readVariable);
-            arg.data = "data." + readVariable;
+            arg.data = Config.VARIABLE_PREFIX + readVariable;
             args.appendChild(arg);
         }
         if (args.hasChildren()) {
@@ -178,7 +179,7 @@ export class TreeGenerator {
         const codeUpdate = new Node("finalize");
         codeUpdate.data = "";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            codeUpdate.data += "data." + modifiedVariable + " = 420;"
+            codeUpdate.data += Config.VARIABLE_PREFIX + modifiedVariable + " = 420;"
         }
 
         //random read variables in code
@@ -204,7 +205,7 @@ export class TreeGenerator {
         //random modified Variables
         node.data = "";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            node.data += "data." + modifiedVariable + " = 420;"
+            node.data += Config.VARIABLE_PREFIX + modifiedVariable + " = 420;"
         }
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             node.data += "fun(data." + readVariable + ");";
@@ -249,7 +250,7 @@ export class TreeGenerator {
 
         //random condition
         const readVariable = this._randomFrom(this.variables);
-        node.attributes.set("condition", "data." + readVariable + " < 69");
+        node.attributes.set("condition", Config.VARIABLE_PREFIX + readVariable + " < 69");
 
         return node;
     }
@@ -263,7 +264,7 @@ export class TreeGenerator {
         const node = new Node(Dsl.KEYWORDS.LOOP.label);
         //random condition
         const readVariable = this._randomFrom(this.variables);
-        node.attributes.set("condition", "data." + readVariable + " < 69");
+        node.attributes.set("condition", Config.VARIABLE_PREFIX + readVariable + " < 69");
         return node;
     }
 
@@ -421,7 +422,7 @@ export class TreeGenerator {
     _insertArgRandomly(tree) {
         const parent = this._randomFrom(tree.toPreOrderArray().filter(n => n.label === "arguments"));
         let newArg = this._randomFrom(this.variables);
-        newArg = new Node(newArg, "data." + newArg);
+        newArg = new Node(newArg, Config.VARIABLE_PREFIX + newArg);
         this._appendRandomly(parent, newArg);
     }
 
@@ -485,7 +486,7 @@ export class TreeGenerator {
                     if (this._withProbability(0.5)) {
                         //modify new variable
                         const newModVariable = this._randomFrom(this.variables);
-                        statements.push("data." + newModVariable + " = 420;")
+                        statements.push(Config.VARIABLE_PREFIX + newModVariable + " = 420;")
                     } else {
                         //read new variable
                         const newReadVariable = this._randomFrom(this.variables);

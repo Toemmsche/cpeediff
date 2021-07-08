@@ -17,6 +17,7 @@
 import {AbstractExtractor} from "./AbstractExtractor.js";
 import {CallPropertyExtractor} from "./CallPropertyExtractor.js";
 import {Dsl} from "../../Dsl.js";
+import {Config} from "../../Config.js";
 
 export class VariableExtractor extends AbstractExtractor {
 
@@ -72,8 +73,8 @@ export class VariableExtractor extends AbstractExtractor {
             if (callProps.hasArgs()) {
                 for (const arg of callProps.args) {
                     //do NOT use the label of the argument
-                    if (arg.includes("data.")) {
-                        readVariables.add(arg.replaceAll("data.", ""));
+                    if (arg.includes(Config.VARIABLE_PREFIX)) {
+                        readVariables.add(arg.replaceAll(Config.VARIABLE_PREFIX, ""));
                     }
                 }
             }
@@ -82,15 +83,19 @@ export class VariableExtractor extends AbstractExtractor {
     }
 
     _modVarsFromString(str) {
-        //positive lookahead for assignment operators and positive lookbehind for "data." prefix
-        const matches = str.match((/(?<=data\.)[a-zA-Z]\w*(?=\s*(=[^=]|\+=|\+\+|-=|--|\*=|\/=))/g));
+        const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
+        //positive lookahead for assignment operators and positive lookbehind for data element prefix
+        const regex = new RegExp("(?<=" + prefix + ")[a-zA-Z]\\w*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))", "g")
+        const matches = str.match(regex);
         return matches == null ? [] : matches;
     }
 
     _readVarsFromString(str) {
-        //negative lookahead for assignment operators and positive lookbehind for "data." prefix
+        const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
+        //negative lookahead for assignment operators and positive lookbehind for data element prefix
         //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
-        const matches = str.match(/(?<=data\.)[a-zA-Z]\w*(?=\s*\W)(?!\s*(=[^=]|\+=|\+\+|-=|--|\*=|\/=))/g);
+        const regex = new RegExp("(?<="+ prefix +")[a-zA-Z]\\w*(?=\\s*\\W)(?!\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))", "g");
+        const matches = str.match(regex);
         return matches == null ? [] : matches;
     }
 }

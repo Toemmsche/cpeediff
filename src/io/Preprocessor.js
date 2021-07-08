@@ -19,6 +19,7 @@ import fs from "fs";
 import {NodeFactory} from "../tree/NodeFactory.js";
 import {Dsl} from "../Dsl.js";
 import xmldom from "xmldom";
+import {Config} from "../Config.js";
 
 export class Preprocessor {
 
@@ -114,7 +115,7 @@ export class Preprocessor {
             script.data = "";
             script.attributes.set("id", "init");
             for (const [dataElement, initialValue] of dataElements) {
-                script.data += "data." + dataElement + " = " + initialValue + ";";
+                script.data += Config.VARIABLE_PREFIX + dataElement + " = " + initialValue + ";";
             }
             tree.insertChild(0, script);
         }

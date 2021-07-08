@@ -1,7 +1,6 @@
 //TODO features
 //      compare path with weights depending on closeness
 //      command line visualization including "live" patching and filtered changes
-//      configurable separator between data and variable name (make "data." configurable)
 //      data passses in parallel branches
 //      use _assign() to make copies
 
@@ -19,6 +18,7 @@
 //      append updates even in the case of insertion
 
 //TODO semi-features
+//      annotated merged tree output (with conrfidence)
 //      weight call argsd and read code variables differently
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 //      call arguments sensitive to ordering ?
