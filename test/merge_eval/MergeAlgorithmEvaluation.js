@@ -72,6 +72,7 @@ export class MergeAlgorithmEvaluation {
             );
             if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
                 //test case is incomplete => skip
+                console.log("Skip case " + dir + " due to missing files");
                 return;
             }
 

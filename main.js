@@ -139,7 +139,7 @@ const argv = yargs(hideBin(process.argv))
             MatchingAlgorithmEvaluation.all().evalAll(TestConfig.MATCH_CASES_DIR);
         }
         if(argv.suite === "all" || argv.suite === "diff") {
-            DiffAlgorithmEvaluation.all().evalAll(TestConfig.DIFF_CASES_DIR);
+            DiffAlgorithmEvaluation.all().evalAll(TestConfig.MATCH_CASES_DIR);
         }
         if(argv.suite === "all" || argv.suite === "merge") {
             MergeAlgorithmEvaluation.all().evalAll(TestConfig.MERGE_CASES_DIR);

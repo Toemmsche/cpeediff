@@ -16,3 +16,40 @@ unit tests:
 - one init script
 - one root
 - changed indentation / whitespaces
+
+TESTS
+for each - insertion/move/update/delete
+
+leaf
+subtree
+arg/property
+
+special cases for each operation:
+insert:
+- worse copy
+- same label
+
+move:
+- interparent
+- nested
+- nested with insert
+
+update:
+- code update (still matches)
+- endpoint update
+- endpoint stays the same
+
+delete:
+
+
+standard cases:
+- small mixed
+- identical
+- generated
+- totally different
+
+edge cases:
+- only root
+- leaf node substitution
+- cross matching
+- node replacement

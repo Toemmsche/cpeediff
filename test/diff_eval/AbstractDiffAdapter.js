@@ -68,10 +68,12 @@ export class AbstractDiffAdapter {
                     case "move":
                         moveCounter++;
                         break;
+                    case "add":
                     case "insert":
                         insertionCounter++;
                         break;
                     case "remove":
+                    case "delete":
                         deletionCounter++;
                         break;
                     case "update":

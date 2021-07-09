@@ -47,36 +47,39 @@ export class MatchingAlgorithmEvaluation {
         }
 
         const parser = new Preprocessor();
-        fs.readdirSync(caseDir).forEach((dir) => {
-            let oldTree;
-            let newTree;
-            let expected;
+        fs.readdirSync(caseDir).forEach((caseCategory) => {
+            const categoryDir = caseDir  + "/" + caseCategory;
+            fs.readdirSync(categoryDir).forEach((dir) => {
+                let oldTree;
+                let newTree;
+                let expected;
 
-            fs.readdirSync(caseDir + "/" + dir).forEach((file) => {
-                    const content = fs.readFileSync(caseDir + "/" + dir + "/" + file).toString();
-                    if (file === "new.xml") {
-                        newTree = parser.parseWithMetadata(content);
-                    } else if (file === "old.xml") {
-                        oldTree = parser.parseWithMetadata(content);
-                    } else if (file === "expected.json") {
-                        expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
+                fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
+                        const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
+                        if (file === "new.xml") {
+                            newTree = parser.parseWithMetadata(content);
+                        } else if (file === "old.xml") {
+                            oldTree = parser.parseWithMetadata(content);
+                        } else if (file === "expected.json") {
+                            expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
+                        }
                     }
+                );
+                if (oldTree == null || newTree == null || expected == null) {
+                    //test case is incomplete => skip
+                    console.log("Skip case " + dir + " due to missing files");
+                    return;
                 }
-            );
-            if (oldTree == null || newTree == null || expected == null) {
-                //test case is incomplete => skip
-                return;
-            }
 
-            resultsPerTest.set(dir, []);
-            for (const adapter of this.adapters) {
-                console.log("Running match case " + dir + " for " + adapter.displayName);
+                resultsPerTest.set(dir, []);
+                for (const adapter of this.adapters) {
+                    console.log("Running match case " + dir + " for " + adapter.displayName);
 
-                const result = adapter.evalCase(dir, oldTree, newTree, expected);
-                resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(dir).push(result);
-            }
-
+                    const result = adapter.evalCase(dir, oldTree, newTree, expected);
+                    resultsPerAdapter.get(adapter).push(result);
+                    resultsPerTest.get(dir).push(result);
+                }
+            })
         });
 
         const aggregateResults = [];
