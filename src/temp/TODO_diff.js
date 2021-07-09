@@ -3,6 +3,7 @@
 //      command line visualization including "live" patching and filtered changes
 //      data passses in parallel branches
 //      use _assign() to make copies
+//      remove <newcontent> from xml delta
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -14,20 +15,16 @@
 //TODO maybe features
 //      lis with custom comparator (why?)
 //      conflict groups for reshuffling (toggleable)
-//      tree validator
-//      append updates even in the case of insertion
 
 //TODO semi-features
 //      annotated merged tree output (with conrfidence)
-//      weight call argsd and read code variables differently
+//      weigh call args and read code variables differently
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
-//      chnage origin for ujpdates -->> own object ( with undefined meaning not present -> insertion or deletion)
-//      ignore comments during xml parsing (and processing isntruction)
+//      ignore comments during xml parsing
 //      command line interface (help, error messages, logging, etc.)
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
-//      IMPORTANT use default parameters to simplify postorder methods etc.
 //      colors in delta output
 
 //TODO tidy
@@ -45,9 +42,7 @@
 //      no construction paramters for comparator and matching
 
 
-//TODO bugs
-//      mhasmatching when child order changed but internalordering = false
-//      robus against processing instruction (delta not first child)
+//TODO bugs+
 //      add null checks for appropriate methods
 //      edit script not applicable
 //      robustness against indentation and newlines/whitespaces

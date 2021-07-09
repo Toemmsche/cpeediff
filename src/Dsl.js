@@ -119,7 +119,7 @@ export const Dsl = {
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
     CHOOSE_MODES: ["inclusive", "exclusive"],
 
-    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns"],
+    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
 }
 Dsl.KEYWORD_SET = new Set(Object
     .keys(Dsl.KEYWORDS)

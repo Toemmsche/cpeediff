@@ -1017,11 +1017,10 @@ export class PrimeGenerator {
         104549, 104551, 104561, 104579, 104593, 104597, 104623, 104639, 104651, 104659,
         104677, 104681, 104683, 104693, 104701, 104707, 104711, 104717, 104723, 104729 ]
 
-
+    //TODO dynamically
     static primes(amount) {
         if(amount > this.primeList.length) {
-            //TODO
-            throw new Error("Too many primes");
+            throw new Error("Too many primes requested");
         }
         return this.primeList.slice(0, amount);
     }

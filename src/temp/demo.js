@@ -48,14 +48,6 @@ new CpeeMerge().merge(bt, t1, t2);
 
 
 
-Config.EXACT_EDIT_SCRIPT = true;
-let time = new Date().getTime();
-new CpeeDiff().diff(r, r2);
-
-time = new Date().getTime() - time;
-
-console.log(time);
-
 
 /*
 const n = fs.readFileSync("test/test_set/match_cases/generated/new.xml").toString();

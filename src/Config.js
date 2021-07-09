@@ -34,7 +34,8 @@ export const Config =  {
 
     EXACT_EDIT_SCRIPT: false,
 
-    VARIABLE_PREFIX: "data."
+    VARIABLE_PREFIX: "data.",
+    ADD_INIT_SCRIPT: false
 }
 
 

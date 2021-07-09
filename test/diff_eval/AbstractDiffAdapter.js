@@ -57,8 +57,8 @@ export class AbstractDiffAdapter {
 
         //parse output
         let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
-        //look for delta node that encloses the diff
-        while (delta.localName !== "delta") {
+        //look for delta node that encloses the diff, skp processing instruction
+        while (delta.nodeType !== 1 || delta.localName !== "delta") {
             delta = delta.nextSibling;
         }
         for (let i = 0; i < delta.childNodes.length; i++) {

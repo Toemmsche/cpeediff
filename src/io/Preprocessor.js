@@ -27,20 +27,20 @@ export class Preprocessor {
         return this.parseWithMetadata(fs.readFileSync(path).toString())
     }
 
-    parseWithMetadata(xml, withInitScript = false) {
+    parseWithMetadata(xml) {
         const endpointToUrl = new Map();
         const dataElements = new Map();
 
         //Parse options
         let doc = new xmldom.DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
 
+        //skip processing instruction and excess text
         while (doc.nodeType !== 1) {
             doc = doc.nextSibling;
         }
 
         let tree;
         if (doc.localName === "properties") {
-            let root;
             for (let i = 0; i < doc.childNodes.length; i++) {
                 const childTNode = doc.childNodes.item(i);
                 if (childTNode.localName === "dslx") {
@@ -67,13 +67,12 @@ export class Preprocessor {
             }
 
         } else {
-            //no information about declared Variables available
+            //hop straight into tree parsing
             tree = NodeFactory.getNode(doc, true);
         }
 
 
-        return this.prepareTree(tree, endpointToUrl, dataElements, withInitScript);
-
+        return this.prepareTree(tree, endpointToUrl, dataElements);
     }
 
     prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false) {
@@ -83,6 +82,14 @@ export class Preprocessor {
             for (const key of node.attributes.keys()) {
                 if (Dsl.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
                     node.attributes.delete(key);
+                } else {
+                    //trim attribute value
+                    const val = node.attributes.get(key);
+                    const trimmedVal = val.trim();
+                    if(trimmedVal !== val) {
+                        node.attributes.delete(key);
+                        node.attributes.set(key, trimmedVal);
+                    }
                 }
             }
             //replace endpoint identifier with actual URL
@@ -109,7 +116,7 @@ export class Preprocessor {
             }
         }
 
-        if (withInitScript) {
+        if (Config.ADD_INIT_SCRIPT && dataElements.size > 0) {
             //insert initializer for all declared variables at beginning of tree
             const script = new Node(Dsl.KEYWORDS.MANIPULATE.label);
             script.data = "";

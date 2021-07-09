@@ -42,9 +42,6 @@ export class StandardComparator extends AbstractComparator {
     }
 
     _compareCalls(node, other) {
-        //we cannot possibly match a call with another node type
-        if (node.label !== other.label) return 1.0;
-
         //extract properties
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
@@ -60,8 +57,11 @@ export class StandardComparator extends AbstractComparator {
         const nodeEndpoint = nodeProps.endpoint;
         const otherEndpoint = otherProps.endpoint;
 
-        //endpoint URL has to match perfectly. This is reasonable as large chunks of the URL can equal
-        //e.g. www.example.com/docs and www.example.com/dirs
+        /*
+         The endpoint URL has to match exactly.
+         This is reasonable as large chunks of the URL can equal despite the two calls serving a different semantic purpose.
+         E.g. www.example.com/docs and www.example.com/doctors
+         */
         let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
         if (nodeProps.label !== otherProps.label) {
             endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
@@ -70,7 +70,8 @@ export class StandardComparator extends AbstractComparator {
             endPointComparisonValue += Config.COMPARATOR.METHOD_PENALTY;
         }
 
-        //If the endpoint of two calls perfectly equals, we can assume they fulfill the same semantic purpose
+        //TODO really?
+        //If the endpoint (including method and label) of two calls perfectly matches, we can assume they fulfill the same semantic purpose
         if(endPointComparisonValue === 0) {
             return endPointComparisonValue;
         }
@@ -81,7 +82,7 @@ export class StandardComparator extends AbstractComparator {
         let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, endPointComparisonValue);
         let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
 
-        //weight comparison values
+        //weigh comparison values
         let contentCompareValue = endPointComparisonValue * Config.COMPARATOR.CALL_ENDPOINT_WEIGHT
             + modifiedVariablesComparisonValue * Config.COMPARATOR.CALL_MODVAR_WEIGHT
             + readVariablesComparisonValue * Config.COMPARATOR.CALL_READVAR_WEIGHT;
@@ -120,11 +121,6 @@ export class StandardComparator extends AbstractComparator {
     contentCompare(node, other) {
         //different labels cannot be matched
         if (node.label !== other.label) return 1.0;
-
-        //extract read variables
-        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
-        const otherReadVariables = this.variableExtractor.get(other).readVariables;
-
         switch (node.label) {
             case Dsl.KEYWORDS.CALL.label: {
                 return this._compareCalls(node, other);
@@ -134,6 +130,9 @@ export class StandardComparator extends AbstractComparator {
             }
             case Dsl.KEYWORDS.ALTERNATIVE.label:
             case Dsl.KEYWORDS.LOOP.label: {
+                //extract read variables
+                const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+                const otherReadVariables = this.variableExtractor.get(other).readVariables;
                 return this._setCompare(nodeReadVariables, otherReadVariables);
             }
 
