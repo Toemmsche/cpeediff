@@ -4,6 +4,8 @@
 //      data passses in parallel branches
 //      use _assign() to make copies
 //      remove <newcontent> from xml delta
+//      put to post and patch comparison
+//      critical after parallel?
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -28,6 +30,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      rename keywords to elements
 //      hide private properties everywhere
 //      model type in geneartor params
 //      use arrow notation (or dont use private function)
