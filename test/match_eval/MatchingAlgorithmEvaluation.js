@@ -96,7 +96,7 @@ export class MatchingAlgorithmEvaluation {
                     runtimeErrorCount++;
                 }
             }
-            aggregateResults.push(new AggregateMatchResult(adapter.constructor.name, okCount, wrongAnswerCount, runtimeErrorCount));
+            aggregateResults.push(new AggregateMatchResult(adapter.displayName, okCount, wrongAnswerCount, runtimeErrorCount));
         }
         console.log(MarkDownFactory.tabularize(aggregateResults));
     }

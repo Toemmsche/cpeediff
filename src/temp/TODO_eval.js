@@ -11,6 +11,7 @@
 //      timeout to our algorithms
 //      verify algo change detection
 //      separarated diff-accuracy cases from diff-performance cases
+//      fix algorithm names
 
 
 /*
