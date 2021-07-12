@@ -323,7 +323,7 @@ export class TreeGenerator {
     }
 
 
-    changeTree(tree, numChanges) {
+    changeTree(tree, changeParams) {
         //do not modify original tree
         tree = NodeFactory.getNode(tree);
         const oldSize = tree.toPreOrderArray().length;
@@ -331,41 +331,43 @@ export class TreeGenerator {
         let updateCounter = 0;
         let deletionCounter = 0;
         let moveCounter = 0;
-        for (let i = 0; i < numChanges; i++) {
-            switch (this._randomFrom(Array.of(...Dsl.CHANGE_TYPE_SET).filter(c => c !== Dsl.CHANGE_TYPES.MOVE_FROM && c !== Dsl.CHANGE_TYPES.NIL))) {
-                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION: {
+
+        //set up random distribution of changes according to parameters
+        const distributionString = "i".repeat(changeParams.insertionWeight)
+            + "m".repeat(changeParams.moveWeight)
+            + "u".repeat(changeParams.updateWeight)
+            + "d".repeat(changeParams.deletionWeight);
+        for (let i = 0; i < changeParams.numChanges; i++) {
+            const op = this._randomFrom(distributionString.split(""));
+            switch (op) {
+                case "i": {
                     insertionCounter++;
-                    this._insertSubtreeRandomly(tree);
-                    break;
-                }
-                case Dsl.CHANGE_TYPES.INSERTION: {
-                    insertionCounter++;
-                    if(this._withProbability(0.9)) {
+                    if (this._withProbability(0.5)) {
+                        this._insertSubtreeRandomly(tree);
+                    } else if (this._withProbability(0.9)) {
                         this._insertLeafRandomly(tree);
                     } else {
                         this._insertArgRandomly(tree);
                     }
                     break;
                 }
-                case Dsl.CHANGE_TYPES.SUBTREE_DELETION: {
+                case "d": {
                     deletionCounter++;
-                    this._deleteSubtreeRandomly(tree);
+                    if (this._withProbability(0.5)) {
+                        this._deleteSubtreeRandomly(tree);
+                    } else {
+                        this._deleteLeafRandomly(tree);
+                    }
                     break;
                 }
-                case Dsl.CHANGE_TYPES.DELETION: {
-                    deletionCounter++;
-                    this._deleteLeafRandomly(tree);
-                    break;
-                }
-                case Dsl.CHANGE_TYPES.MOVE_TO:
-                case Dsl.CHANGE_TYPES.MOVE_FROM: {
+                case "m": {
                     moveCounter++;
                     if (this._moveRandomly(tree)) {
                         insertionCounter++;
                     }
                     break;
                 }
-                case Dsl.CHANGE_TYPES.UPDATE: {
+                case "u": {
                     updateCounter++;
                     this._updateRandomly(tree);
                     break;
@@ -498,19 +500,17 @@ export class TreeGenerator {
                     node.data += this._randomString(10);
                 }
             }
-
-            node.data += this._randomString(10);
         } else {
             node = this._randomFrom(tree.nonPropertyNodes().filter(n => n.hasAttributes()));
             const changedAttributeKey = this._randomFrom(Array.of(...node.attributes.keys()));
             if (changedAttributeKey === "endpoint") {
                 //change endpoint
                 node.attributes.set("endpoint", this._randomFrom(this.endpoints));
-            } else if(changedAttributeKey === "mode") {
+            } else if (changedAttributeKey === "mode") {
                 //change choose mode
                 node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
             } else if (this._withProbability(0.8)) {
-                //20% chance to change string value
+                //80% chance to change string value
                 const oldVal = node.attributes.get(changedAttributeKey);
                 node.attributes.set(changedAttributeKey, oldVal + this._randomString(10));
             } else {
@@ -523,23 +523,5 @@ export class TreeGenerator {
             }
         }
     }
-
-    reshuffleAll(tree) {
-        tree = NodeFactory.getNode(tree);
-        let moveCounter = 0;
-        for (const inner of tree.innerNodes()) {
-            for (let i = 0; i < inner.numChildren(); i++) {
-                moveCounter++
-                const node = this._randomFrom(inner.childNodes);
-                node.removeFromParent();
-                inner.insertChild(this._randInt(inner.numChildren()), node);
-            }
-        }
-        return {
-            tree: new Preprocessor().prepareTree(tree),
-            info: new DiffTestInfo(null, tree.toPreOrderArray().length, 0, moveCounter, 0, 0)
-        };
-    }
-
 }
 

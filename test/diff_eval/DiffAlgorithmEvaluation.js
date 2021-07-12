@@ -27,6 +27,7 @@ import {DiffXmlAdapter} from "./DiffXmlAdapter.js";
 import {DeltaJsAdapter} from "./DeltaJsAdapter.js";
 import {XccAdapter} from "./XccAdapter.js";
 import {UnixDiffAdapter} from "./UnixDiffAdapter.js";
+import {ChangeParameters} from "../../src/gen/ChangeParameters.js";
 
 export class DiffAlgorithmEvaluation {
 
@@ -44,7 +45,7 @@ export class DiffAlgorithmEvaluation {
     }
 
     static fast() {
-        let adapters = [ new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
         adapters.unshift(new CpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
@@ -61,7 +62,7 @@ export class DiffAlgorithmEvaluation {
 
         const parser = new Preprocessor();
         fs.readdirSync(caseDir).forEach((caseCategory) => {
-            const categoryDir = caseDir  + "/" + caseCategory;
+            const categoryDir = caseDir + "/" + caseCategory;
             fs.readdirSync(categoryDir).forEach((dir) => {
                 let oldTree;
                 let newTree;
@@ -74,17 +75,16 @@ export class DiffAlgorithmEvaluation {
                     }
                     const genParamsJson = fs.readFileSync(categoryDir + "/" + dir + "/genParams.json").toString();
                     const genParams = Object.assign(new GeneratorParameters(), JSON.parse(genParamsJson));
+
+                    let changeParams = new ChangeParameters();
+                    //change parameters are optional
+                    if (fs.existsSync(categoryDir + "/" + dir + "/changeParams.json")) {
+                        const changeParamsJson = fs.readFileSync(categoryDir + "/" + dir + "/changeParams.json").toString();
+                        changeParams = Object.assign(changeParams, JSON.parse(changeParamsJson));
+                    }
                     const treeGen = new TreeGenerator(genParams);
 
                     switch (dir) {
-                        case "gen_leaves_only_shuffled": {
-                            console.log("Generating process tree with only leaves of size " + genParams.maxSize);
-                            oldTree = treeGen.randomLeavesOnly();
-                            const changedInfo = treeGen.reshuffleAll(oldTree);
-                            newTree = changedInfo.tree;
-                            testInfo = changedInfo.info;
-                            break;
-                        }
                         case "gen_totally_different": {
                             console.log("Generating two unrelated process trees of size " + genParams.maxSize);
                             oldTree = treeGen.randomTree();
@@ -94,8 +94,12 @@ export class DiffAlgorithmEvaluation {
                         }
                         default: {
                             console.log("Generating random process tree of size " + genParams.maxSize);
+                            //TODO
                             oldTree = treeGen.randomTree();
-                            const changedInfo = treeGen.changeTree(oldTree, genParams.numChanges);
+                            if(dir === "gen_leaves_only_shuffled") {
+                                oldTree = treeGen.randomLeavesOnly();
+                            }
+                            const changedInfo = treeGen.changeTree(oldTree, changeParams);
                             newTree = changedInfo.tree;
                             testInfo = changedInfo.info;
                             break;
@@ -103,7 +107,7 @@ export class DiffAlgorithmEvaluation {
                     }
                     testInfo.name = dir;
                 } else {
-                    fs.readdirSync(categoryDir +"/" + dir).forEach((file) => {
+                    fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
                             const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
                             if (file === "new.xml") {
                                 newTree = parser.parseWithMetadata(content);
@@ -139,7 +143,7 @@ export class DiffAlgorithmEvaluation {
         });
 
         //TODO aggregate metrics
-        for(const [testInfo, results] of resultsPerTest) {
+        for (const [testInfo, results] of resultsPerTest) {
             console.log("Results for case " + testInfo.name);
             console.log(testInfo);
             console.log(MarkDownFactory.tabularize(results));

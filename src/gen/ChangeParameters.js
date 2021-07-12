@@ -14,17 +14,20 @@
    limitations under the License.
 */
 
-export class GeneratorParameters {
+export class ChangeParameters {
 
-    maxSize;
-    maxDepth;
-    maxWidth;
-    maxVars;
+    numChanges;
+    insertionWeight;
+    moveWeight;
+    updateWeight;
+    deletionWeight;
 
-    constructor(maxSize, maxDepth, maxWidth, maxVars) {
-        this.maxSize = maxSize;
-        this.maxDepth = maxDepth;
-        this.maxWidth = maxWidth;
-        this.maxVars = maxVars;
+    constructor(numChanges = 0, insertionWeight = 1, moveWeight = 1, updateWeight = 1, deletionWeight = 1) {
+        this.numChanges = numChanges;
+        this.insertionWeight = insertionWeight;
+        this.moveWeight = moveWeight;
+        this.updateWeight = updateWeight;
+        this.deletionWeight = deletionWeight;
     }
+
 }

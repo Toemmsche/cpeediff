@@ -23,6 +23,7 @@ import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {EditScriptFactory} from "../../src/diff/delta/EditScriptFactory.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
+import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 
 export class CpeeDiffAdapter extends AbstractDiffAdapter {
 
@@ -31,15 +32,14 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
     }
 
     _run(oldTree, newTree) {
-        //TODO child order hash
-        Config.EXACT_EDIT_SCRIPT = true;
         let time = new Date().getTime();
         const delta = new CpeeDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;
         //verify the correctness of our diff by patching the original tree with it
         const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);
-        if (!deltaTree.deepEquals(newTree)) {
-            throw new Error();
+        const hashExtractor = new HashExtractor();
+        if (hashExtractor.get(deltaTree) !== hashExtractor.get(newTree)) {
+            throw new Error("Invalid edit script");
         }
         return {
             output: XmlFactory.serialize(delta),
