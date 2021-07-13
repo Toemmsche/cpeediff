@@ -26,7 +26,7 @@ export class Lcs {
      * @param seqB
      * @param compare
      */
-    static getLCS(seqA, seqB, compare = (a, b) => a === b, retBoth = false) {
+    static getLCS(seqA, seqB, compare = (a, b) => a === b) {
         //initial 2D array of size (m + 1) * (n + 1)
         const dp = new Array(seqA.length + 1);
         for (let i = 0; i < seqA.length + 1; i++) {
@@ -69,14 +69,7 @@ export class Lcs {
         let indexA = seqA.length;
         let indexB = seqB.length;
         let lcs;
-        if (retBoth) {
-            lcs =  {
-                lcsA : [],
-                lcsB : []
-            }
-        } else {
-            lcs = []
-        }
+        lcs = []
         while (indexA > 0 && indexB > 0) {
             switch (parent.get(indexA + "_" + indexB)) {
                 case "U":
@@ -86,12 +79,7 @@ export class Lcs {
                     indexB--;
                     break;
                 default:
-                    if (retBoth) {
-                        lcs.lcsA.unshift(seqA[indexA - 1]);
-                        lcs.lcsB.unshift(seqB[indexB - 1]);
-                    } else {
-                        lcs.unshift(seqA[indexA - 1]);
-                    }
+                    lcs.unshift(seqA[indexA - 1]);
                     indexA--;
                     indexB--;
                     break;

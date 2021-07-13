@@ -17,9 +17,9 @@
 
 export class Lis {
 
-    static getLis(arr) {
+    static getLis(arr, compare = (a,b) => a - b) {
         /*
-        The problem of finding the longest increasing subsequence within an array of numbers can be solved in O(n*log(n))
+        The problem of finding the longest increasing subsequence within an array of totally ordered can be solved in O(n*log(n))
         using binary search.
          */
 
@@ -60,7 +60,7 @@ export class Lis {
             let low = 0, high = maxLength;
             while (low !== high) {
                 const mid = Math.ceil((low + high) / 2);
-                if (arr[m[mid]] >= arr[i]) {
+                if (compare(arr[m[mid]], arr[i]) >= 0) {
                     //We cannot extend the sequence of length mid, adjust upper bound
                     high = mid - 1;
                 } else {

@@ -11,7 +11,6 @@
 //      trees are still too small because of preprocessor, check that out
 
 //TODO new algos
-//      q-gram distance for string comparison and similarity
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO maybe features
