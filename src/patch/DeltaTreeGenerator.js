@@ -40,7 +40,7 @@ export class DeltaTreeGenerator {
         const child = DeltaNodeFactory.getNode(node, true);
         parent.insertChild(childIndex, child);
         for (const descendant of child.toPreOrderArray()) {
-            descendant.changeType = Dsl.CHANGE_TYPES.INSERTION;
+            descendant.changeType = Dsl.CHANGE_TYPES.INSERTION.label
         }
     }
 
@@ -128,7 +128,7 @@ export class DeltaTreeGenerator {
 
     _applyDelete(node) {
         for (const descendant of node.toPreOrderArray()) {
-            descendant.changeType = Dsl.CHANGE_TYPES.DELETION;
+            descendant.changeType = Dsl.CHANGE_TYPES.DELETION.label
         }
 
         node.removeFromParent();
@@ -153,21 +153,19 @@ export class DeltaTreeGenerator {
 
         for (const change of editScript) {
             switch (change.changeType) {
-                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
-                case Dsl.CHANGE_TYPES.INSERTION: {
+                case Dsl.CHANGE_TYPES.INSERTION.label: {
                     this._handleInsert(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.MOVE_TO: {
+                case Dsl.CHANGE_TYPES.MOVE_TO.label: {
                     this._handleMove(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.UPDATE: {
+                case Dsl.CHANGE_TYPES.UPDATE.label: {
                     this._handleUpdate(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
-                case Dsl.CHANGE_TYPES.DELETION: {
+                case Dsl.CHANGE_TYPES.DELETION.label: {
                     this._handleDelete(change);
                     break;
                 }

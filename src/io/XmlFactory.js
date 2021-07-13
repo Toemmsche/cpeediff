@@ -22,7 +22,7 @@ import {Dsl} from "../Dsl.js";
 export class XmlFactory {
 
     static serialize(object) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
         const root = XmlDomFactory.convert(object);
         doc.insertBefore(root, null);
         return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));

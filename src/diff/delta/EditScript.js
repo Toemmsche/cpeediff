@@ -30,19 +30,19 @@ export class EditScript {
     }
 
     insert(newPath, newContent, subtree = false) {
-        this.changes.push(new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_INSERTION : Dsl.CHANGE_TYPES.INSERTION, null, newPath, newContent));
+        this.changes.push(new Change(Dsl.CHANGE_TYPES.INSERTION.label, null, newPath, newContent));
     }
 
     delete(oldPath, subtree = false) {
-        this.changes.push(new Change(subtree ? Dsl.CHANGE_TYPES.SUBTREE_DELETION : Dsl.CHANGE_TYPES.DELETION, oldPath, null,  null));
+        this.changes.push(new Change( Dsl.CHANGE_TYPES.DELETION.label, oldPath, null,  null));
     }
 
     move(oldPath, newPath) {
-        this.changes.push(new Change(Dsl.CHANGE_TYPES.MOVE_TO, oldPath,  newPath));
+        this.changes.push(new Change(Dsl.CHANGE_TYPES.MOVE_TO.label, oldPath,  newPath));
     }
 
     update(oldPath, newContent) {
-        this.changes.push(new Change(Dsl.CHANGE_TYPES.UPDATE, oldPath, null, newContent));
+        this.changes.push(new Change(Dsl.CHANGE_TYPES.UPDATE.label, oldPath, null, newContent));
     }
 
     [Symbol.iterator]() {

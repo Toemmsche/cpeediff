@@ -32,8 +32,7 @@ export class ChangeFactory {
         let newContent;
         for (let i = 0; i <xmlElement.childNodes.length ; i++) {
             const childTNode = xmlElement.childNodes.item(i);
-
-            if(childTNode.localName === "newContent") {
+            if(childTNode.nodeType === 1) {
                 newContent = NodeFactory.getNode(childTNode, true);
             }
         }

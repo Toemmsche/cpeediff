@@ -66,15 +66,15 @@ export class DeltaNode extends Node {
     }
 
     isMove() {
-        return this.changeType === Dsl.CHANGE_TYPES.MOVE_TO;
+        return this.changeType === Dsl.CHANGE_TYPES.MOVE_TO.label
     }
 
     isDeletion() {
-        return this.changeType === Dsl.CHANGE_TYPES.DELETION || this.changeType === Dsl.CHANGE_TYPES.SUBTREE_DELETION;
+        return this.changeType === Dsl.CHANGE_TYPES.DELETION.label|| this.changeType === Dsl.CHANGE_TYPES.SUBTREE_DELETION;
     }
 
     isInsertion() {
-        return this.changeType === Dsl.CHANGE_TYPES.INSERTION || this.changeType === Dsl.CHANGE_TYPES.SUBTREE_INSERTION;
+        return this.changeType === Dsl.CHANGE_TYPES.INSERTION.label|| this.changeType === Dsl.CHANGE_TYPES.SUBTREE_INSERTION;
     }
 
     isNil() {

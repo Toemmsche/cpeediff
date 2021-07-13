@@ -14,6 +14,7 @@
    limitations under the License.
 */
 
+
 export const Dsl = {
 
     KEYWORDS: {
@@ -84,38 +85,39 @@ export const Dsl = {
         }
     },
 
-
+    DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
     CHANGE_TYPES: {
-        //TODO turn into objects with more info (e.g. namespaces)
-        INSERTION: "INSERT",
-        DELETION: "DELETE",
-        SUBTREE_INSERTION: "INSERT_SUBTREE",
-        SUBTREE_DELETION: "DELETE_SUBTREE",
-        MOVE_TO: "MOVE_TO",
-        MOVE_FROM: "MOVE_FROM",
-        UPDATE: "UPDATE",
-        NIL: "NIL"
+        INSERTION: {
+            label: "INSERT",
+            uri: "http://cpee.org/ns/description/1.0/insert",
+            prefix: "ins"
+        },
+        DELETION: {
+            label: "DELETE",
+            uri: "http://cpee.org/ns/description/1.0/delete",
+            prefix: "del"
+        },
+        MOVE_TO: {
+            label: "MOVE_TO",
+            uri: "http://cpee.org/ns/description/1.0/move-to",
+            prefix: "movto",
+        },
+        MOVE_FROM: {
+            label: "MOVE_FROM",
+            uri: "http://cpee.org/ns/description/1.0/move-from",
+            prefix: "movfr",
+        },
+        UPDATE: {
+            label: "UPDATE",
+            uri: "http://cpee.org/ns/description/1.0/update",
+            prefix: "upd"
+        },
+        NIL: {
+            label: "NIL",
+            uri: "http://cpee.org/ns/description/1.0/nil",
+            prefix: "nil"
+        }
     },
-
-    NAMESPACES: {
-        DEFAULT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0",
-        NIL_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/nil",
-        NIL_NAMESPACE_PREFIX: "nil",
-        INSERT_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/insert",
-        INSERT_NAMESPACE_PREFIX: "ins",
-        DELETE_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/delete",
-        DELETE_NAMESPACE_PREFIX: "del",
-        MOVE_FROM_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/move-from",
-        MOVE_FROM_NAMESPACE_PREFIX: "movfr",
-        MOVE_TO_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/move-to",
-        MOVE_TO_NAMESPACE_PREFIX: "movto",
-        UPDATE_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/update",
-        UPDATE_NAMESPACE_PREFIX: "upd",
-
-        DELTA_NAMESPACE_URI: "http://cpee.org/ns/description/1.0/delta",
-        DELTA_NAMESPACE_PREFIX: "delta"
-    },
-
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
     CHOOSE_MODES: ["inclusive", "exclusive"],
 

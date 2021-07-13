@@ -5,7 +5,7 @@
 //      use _assign() to make copies
 //      remove <newcontent> from xml delta
 //      put to post and patch comparison
-//      critical after parallel?
+//      critical after parallel? -> ask Juergen
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -46,6 +46,8 @@
 
 
 //TODO bugs+
+//      test conversion to XML
+//      namespaces
 //      add null checks for appropriate methods
 //      edit script not applicable
 //      robustness against indentation and newlines/whitespaces
@@ -60,18 +62,12 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
-//      subsystem organization and export class variables
-//      switch to ES pacakges
-//      rename moveCount
-//      rename parent (no undewrscore)
+//      use the change types and keywords objects instead of strings
+//      wrap diff/namespace objects in functions (NO because of configurability)
 //      delete includes deleted tree
-//      matching as config variable
-//      if tree doesnt have own attributes, -> remove and replace with root, rename cpeetree to tree, rename cpeenode to basenode
 //      implement hash yourself
-//      update export class
 //      use underscores
 //      all constants (even attribute id strings into config, maybe split into config and DSL);
-//      MatchedNode subexport class instead of matching export class (with maxSimilarity, etc)
 //      add some patterns
 //      type and test coverage similar to markdwon-tables
 

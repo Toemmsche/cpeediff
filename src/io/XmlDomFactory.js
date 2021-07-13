@@ -41,25 +41,21 @@ export class XmlDomFactory {
     }
 
     static _convertDeltaNode(deltaNode) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
         return buildRecursive(deltaNode);
 
         function buildRecursive(deltaNode) {
-            const changeType = deltaNode.changeType;
 
-            const prefix = Dsl.NAMESPACES[changeType + "_NAMESPACE_PREFIX"] + ":"
+            const prefix = Object.values(Dsl.CHANGE_TYPES).find(ct => ct.label === deltaNode.changeType).prefix + ":"
             const xmlNode = doc.createElement(prefix + deltaNode.label);
             xmlNode.localName = deltaNode.label;
 
             //TODO delta variables
             if (deltaNode.isRoot()) {
-                xmlNode.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.NIL_NAMESPACE_PREFIX, Dsl.NAMESPACES.NIL_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX, Dsl.NAMESPACES.INSERT_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX, Dsl.NAMESPACES.DELETE_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_FROM_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.MOVE_TO_NAMESPACE_PREFIX, Dsl.NAMESPACES.MOVE_TO_NAMESPACE_URI);
-                xmlNode.setAttribute("xmlns:" + Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX, Dsl.NAMESPACES.UPDATE_NAMESPACE_URI);
+                xmlNode.setAttribute("xmlns", Dsl.DEFAULT_NAMESPACE);
+                for(const changeType of Object.values(Dsl.CHANGE_TYPES)) {
+                    xmlNode.setAttribute("xmlns:" + changeType.prefix, changeType.uri);
+                }
             }
 
             //set namespace of updated fields
@@ -67,24 +63,23 @@ export class XmlDomFactory {
                 const oldVal = change[0];
                 const newVal = change[1];
                 if (key === "data") {
-                    deltaNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":data", "true");
+                    deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":data", "true");
                 } else {
                     if (oldVal == null) {
                         const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.NAMESPACES.INSERT_NAMESPACE_PREFIX + ":" + key, val);
+                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.INSERTION.prefix + ":" + key, val);
                         deltaNode.attributes.delete(key);
                     } else if (newVal == null) {
-                        deltaNode.attributes.set(Dsl.NAMESPACES.DELETE_NAMESPACE_PREFIX + ":" + key, oldVal);
+                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.DELETION.prefix + ":" + key, oldVal);
                     } else {
                         const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.NAMESPACES.UPDATE_NAMESPACE_PREFIX + ":" + key, val);
+                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":" + key, val);
                         deltaNode.attributes.delete(key);
                     }
                 }
             }
 
             for (const [key, value] of deltaNode.attributes) {
-
                 xmlNode.setAttribute(key, value);
             }
 
@@ -101,7 +96,7 @@ export class XmlDomFactory {
     }
 
     static _convertEditScript(editScript) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
 
         const xmlNode = doc.createElement("delta");
         for (const change of editScript.changes) {
@@ -112,13 +107,13 @@ export class XmlDomFactory {
     }
 
     static _convertNode(node) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
         return buildRecursive(node);
 
         function buildRecursive(node) {
             const xmlNode = doc.createElement(node.label);
             if (node.isRoot()) {
-                xmlNode.setAttribute("xmlns", Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+                xmlNode.setAttribute("xmlns", Dsl.DEFAULT_NAMESPACE);
             }
             for (const [key, value] of node.attributes) {
                 xmlNode.setAttribute(key, value);
@@ -136,7 +131,7 @@ export class XmlDomFactory {
     }
 
     static _convertChange(change) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.NAMESPACES.DEFAULT_NAMESPACE_URI);
+        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
 
         const xmlNode = doc.createElement(change.changeType);
         if (change.oldPath != null) {
@@ -146,9 +141,7 @@ export class XmlDomFactory {
             xmlNode.setAttribute("newPath", change.newPath);
         }
         if (change.newContent != null) {
-            const newContentElement = doc.createElement("newContent");
-            newContentElement.appendChild(this._convertNode(change.newContent, true));
-            xmlNode.appendChild(newContentElement);
+            xmlNode.appendChild(this._convertNode(change.newContent, true));
         }
 
         return xmlNode;

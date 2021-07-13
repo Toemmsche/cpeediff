@@ -24,6 +24,8 @@ import {TestConfig} from "../TestConfig.js";
 import {EditScriptFactory} from "../../src/diff/delta/EditScriptFactory.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
+import fs from "fs";
+import {execFileSync} from "child_process";
 
 export class CpeeDiffAdapter extends AbstractDiffAdapter {
 
@@ -31,6 +33,7 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
     }
 
+    /*
     _run(oldTree, newTree) {
         let time = new Date().getTime();
         const delta = new CpeeDiff().diff(oldTree, newTree);
@@ -47,6 +50,25 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         };
     }
 
+     */
+
+    _run(oldTree, newTree) {
+        const oldTreeString = XmlFactory.serialize(oldTree);
+        const newTreeString = XmlFactory.serialize(newTree);
+
+        const oldFilePath = "old.xml";
+        const newFilePath = "new.xml";
+
+        fs.writeFileSync(oldFilePath, oldTreeString);
+        fs.writeFileSync(newFilePath, newTreeString);
+
+        let time = new Date().getTime();
+        return {
+            output: execFileSync("./main.js", ["diff", oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            runtime: new Date().getTime() - time
+        }
+    }
+
     _parseOutput(output) {
         let updateCounter = 0;
         let insertionCounter = 0;
@@ -57,18 +79,16 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         let delta = EditScriptFactory.getEditScript(output);
         for (const change of delta.changes) {
             switch (change.changeType) {
-                case Dsl.CHANGE_TYPES.INSERTION:
-                case Dsl.CHANGE_TYPES.SUBTREE_INSERTION:
+                case Dsl.CHANGE_TYPES.INSERTION.label:
                     insertionCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.DELETION:
-                case Dsl.CHANGE_TYPES.SUBTREE_DELETION:
+                case Dsl.CHANGE_TYPES.DELETION.label:
                     deletionCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.MOVE_TO:
+                case Dsl.CHANGE_TYPES.MOVE_TO.label:
                     moveCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.UPDATE:
+                case Dsl.CHANGE_TYPES.UPDATE.label:
                     updateCounter++;
                     break;
             }

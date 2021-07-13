@@ -71,7 +71,6 @@ export class Preprocessor {
             tree = NodeFactory.getNode(doc, true);
         }
 
-
         return this.prepareTree(tree, endpointToUrl, dataElements);
     }
 
@@ -86,6 +85,7 @@ export class Preprocessor {
                     //trim attribute value
                     const val = node.attributes.get(key);
                     const trimmedVal = val.trim();
+                    //TODO trim ends of newlines
                     if(trimmedVal !== val) {
                         node.attributes.delete(key);
                         node.attributes.set(key, trimmedVal);

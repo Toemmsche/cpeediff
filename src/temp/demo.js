@@ -24,28 +24,18 @@ import fs from "fs";
 import {Preprocessor} from "../io/Preprocessor.js";
 import {Config} from "../Config.js";
 import {CpeeMerge} from "../merge/CpeeMerge.js";
+import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
 
-let booking = "test/test_set/examples/booking.xml";
+let old = new Preprocessor().parseFromFile("old.xml");
+let newTre = new Preprocessor().parseFromFile("new.xml");
 
+const es = new CpeeDiff().diff(old, newTre);
 
-const  b = fs.readFileSync(booking).toString();
-const bm = new Preprocessor().parseWithMetadata(b);
-
-
-
-let gen = new TreeGenerator(new GeneratorParameters(10000, 10, 25, 8));
+const dt = new DeltaTreeGenerator().deltaTree(old, es);
 
 
-const base = "test/test_set/merge_cases/update_conflict/base.xml";
-const b1 = "test/test_set/merge_cases/update_conflict/1.xml";
-const b2 = "test/test_set/merge_cases/update_conflict/2.xml";
 
-const bt = new Preprocessor().parseFromFile(base);
-const t1 = new Preprocessor().parseFromFile(b1);
-const t2 = new Preprocessor().parseFromFile(b2);
-
-new CpeeMerge().merge(bt, t1, t2);
-
+console.log(XmlFactory.serialize(dt));
 
 
 
