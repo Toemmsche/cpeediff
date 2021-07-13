@@ -47,9 +47,11 @@ standard cases:
 - identical
 - generated
 - totally different
+- move and update on same node
 
 edge cases:
 - only root
 - leaf node substitution
 - cross matching
 - node replacement
+- //TODO worst case

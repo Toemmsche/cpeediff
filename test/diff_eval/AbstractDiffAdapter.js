@@ -76,7 +76,7 @@ export class AbstractDiffAdapter {
                     case "delete":
                         deletionCounter++;
                         break;
-                    case Dsl.CALL_PROPERTIES.UPDATE.label:
+                    case "update":
                         updateCounter++;
                         break;
                 }

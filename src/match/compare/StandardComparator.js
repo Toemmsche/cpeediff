@@ -72,7 +72,7 @@ export class StandardComparator extends AbstractComparator {
 
         //TODO really?
         //If the endpoint (including method and label) of two calls perfectly matches, we can assume they fulfill the same semantic purpose
-        if(endPointComparisonValue === 0) {
+        if (endPointComparisonValue === 0) {
             return endPointComparisonValue;
         }
         //normalize comparison value
@@ -92,7 +92,8 @@ export class StandardComparator extends AbstractComparator {
             contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
         }
 
-        return contentCompareValue;
+        //TODO
+        return Math.min(1, contentCompareValue);
     }
 
     _compareManipulates(node, other) {
@@ -114,7 +115,8 @@ export class StandardComparator extends AbstractComparator {
             contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
         }
 
-        return contentCompareValue;
+        //TODO
+        return Math.min(1, contentCompareValue);
     }
 
 
@@ -158,18 +160,13 @@ export class StandardComparator extends AbstractComparator {
         if (maxSize === 0) {
             compValue = defaultValue;
         } else {
-            let differentCounter = 0;
+            let commonCounter = 0;
             for (const element of setA) {
-                if (!setB.has(element)) {
-                    differentCounter++;
+                if (setB.has(element)) {
+                    commonCounter++;
                 }
             }
-            for (const element of setB) {
-                if (!setA.has(element)) {
-                    differentCounter++;
-                }
-            }
-            compValue = differentCounter / maxSize;
+            compValue = 1 - (commonCounter / maxSize);
         }
         return compValue;
     }
@@ -195,6 +192,7 @@ export class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        return Config.COMPARATOR.CONTENT_WEIGHT * this.contentCompare(node, other) + Config.COMPARATOR.STRUCTURE_WEIGHT * this.structCompare(node, other);
+        const compareValue = Config.COMPARATOR.CONTENT_WEIGHT * this.contentCompare(node, other) + Config.COMPARATOR.STRUCTURE_WEIGHT * this.structCompare(node, other);
+        return compareValue;
     }
 }

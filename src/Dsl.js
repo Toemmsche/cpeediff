@@ -98,7 +98,7 @@ export const Dsl = {
             isOrdered: false
         },
         METHOD: {
-            label: "label",
+            label: "method",
             isOrdered: false,
         },
         ARGUMENTS: {

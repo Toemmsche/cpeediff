@@ -339,39 +339,44 @@ export class TreeGenerator {
             + "d".repeat(changeParams.deletionWeight);
         for (let i = 0; i < changeParams.numChanges; i++) {
             const op = this._randomFrom(distributionString.split(""));
-            switch (op) {
-                case "i": {
-                    insertionCounter++;
-                    if (this._withProbability(0.5)) {
-                        this._insertSubtreeRandomly(tree);
-                    } else if (this._withProbability(0.9)) {
-                        this._insertLeafRandomly(tree);
-                    } else {
-                        this._insertArgRandomly(tree);
-                    }
-                    break;
-                }
-                case "d": {
-                    deletionCounter++;
-                    if (this._withProbability(0.5)) {
-                        this._deleteSubtreeRandomly(tree);
-                    } else {
-                        this._deleteLeafRandomly(tree);
-                    }
-                    break;
-                }
-                case "m": {
-                    moveCounter++;
-                    if (this._moveRandomly(tree)) {
+            try {
+                switch (op) {
+                    case "i": {
                         insertionCounter++;
+                        if (this._withProbability(0.5)) {
+                            this._insertSubtreeRandomly(tree);
+                        } else if (this._withProbability(0.9)) {
+                            this._insertLeafRandomly(tree);
+                        } else {
+                            this._insertArgRandomly(tree);
+                        }
+                        break;
                     }
-                    break;
+                    case "d": {
+                        deletionCounter++;
+                        if (this._withProbability(0.5)) {
+                            this._deleteSubtreeRandomly(tree);
+                        } else {
+                            this._deleteLeafRandomly(tree);
+                        }
+                        break;
+                    }
+                    case "m": {
+                        moveCounter++;
+                        if (this._moveRandomly(tree)) {
+                            insertionCounter++;
+                        }
+                        break;
+                    }
+                    case "u": {
+                        updateCounter++;
+                        this._updateRandomly(tree);
+                        break;
+                    }
                 }
-                case "u": {
-                    updateCounter++;
-                    this._updateRandomly(tree);
-                    break;
-                }
+            } catch(e) {
+                //TODO
+                console.log("invalid change op")
             }
         }
         return {
@@ -450,7 +455,6 @@ export class TreeGenerator {
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
         movedNode.removeFromParent();
-
         let increaseInsertionCounter = false;
         let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent);

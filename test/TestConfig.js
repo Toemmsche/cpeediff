@@ -66,8 +66,11 @@ export const TestConfig = {
         UNIXDIFF: {
             displayName: "UNIX diff",
             path: "../xml_diff_algos/unixdiff"
+        },
+        XYDIFF: {
+            displayName: "XyDiff",
+            path: "../xml_diff_algos/xydiff"
         }
-
     },
 
     MERGES: {

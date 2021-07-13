@@ -17,9 +17,9 @@
 export const Config =  {
     COMPARATOR: {
         PATH_COMPARE_RANGE: 5,
-        CALL_ENDPOINT_WEIGHT: 0.6,
-        CALL_MODVAR_WEIGHT: 0.25,
-        CALL_READVAR_WEIGHT: 0.15,
+        CALL_ENDPOINT_WEIGHT: 0.4,
+        CALL_MODVAR_WEIGHT: 0.4,
+        CALL_READVAR_WEIGHT: 0.2,
         EPSILON_PENALTY: 0.01,
         LABEL_PENALTY: 0.1,
         METHOD_PENALTY: 0.1,

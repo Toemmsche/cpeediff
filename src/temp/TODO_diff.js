@@ -45,6 +45,7 @@
 
 
 //TODO bugs+
+//      upodates are not detected at large
 //      test conversion to XML
 //      namespaces
 //      add null checks for appropriate methods

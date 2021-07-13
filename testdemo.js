@@ -1,11 +1,12 @@
 
-import {MergeAlgorithmEvaluation} from "./test/merge_eval/MergeAlgorithmEvaluation.js";
 import {DiffAlgorithmEvaluation} from "./test/diff_eval/DiffAlgorithmEvaluation.js";
-import {MatchingAlgorithmEvaluation} from "./test/match_eval/MatchingAlgorithmEvaluation.js";
-import {CpeeMatchAdapter} from "./test/match_eval/OurMatchAdapter.js";
+import {CpeeDiffAdapter} from "./test/diff_eval/CpeeDiffAdapter.js";
+import {XyDiffAdapter} from "./test/diff_eval/XyDiffAdapter.js";
+import {TestConfig} from "./test/TestConfig.js";
 
 
-MatchingAlgorithmEvaluation.all().evalAll();
+TestConfig.EXECUTION_OPTIONS.timeout = 120000*1000;
+new DiffAlgorithmEvaluation([new CpeeDiffAdapter(), new XyDiffAdapter()]).evalAll();
 
 //DiffAlgorithmEvaluation.all().evalAll();
 

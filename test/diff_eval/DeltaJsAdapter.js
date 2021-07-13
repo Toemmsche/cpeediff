@@ -53,7 +53,7 @@ export class DeltaJsAdapter extends AbstractDiffAdapter{
                             case "remove":
                                 deletionCounter++;
                                 break;
-                            case Dsl.CALL_PROPERTIES.UPDATE.label:
+                            case "update":
                                 updateCounter++;
                                 break;
                         }

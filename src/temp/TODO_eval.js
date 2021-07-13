@@ -12,6 +12,9 @@
 //      verify algo change detection
 //      separarated diff-accuracy cases from diff-performance cases
 //      fix algorithm names
+//        check change model of evaluated diffs, map it to your operations (update and move esp), move as attribute !
+//      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
+//      evaluate robustness
 
 
 /*

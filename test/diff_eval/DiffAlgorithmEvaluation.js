@@ -28,6 +28,7 @@ import {DeltaJsAdapter} from "./DeltaJsAdapter.js";
 import {XccAdapter} from "./XccAdapter.js";
 import {UnixDiffAdapter} from "./UnixDiffAdapter.js";
 import {ChangeParameters} from "../../src/gen/ChangeParameters.js";
+import {XyDiffAdapter} from "./XyDiffAdapter.js";
 
 export class DiffAlgorithmEvaluation {
 
@@ -38,14 +39,14 @@ export class DiffAlgorithmEvaluation {
     }
 
     static all() {
-        let adapters = [new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
         adapters.unshift(new CpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
     }
 
     static fast() {
-        let adapters = [new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
         adapters.unshift(new CpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
