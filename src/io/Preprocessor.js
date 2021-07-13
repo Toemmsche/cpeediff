@@ -93,20 +93,20 @@ export class Preprocessor {
                 }
             }
             //replace endpoint identifier with actual URL
-            if (node.attributes.has("endpoint")) {
-                const endpoint = node.attributes.get("endpoint");
+            if (node.attributes.has(Dsl.CALL_PROPERTIES.ENDPOINT.label)) {
+                const endpoint = node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label);
                 //replace endpoint identifier with actual endpoint URL (if it exists)
                 if (endpointToUrl.has(endpoint)) {
-                    node.attributes.set("endpoint", endpointToUrl.get(endpoint));
+                    node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, endpointToUrl.get(endpoint));
                 }
-            } else if (node.label === Dsl.KEYWORDS.CALL.label) {
-                node.attributes.set("endpoint", Math.floor(Math.random * 1000000).toString()); //random endpoint
+            } else if (node.label === Dsl.ELEMENTS.CALL.label) {
+                node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, Math.floor(Math.random * 1000000).toString()); //random endpoint
             }
 
             //trim irrelevant nodes
             if (node.isPropertyNode() && (Dsl.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
                 || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())
-                || (node.label === Dsl.KEYWORDS.MANIPULATE.label) && (node.data == null || node.data === "")) {
+                || (node.label === Dsl.ELEMENTS.MANIPULATE.label) && (node.data == null || node.data === "")) {
                 node.removeFromParent();
             }
 
@@ -118,7 +118,7 @@ export class Preprocessor {
 
         if (Config.ADD_INIT_SCRIPT && dataElements.size > 0) {
             //insert initializer for all declared variables at beginning of tree
-            const script = new Node(Dsl.KEYWORDS.MANIPULATE.label);
+            const script = new Node(Dsl.ELEMENTS.MANIPULATE.label);
             script.data = "";
             script.attributes.set("id", "init");
             for (const [dataElement, initialValue] of dataElements) {

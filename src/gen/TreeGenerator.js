@@ -87,13 +87,13 @@ export class TreeGenerator {
     }
 
     _insertBetween(parent) {
-        if (parent.label === Dsl.KEYWORDS.PARALLEL.label) {
+        if (parent.label === Dsl.ELEMENTS.PARALLEL.label) {
             const between = this._randomParallelBranch();
             this._appendRandomly(parent, between);
             return between;
-        } else if (parent.label === Dsl.KEYWORDS.CHOOSE.label) {
+        } else if (parent.label === Dsl.ELEMENTS.CHOOSE.label) {
             let between;
-            if (this._withProbability(0.5) && !parent.childNodes.some(n => n.label === Dsl.KEYWORDS.OTHERWISE.label)) {
+            if (this._withProbability(0.5) && !parent.childNodes.some(n => n.label === Dsl.ELEMENTS.OTHERWISE.label)) {
                 between = this._randomOtherwise();
             } else {
                 between = this._randomAlternative();
@@ -105,7 +105,7 @@ export class TreeGenerator {
     }
 
     _randomRoot() {
-        return new Node(Dsl.KEYWORDS.ROOT.label);
+        return new Node(Dsl.ELEMENTS.ROOT.label);
     }
 
     _randomLeaf() {
@@ -131,13 +131,13 @@ export class TreeGenerator {
     _randomInner() {
         //inner nodes are evenly distributed
         switch (this._randomFrom(Dsl.INNER_NODE_SET)) {
-            case Dsl.KEYWORDS.LOOP.label:
+            case Dsl.ELEMENTS.LOOP.label:
                 return this._randomLoop();
-            case Dsl.KEYWORDS.CHOOSE.label:
+            case Dsl.ELEMENTS.CHOOSE.label:
                 return this._randomChoose();
-            case Dsl.KEYWORDS.PARALLEL.label:
+            case Dsl.ELEMENTS.PARALLEL.label:
                 return this._randomParallel();
-            case Dsl.KEYWORDS.CRITICAL.label:
+            case Dsl.ELEMENTS.CRITICAL.label:
                 return this._randomCritical();
             default:
                 return this._randomLoop();
@@ -146,24 +146,24 @@ export class TreeGenerator {
 
 
     _randomCall() {
-        const node = new Node(Dsl.KEYWORDS.CALL.label);
-        node.attributes.set("endpoint", this._randomFrom(this.endpoints));
+        const node = new Node(Dsl.ELEMENTS.CALL.label);
+        node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, this._randomFrom(this.endpoints));
 
-        const parameters = new Node("parameters");
+        const parameters = new Node(Dsl.CALL_PROPERTIES.PARAMETERS.label);
 
         //random label
-        const label = new Node("label");
+        const label = new Node(Dsl.CALL_PROPERTIES.LABEL.label);
         //TODO label shouldnt be random
         label.data = this._randomFrom(this.labels);
         parameters.appendChild(label);
 
         //random method
-        const method = new Node("method");
+        const method = new Node(Dsl.CALL_PROPERTIES.METHOD.label);
         method.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
         parameters.appendChild(method);
 
         //random read variables as service call arguments
-        const args = new Node("arguments");
+        const args = new Node(Dsl.CALL_PROPERTIES.ARGUMENTS.label);
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             const arg = new Node(readVariable);
             arg.data = Config.VARIABLE_PREFIX + readVariable;
@@ -175,15 +175,15 @@ export class TreeGenerator {
         node.appendChild(parameters);
 
         //random modified Variables
-        const code = new Node("code");
-        const codeUpdate = new Node("finalize");
+        const code = new Node(Dsl.CALL_PROPERTIES.CODE.label);
+        const codeUpdate = new Node(Dsl.CALL_PROPERTIES.FINALIZE.label);
         codeUpdate.data = "";
         for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             codeUpdate.data += Config.VARIABLE_PREFIX + modifiedVariable + " = 420;"
         }
 
         //random read variables in code
-        const codePrepare = new Node("prepare");
+        const codePrepare = new Node(Dsl.CALL_PROPERTIES.PREPARE.label);
         codePrepare.data = "";
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             codePrepare.data += "fun(data." + readVariable + ");";
@@ -200,7 +200,7 @@ export class TreeGenerator {
     }
 
     _randomManipulate() {
-        const node = new Node(Dsl.KEYWORDS.MANIPULATE.label);
+        const node = new Node(Dsl.ELEMENTS.MANIPULATE.label);
 
         //random modified Variables
         node.data = "";
@@ -215,38 +215,38 @@ export class TreeGenerator {
     }
 
     _randomStop() {
-        const node = new Node(Dsl.KEYWORDS.STOP.label);
+        const node = new Node(Dsl.ELEMENTS.STOP.label);
         return node;
     }
 
     _randomEscape() {
-        const node = new Node(Dsl.KEYWORDS.ESCAPE.label);
+        const node = new Node(Dsl.ELEMENTS.ESCAPE.label);
         return node;
     }
 
     _randomTerminate() {
-        const node = new Node(Dsl.KEYWORDS.TERMINATE.label);
+        const node = new Node(Dsl.ELEMENTS.TERMINATE.label);
         return node;
     }
 
     _randomParallel() {
-        const node = new Node(Dsl.KEYWORDS.PARALLEL.label);
+        const node = new Node(Dsl.ELEMENTS.PARALLEL.label);
         return node;
     }
 
     _randomParallelBranch() {
-        const node = new Node(Dsl.KEYWORDS.PARALLEL_BRANCH.label);
+        const node = new Node(Dsl.ELEMENTS.PARALLEL_BRANCH.label);
         return node;
     }
 
     _randomChoose() {
-        const node = new Node(Dsl.KEYWORDS.CHOOSE.label);
+        const node = new Node(Dsl.ELEMENTS.CHOOSE.label);
         node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
         return node;
     }
 
     _randomAlternative() {
-        const node = new Node(Dsl.KEYWORDS.ALTERNATIVE.label);
+        const node = new Node(Dsl.ELEMENTS.ALTERNATIVE.label);
 
         //random condition
         const readVariable = this._randomFrom(this.variables);
@@ -256,12 +256,12 @@ export class TreeGenerator {
     }
 
     _randomOtherwise() {
-        const node = new Node(Dsl.KEYWORDS.OTHERWISE.label);
+        const node = new Node(Dsl.ELEMENTS.OTHERWISE.label);
         return node;
     }
 
     _randomLoop() {
-        const node = new Node(Dsl.KEYWORDS.LOOP.label);
+        const node = new Node(Dsl.ELEMENTS.LOOP.label);
         //random condition
         const readVariable = this._randomFrom(this.variables);
         node.attributes.set("condition", Config.VARIABLE_PREFIX + readVariable + " < 69");
@@ -269,7 +269,7 @@ export class TreeGenerator {
     }
 
     _randomCritical() {
-        const node = new Node(Dsl.KEYWORDS.CRITICAL.label);
+        const node = new Node(Dsl.ELEMENTS.CRITICAL.label);
         return node;
     }
 
@@ -422,7 +422,7 @@ export class TreeGenerator {
     }
 
     _insertArgRandomly(tree) {
-        const parent = this._randomFrom(tree.toPreOrderArray().filter(n => n.label === "arguments"));
+        const parent = this._randomFrom(tree.toPreOrderArray().filter(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label));
         let newArg = this._randomFrom(this.variables);
         newArg = new Node(newArg, Config.VARIABLE_PREFIX + newArg);
         this._appendRandomly(parent, newArg);
@@ -446,9 +446,9 @@ export class TreeGenerator {
     _moveRandomly(tree) {
         let movedNode = this._randomFrom(tree.nonPropertyNodes()
             .filter(n => !n.isRoot()
-                && n.label !== Dsl.KEYWORDS.PARALLEL_BRANCH.label
-                && n.label !== Dsl.KEYWORDS.ALTERNATIVE.label
-                && n.label !== Dsl.KEYWORDS.OTHERWISE.label));
+                && n.label !== Dsl.ELEMENTS.PARALLEL_BRANCH.label
+                && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
+                && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
         movedNode.removeFromParent();
 
         let increaseInsertionCounter = false;
@@ -468,20 +468,20 @@ export class TreeGenerator {
             node = this._randomFrom(tree.toPreOrderArray().filter(n => n.data != null));
             //Change node data depending on type
             switch (node.label) {
-                case "label": {
+                case Dsl.CALL_PROPERTIES.LABEL.label: {
                     node.data = this._randomFrom(this.labels);
                     break;
                 }
-                case "method": {
+                case Dsl.CALL_PROPERTIES.METHOD.label: {
                     //method change
                     node.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
                     break;
                 }
-                case "prepare":
-                case "update":
-                case "rescue":
-                case "finalize":
-                case Dsl.KEYWORDS.MANIPULATE.label: {
+                case Dsl.CALL_PROPERTIES.PREPARE.label:
+                case Dsl.CALL_PROPERTIES.UPDATE.label:
+                case Dsl.CALL_PROPERTIES.RESCUE.label:
+                case Dsl.CALL_PROPERTIES.FINALIZE.label:
+                case Dsl.ELEMENTS.MANIPULATE.label: {
                     //code change
                     const statements = node.data.split(";");
                     statements.splice(this._randInt(statements.length), 1);
@@ -503,9 +503,9 @@ export class TreeGenerator {
         } else {
             node = this._randomFrom(tree.nonPropertyNodes().filter(n => n.hasAttributes()));
             const changedAttributeKey = this._randomFrom(Array.of(...node.attributes.keys()));
-            if (changedAttributeKey === "endpoint") {
+            if (changedAttributeKey === Dsl.CALL_PROPERTIES.ENDPOINT.label) {
                 //change endpoint
-                node.attributes.set("endpoint", this._randomFrom(this.endpoints));
+                node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, this._randomFrom(this.endpoints));
             } else if (changedAttributeKey === "mode") {
                 //change choose mode
                 node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));

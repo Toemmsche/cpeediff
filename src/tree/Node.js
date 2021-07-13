@@ -206,7 +206,7 @@ export class Node {
     }
 
     isRoot() {
-        return this.label === Dsl.KEYWORDS.ROOT.label && this._parent == null;
+        return this.label === Dsl.ELEMENTS.ROOT.label && this._parent == null;
     }
 
     /**

@@ -122,14 +122,14 @@ export class StandardComparator extends AbstractComparator {
         //different labels cannot be matched
         if (node.label !== other.label) return 1.0;
         switch (node.label) {
-            case Dsl.KEYWORDS.CALL.label: {
+            case Dsl.ELEMENTS.CALL.label: {
                 return this._compareCalls(node, other);
             }
-            case Dsl.KEYWORDS.MANIPULATE.label: {
+            case Dsl.ELEMENTS.MANIPULATE.label: {
                 return this._compareManipulates(node, other);
             }
-            case Dsl.KEYWORDS.ALTERNATIVE.label:
-            case Dsl.KEYWORDS.LOOP.label: {
+            case Dsl.ELEMENTS.ALTERNATIVE.label:
+            case Dsl.ELEMENTS.LOOP.label: {
                 //extract read variables
                 const nodeReadVariables = this.variableExtractor.get(node).readVariables;
                 const otherReadVariables = this.variableExtractor.get(other).readVariables;

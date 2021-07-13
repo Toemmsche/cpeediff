@@ -38,9 +38,9 @@ export class VariableExtractor extends AbstractExtractor {
     _getModifiedVariables(node) {
         let modifiedVariables = new Set();
         let code;
-        if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
+        if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
             code = node.data;
-        } else if (node.label === Dsl.KEYWORDS.CALL.label) {
+        } else if (node.label === Dsl.ELEMENTS.CALL.label) {
             code = this.callPropertyExtractor.get(node).code;
         }
         if (code != null) {
@@ -58,9 +58,9 @@ export class VariableExtractor extends AbstractExtractor {
             }
         }
         let code;
-        if (node.label === Dsl.KEYWORDS.MANIPULATE.label) {
+        if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
             code = node.data;
-        } else if (node.label === Dsl.KEYWORDS.CALL.label) {
+        } else if (node.label === Dsl.ELEMENTS.CALL.label) {
             code = this.callPropertyExtractor.get(node).code;
         }
         if (code != null) {
@@ -68,7 +68,7 @@ export class VariableExtractor extends AbstractExtractor {
                 readVariables.add(readVar);
             }
         }
-        if (node.label === Dsl.KEYWORDS.CALL.label) {
+        if (node.label === Dsl.ELEMENTS.CALL.label) {
             const callProps = this.callPropertyExtractor.get(node);
             if (callProps.hasArgs()) {
                 for (const arg of callProps.args) {

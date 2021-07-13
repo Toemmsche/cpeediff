@@ -17,7 +17,7 @@
 
 export const Dsl = {
 
-    KEYWORDS: {
+    ELEMENTS: {
         ROOT: {
             label: "description",
             isLeaf: false,
@@ -85,6 +85,48 @@ export const Dsl = {
         }
     },
 
+    CALL_PROPERTIES: {
+        ENDPOINT: {
+            label: "endpoint"
+        },
+        PARAMETERS: {
+            label: "parameters",
+            isOrdered: false,
+        },
+        LABEL: {
+            label: "label",
+            isOrdered: false
+        },
+        METHOD: {
+            label: "label",
+            isOrdered: false,
+        },
+        ARGUMENTS: {
+            label: "arguments",
+            isOrdered: true
+        },
+        CODE: {
+            label: "code",
+            isOrdered: false
+        },
+        PREPARE: {
+            label: "prepare",
+            isOrdered: false
+        },
+        FINALIZE: {
+            label: "finalize",
+            isOrdered: false
+        },
+        UPDATE: {
+            label: "update",
+            isOrdered: false
+        },
+        RESCUE: {
+            label: "rescue",
+            isOrdered: false
+        }
+    },
+
     DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
     CHANGE_TYPES: {
         INSERTION: {
@@ -124,25 +166,25 @@ export const Dsl = {
     PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
 }
 Dsl.KEYWORD_SET = new Set(Object
-    .keys(Dsl.KEYWORDS)
-    .map(key => Dsl.KEYWORDS[key])
+    .keys(Dsl.ELEMENTS)
+    .map(key => Dsl.ELEMENTS[key])
     .map(k => k.label));
 
 Dsl.LEAF_NODE_SET = new Set(Object
-    .keys(Dsl.KEYWORDS)
-    .map(key => Dsl.KEYWORDS[key])
+    .keys(Dsl.ELEMENTS)
+    .map(key => Dsl.ELEMENTS[key])
     .filter(k => k.isLeaf)
     .map(k => k.label));
 
 Dsl.INNER_NODE_SET = new Set(Object
-    .keys(Dsl.KEYWORDS)
-    .map(key => Dsl.KEYWORDS[key])
+    .keys(Dsl.ELEMENTS)
+    .map(key => Dsl.ELEMENTS[key])
     .filter(k => !k.isLeaf)
     .map(k => k.label));
 
 Dsl.INTERNAL_ORDERING_SET = new Set(Object
-    .keys(Dsl.KEYWORDS)
-    .map(key => Dsl.KEYWORDS[key])
+    .keys(Dsl.ELEMENTS)
+    .map(key => Dsl.ELEMENTS[key])
     .filter(k => k.isOrdered)
     .map(k => k.label));
 

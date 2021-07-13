@@ -1,16 +1,497 @@
 <description
     xmlns="http://cpee.org/ns/description/1.0">
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <call endpoint="http://gruppe.wst.univie.ac.at/~mangler/services/approval.php">
+    <call endpoint="xMgVDRxJrfWRO">
+        <parameters>
+            <label>dphxIKPySBzCIxxPfNR</label>
+            <label>:post</label>
+            <arguments>
+                <MCRbO>data.MCRbO</MCRbO>
+                <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                <TrCddcHqGGm>data.TrCddcHqGGm</TrCddcHqGGm>
+                <mzxjHBIbl>data.mzxjHBIbl</mzxjHBIbl>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.NAaZfMVGMVq = 420;data.VVEFlqdOcWvDI = 420;data.XjXUEit = 420;data.mzxjHBIbl = 420;data.vGysZruOjruUUD = 420;data.jflzEfgIefdm = 420;</finalize>
+            <prepare>fun(data.KDtQznCE);fun(data.irILHhHbo);fun(data.MCRbO);fun(data.VmokicsTuvw);fun(data.OnfqLcfvGMIq);</prepare>
+        </code>
+    </call>
+    <call endpoint="HcSMwxoWnGPtexNlQZleDRyUdj">
+        <parameters>
+            <label>dphxIKPySBzCIxxPfNR</label>
+            <label>:get</label>
+            <arguments>
+                <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                <oBUCgk>data.oBUCgk</oBUCgk>
+                <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                <IbiOdFUfConwj>data.IbiOdFUfConwjKIlctmUquH</IbiOdFUfConwj>
+                <OnfqLcfvGMIq>data.OnfqLcfvGMIq</OnfqLcfvGMIq>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.BhiTXhKCpG = 420;data.XjXUEit = 420;</finalize>
+            <prepare>fun(data.ytrREpyWEsVcsz);fun(data.ehTGNwLceOVea);fun(data.vGysZruOjruUUD);</prepare>
+        </code>
+    </call>
+    <loop condition="data.irILHhHbo &lt; 69">
+        <manipulate>data.mzxjHBIbl = 420;data.AoVkyedLA = 420;data.jflzEfgIefdm = 420;data.MCRbO = 420;data.FEmevECG = 420;fun(data.pLmVGngnc);fun(data.XtZkNXwqlF);fun(data.KDtQznCE);fun(data.ehTGNwLceOVea);</manipulate>
+        <call endpoint="UYoipqPstoMslqTZkeWsu">
+            <parameters>
+                <label>epkXykpyajCBkHtbabLnv</label>
+                <label>:delete</label>
+                <arguments>
+                    <oBUCgk>data.oBUCgk</oBUCgk>
+                    <NAaZfMVGMVq>data.NAaZfMVGMVq</NAaZfMVGMVq>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.krObOJ = 420;data.AoVkyedLA = 420;data.FEmevECG = 420;data.VmokicsTuvw = 420;data.bFizXB = 420;</finalize>
+                <prepare>fun(data.NAaZfMVGMVq);</prepare>
+            </code>
+        </call>
+    </loop>
+    <loop condition="data.IbiOdFUfConwj &lt; 69">
+        <call endpoint="YjRTOzFLIctIshvIdHjduP">
+            <parameters>
+                <label>FYHmPPGofRcUfpNelUfWCfxrsTKrg</label>
+                <label>:patch</label>
+                <arguments>
+                    <oBUCgk>data.oBUCgk</oBUCgk>
+                    <krObOJ>data.krObOJ</krObOJ>
+                    <BhiTXhKCpG>data.BhiTXhKCpG</BhiTXhKCpG>
+                    <XtZkNXwqlF>data.XtZkNXwqlF</XtZkNXwqlF>
+                    <FEmevECG>data.FEmevECG</FEmevECG>
+                    <gyVUEwogenlERT>data.gyVUEwogenlERT</gyVUEwogenlERT>
+                    <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.NAaZfMVGMVq = 420;data.xDpQknqrGS = 420;</finalize>
+                <prepare>fun(data.XtZkNXwqlF);fun(data.jflzEfgIefdm);fun(data.IbiOdFUfConwj);fun(data.VVEFlqdOcWvDI);</prepare>
+            </code>
+        </call>
+        <loop condition="data.MCRbO &lt; 69RKyiKIoXjU">
+            <parallel>
+                <parallel_branch>
+                    <call endpoint="cOJreWLLiIZgilpgrHUTic">
+                        <parameters>
+                            <label>WJNlCThWNvyosLpp</label>
+                            <label>:patch</label>
+                            <arguments>
+                                <FEmevECG>data.FEmevECG</FEmevECG>
+                                <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                                <VVEFlqdOcWvDI>data.VVEFlqdOcWvDI</VVEFlqdOcWvDI>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize>data.NAaZfMVGMVq = 420;data.oBUCgk = 420;</finalize>
+                            <prepare>fun(data.ytrREpyWEsVcsz);fun(data.viYGtkMR);</prepare>
+                        </code>
+                    </call>
+                </parallel_branch>
+                <parallel_branch>
+                    <call endpoint="SDABYQBkeUzxaAcDjQQg">
+                        <parameters>
+                            <label>DLlfNjRACieEwkXERrvmBSuBJidfD</label>
+                            <label>:patch</label>
+                            <arguments>
+                                <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                                <KDtQznCE>data.KDtQznCE</KDtQznCE>
+                                <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                                <jflzEfgIefdm>data.jflzEfgIefdm</jflzEfgIefdm>
+                                <jflzEfgIefdm>data.jflzEfgIefdm</jflzEfgIefdm>
+                                <krObOJ>data.krObOJ</krObOJ>
+                                <VmokicsTuvw>data.VmokicsTuvw</VmokicsTuvw>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <prepare>fun(data.MCRbO);fun(data.TrCddcHqGGm);fun(data.jflzEfgIefdm);fun(data.XtZkNXwqlF);fun(data.FEmevECG);</prepare>
+                        </code>
+                    </call>
+                </parallel_branch>
+            </parallel>
+            <loop condition="data.VVEFlqdOcWvDI &lt; 69">
+                <call endpoint="lcXofKaaZtAQumERCtaBfBX">
+                    <parameters>
+                        <label>epkXykpyajCBkHtbabLnv</label>
+                        <label>:delete</label>
+                        <arguments>
+                            <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                            <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize>data.AoVkyedLA = 420;</finalize>
+                        <prepare>fun(data.cJwnsVmzabkU);fun(data.MCRbO);fun(data.jflzEfgIefdm);fun(data.viYGtkMR);</prepare>
+                    </code>
+                </call>
+                <loop condition="data.BhiTXhKCpG &lt; 69">
+                    <call endpoint="xjMrbdoYPXlPBzKulQL">
+                        <parameters>
+                            <label>cVHwRKHcwVX</label>
+                            <label>:get</label>
+                            <arguments>
+                                <cJwnsVmzabkU>data.cJwnsVmzabkUWySaVOBYgp</cJwnsVmzabkU>
+                                <krObOJ>data.krObOJ</krObOJ>
+                                <XjXUEit>data.XjXUEit</XjXUEit>
+                                <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                                <BhiTXhKCpG>data.BhiTXhKCpG</BhiTXhKCpG>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize>data.MCRbO = 420;</finalize>
+                            <prepare>fun(data.XjXUEit);fun(data.VmokicsTuvw);fun(data.viYGtkMR);fun(data.gyVUEwogenlERT);</prepare>
+                        </code>
+                    </call>
+                    <critical>
+                        <parallel>
+                            <parallel_branch>
+                                <call endpoint="XWPtPvpFNOfBBAYswmgCjwoIRj">
+                                    <parameters>
+                                        <label>DLlfNjRACieEwkXERrvmBSuBJidfD</label>
+                                        <label>:delete</label>
+                                        <arguments>
+                                            <VmokicsTuvw>data.VmokicsTuvw</VmokicsTuvw>
+                                        </arguments>
+                                    </parameters>
+                                    <code>
+                                        <finalize>data.ehTGNwLceOVea = 420;data.KDtQznCE = 420;data.TrCddcHqGGm = 420;data.NAaZfMVGMVq = 420;data.xDpQknqrGS = 420;</finalize>
+                                        <prepare>fun(data.OnfqLcfvGMIq);</prepare>
+                                    </code>
+                                </call>
+                                <loop condition="data.irILHhHbo &lt; 69">
+                                    <manipulate>data.KDtQznCE = 420;data.VmokicsTuvw = 420;fun(data.KDtQznCE);fun(data.TrCddcHqGGm);fun(data.pLmVGngnc);fun(data.cJwnsVmzabkU);fun(data.viYGtkMR);</manipulate>
+                                </loop>
+                                <manipulate>data.KDtQznCE = 420;data.jflzEfgIefdm = 420;data.FEmevECG = 420;data.MCRbO = 420;data.VmokicsTuvw = 420;data.pLmVGngnc = 420;data.TrCddcHqGGm = 420;fun(data.cJwnsVmzabkU);fun(data.bFizXB);fun(data.krObOJ);fun(data.ytrREpyWEsVcsz);fun(data.KDtQznCE);fun(data.jflzEfgIefdm);</manipulate>
+                            </parallel_branch>
+                        </parallel>
+                    </critical>
+                    <call endpoint="XWPtPvpFNOfBBAYswmgCjwoIRj">
+                        <parameters>
+                            <label>pAdHUijPYKgYXiwLovEs</label>
+                            <label>:delete</label>
+                            <arguments>
+                                <vGysZruOjruUUD>data.vGysZruOjruUUD</vGysZruOjruUUD>
+                                <pLmVGngnc>data.pLmVGngnc</pLmVGngnc>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize>data.viYGtkMR = 420;data.NAaZfMVGMVq = 420;data.gyVUEwogenlERT = 420;</finalize>
+                            <prepare>fun(data.oBUCgk);fun(data.vGysZruOjruUUD);</prepare>
+                        </code>
+                    </call>
+                    <parallel>
+                        <parallel_branch>
+                            <terminate/>
+                            <loop condition="data.KDtQznCE &lt; 69">
+                                <loop condition="data.XtZkNXwqlF &lt; 69CrQhhicUHf">
+                                    <call endpoint="rNhGwmnGftwJho">
+                                        <parameters>
+                                            <label>gCwUXyGpfAt</label>
+                                            <label>:patch</label>
+                                            <arguments>
+                                                <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                                                <OnfqLcfvGMIq>data.OnfqLcfvGMIq</OnfqLcfvGMIq>
+                                                <pLmVGngnc>data.pLmVGngnc</pLmVGngnc>
+                                                <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                                                <ytrREpyWEsVcsz>data.ytrREpyWEsVcsz</ytrREpyWEsVcsz>
+                                            </arguments>
+                                        </parameters>
+                                        <code>
+                                            <finalize>data.vGysZruOjruUUD = 420;data.IbiOdFUfConwj = 420;data.TrCddcHqGGm = 420;data.oBUCgk = 420;</finalize>
+                                            <prepare>fun(data.VmokicsTuvw);fun(data.TrCddcHqGGm);</prepare>
+                                        </code>
+                                    </call>
+                                    <critical>
+                                        <call endpoint="sGlZppztZdzVRzwkC">
+                                            <parameters>
+                                                <label>ZNpTLoEGRRefNUvm</label>
+                                                <label>:get</label>
+                                                <arguments>
+                                                    <MCRbO>data.MCRbO</MCRbO>
+                                                    <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                                                </arguments>
+                                            </parameters>
+                                            <code>
+                                                <finalize>data.bFizXB = 420;</finalize>
+                                                <prepare>fun(data.AoVkyedLA);fun(data.IbiOdFUfConwj);fun(data.VmokicsTuvw);fun(data.viYGtkMR);</prepare>
+                                            </code>
+                                        </call>
+                                    </critical>
+                                    <manipulate>data.VmokicsTuvw = 420;data.BhiTXhKCpG = 420;data.xDpQknqrGS = 420;data.bFizXB = 420;data.VVEFlqdOcWvDI = 420;data.XjXUEit = 420;fun(data.viYGtkMR);fun(data.VmokicsTuvw);</manipulate>
+                                </loop>
+                                <loop condition="data.xDpQknqrGS &lt; 69">
+                                    <escape/>
+                                </loop>
+                            </loop>
+                            <loop condition="data.VVEFlqdOcWvDI &lt; 69">
+                                <loop condition="data.mzxjHBIbl &lt; 69">
+                                    <loop condition="data.MCRbO &lt; 69">
+                                        <call endpoint="sUSbLbygJePeoX">
+                                            <parameters>
+                                                <label>XoFPQuyvZCFukEPBagpszI</label>
+                                                <label>:get</label>
+                                            </parameters>
+                                            <code>
+                                                <finalize>data.viYGtkMR = 420;data.BhiTXhKCpG = 420;data.MCRbO = 420;</finalize>
+                                                <prepare>fun(data.BhiTXhKCpG);fun(data.KDtQznCE);</prepare>
+                                            </code>
+                                        </call>
+                                    </loop>
+                                    <stop/>
+                                </loop>
+                                <call endpoint="yaNVpCYikPfsCTDgVeUnm">
+                                    <parameters>
+                                        <label>dphxIKPySBzCIxxPfNR</label>
+                                        <label>:patch</label>
+                                        <arguments>
+                                            <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                                        </arguments>
+                                    </parameters>
+                                    <code>
+                                        <prepare>fun(data.gyVUEwogenlERT);fun(data.mzxjHBIbl);fun(data.pLmVGngnc);fun(data.oBUCgk);fun(data.KDtQznCE);fun(data.xDpQknqrGS);fun(data.MCRbO);</prepare>
+                                    </code>
+                                </call>
+                            </loop>
+                        </parallel_branch>
+                        <parallel_branch>
+                            <call endpoint="sUSbLbygJePeoX">
+                                <parameters>
+                                    <label>FYHmPPGofRcUfpNelUfWCfxrsTKrg</label>
+                                    <label>:delete</label>
+                                    <arguments>
+                                        <TrCddcHqGGm>data.TrCddcHqGGm</TrCddcHqGGm>
+                                        <VVEFlqdOcWvDI>data.VVEFlqdOcWvDI</VVEFlqdOcWvDI>
+                                    </arguments>
+                                </parameters>
+                                <code>
+                                    <finalize>data.ytrREpyWEsVcsz = 420;data.NAaZfMVGMVq = 420;data.MCRbO = 420;data.KDtQznCE = 420;</finalize>
+                                    <prepare>fun(data.xDpQknqrGS);</prepare>
+                                </code>
+                            </call>
+                        </parallel_branch>
+                        <parallel_branch>
+                            <call endpoint="XWPtPvpFNOfBBAYswmgCjwoIRj">
+                                <parameters>
+                                    <label>fceHCtTOab</label>
+                                    <label>:put</label>
+                                    <arguments>
+                                        <mzxjHBIbl>data.mzxjHBIbl</mzxjHBIbl>
+                                        <ehTGNwLceOVea>data.ehTGNwLceOVea</ehTGNwLceOVea>
+                                        <bFizXB>data.bFizXB</bFizXB>
+                                        <oBUCgk>data.oBUCgk</oBUCgk>
+                                    </arguments>
+                                </parameters>
+                                <code>
+                                    <finalize>data.NAaZfMVGMVq = 420;data.MCRbO = 420;data.AoVkyedLA = 420;data.BhiTXhKCpG = 420;data.krObOJ = 420;data.FEmevECG = 420;</finalize>
+                                    <prepare>fun(data.IbiOdFUfConwj);fun(data.XtZkNXwqlF);fun(data.vGysZruOjruUUD);fun(data.oBUCgk);</prepare>
+                                </code>
+                            </call>
+                        </parallel_branch>
+                        <parallel_branch>
+                            <call endpoint="cOJreWLLiIZgilpgrHUTic">
+                                <parameters>
+                                    <label>cSTaFjzPipApouiaaUy</label>
+                                    <label>:patch</label>
+                                </parameters>
+                                <code>
+                                    <finalize>data.vGysZruOjruUUD = 420;data.ytrREpyWEsVcsz = 420;data.VVEFlqdOcWvDI = 420;data.pLmVGngnc = 420;</finalize>
+                                    <prepare>fun(data.ytrREpyWEsVcsz);</prepare>
+                                </code>
+                            </call>
+                            <call endpoint="YjRTOzFLIctIshvIdHjduP">
+                                <parameters>
+                                    <label>FwapgtMdKtXReCYtbOjMf</label>
+                                    <label>:get</label>
+                                    <arguments>
+                                        <mzxjHBIbl>data.mzxjHBIbl</mzxjHBIbl>
+                                        <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                                        <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                                        <ehTGNwLceOVea>data.ehTGNwLceOVea</ehTGNwLceOVea>
+                                    </arguments>
+                                </parameters>
+                                <code>
+                                    <finalize>data.NAaZfMVGMVq = 420;data.KDtQznCE = 420;data.OnfqLcfvGMIq = 420;</finalize>
+                                    <prepare>fun(data.vGysZruOjruUUD);fun(data.VVEFlqdOcWvDI);fun(data.krObOJ);fun(data.ytrREpyWEsVcsz);fun(data.mzxjHBIbl);</prepare>
+                                </code>
+                            </call>
+                        </parallel_branch>
+                        <parallel_branch>
+                            <manipulate>data.gyVUEwogenlERT = 420;data.KDtQznCE = 420;data.vGysZruOjruUUD = 420;data.XtZkNXwqlF = 420;fun(data.vGysZruOjruUUD);fun(data.OnfqLcfvGMIq);fun(data.IbiOdFUfConwj);fun(data.ytrREpyWEsVcsz);fun(data.XtZkNXwqlF);fun(data.KDtQznCE);</manipulate>
+                            <call endpoint="WbedOeNcszj">
+                                <parameters>
+                                    <label>CEqdPjoNSJncsXtdDbullNesh</label>
+                                    <label>:get</label>
+                                    <arguments>
+                                        <gyVUEwogenlERT>data.gyVUEwogenlERT</gyVUEwogenlERT>
+                                        <TrCddcHqGGm>data.TrCddcHqGGm</TrCddcHqGGm>
+                                        <VVEFlqdOcWvDI>data.VVEFlqdOcWvDIIfUJUICtGw</VVEFlqdOcWvDI>
+                                        <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                                        <cJwnsVmzabkU>data.cJwnsVmzabkUEQmOGVCfAK</cJwnsVmzabkU>
+                                        <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                                    </arguments>
+                                </parameters>
+                                <code>
+                                    <finalize>data.AoVkyedLA = 420;data.BhiTXhKCpG = 420;data.gyVUEwogenlERT = 420;data.FEmevECG = 420;</finalize>
+                                    <prepare>fun(data.pLmVGngnc);fun(data.mzxjHBIbl);fun(data.vGysZruOjruUUD);fun(data.oBUCgk);</prepare>
+                                </code>
+                            </call>
+                        </parallel_branch>
+                    </parallel>
+                </loop>
+            </loop>
+            <loop condition="data.irILHhHbo &lt; 69">
+                <call endpoint="ooTPkCkIdtpsMsiwTuIpeYSFqkcy">
+                    <parameters>
+                        <label>sQRnaseQQWDrcoiZBLoN</label>
+                        <label>:post</label>
+                        <arguments>
+                            <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                            <krObOJ>data.krObOJ</krObOJ>
+                            <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                            <VVEFlqdOcWvDI>data.VVEFlqdOcWvDI</VVEFlqdOcWvDI>
+                            <XtZkNXwqlF>data.XtZkNXwqlF</XtZkNXwqlF>
+                            <cJwnsVmzabkU>data.cJwnsVmzabkU</cJwnsVmzabkU>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize>data.viYGtkMR = 420;data.FEmevECG = 420;data.oBUCgk = 420;data.ytrREpyWEsVcsz = 420;data.BhiTXhKCpG = 420;</finalize>
+                        <prepare>fun(data.viYGtkMR);fun(data.pLmVGngnc);fun(data.BhiTXhKCpG);fun(data.FEmevECG);fun(data.oBUCgk);</prepare>
+                    </code>
+                </call>
+                <call endpoint="XWPtPvpFNOfBBAYswmgCjwoIRj">
+                    <parameters>
+                        <label>dphxIKPySBzCIxxPfNR</label>
+                        <label>:get</label>
+                        <arguments>
+                            <NAaZfMVGMVq>data.NAaZfMVGMVq</NAaZfMVGMVq>
+                            <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                            <jflzEfgIefdm>data.jflzEfgIefdm</jflzEfgIefdm>
+                            <ehTGNwLceOVea>data.ehTGNwLceOVea</ehTGNwLceOVea>
+                            <OnfqLcfvGMIq>data.OnfqLcfvGMIq</OnfqLcfvGMIq>
+                            <irILHhHbo>data.irILHhHbo</irILHhHbo>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize>data.jflzEfgIefdm = 420;</finalize>
+                        <prepare>fun(data.oBUCgk);fun(data.vGysZruOjruUUD);fun(data.NAaZfMVGMVq);fun(data.BhiTXhKCpG);fun(data.VmokicsTuvw);</prepare>
+                    </code>
+                </call>
+                <call endpoint="NJsDKkHQTdibBxNpb">
+                    <parameters>
+                        <label>AgqEtPZttRM</label>
+                        <label>:get</label>
+                        <arguments>
+                            <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                            <mzxjHBIbl>data.mzxjHBIbl</mzxjHBIbl>
+                            <VmokicsTuvw>data.VmokicsTuvw</VmokicsTuvw>
+                            <XjXUEit>data.XjXUEit</XjXUEit>
+                            <gyVUEwogenlERT>data.gyVUEwogenlERT</gyVUEwogenlERT>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <prepare>fun(data.vGysZruOjruUUD);fun(data.xDpQknqrGS);fun(data.pLmVGngnc);fun(data.jflzEfgIefdm);fun(data.AoVkyedLA);fun(data.NAaZfMVGMVq);fun(data.cJwnsVmzabkU);</prepare>
+                    </code>
+                </call>
+            </loop>
+            <call endpoint="fXDvaXsGhYITFJFjCIkOnIewDPlrf">
                 <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
+                    <label>ciVXcrXUZIfb</label>
+                    <label>:patch</label>
                     <arguments>
-                        <costs>data.costs</costs>
+                        <MCRbO>data.MCRbO</MCRbO>
+                        <XtZkNXwqlF>data.XtZkNXwqlF</XtZkNXwqlF>
+                        <mzxjHBIbl>data.mzxjHBIbldZzTnBPexh</mzxjHBIbl>
+                        <OnfqLcfvGMIq>data.OnfqLcfvGMIq</OnfqLcfvGMIq>
+                        <irILHhHbo>data.irILHhHbo</irILHhHbo>
                     </arguments>
                 </parameters>
+                <code>
+                    <finalize>data.XjXUEit = 420;</finalize>
+                    <prepare>fun(data.TrCddcHqGGm);fun(data.bFizXB);fun(data.IbiOdFUfConwj);fun(data.irILHhHbo);fun(data.XjXUEit);</prepare>
+                </code>
             </call>
-        </alternative>
-    </choose>
+        </loop>
+        <call endpoint="kPuPGhaFfZFcep">
+            <parameters>
+                <label>WJNlCThWNvyosLpp</label>
+                <label>:put</label>
+                <arguments>
+                    <BhiTXhKCpG>data.BhiTXhKCpG</BhiTXhKCpG>
+                    <vGysZruOjruUUD>data.vGysZruOjruUUD</vGysZruOjruUUD>
+                    <TrCddcHqGGm>data.TrCddcHqGGm</TrCddcHqGGm>
+                    <bFizXB>data.bFizXB</bFizXB>
+                    <VmokicsTuvw>data.VmokicsTuvw</VmokicsTuvw>
+                    <KDtQznCE>data.KDtQznCE</KDtQznCE>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.KDtQznCE = 420;data.ehTGNwLceOVea = 420;</finalize>
+                <prepare>fun(data.MCRbO);fun(data.IbiOdFUfConwj);fun(data.AoVkyedLA);</prepare>
+            </code>
+        </call>
+        <terminate/>
+    </loop>
+    <loop>
+        <call endpoint="hFWFdKeiHyDHJrvdJ">
+            <parameters>
+                <label>FwapgtMdKtXReCYtbOjMf</label>
+                <label>QXyAVSBLWdKEovweZHcsvMoSBJLX</label>
+                <arguments>
+                    <pLmVGngnc>data.pLmVGngnc</pLmVGngnc>
+                    <viYGtkMR>data.viYGtkMR</viYGtkMR>
+                    <xDpQknqrGS>data.xDpQknqrGS</xDpQknqrGS>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.ytrREpyWEsVcsz = 420;</finalize>
+                <prepare>fun(data.NAaZfMVGMVq);</prepare>
+            </code>
+        </call>
+        <call endpoint="yaNVpCYikPfsCTDgVeUnm">
+            <parameters>
+                <label>FwapgtMdKtXReCYtbOjMf</label>
+                <label>:get</label>
+                <arguments>
+                    <XjXUEit>data.XjXUEit</XjXUEit>
+                    <mzxjHBIbl>data.mzxjHBIbl</mzxjHBIbl>
+                    <FEmevECG>data.FEmevECG</FEmevECG>
+                    <NAaZfMVGMVq>data.NAaZfMVGMVq</NAaZfMVGMVq>
+                    <ytrREpyWEsVcsz>data.ytrREpyWEsVcsz</ytrREpyWEsVcsz>
+                </arguments>
+            </parameters>
+            <code>
+                <prepare>fun(data.viYGtkMR);fun(data.XjXUEit);</prepare>
+            </code>
+        </call>
+        <call endpoint="XWPtPvpFNOfBBAYswmgCjwoIRj">
+            <parameters>
+                <label>VGwkurkdjSBmsuPHLYmelb</label>
+                <label>:put</label>
+                <arguments>
+                    <VVEFlqdOcWvDI>data.VVEFlqdOcWvDI</VVEFlqdOcWvDI>
+                    <OnfqLcfvGMIq>data.OnfqLcfvGMIq</OnfqLcfvGMIq>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.VmokicsTuvw = 420;data.xDpQknqrGS = 420;data.MCRbO = 420;data.mzxjHBIbl = 420;</finalize>
+                <prepare>fun(data.irILHhHbo);fun(data.OnfqLcfvGMIq);fun(data.mzxjHBIbl);</prepare>
+            </code>
+        </call>
+        <call endpoint="XeWxgOapAzGjOMwbTLh">
+            <parameters>
+                <label>FYHmPPGofRcUfpNelUfWCfxrsTKrg</label>
+                <label>:patch</label>
+                <arguments>
+                    <XtZkNXwqlF>data.XtZkNXwqlF</XtZkNXwqlF>
+                    <FEmevECG>data.FEmevECG</FEmevECG>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize>data.FEmevECG = 420;data.irILHhHbo = 420;data.mzxjHBIbl = 420;data.BhiTXhKCpG = 420;</finalize>
+                <prepare>fun(data.mzxjHBIbl);</prepare>
+            </code>
+        </call>
+    </loop>
 </description>
