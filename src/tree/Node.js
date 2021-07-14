@@ -141,6 +141,28 @@ export class Node {
 
     /**
      *
+     * @returns {Node}
+     */
+    getLeftSibling() {
+        if(this._childIndex > 0) {
+            return this.getSiblings()[this._childIndex - 1];
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @returns {Node}
+     */
+    getRightSibling() {
+        if(this._childIndex < this.getSiblings().length - 1) {
+            return this.getSiblings()[this._childIndex + 1];
+        }
+        return null;
+    }
+
+    /**
+     *
      * @param {Node} other
      */
     contentEquals(other) {

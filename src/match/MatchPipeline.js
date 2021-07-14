@@ -22,6 +22,7 @@ import {StandardComparator} from "./compare/StandardComparator.js";
 import {HashMatcher} from "./HashMatcher.js";
 import {SimilarityMatcher} from "./SimilarityMatcher.js";
 import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
+import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
 
 export class MatchPipeline {
 

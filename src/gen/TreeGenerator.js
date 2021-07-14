@@ -486,6 +486,7 @@ export class TreeGenerator {
                 case Dsl.CALL_PROPERTIES.RESCUE.label:
                 case Dsl.CALL_PROPERTIES.FINALIZE.label:
                 case Dsl.ELEMENTS.MANIPULATE.label: {
+                    //TODO delete variable
                     //code change
                     const statements = node.data.split(";");
                     statements.splice(this._randInt(statements.length), 1);
