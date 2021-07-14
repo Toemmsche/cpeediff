@@ -48,43 +48,45 @@ export class MergeAlgorithmEvaluation {
         }
 
         const parser = new Preprocessor();
-        fs.readdirSync(caseDir).forEach((dir) => {
-            let base;
-            let branch1;
-            let branch2;
-            let expected = [];
-            let accepted = [];
+        fs.readdirSync(caseDir).forEach((caseCategory) => {
+            const categoryDir = caseDir + "/" + caseCategory;
+            fs.readdirSync(categoryDir).forEach((dir) => {
+                let base;
+                let branch1;
+                let branch2;
+                let expected = [];
+                let accepted = [];
 
-            fs.readdirSync(caseDir + "/" + dir).forEach((file) => {
-                    const content = fs.readFileSync(caseDir + "/" + dir + "/" + file).toString();
-                    if (file === "base.xml") {
-                        base = parser.parseWithMetadata(content);
-                    } else if (file === "1.xml") {
-                        branch1 = parser.parseWithMetadata(content);
-                    } else if (file === "2.xml") {
-                        branch2 = parser.parseWithMetadata(content);
-                    } else if (file.startsWith("expected")) {
-                        expected.push(parser.parseWithMetadata(content));
-                    } else if (file.startsWith("accepted")) {
-                        accepted.push(parser.parseWithMetadata(content));
+                fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
+                        const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
+                        if (file === "base.xml") {
+                            base = parser.parseWithMetadata(content);
+                        } else if (file === "1.xml") {
+                            branch1 = parser.parseWithMetadata(content);
+                        } else if (file === "2.xml") {
+                            branch2 = parser.parseWithMetadata(content);
+                        } else if (file.startsWith("expected")) {
+                            expected.push(parser.parseWithMetadata(content));
+                        } else if (file.startsWith("accepted")) {
+                            accepted.push(parser.parseWithMetadata(content));
+                        }
                     }
+                );
+                if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
+                    //test case is incomplete => skip
+                    console.log("Skip case " + dir + " due to missing files");
+                    return;
                 }
-            );
-            if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
-                //test case is incomplete => skip
-                console.log("Skip case " + dir + " due to missing files");
-                return;
-            }
 
-            resultsPerTest.set(dir, []);
-            for (const adapter of this.adapters) {
-                console.log("Running merge case " + dir + " for " + adapter.displayName);
+                resultsPerTest.set(dir, []);
+                for (const adapter of this.adapters) {
+                    console.log("Running merge case " + dir + " for " + adapter.displayName);
 
-                const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
-                resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(dir).push(result);
-            }
-
+                    const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
+                    resultsPerAdapter.get(adapter).push(result);
+                    resultsPerTest.get(dir).push(result);
+                }
+            })
         });
 
         const aggregateResults = [];

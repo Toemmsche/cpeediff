@@ -62,7 +62,7 @@ export class StandardComparator extends AbstractComparator {
          This is reasonable as large chunks of the URL can equal despite the two calls serving a different semantic purpose.
          E.g. www.example.com/docs and www.example.com/doctors
          */
-        let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 1;
+        let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 0.5;
         if (nodeProps.label !== otherProps.label) {
             endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
         }

@@ -16,19 +16,37 @@
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
-            <loop mode="pre_test" condition="data.persons > 0">
-                <call id="a2" endpoint="bookHotel">
+            <manipulate>data.personsCopy = data.persons</manipulate>
+            <loop condition="data.personsCopy > 0">
+                <call id="a1" endpoint="bookAir">
                     <parameters>
-                        <label>Book Hotel</label>
+                        <label>Book Airline</label>
                         <method>:post</method>
                         <arguments>
+                            <from>data.from</from>
                             <to>data.to</to>
+                            <persons>1</persons>
                         </arguments>
                     </parameters>
                     <code>
                         <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
                     </code>
                 </call>
+                <manipulate>data.personsCopy -= 1</manipulate>
+            </loop>
+            <loop mode="pre_test" condition="data.persons > 0">
+                    <call id="a2" endpoint="bookHotel">
+                        <parameters>
+                            <label>Book Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <to>data.to</to>
+                            </arguments>
+                        </parameters>
+                        <code>
+                            <finalize output="result">data.hotels.push(result.value('id')); data.costs += result.value('costs').to_f;</finalize>
+                        </code>
+                    </call>
                 <manipulate id="a3">data.persons -= 1</manipulate>
             </loop>
             <choose mode="inclusive">
@@ -43,22 +61,6 @@
                         </parameters>
                     </call>
                 </alternative>
-                <otherwise>
-                    <call id="a1" endpoint="bookAir">
-                        <parameters>
-                            <label>Book Airline</label>
-                            <method>:post</method>
-                            <arguments>
-                                <from>data.from</from>
-                                <to>data.to</to>
-                                <persons>data.persons</persons>
-                            </arguments>
-                        </parameters>
-                        <code>
-                            <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
-                        </code>
-                    </call>
-                </otherwise>
             </choose>
         </description>
     </dslx>

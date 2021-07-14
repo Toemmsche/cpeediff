@@ -23,6 +23,7 @@ for each - insertion/move/update/delete
 leaf
 subtree
 arg/property
+(merge: conflict, close, far apart)
 
 special cases for each operation:
 insert:

@@ -13,6 +13,7 @@
         <timeout>http://gruppe.wst.univie.ac.at/~mangler/services/timeout.php</timeout>
         <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
         <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
+        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/reject.php</approve>
     </endpoints>
     <dslx>
         <description xmlns="http://cpee.org/ns/description/1.0">
@@ -40,12 +41,15 @@
                             </arguments>
                         </parameters>
                         <code>
-                            <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
+                            <finalize output="result">data.hotels.push(result.value('id')); data.costs += result.value('costs').to_f;</finalize>
                         </code>
                     </call>
                 <manipulate id="a3">data.persons -= 1</manipulate>
             </loop>
             <choose mode="inclusive">
+                <alternative condition="data.costs > 10000">
+                    <stop></stop>
+                </alternative>
                 <alternative condition="data.costs > 700">
                     <call id="a4" endpoint="approve">
                         <parameters>
@@ -57,6 +61,18 @@
                         </parameters>
                     </call>
                 </alternative>
+                <otherwise>
+                    <call endpoint="reject">
+                        <parameters>
+                            <label>Reject Hotel</label>
+                            <method>:post</method>
+                            <arguments>
+                                <costs>data.costs</costs>
+                                <hotels>data.hotels</hotels>
+                            </arguments>
+                        </parameters>
+                    </call>
+                </otherwise>
             </choose>
         </description>
     </dslx>

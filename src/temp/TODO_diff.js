@@ -3,7 +3,6 @@
 //      command line visualization including "live" patching and filtered changes
 //      data passses in parallel branches
 //      use _assign() to make copies
-//      remove <newcontent> from xml delta
 //      put to post and patch comparison
 //      critical after parallel? -> ask Juergen
 
@@ -55,7 +54,6 @@
 //      make robust against missing root
 //      robust against keywrods as properties
 //      differtnt merge output trees (dt1 and dt2)
-//      missing method, label, code and args, endpoint
 //      multiple otherwise (or alternatives with same condition) --> matchSimilarUnmatched top down()
 //      merge produces a lot of wrong merges (e.g. disregards semantic properties)
 //          update_conflict with differnt endpoint and argument list

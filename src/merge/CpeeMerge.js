@@ -101,11 +101,8 @@ export class CpeeMerge {
                 }
                 if (node.isUpdate() && !match.isUpdate() && !match.isInsertion()) {
                     //update match
-                    //TODO check for insertion
                     this._applyUpdate(node, match);
                 }
-
-
             } else {
                 if (node.isInsertion()) {
                     //node was inserted in this Tree, not in the other --> insert in other tree
@@ -135,7 +132,6 @@ export class CpeeMerge {
                 }
 
                 //edge case: insertion of the same node (matched insertions) at different positions/with different content
-                //TODO make merge case
                 if (node.isInsertion() && (match.isInsertion() || match.isUpdate())) {
                     moveConflicts.add(node);
                     if (!node.contentEquals(match)) {
@@ -150,7 +146,7 @@ export class CpeeMerge {
     _resolveMoveConflicts(moveConflicts, matching) {
         for (const node of moveConflicts) {
             const match = matching.getOther(node);
-            if (matching.areMatched(node, match)) {
+            if (matching.areMatched(node.parent, match.parent)) {
                 //inter parent move
                 node.confidence.positionConfident = false;
                 match.confidence.positionConfident = false;
