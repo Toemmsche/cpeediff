@@ -6,7 +6,7 @@ import {TestConfig} from "./test/TestConfig.js";
 
 
 TestConfig.EXECUTION_OPTIONS.timeout = 120000*1000;
-new DiffAlgorithmEvaluation([new CpeeDiffAdapter(), new XyDiffAdapter()]).evalAll();
+new DiffAlgorithmEvaluation([new CpeeDiffAdapter()]).evalAll();
 
 //DiffAlgorithmEvaluation.all().evalAll();
 

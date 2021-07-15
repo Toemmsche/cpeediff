@@ -59,6 +59,7 @@ export class EditScriptGenerator {
         //second pass to detect the largest subtrees that are fully deleted
         while (oldDeletedNodes.length > 0) {
             let node = oldDeletedNodes[0];
+
             //parent is also fully deleted
             while (node.parent !== null && oldDeletedNodes.includes(node.parent)) {
                 node = node.parent;

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "main": "demo.js",
+  "esversion": 6,
   "scripts": {
     "start": "node main.js",
     "test": "mocha"

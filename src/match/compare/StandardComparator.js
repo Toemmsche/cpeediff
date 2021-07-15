@@ -66,6 +66,8 @@ export class StandardComparator extends AbstractComparator {
         if (nodeProps.label !== otherProps.label) {
             endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
         }
+
+        //TODO fine grained comparison
         if (nodeProps.method !== otherProps.method) {
             endPointComparisonValue += Config.COMPARATOR.METHOD_PENALTY;
         }

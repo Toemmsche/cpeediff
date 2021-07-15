@@ -178,8 +178,9 @@ export class DeltaTreeGenerator {
     _findNode(indexPath) {
         let currNode = this.tree;
         let moveFromPlaceHolder = null;
-        if (indexPath !== "") {
-            for (let index of indexPath.split("/").map(str => parseInt(str))) {
+        if (indexPath !== "/") {
+            //remove root path "/"
+            for (let index of indexPath.substring(1).split("/").map(str => parseInt(str))) {
                 if (index > currNode.numChildren()) {
                     throw new Error("Edit script not applicable to tree");
                 }

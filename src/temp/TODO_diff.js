@@ -3,7 +3,6 @@
 //      command line visualization including "live" patching and filtered changes
 //      data passses in parallel branches
 //      use _assign() to make copies
-//      put to post and patch comparison
 //      critical after parallel? -> ask Juergen
 
 //TODO gen
@@ -13,7 +12,6 @@
 //      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
 
 //TODO maybe features
-//      lis with custom comparator (why?)
 //      conflict groups for reshuffling (toggleable)
 
 //TODO semi-features
@@ -60,6 +58,8 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      changet o edit operations
+//      rename data to text
 //      use the change types and keywords objects instead of strings
 //      wrap diff/namespace objects in functions (NO because of configurability)
 //      delete includes deleted tree

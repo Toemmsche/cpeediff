@@ -162,6 +162,10 @@ export const Dsl = {
     },
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
     CHOOSE_MODES: ["inclusive", "exclusive"],
+    DATA_PASS: {
+        VARIABLE_KEY: "pass",
+        LOCAL_KEY: "local"
+    },
 
     PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
 }
