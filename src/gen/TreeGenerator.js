@@ -250,7 +250,7 @@ export class TreeGenerator {
 
         //random condition
         const readVariable = this._randomFrom(this.variables);
-        node.attributes.set("condition", Config.VARIABLE_PREFIX + readVariable + " < 69");
+        node.attributes.set(Dsl.INNER_PROPERTIES.CONDITION.label, Config.VARIABLE_PREFIX + readVariable + " < 69");
 
         return node;
     }
@@ -264,7 +264,7 @@ export class TreeGenerator {
         const node = new Node(Dsl.ELEMENTS.LOOP.label);
         //random condition
         const readVariable = this._randomFrom(this.variables);
-        node.attributes.set("condition", Config.VARIABLE_PREFIX + readVariable + " < 69");
+        node.attributes.set(Dsl.INNER_PROPERTIES.CONDITION.label, Config.VARIABLE_PREFIX + readVariable + " < 69");
         return node;
     }
 

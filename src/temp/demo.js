@@ -25,19 +25,47 @@ import {Preprocessor} from "../io/Preprocessor.js";
 import {Config} from "../Config.js";
 import {CpeeMerge} from "../merge/CpeeMerge.js";
 import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
+import {CpeeDiffAdapter} from "../../test/diff_eval/CpeeDiffAdapter.js";
+import {Dsl} from "../Dsl.js";
 
 let old = new Preprocessor().parseFromFile("old.xml");
 let newTre = new Preprocessor().parseFromFile("new.xml");
 
 const es = new CpeeDiff().diff(old, newTre);
 
+function parseOutput(output) {
+    let updateCounter = 0;
+    let insertionCounter = 0;
+    let moveCounter = 0;
+    let deletionCounter = 0;
+
+    //parse output
+    for (const change of output.changes) {
+        switch (change.changeType) {
+            case Dsl.CHANGE_TYPES.INSERTION.label:
+                insertionCounter++;
+                break;
+            case Dsl.CHANGE_TYPES.DELETION.label:
+                deletionCounter++;
+                break;
+            case Dsl.CHANGE_TYPES.MOVE_TO.label:
+                moveCounter++;
+                break;
+            case Dsl.CHANGE_TYPES.UPDATE.label:
+                updateCounter++;
+                break;
+        }
+    }
+    return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+}
 
 
 const dt = new DeltaTreeGenerator().deltaTree(old, es);
 
 
 
-console.log(XmlFactory.serialize(dt));
+console.log(parseOutput(es));
+console.log(parseOutput(es).reduce((a,b) => a + b))
 
 
 

@@ -31,7 +31,8 @@ export class VariableExtractor extends AbstractExtractor {
     _extract(node) {
         this._memo.set(node, {
             modifiedVariables: this._getModifiedVariables(node),
-            readVariables: this._getReadVariables(node)
+            readVariables: this._getReadVariables(node),
+            argVariables: this._getArgVariables(node)
         });
     }
 
@@ -51,8 +52,8 @@ export class VariableExtractor extends AbstractExtractor {
 
     _getReadVariables(node) {
         const readVariables = new Set();
-        if (node.attributes.has("condition")) {
-            const condition = node.attributes.get("condition");
+        if (node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label)) {
+            const condition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
             for (const readVar of this._readVarsFromString(condition)) {
                 readVariables.add(readVar);
             }
@@ -68,18 +69,24 @@ export class VariableExtractor extends AbstractExtractor {
                 readVariables.add(readVar);
             }
         }
+
+        return readVariables;
+    }
+
+    _getArgVariables(node) {
+        const argVariables = [];
         if (node.label === Dsl.ELEMENTS.CALL.label) {
             const callProps = this.callPropertyExtractor.get(node);
             if (callProps.hasArgs()) {
                 for (const arg of callProps.args) {
                     //do NOT use the label of the argument
                     if (arg.includes(Config.VARIABLE_PREFIX)) {
-                        readVariables.add(arg.replaceAll(Config.VARIABLE_PREFIX, ""));
+                       argVariables.push(arg.replaceAll(Config.VARIABLE_PREFIX, ""));
                     }
                 }
             }
         }
-        return readVariables;
+        return argVariables;
     }
 
     _modVarsFromString(str) {
