@@ -68,6 +68,7 @@ export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
+        console.log(output.cost);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 

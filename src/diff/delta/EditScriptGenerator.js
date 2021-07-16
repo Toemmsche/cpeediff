@@ -130,11 +130,13 @@ export class EditScriptGenerator {
                         continue outer;
                     }
                 }
+                inLis.add(node);
+
                 //move to end of node list
                 node.changeChildIndex(nodes.length);
                 const newPath = node.toChildIndexPathString();
                 editScript.move(oldPath, newPath);
-                inLis.add(node);
+                editScript.cost++;
             }
         }
     }
@@ -144,6 +146,8 @@ export class EditScriptGenerator {
         //TODO document that removeFromParent() does not change the parent attributes
         oldNode.removeFromParent();
         editScript.delete(oldPath, oldNode.hasChildren());
+
+        editScript.cost += oldNode.toPreOrderArray().length;
     }
 
     _move(oldNode, editScript) {
@@ -160,6 +164,8 @@ export class EditScriptGenerator {
         newParent.insertChild(insertionIndex, oldNode);
         const newPath = oldNode.toChildIndexPathString();
         editScript.move(oldPath, newPath);
+
+        editScript.cost++;
     }
 
     _insert(newNode, editScript) {
@@ -191,6 +197,8 @@ export class EditScriptGenerator {
         const newPath = copy.toChildIndexPathString();
 
         editScript.insert(newPath, NodeFactory.getNode(copy, true), copy.hasChildren());
+
+        editScript.cost += copy.toPreOrderArray().length;
     }
 
     _findInsertionIndex(newNode) {
@@ -210,5 +218,7 @@ export class EditScriptGenerator {
         const oldPath = oldNode.toChildIndexPathString();
         //during edit script generation, we don't need to update the data/attributes of the match
         editScript.update(oldPath, NodeFactory.getNode(newNode, false));
+
+        editScript.cost++;
     }
 }

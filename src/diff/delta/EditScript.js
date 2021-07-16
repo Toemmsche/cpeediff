@@ -20,9 +20,11 @@ import {Dsl} from "../../Dsl.js";
 export class EditScript {
 
     changes;
+    cost;
 
     constructor() {
         this.changes = [];
+        this.cost = 0;
     }
 
     toString() {
