@@ -37,14 +37,55 @@ export class StandardComparator extends AbstractComparator {
         this.matching = matching;
     }
 
-    sizeCompare(node, other) {
-        return this.sizeExtractor.get(node) - this.sizeExtractor.get(other);
+    _weightedAverage(items, weights) {
+        let itemSum = 0;
+        let weightSum = 0;
+        for (let i = 0; i < items.length; i++) {
+            if(items[i] != null) {
+                itemSum += items[i] * weights[i];
+                weightSum += weights[i];
+            }
+        }
+        if(weightSum === 0) return 0;
+        return itemSum / weightSum;
+    }
+
+    _compareLcs(seqA, seqB, defaultValue = null) {
+        const maxLength = Math.max(seqA.length, seqB.length);
+        if (maxLength === 0) return defaultValue;
+        return 1 - (Lcs.getLCS(seqA, seqB).length / maxLength);
+    }
+
+    _compareSets(setA, setB, defaultValue = null) {
+        const maxSize = Math.max(setA.size, setB.size);
+        //if readVariables is empty, we cannot decide on similarity
+        if (maxSize === 0) return defaultValue;
+        let commonCounter = 0;
+        for (const element of setA) {
+            if (setB.has(element)) {
+                commonCounter++;
+            }
+        }
+        return 1 - (commonCounter / maxSize);
+
+    }
+
+    _comparePqGrams(strA, strB) {
+        if(strA == null && strB == null) return 0;
+        if(strA == null && strB != null) return 1;
+        if(strA != null && strB == null) return 1;
+        //TODO
+        return this._compareLcs(Array.of(...strA), Array.of(...strB));
     }
 
     _compareCalls(node, other) {
         //extract properties
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
+
+        //extract arguments
+        const nodeArguments = this.variableExtractor.get(node).argVariables;
+        const otherArguments = this.variableExtractor.get(other).argVariables;
 
         //extract modified variables
         const nodeModifiedVariables = this.variableExtractor.get(node).modifiedVariables;
@@ -54,48 +95,50 @@ export class StandardComparator extends AbstractComparator {
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
 
-        const nodeEndpoint = nodeProps.endpoint;
-        const otherEndpoint = otherProps.endpoint;
 
+        //CV = Compare Value
         /*
-         The endpoint URL has to match exactly.
+         The endpoint URL has to match exactly for a perfect comparison value.
          This is reasonable as large chunks of the URL can equal despite the two calls serving a different semantic purpose.
          E.g. www.example.com/docs and www.example.com/doctors
          */
-        let endPointComparisonValue = nodeEndpoint === otherEndpoint ? 0 : 0.5;
-        if (nodeProps.label !== otherProps.label) {
-            endPointComparisonValue += Config.COMPARATOR.LABEL_PENALTY;
-        }
+        const endPointCV = nodeProps.endpoint === otherProps.endpoint ? 0 : 1;
+        const labelCV = this._comparePqGrams(nodeProps.label, otherProps.label);
+        const methodCV = nodeProps.method === otherProps.method ? 0 : 1;
+        const argCV = this._compareLcs(nodeArguments, otherArguments);
 
-        //TODO fine grained comparison
-        if (nodeProps.method !== otherProps.method) {
-            endPointComparisonValue += Config.COMPARATOR.METHOD_PENALTY;
-        }
-
+        const serviceCallCV = this._weightedAverage([endPointCV, labelCV, methodCV, argCV],
+            [Config.COMPARATOR.CALL_ENDPOINT_WEIGHT,
+                Config.COMPARATOR.CALL_LABEL_WEIGHT,
+                Config.COMPARATOR.CALL_METHOD_WEIGHT,
+                Config.COMPARATOR.CALL_ARGS_WEIGHT])
         //TODO really?
-        //If the endpoint (including method and label) of two calls perfectly matches, we can assume they fulfill the same semantic purpose
-        if (endPointComparisonValue === 0) {
-            return endPointComparisonValue;
-        }
-        //normalize comparison value
-        endPointComparisonValue = Math.min(endPointComparisonValue, 1);
-
-        //compare modified and read variables
-        let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, endPointComparisonValue);
-        let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, endPointComparisonValue);
-
-        //weigh comparison values
-        let contentCompareValue = endPointComparisonValue * Config.COMPARATOR.CALL_ENDPOINT_WEIGHT
-            + modifiedVariablesComparisonValue * Config.COMPARATOR.CALL_MODVAR_WEIGHT
-            + readVariablesComparisonValue * Config.COMPARATOR.CALL_READVAR_WEIGHT;
-
-        //small penalty for code string inequality
-        if (nodeProps.code !== otherProps.code) {
-            contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
+        //If the endpoint (including method, label and arguments) of two calls perfectly matches, we can assume they fulfill the same semantic purpose
+        if (serviceCallCV === 0) {
+            return serviceCallCV;
         }
 
+        let codeCV = null;
+        if (nodeProps.hasCode() || otherProps.hasCode()) {
+            //compare modified and read variables
+            let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables, 1);
+            let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables, modifiedVariablesCV);
+
+            //weigh comparison values
+            codeCV = this._weightedAverage([modifiedVariablesCV, readVariablesCV], [Config.COMPARATOR.CALL_MODVAR_WEIGHT, Config.COMPARATOR.CALL_READVAR_WEIGHT])
+
+            //small penalty for code string inequality
+            //TODO
+            if (nodeProps.code !== otherProps.code) {
+                codeCV += Config.COMPARATOR.EPSILON_PENALTY;
+            }
+        }
         //TODO
-        return Math.min(1, contentCompareValue);
+        const contentCV = this._weightedAverage([serviceCallCV, codeCV],
+            [Config.COMPARATOR.CALL_SERVICE_WEIGHT,
+                codeCV == null ? 0 : Config.COMPARATOR.CALL_CODE_WEIGHT])
+        //TODO
+        return Math.min(1, contentCV)
     }
 
     _compareManipulates(node, other) {
@@ -107,18 +150,19 @@ export class StandardComparator extends AbstractComparator {
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
 
-        let modifiedVariablesComparisonValue = this._setCompare(nodeModifiedVariables, otherModifiedVariables, 1);
-        let readVariablesComparisonValue = this._setCompare(nodeReadVariables, otherReadVariables, modifiedVariablesComparisonValue);
+        let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables);
+        let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables);
 
-        let contentCompareValue = Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT * modifiedVariablesComparisonValue + Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT * readVariablesComparisonValue;
+        let contentCV = this._weightedAverage([modifiedVariablesCV, readVariablesCV],
+            [Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT, Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT]);
 
         //small penalty for code string inequality
         if (node.data !== other.data) {
-            contentCompareValue += Config.COMPARATOR.EPSILON_PENALTY;
+            contentCV += Config.COMPARATOR.EPSILON_PENALTY;
         }
 
         //TODO
-        return Math.min(1, contentCompareValue);
+        return Math.min(1, contentCV);
     }
 
 
@@ -137,7 +181,7 @@ export class StandardComparator extends AbstractComparator {
                 //extract read variables
                 const nodeReadVariables = this.variableExtractor.get(node).readVariables;
                 const otherReadVariables = this.variableExtractor.get(other).readVariables;
-                return this._setCompare(nodeReadVariables, otherReadVariables);
+                return this._compareSets(nodeReadVariables, otherReadVariables);
             }
 
             default: {
@@ -151,26 +195,8 @@ export class StandardComparator extends AbstractComparator {
         let compareLength = Config.COMPARATOR.PATH_COMPARE_RANGE;
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
-        compareLength = Math.max(nodePathSlice.length, otherPathSlice.length);
-        return 1 - (Lcs.getLCS(nodePathSlice, otherPathSlice).length / compareLength);
-    }
 
-    _setCompare(setA, setB, defaultValue = 1) {
-        const maxSize = Math.max(setA.size, setB.size);
-        let compValue;
-        //if readVariables is empty, we cannot decide on similarity -> reuse endpoint comparison value
-        if (maxSize === 0) {
-            compValue = defaultValue;
-        } else {
-            let commonCounter = 0;
-            for (const element of setA) {
-                if (setB.has(element)) {
-                    commonCounter++;
-                }
-            }
-            compValue = 1 - (commonCounter / maxSize);
-        }
-        return compValue;
+        return this._compareLcs(nodePathSlice, otherPathSlice)
     }
 
     matchCompare(node, other) {
@@ -196,5 +222,9 @@ export class StandardComparator extends AbstractComparator {
     compare(node, other) {
         const compareValue = Config.COMPARATOR.CONTENT_WEIGHT * this.contentCompare(node, other) + Config.COMPARATOR.STRUCTURE_WEIGHT * this.structCompare(node, other);
         return compareValue;
+    }
+
+    sizeCompare(node, other) {
+        return this.sizeExtractor.get(node) - this.sizeExtractor.get(other);
     }
 }

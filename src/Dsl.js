@@ -127,6 +127,21 @@ export const Dsl = {
         }
     },
 
+    INNER_PROPERTIES: {
+        CONDITION: {
+            label: "condition",
+            isOrdered: false
+        }
+    },
+    ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
+    CHOOSE_MODES: ["inclusive", "exclusive"],
+    DATA_PASS: {
+        VARIABLE_KEY: "pass",
+        LOCAL_KEY: "local"
+    },
+
+    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
+
     DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
     CHANGE_TYPES: {
         INSERTION: {
@@ -159,40 +174,30 @@ export const Dsl = {
             uri: "http://cpee.org/ns/description/1.0/nil",
             prefix: "nil"
         }
-    },
-    ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
-    CHOOSE_MODES: ["inclusive", "exclusive"],
-    DATA_PASS: {
-        VARIABLE_KEY: "pass",
-        LOCAL_KEY: "local"
-    },
-
-    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
+    }
 }
-Dsl.KEYWORD_SET = new Set(Object
-    .keys(Dsl.ELEMENTS)
-    .map(key => Dsl.ELEMENTS[key])
+
+Dsl.KEYWORD_SET = new Set(
+    Object.values(Dsl.ELEMENTS)
     .map(k => k.label));
 
-Dsl.LEAF_NODE_SET = new Set(Object
-    .keys(Dsl.ELEMENTS)
-    .map(key => Dsl.ELEMENTS[key])
+Dsl.LEAF_NODE_SET = new Set(
+    Object.values(Dsl.ELEMENTS)
     .filter(k => k.isLeaf)
     .map(k => k.label));
 
-Dsl.INNER_NODE_SET = new Set(Object
-    .keys(Dsl.ELEMENTS)
-    .map(key => Dsl.ELEMENTS[key])
+Dsl.INNER_NODE_SET = new Set(
+    Object.values(Dsl.ELEMENTS)
     .filter(k => !k.isLeaf)
     .map(k => k.label));
 
-Dsl.INTERNAL_ORDERING_SET = new Set(Object
-    .keys(Dsl.ELEMENTS)
-    .map(key => Dsl.ELEMENTS[key])
+Dsl.INTERNAL_ORDERING_SET = new Set(
+    Object.values(Dsl.ELEMENTS)
+    .concat(Object.values(Dsl.CALL_PROPERTIES))
+    .concat(Object.values(Dsl.INNER_PROPERTIES))
     .filter(k => k.isOrdered)
     .map(k => k.label));
 
-Dsl.CHANGE_TYPE_SET = new Set(Object
-    .keys(Dsl.CHANGE_TYPES)
-    .map(key => Dsl.CHANGE_TYPES[key]));
+Dsl.CHANGE_TYPE_SET = new Set(
+    Object.values(Dsl.CHANGE_TYPES));
 

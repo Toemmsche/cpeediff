@@ -298,7 +298,7 @@ export class Node {
 
     toChildIndexPathString() {
         //discard root node
-        return "/" + this.path.map(n => n.childIndex).join("/");
+        return this.path.map(n => n.childIndex).join("/");
     }
 
     toString() {

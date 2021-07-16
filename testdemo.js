@@ -3,10 +3,11 @@ import {DiffAlgorithmEvaluation} from "./test/diff_eval/DiffAlgorithmEvaluation.
 import {CpeeDiffAdapter} from "./test/diff_eval/CpeeDiffAdapter.js";
 import {XyDiffAdapter} from "./test/diff_eval/XyDiffAdapter.js";
 import {TestConfig} from "./test/TestConfig.js";
+import {CpeeDiffLocalAdapter} from "./test/diff_eval/CpeeDiffLocalAdapter.js";
 
 
 TestConfig.EXECUTION_OPTIONS.timeout = 120000*1000;
-new DiffAlgorithmEvaluation([new CpeeDiffAdapter()]).evalAll();
+new DiffAlgorithmEvaluation([new CpeeDiffLocalAdapter()]).evalAll();
 
 //DiffAlgorithmEvaluation.all().evalAll();
 

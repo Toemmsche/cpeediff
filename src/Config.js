@@ -17,14 +17,23 @@
 export const Config =  {
     COMPARATOR: {
         PATH_COMPARE_RANGE: 5,
-        CALL_ENDPOINT_WEIGHT: 0.4,
-        CALL_MODVAR_WEIGHT: 0.4,
-        CALL_READVAR_WEIGHT: 0.2,
+
+        //Call weights
+        CALL_ENDPOINT_WEIGHT: 3,
+        CALL_METHOD_WEIGHT: 1,
+        CALL_LABEL_WEIGHT: 0.5,
+        CALL_ARGS_WEIGHT: 2,
+        CALL_MODVAR_WEIGHT: 2,
+        CALL_READVAR_WEIGHT: 1,
+        CALL_SERVICE_WEIGHT: 1.5,
+        CALL_CODE_WEIGHT: 1,
+
+        //Manipulate Weights
+        MANIPULATE_MODVAR_WEIGHT: 3,
+        MANIPULATE_READVAR_WEIGHT: 1,
+
         EPSILON_PENALTY: 0.01,
-        LABEL_PENALTY: 0.1,
-        METHOD_PENALTY: 0.1,
-        MANIPULATE_MODVAR_WEIGHT: 0.7,
-        MANIPULATE_READVAR_WEIGHT: 0.3,
+
         CONTENT_WEIGHT: 0.8,
         STRUCTURE_WEIGHT: 0.2
     },

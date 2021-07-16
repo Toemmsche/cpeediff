@@ -1,5 +1,6 @@
 //TODO features
 //      compare path with weights depending on closeness
+//      dynamic weights for comparison
 //      command line visualization including "live" patching and filtered changes
 //      data passses in parallel branches
 //      use _assign() to make copies
