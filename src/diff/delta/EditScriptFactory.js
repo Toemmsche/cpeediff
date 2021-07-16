@@ -31,10 +31,13 @@ export class EditScriptFactory {
 
     static _fromXmlDom(xmlElement) {
         const editScript = new EditScript();
+        if(xmlElement.hasAttribute("cost") != null) {
+            editScript.cost = parseInt(xmlElement.getAttribute("cost"));
+        }
         for (let i = 0; i < xmlElement.childNodes.length; i++) {
             const childNode = xmlElement.childNodes.item(i);
             if (childNode.nodeType === 1) {
-                editScript.changes.push(ChangeFactory._fromXmlDom(childNode));
+                editScript.changes.push(ChangeFactory.getChange(childNode));
             }
         }
         return editScript;

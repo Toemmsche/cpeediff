@@ -59,6 +59,8 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      change modified to written
+//      Turn autogenearted tests into class
 //      changet o edit operations
 //      rename data to text
 //      use the change types and keywords objects instead of strings

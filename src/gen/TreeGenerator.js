@@ -241,7 +241,7 @@ export class TreeGenerator {
 
     _randomChoose() {
         const node = new Node(Dsl.ELEMENTS.CHOOSE.label);
-        node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
+        node.attributes.set(Dsl.INNER_PROPERTIES.MODE.label, this._randomFrom(Dsl.CHOOSE_MODES));
         return node;
     }
 
@@ -324,9 +324,9 @@ export class TreeGenerator {
 
 
     changeTree(tree, changeParams) {
+        const oldSize = tree.toPreOrderArray().length;
         //do not modify original tree
         tree = NodeFactory.getNode(tree);
-        const oldSize = tree.toPreOrderArray().length;
         let insertionCounter = 0;
         let updateCounter = 0;
         let deletionCounter = 0;
@@ -343,7 +343,7 @@ export class TreeGenerator {
                 switch (op) {
                     case "i": {
                         insertionCounter++;
-                        if (this._withProbability(0.5)) {
+                        if (this._withProbability(0.2)) {
                             this._insertSubtreeRandomly(tree);
                         } else if (this._withProbability(0.9)) {
                             this._insertLeafRandomly(tree);
@@ -354,7 +354,7 @@ export class TreeGenerator {
                     }
                     case "d": {
                         deletionCounter++;
-                        if (this._withProbability(0.5)) {
+                        if (this._withProbability(0.2)) {
                             this._deleteSubtreeRandomly(tree);
                         } else {
                             this._deleteLeafRandomly(tree);
@@ -486,19 +486,27 @@ export class TreeGenerator {
                 case Dsl.CALL_PROPERTIES.RESCUE.label:
                 case Dsl.CALL_PROPERTIES.FINALIZE.label:
                 case Dsl.ELEMENTS.MANIPULATE.label: {
-                    //TODO delete variable
                     //code change
                     const statements = node.data.split(";");
-                    statements.splice(this._randInt(statements.length), 1);
-                    if (this._withProbability(0.5)) {
+                    //remove a random statement
+                    if(this._withProbability(0.5)) {
+                        statements.splice(this._randInt(statements.length), 1);
+                    }
+                    //insert a new one
+                    if (this._withProbability(0.33)) {
                         //modify new variable
                         const newModVariable = this._randomFrom(this.variables);
-                        statements.push(Config.VARIABLE_PREFIX + newModVariable + " = 420;")
-                    } else {
+                        statements.push(Config.VARIABLE_PREFIX + newModVariable + " = 420")
+                    } else if (this._withProbability(0.5)) {
                         //read new variable
                         const newReadVariable = this._randomFrom(this.variables);
-                        statements.push("fun(data." + newReadVariable + ");")
+                        statements.push("fun(" + Config.VARIABLE_PREFIX + newReadVariable + ")")
+                    } else {
+                        //read and write to new variable
+                        const newVariable = this._randomFrom(this.variables);
+                        statements.push(Config.VARIABLE_PREFIX + newVariable  + "++");
                     }
+                    node.data = statements.join(";") + ";";
                     break;
                 }
                 default: {
@@ -511,9 +519,9 @@ export class TreeGenerator {
             if (changedAttributeKey === Dsl.CALL_PROPERTIES.ENDPOINT.label) {
                 //change endpoint
                 node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, this._randomFrom(this.endpoints));
-            } else if (changedAttributeKey === "mode") {
+            } else if (changedAttributeKey === Dsl.INNER_PROPERTIES.MODE.label) {
                 //change choose mode
-                node.attributes.set("mode", this._randomFrom(Dsl.CHOOSE_MODES));
+                node.attributes.set(Dsl.INNER_PROPERTIES.MODE.label, this._randomFrom(Dsl.CHOOSE_MODES));
             } else if (this._withProbability(0.8)) {
                 //80% chance to change string value
                 const oldVal = node.attributes.get(changedAttributeKey);

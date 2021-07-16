@@ -93,6 +93,7 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
+        console.log(delta.cost);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }

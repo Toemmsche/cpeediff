@@ -101,7 +101,7 @@ export class VariableExtractor extends AbstractExtractor {
         const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
         //negative lookahead for assignment operators and positive lookbehind for data element prefix
         //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
-        const regex = new RegExp("(?<="+ prefix +")[a-zA-Z]\\w*(?=\\s*\\W)(?!\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))", "g");
+        const regex = new RegExp("(?<="+ prefix +")[a-zA-Z]\\w*(?=\\s*\\W)(?!\\s*=[^=])", "g");
         const matches = str.match(regex);
         return matches == null ? [] : matches;
     }

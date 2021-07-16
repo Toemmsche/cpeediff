@@ -41,12 +41,12 @@ export class StandardComparator extends AbstractComparator {
         let itemSum = 0;
         let weightSum = 0;
         for (let i = 0; i < items.length; i++) {
-            if(items[i] != null) {
+            if (items[i] != null) {
                 itemSum += items[i] * weights[i];
                 weightSum += weights[i];
             }
         }
-        if(weightSum === 0) return 0;
+        if (weightSum === 0) return 0;
         return itemSum / weightSum;
     }
 
@@ -71,9 +71,9 @@ export class StandardComparator extends AbstractComparator {
     }
 
     _comparePqGrams(strA, strB) {
-        if(strA == null && strB == null) return 0;
-        if(strA == null && strB != null) return 1;
-        if(strA != null && strB == null) return 1;
+        if (strA == null && strB == null) return 0;
+        if (strA == null && strB != null) return 1;
+        if (strA != null && strB == null) return 1;
         //TODO
         return this._compareLcs(Array.of(...strA), Array.of(...strB));
     }
@@ -121,7 +121,7 @@ export class StandardComparator extends AbstractComparator {
         let codeCV = null;
         if (nodeProps.hasCode() || otherProps.hasCode()) {
             //compare modified and read variables
-            let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables, 1);
+            let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables, 0);
             let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables, modifiedVariablesCV);
 
             //weigh comparison values
@@ -196,7 +196,8 @@ export class StandardComparator extends AbstractComparator {
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
 
-        return this._compareLcs(nodePathSlice, otherPathSlice)
+        const structCV = this._compareLcs(nodePathSlice, otherPathSlice);
+        return structCV;
     }
 
     matchCompare(node, other) {
@@ -220,7 +221,8 @@ export class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        const compareValue = Config.COMPARATOR.CONTENT_WEIGHT * this.contentCompare(node, other) + Config.COMPARATOR.STRUCTURE_WEIGHT * this.structCompare(node, other);
+        const compareValue = this._weightedAverage([this.contentCompare(node, other), this.structCompare(node, other)],
+            [Config.COMPARATOR.CONTENT_WEIGHT, Config.COMPARATOR.STRUCTURE_WEIGHT]);
         return compareValue;
     }
 

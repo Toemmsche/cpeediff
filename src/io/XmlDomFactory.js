@@ -99,6 +99,7 @@ export class XmlDomFactory {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
 
         const xmlNode = doc.createElement("delta");
+        xmlNode.setAttribute("cost", editScript.cost);
         for (const change of editScript.changes) {
             xmlNode.appendChild(this._convertChange(change));
         }

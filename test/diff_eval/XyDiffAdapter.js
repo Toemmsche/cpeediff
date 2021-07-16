@@ -48,14 +48,14 @@ export class XyDiffAdapter extends AbstractDiffAdapter {
                 //edit operations are shortened to a single letter
                 switch (childNode.localName) {
                     case "i":
-                        if(childNode.attributes.getNamedItem("move") != null && childNode.attributes.getNamedItem("move").value === "yes") {
+                        if(childNode.hasAttribute("move") && childNode.getAttribute("move") === "yes") {
                             moveCounter++;
                         } else {
                             insertionCounter++;
                         }
                         break;
                     case "d":
-                        if(childNode.attributes.getNamedItem("move") != null && childNode.attributes.getNamedItem("move").value === "yes") {
+                        if(childNode.hasAttribute("move") && childNode.getAttribute("move") === "yes") {
                             moveCounter++;
                         } else {
                             deletionCounter++;

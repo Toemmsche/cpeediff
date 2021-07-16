@@ -131,6 +131,10 @@ export const Dsl = {
         CONDITION: {
             label: "condition",
             isOrdered: false
+        },
+        MODE: {
+            label: "mode",
+            isOrdered: false
         }
     },
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],

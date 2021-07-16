@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-export const Config =  {
+export const Config = {
     COMPARATOR: {
-        PATH_COMPARE_RANGE: 5,
+        PATH_COMPARE_RANGE: 3,
 
         //Call weights
         CALL_ENDPOINT_WEIGHT: 3,
@@ -29,13 +29,13 @@ export const Config =  {
         CALL_CODE_WEIGHT: 1,
 
         //Manipulate Weights
-        MANIPULATE_MODVAR_WEIGHT: 3,
+        MANIPULATE_MODVAR_WEIGHT: 2,
         MANIPULATE_READVAR_WEIGHT: 1,
 
         EPSILON_PENALTY: 0.01,
 
-        CONTENT_WEIGHT: 0.8,
-        STRUCTURE_WEIGHT: 0.2
+        CONTENT_WEIGHT: 5,
+        STRUCTURE_WEIGHT: 1
     },
 
     LEAF_SIMILARITY_THRESHOLD: 0.25,
