@@ -30,14 +30,14 @@ export class VariableExtractor extends AbstractExtractor {
 
     _extract(node) {
         this._memo.set(node, {
-            modifiedVariables: this._getModifiedVariables(node),
+            writtenVariables: this._getWrittenVariables(node),
             readVariables: this._getReadVariables(node),
             argVariables: this._getArgVariables(node)
         });
     }
 
-    _getModifiedVariables(node) {
-        let modifiedVariables = new Set();
+    _getWrittenVariables(node) {
+        let writtenVariables = new Set();
         let code;
         if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
             code = node.data;
@@ -45,9 +45,9 @@ export class VariableExtractor extends AbstractExtractor {
             code = this.callPropertyExtractor.get(node).code;
         }
         if (code != null) {
-            modifiedVariables = new Set(this._modVarsFromString(code));
+            writtenVariables = new Set(this._modVarsFromString(code));
         }
-        return modifiedVariables;
+        return writtenVariables;
     }
 
     _getReadVariables(node) {

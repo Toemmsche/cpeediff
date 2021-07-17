@@ -87,9 +87,9 @@ export class StandardComparator extends AbstractComparator {
         const nodeArguments = this.variableExtractor.get(node).argVariables;
         const otherArguments = this.variableExtractor.get(other).argVariables;
 
-        //extract modified variables
-        const nodeModifiedVariables = this.variableExtractor.get(node).modifiedVariables;
-        const otherModifiedVariables = this.variableExtractor.get(other).modifiedVariables;
+        //extract written variables
+        const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
+        const otherWrittenVariables = this.variableExtractor.get(other).writtenVariables;
 
         //extract read variables
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
@@ -120,12 +120,12 @@ export class StandardComparator extends AbstractComparator {
 
         let codeCV = null;
         if (nodeProps.hasCode() || otherProps.hasCode()) {
-            //compare modified and read variables
-            let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables, 0);
-            let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables, modifiedVariablesCV);
+            //compare written and read variables
+            let writtenVariablesCV = this._compareSets(nodeWrittenVariables, otherWrittenVariables, 0);
+            let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables, writtenVariablesCV);
 
             //weigh comparison values
-            codeCV = this._weightedAverage([modifiedVariablesCV, readVariablesCV], [Config.COMPARATOR.CALL_MODVAR_WEIGHT, Config.COMPARATOR.CALL_READVAR_WEIGHT])
+            codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.CALL_MODVAR_WEIGHT, Config.COMPARATOR.CALL_READVAR_WEIGHT])
 
             //small penalty for code string inequality
             //TODO
@@ -142,18 +142,18 @@ export class StandardComparator extends AbstractComparator {
     }
 
     _compareManipulates(node, other) {
-        //extract modified variables
-        const nodeModifiedVariables = this.variableExtractor.get(node).modifiedVariables;
-        const otherModifiedVariables = this.variableExtractor.get(other).modifiedVariables;
+        //extract written variables
+        const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
+        const otherWrittenVariables = this.variableExtractor.get(other).writtenVariables;
 
         //extract read variables
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
 
-        let modifiedVariablesCV = this._compareSets(nodeModifiedVariables, otherModifiedVariables);
+        let writtenVariablesCV = this._compareSets(nodeWrittenVariables, otherWrittenVariables);
         let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables);
 
-        let contentCV = this._weightedAverage([modifiedVariablesCV, readVariablesCV],
+        let contentCV = this._weightedAverage([writtenVariablesCV, readVariablesCV],
             [Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT, Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT]);
 
         //small penalty for code string inequality
@@ -190,14 +190,14 @@ export class StandardComparator extends AbstractComparator {
         }
     }
 
-    structCompare(node, other) {
+    posCompare(node, other) {
         //TODO maybe use contentEquals()
         let compareLength = Config.COMPARATOR.PATH_COMPARE_RANGE;
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
         const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
 
-        const structCV = this._compareLcs(nodePathSlice, otherPathSlice);
-        return structCV;
+        const posCV = this._compareLcs(nodePathSlice, otherPathSlice);
+        return posCV;
     }
 
     matchCompare(node, other) {
@@ -221,7 +221,7 @@ export class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        const compareValue = this._weightedAverage([this.contentCompare(node, other), this.structCompare(node, other)],
+        const compareValue = this._weightedAverage([this.contentCompare(node, other), this.posCompare(node, other)],
             [Config.COMPARATOR.CONTENT_WEIGHT, Config.COMPARATOR.STRUCTURE_WEIGHT]);
         return compareValue;
     }

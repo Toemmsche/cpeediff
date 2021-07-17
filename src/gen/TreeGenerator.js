@@ -174,12 +174,12 @@ export class TreeGenerator {
         }
         node.appendChild(parameters);
 
-        //random modified Variables
+        //random written variables
         const code = new Node(Dsl.CALL_PROPERTIES.CODE.label);
         const codeUpdate = new Node(Dsl.CALL_PROPERTIES.FINALIZE.label);
         codeUpdate.data = "";
-        for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            codeUpdate.data += Config.VARIABLE_PREFIX + modifiedVariable + " = 420;"
+        for (const writtenVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
+            codeUpdate.data += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
         }
 
         //random read variables in code
@@ -202,10 +202,10 @@ export class TreeGenerator {
     _randomManipulate() {
         const node = new Node(Dsl.ELEMENTS.MANIPULATE.label);
 
-        //random modified Variables
+        //random written variables
         node.data = "";
-        for (const modifiedVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            node.data += Config.VARIABLE_PREFIX + modifiedVariable + " = 420;"
+        for (const writtenVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
+            node.data += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
         }
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             node.data += "fun(data." + readVariable + ");";

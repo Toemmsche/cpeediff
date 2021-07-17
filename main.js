@@ -56,7 +56,7 @@ const argv = yargs(hideBin(process.argv))
                 default: 0.4
             })
             .option("variablePrefix", {
-                description: "Prefix used to detect read/modified variables in code and arguments",
+                description: "Prefix used to detect read/written variables in code and arguments",
                 alias: "p",
                 type: "string",
                 default: "data."

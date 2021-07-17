@@ -56,16 +56,16 @@ export class HashMatcher extends AbstractMatchingAlgorithm {
                 if (matching.hasNew(newNode)) {
                     continue;
                 }
-                let minStructCompareValue = 2;
-                let minStructCompareNode = null;
+                let minPosCV = 2;
+                let minPosCVNode = null;
                 for (const oldNode of nodes.oldNodes) {
                     //existing matchings cannot be altered
                     if (matching.hasOld(oldNode)) {
                         continue;
                     }
-                    //compare structurally only, content equality is guaranteed through hash equality
-                    const structCompareValue = comparator.structCompare(oldNode, newNode);
-                    if (structCompareValue === 0) {
+                    //compare positionally only, as content equality is guaranteed by the hash
+                    const posCV = comparator.posCompare(oldNode, newNode);
+                    if (posCV === 0) {
                         //found a perfect match, match entire subtrees
                         const newPreOrder = newNode.toPreOrderArray();
                         const oldPreOrder = oldNode.toPreOrderArray();
@@ -80,15 +80,15 @@ export class HashMatcher extends AbstractMatchingAlgorithm {
                         }
                         oldToNewMap.delete(oldNode);
                         continue newNodeLoop;
-                    } else if (structCompareValue < minStructCompareValue) {
-                        minStructCompareValue = structCompareValue;
-                        minStructCompareNode = oldNode;
+                    } else if (posCV < minPosCV) {
+                        minPosCV = posCV;
+                        minPosCVNode = oldNode;
                     }
                 }
-                if (minStructCompareNode != null && (!oldToNewMap.has(minStructCompareNode) || minStructCompareValue < oldToNewMap.get(minStructCompareNode).compareValue)) {
-                    oldToNewMap.set(minStructCompareNode, {
+                if (minPosCVNode != null && (!oldToNewMap.has(minPosCVNode) || minPosCV < oldToNewMap.get(minPosCVNode).compareValue)) {
+                    oldToNewMap.set(minPosCVNode, {
                         newNode: newNode,
-                        compareValue: minStructCompareValue
+                        compareValue: minPosCV
                     })
                 }
             }
