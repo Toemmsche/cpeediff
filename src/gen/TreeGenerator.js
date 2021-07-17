@@ -315,7 +315,8 @@ export class TreeGenerator {
 
     _randomString(length = this._randInt(100)) {
         const result = [];
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        //include underscore and dollar sign
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_';
         for (let i = 0; i < length; i++) {
             result.push(characters.charAt(this._randInt(characters.length)));
         }
