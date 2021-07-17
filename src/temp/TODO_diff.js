@@ -59,7 +59,6 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
-//      rename structcompare to posCompare
 //      Turn autogenearted tests into class
 //      changet o edit operations
 //      rename data to text
