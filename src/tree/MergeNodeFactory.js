@@ -21,7 +21,7 @@ import {NodeFactory} from "./NodeFactory.js";
 export class MergeNodeFactory extends AbstractNodeFactory {
 
     static _fromNode(node, includeChildNodes) {
-        const mergeNode = new MergeNode(node.label, node.data);
+        const mergeNode = new MergeNode(node.label, node.text);
         for (const [key, value] of node.attributes) {
             mergeNode.attributes.set(key, value);
         }

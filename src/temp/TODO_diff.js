@@ -5,6 +5,7 @@
 //      data passses in parallel branches
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
+//      option to output matching
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out

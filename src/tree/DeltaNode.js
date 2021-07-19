@@ -31,8 +31,8 @@ export class DeltaNode extends Node {
     //what original node it was mapped to (if any)
     baseNode;
 
-    constructor(label, data = null, changeType = "NIL", baseNode = null ) {
-        super(label, data);
+    constructor(label, text = null, changeType = "NIL", baseNode = null ) {
+        super(label, text);
         this.baseNode = baseNode;
         this.changeType = changeType;
         this.updates =  new Map();

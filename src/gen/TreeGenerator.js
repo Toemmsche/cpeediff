@@ -154,19 +154,19 @@ export class TreeGenerator {
         //random label
         const label = new Node(Dsl.CALL_PROPERTIES.LABEL.label);
         //TODO label shouldnt be random
-        label.data = this._randomFrom(this.labels);
+        label.text = this._randomFrom(this.labels);
         parameters.appendChild(label);
 
         //random method
         const method = new Node(Dsl.CALL_PROPERTIES.METHOD.label);
-        method.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
+        method.text = this._randomFrom(Dsl.ENDPOINT_METHODS);
         parameters.appendChild(method);
 
         //random read variables as service call arguments
         const args = new Node(Dsl.CALL_PROPERTIES.ARGUMENTS.label);
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
             const arg = new Node(readVariable);
-            arg.data = Config.VARIABLE_PREFIX + readVariable;
+            arg.text = Config.VARIABLE_PREFIX + readVariable;
             args.appendChild(arg);
         }
         if (args.hasChildren()) {
@@ -177,21 +177,21 @@ export class TreeGenerator {
         //random written variables
         const code = new Node(Dsl.CALL_PROPERTIES.CODE.label);
         const codeUpdate = new Node(Dsl.CALL_PROPERTIES.FINALIZE.label);
-        codeUpdate.data = "";
+        codeUpdate.text = "";
         for (const writtenVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            codeUpdate.data += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
+            codeUpdate.text += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
         }
 
         //random read variables in code
         const codePrepare = new Node(Dsl.CALL_PROPERTIES.PREPARE.label);
-        codePrepare.data = "";
+        codePrepare.text = "";
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            codePrepare.data += "fun(data." + readVariable + ");";
+            codePrepare.text += "fun(data." + readVariable + ");";
         }
-        if (codeUpdate.data !== "") {
+        if (codeUpdate.text !== "") {
             code.appendChild(codeUpdate);
         }
-        if (codePrepare.data !== "") {
+        if (codePrepare.text !== "") {
             code.appendChild(codePrepare);
         }
         node.appendChild(code);
@@ -203,12 +203,12 @@ export class TreeGenerator {
         const node = new Node(Dsl.ELEMENTS.MANIPULATE.label);
 
         //random written variables
-        node.data = "";
+        node.text = "";
         for (const writtenVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            node.data += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
+            node.text += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
         }
         for (const readVariable of this._randomSubSet(this.variables, this._randInt(this.genParams.maxVars))) {
-            node.data += "fun(data." + readVariable + ");";
+            node.text += "fun(data." + readVariable + ");";
         }
 
         return node;
@@ -315,8 +315,8 @@ export class TreeGenerator {
 
     _randomString(length = this._randInt(100)) {
         const result = [];
-        //include underscore and dollar sign
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_';
+        //include underscore (dollar sign is an invalid XML tag name)
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_';
         for (let i = 0; i < length; i++) {
             result.push(characters.charAt(this._randInt(characters.length)));
         }
@@ -470,16 +470,16 @@ export class TreeGenerator {
     _updateRandomly(tree) {
         let node;
         if (this._withProbability(0.6)) {
-            node = this._randomFrom(tree.toPreOrderArray().filter(n => n.data != null));
+            node = this._randomFrom(tree.toPreOrderArray().filter(n => n.text != null));
             //Change node data depending on type
             switch (node.label) {
                 case Dsl.CALL_PROPERTIES.LABEL.label: {
-                    node.data = this._randomFrom(this.labels);
+                    node.text = this._randomFrom(this.labels);
                     break;
                 }
                 case Dsl.CALL_PROPERTIES.METHOD.label: {
                     //method change
-                    node.data = this._randomFrom(Dsl.ENDPOINT_METHODS);
+                    node.text = this._randomFrom(Dsl.ENDPOINT_METHODS);
                     break;
                 }
                 case Dsl.CALL_PROPERTIES.PREPARE.label:
@@ -488,7 +488,7 @@ export class TreeGenerator {
                 case Dsl.CALL_PROPERTIES.FINALIZE.label:
                 case Dsl.ELEMENTS.MANIPULATE.label: {
                     //code change
-                    const statements = node.data.split(";");
+                    const statements = node.text.split(";");
                     //remove a random statement
                     if(this._withProbability(0.5)) {
                         statements.splice(this._randInt(statements.length), 1);
@@ -507,11 +507,11 @@ export class TreeGenerator {
                         const newVariable = this._randomFrom(this.variables);
                         statements.push(Config.VARIABLE_PREFIX + newVariable  + "++");
                     }
-                    node.data = statements.join(";") + ";";
+                    node.text = statements.join(";") + ";";
                     break;
                 }
                 default: {
-                    node.data += this._randomString(10);
+                    node.text += this._randomString(10);
                 }
             }
         } else {

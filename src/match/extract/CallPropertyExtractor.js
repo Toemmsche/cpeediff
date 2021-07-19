@@ -31,18 +31,18 @@ export class CallPropertyExtractor extends AbstractExtractor {
         if (parameters != null) {
             method = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.METHOD.label);
             if (method != null) {
-                method = method.data;
+                method = method.text;
             }
             label = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.LABEL.label);
             if (label != null) {
-                label = label.data;
+                label = label.text;
             }
 
             args = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
             if (args != null) {
                 args = args
                     .childNodes
-                    .map(n => n.data);
+                    .map(n => n.text);
             } else {
                 args = [];
             }
@@ -52,7 +52,7 @@ export class CallPropertyExtractor extends AbstractExtractor {
         if (code != null) {
             code = code.childNodes
                 .sort((a, b) => a.label.localeCompare(b.label))
-                .map(n => n.data)
+                .map(n => n.text)
                 .join("");
         }
 

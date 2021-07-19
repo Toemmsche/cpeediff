@@ -36,7 +36,7 @@ describe("NodeFactory", () => {
 
             //verify content equality
             assert.strictEqual(copy.numChildren(), bookAirCall.numChildren());
-            assert.strictEqual(copy.data, bookAirCall.data);
+            assert.strictEqual(copy.text, bookAirCall.text);
             assert.strictEqual(copy.attributes.size, bookAirCall.attributes.size);
             for (const key of bookAirCall.attributes.keys()) {
                 assert.strictEqual(copy.attributes.get(key), bookAirCall.attributes.get(key));

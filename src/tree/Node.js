@@ -30,12 +30,12 @@ export class Node {
     /**
      * @type String
      */
-    data;
+    text;
 
 
-    constructor(label, data = null) {
+    constructor(label, text = null) {
         this.label = label;
-        this.data = data;
+        this.text = text;
         this.attributes = new Map();
 
         this._childNodes = [];
@@ -171,7 +171,7 @@ export class Node {
         for (const [key, value] of this.attributes) {
             if (other.attributes.get(key) !== value) return false;
         }
-        if (this.data !== other.data) return false;
+        if (this.text !== other.text) return false;
         return true;
     }
 
@@ -237,7 +237,7 @@ export class Node {
      */
     isEmpty() {
         return !this.isLeaf()
-            && (this.data === "" || this.data == null)
+            && (this.text === "" || this.text == null)
             && !this.hasAttributes()
             && !this.hasChildren();
     }

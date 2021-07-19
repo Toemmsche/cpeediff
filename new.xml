@@ -2,12 +2,12 @@
     xmlns="http://cpee.org/ns/description/1.0">
     <choose mode="inclusive">
         <alternative condition="data.costs > 700">
-            <call endpoint="http://gruppe.wst.univie.ac.at/~mangler/services/approval.php">
+            <call endpoint="undefined">
                 <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
+                    <label>undefined</label>
+                    <method>undefined</method>
                     <arguments>
-                        <costs>data.costs</costs>
+                        <costs>undefined</costs>
                     </arguments>
                 </parameters>
             </call>

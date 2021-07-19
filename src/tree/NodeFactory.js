@@ -21,7 +21,7 @@ import xmldom from "xmldom";
 export class NodeFactory extends AbstractNodeFactory {
 
     static _fromNode(node, includeChildNodes) {
-        const copy = new Node(node.label, node.data);
+        const copy = new Node(node.label, node.text);
         for (const [key, value] of node.attributes) {
             copy.attributes.set(key, value);
         }
@@ -57,8 +57,8 @@ export class NodeFactory extends AbstractNodeFactory {
                     //empty data, skip
                     continue;
                 } else {
-                    //relevant data, set as node data
-                    root.data = childElement.data;
+                    //relevant data, set as node text
+                    root.text = childElement.data;
                 }
             } else if (includeChildNodes) {
                 const child = this._fromXmlDom(childElement, includeChildNodes);

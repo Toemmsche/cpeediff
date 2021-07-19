@@ -91,9 +91,9 @@ export class DeltaTreeGenerator {
     }
 
     _applyUpdate(node, newContent) {
-        if (node.data !== newContent.data) {
-            node.updates.set("data", new Update(node.data, newContent.data));
-            node.data = newContent.data;
+        if (node.text !== newContent.text) {
+            node.updates.set("text", new Update(node.text, newContent.text));
+            node.text = newContent.text;
         }
         //detected updated and inserted attributes
         for (const [key, value] of newContent.attributes) {

@@ -73,7 +73,7 @@ export class CpeeMerge {
         for (const [key, val] of fromNode.attributes) {
             toNode.attributes.set(key, val);
         }
-        toNode.data = fromNode.data;
+        toNode.text = fromNode.text;
         for (const [updateKey, updateVal] of fromNode.updates) {
             toNode.updates.set(updateKey, updateVal.copy());
             toNode.updates.set(updateKey, updateVal.copy());
@@ -172,7 +172,7 @@ export class CpeeMerge {
                 for (const [key, value] of node.attributes) {
                     node.updates.set(key, new Update(null, value, node.changeOrigin));
                 }
-                node.updates.set("data", new Update(null, node.data, node.changeOrigin));
+                node.updates.set("text", new Update(null, node.text, node.changeOrigin));
             }
 
             if (match.isInsertion()) {
@@ -180,7 +180,7 @@ export class CpeeMerge {
                 for (const [key, value] of match.attributes) {
                     match.updates.set(key, new Update(null, value, match.changeOrigin));
                 }
-                match.updates.set("data", new Update(null, match.data, match.changeOrigin));
+                match.updates.set("text", new Update(null, match.text, match.changeOrigin));
             }
 
             //detect attribute and data conflicts
@@ -189,8 +189,8 @@ export class CpeeMerge {
                 const newVal = update.newVal;
                 if (!match.updates.has(key)) {
                     match.updates.set(key, update.copy());
-                    if (key === "data") {
-                        match.data = newVal;
+                    if (key === "text") {
+                        match.text = newVal;
                     } else if (newVal == null) {
                         match.attributes.delete(key);
                     } else {
@@ -204,8 +204,8 @@ export class CpeeMerge {
                             //adopt this version
                             match.updates.get(key).newVal = newVal;
                             match.updates.get(key).origin = update.origin;
-                            if (key === "data") {
-                                match.data = newVal;
+                            if (key === "text") {
+                                match.text = newVal;
                             } else {
                                 match.attributes.set(key, newVal);
                             }
@@ -213,8 +213,8 @@ export class CpeeMerge {
                             //adopt the version of the match
                             node.updates.get(key).newVal = matchNewVal;
                             node.updates.get(key).origin = match.updates.get(key).origin;
-                            if (key === "data") {
-                                node.data = matchNewVal;
+                            if (key === "text") {
+                                node.text = matchNewVal;
                             } else {
                                 node.attributes.set(key, matchNewVal);
                             }
@@ -231,8 +231,8 @@ export class CpeeMerge {
                 const newVal = update.newVal;
                 if (!node.updates.has(key)) {
                     node.updates.set(key, update.copy());
-                    if (key === "data") {
-                        node.data = newVal;
+                    if (key === "text") {
+                        node.text = newVal;
                     } else if (newVal == null) {
                         node.attributes.delete(key);
                     } else {

@@ -34,7 +34,7 @@ describe("Node", () => {
         newNode = new Node(newNodeLabel);
         newNode.attributes.set("attrA", "valA");
         newNode.attributes.set("attrB", "valB");
-        newNode.data = "dataVal.js";
+        newNode.text = "dataVal.js";
 
         tree = TestRepository.bookingTree();
         bookAirCall = tree.getChild(0);
@@ -55,7 +55,7 @@ describe("Node", () => {
             assert.ok(newNode.contentEquals(copy));
 
             //change the copy a bit
-            copy.data = "123.js";
+            copy.text = "123.js";
             assert.strictEqual(newNode.contentEquals(copy), false);
         });
     });

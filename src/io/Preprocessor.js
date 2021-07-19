@@ -51,7 +51,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
-                            const url = endpoint.childNodes.item(0).data;
+                            const url = endpoint.childNodes.item(0).text;
                             endpointToUrl.set(endpoint.localName, url);
                         }
                     }
@@ -59,7 +59,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const dataElement = childTNode.childNodes.item(j);
                         if (dataElement.nodeType === 1) { //Element, not Text
-                            const initialValue = dataElement.childNodes.item(0).data;
+                            const initialValue = dataElement.childNodes.item(0).text;
                             dataElements.set(dataElement.localName, initialValue);
                         }
                     }
@@ -106,23 +106,23 @@ export class Preprocessor {
             //trim irrelevant nodes
             if (node.isPropertyNode() && (Dsl.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
                 || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())
-                || (node.label === Dsl.ELEMENTS.MANIPULATE.label) && (node.data == null || node.data === "")) {
+                || (node.label === Dsl.ELEMENTS.MANIPULATE.label) && (node.text == null || node.text === "")) {
                 node.removeFromParent();
             }
 
             //trim data
-            if (node.data != null) {
-                node.data = node.data.trim();
+            if (node.text != null) {
+                node.text = node.text.trim();
             }
         }
 
         if (Config.ADD_INIT_SCRIPT && dataElements.size > 0) {
             //insert initializer for all declared variables at beginning of tree
             const script = new Node(Dsl.ELEMENTS.MANIPULATE.label);
-            script.data = "";
+            script.text = "";
             script.attributes.set("id", "init");
             for (const [dataElement, initialValue] of dataElements) {
-                script.data += Config.VARIABLE_PREFIX + dataElement + " = " + initialValue + ";";
+                script.text += Config.VARIABLE_PREFIX + dataElement + " = " + initialValue + ";";
             }
             tree.insertChild(0, script);
         }

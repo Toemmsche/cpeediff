@@ -62,8 +62,8 @@ export class XmlDomFactory {
             for (const [key, change] of deltaNode.updates) {
                 const oldVal = change[0];
                 const newVal = change[1];
-                if (key === "data") {
-                    deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":data", "true");
+                if (key === "text") {
+                    deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":text", "true");
                 } else {
                     if (oldVal == null) {
                         const val = deltaNode.attributes.get(key);
@@ -87,8 +87,8 @@ export class XmlDomFactory {
                 xmlNode.appendChild(buildRecursive(child));
             }
 
-            if (deltaNode.data != null) {
-                xmlNode.appendChild(doc.createTextNode(deltaNode.data))
+            if (deltaNode.text != null) {
+                xmlNode.appendChild(doc.createTextNode(deltaNode.text))
             }
 
             return xmlNode;
@@ -124,7 +124,7 @@ export class XmlDomFactory {
                 xmlNode.appendChild(buildRecursive(child));
             }
 
-            if (node.data != null) {
+            if (node.text != null) {
                 xmlNode.appendChild(doc.createTextNode(node.data))
             }
             return xmlNode;

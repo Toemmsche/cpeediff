@@ -21,7 +21,7 @@ import {DeltaNode} from "./DeltaNode.js";
 export class DeltaNodeFactory extends AbstractNodeFactory{
 
     static _fromNode(node, includeChildNodes) {
-        const deltaNode = new DeltaNode(node.label, node.data);
+        const deltaNode = new DeltaNode(node.label, node.text);
         for (const [key, value] of node.attributes) {
             deltaNode.attributes.set(key, value);
         }

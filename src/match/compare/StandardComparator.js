@@ -157,7 +157,7 @@ export class StandardComparator extends AbstractComparator {
             [Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT, Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT]);
 
         //small penalty for code string inequality
-        if (node.data !== other.data) {
+        if (node.text !== other.text) {
             contentCV += Config.COMPARATOR.EPSILON_PENALTY;
         }
 

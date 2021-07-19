@@ -30,8 +30,8 @@ export class HashExtractor extends AbstractExtractor {
         for (const key of sortedAttrList) {
             content += key + "=" + node.attributes.get(key);
         }
-        if (node.data != null) {
-            content += node.data;
+        if (node.text != null) {
+            content += node.text;
         }
         return StringHash.hash(content);
     }

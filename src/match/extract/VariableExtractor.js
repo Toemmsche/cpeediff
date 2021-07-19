@@ -40,7 +40,7 @@ export class VariableExtractor extends AbstractExtractor {
         let writtenVariables = new Set();
         let code;
         if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
-            code = node.data;
+            code = node.text;
         } else if (node.label === Dsl.ELEMENTS.CALL.label) {
             code = this.callPropertyExtractor.get(node).code;
         }
@@ -60,7 +60,7 @@ export class VariableExtractor extends AbstractExtractor {
         }
         let code;
         if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
-            code = node.data;
+            code = node.text;
         } else if (node.label === Dsl.ELEMENTS.CALL.label) {
             code = this.callPropertyExtractor.get(node).code;
         }
