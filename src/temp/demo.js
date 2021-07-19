@@ -28,8 +28,8 @@ import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
 import {CpeeDiffAdapter} from "../../test/diff_eval/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
 
-let old = new Preprocessor().parseFromFile("old.xml");
-let newTre = new Preprocessor().parseFromFile("new.xml");
+let old = new Preprocessor().parseFromFile(TestConfig.OLD_TREE_FILENAME);
+let newTre = new Preprocessor().parseFromFile(TestConfig.NEW_TREE_FILENAME);
 
 const es = new CpeeDiff().diff(old, newTre);
 

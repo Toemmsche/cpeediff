@@ -56,8 +56,8 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = "old.xml";
-        const newFilePath = "new.xml";
+        const oldFilePath = TestConfig.OLD_TREE_FILENAME;
+        const newFilePath = TestConfig.NEW_TREE_FILENAME;
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);

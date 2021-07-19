@@ -44,7 +44,7 @@ export class AbstractMergeAdapter {
         fs.writeFileSync(branch1Filepath, branch1String);
         fs.writeFileSync(branch2FilePath, branch2String);
 
-        return execFileSync(this.pathPrefix + "/run.sh", [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+        return execFileSync(this.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
     }
 
     evalCase(name, base, branch1, branch2, expected, accepted) {

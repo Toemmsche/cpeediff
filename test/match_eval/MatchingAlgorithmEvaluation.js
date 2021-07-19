@@ -32,7 +32,7 @@ export class MatchingAlgorithmEvaluation {
 
     static all() {
         let adapters = [];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeMatchAdapter());
         return new MatchingAlgorithmEvaluation(adapters);
     }
@@ -56,9 +56,9 @@ export class MatchingAlgorithmEvaluation {
 
                 fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
                         const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
-                        if (file === "new.xml") {
+                        if (file === TestConfig.NEW_TREE_FILENAME) {
                             newTree = parser.parseWithMetadata(content);
-                        } else if (file === "old.xml") {
+                        } else if (file === TestConfig.OLD_TREE_FILENAME) {
                             oldTree = parser.parseWithMetadata(content);
                         } else if (file === "expected.json") {
                             expected = Object.assign(new ExpectedMatch(), JSON.parse(content));

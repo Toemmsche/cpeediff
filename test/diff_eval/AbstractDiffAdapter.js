@@ -35,15 +35,15 @@ export class AbstractDiffAdapter {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = this.pathPrefix + "/old.xml";
-        const newFilePath = this.pathPrefix + "/new.xml";
+        const oldFilePath = this.pathPrefix + "/" + TestConfig.OLD_TREE_FILENAME;
+        const newFilePath = this.pathPrefix + "/" + TestConfig.NEW_TREE_FILENAME;
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
 
         let time = new Date().getTime();
         return {
-            output: execFileSync(this.pathPrefix + "/run.sh", [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            output: execFileSync(this.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME, [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
             runtime: new Date().getTime() - time
         }
 

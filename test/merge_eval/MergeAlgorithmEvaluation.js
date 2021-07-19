@@ -33,7 +33,7 @@ export class MergeAlgorithmEvaluation {
 
     static all() {
         let adapters = [new _3dmAdapter(), new XccPatchAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/run.sh"));
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeMergeAdapter());
         return new MergeAlgorithmEvaluation(adapters);
     }
