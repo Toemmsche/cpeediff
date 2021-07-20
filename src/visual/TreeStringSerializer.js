@@ -24,7 +24,7 @@ export class TreeStringSerializer {
         return constructRecursive(tree, []);
 
         function constructRecursive(node, barList) {
-            const isLast = node._parent != null && node._childIndex === node._parent._childNodes.length - 1;
+            const isLast = node._parent != null && node._childIndex === node._parent._children.length - 1;
             let line = "";
             for (let i = 0; i < barList.length; i++) {
                 const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;

@@ -39,7 +39,7 @@ export class DeltaJsAdapter extends AbstractDiffAdapter{
         }
         for (let i = 0; i < delta.childNodes.length; i++) {
             const node = delta.childNodes.item(i);
-            if (node.childNodes != null) {
+            if (node.children != null) {
                 for (let j = 0; j < node.childNodes.length; j++) {
                     const childNode = node.childNodes.item(j);
                     if (childNode.localName != null) {

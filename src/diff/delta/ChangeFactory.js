@@ -30,7 +30,7 @@ export class ChangeFactory {
     static _fromXmlDom(xmlElement) {
         const [changeType, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath"), xmlElement.getAttribute("newPath")];
         let newContent;
-        for (let i = 0; i <xmlElement.childNodes.length ; i++) {
+        for (let i = 0; i < xmlElement.childNodes.length ; i++) {
             const childTNode = xmlElement.childNodes.item(i);
             if(childTNode.nodeType === 1) {
                 newContent = NodeFactory.getNode(childTNode, true);

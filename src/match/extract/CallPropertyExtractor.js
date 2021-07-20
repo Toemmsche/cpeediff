@@ -27,30 +27,30 @@ export class CallPropertyExtractor extends AbstractExtractor {
         const endpoint = node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label);
 
         let method, label, args;
-        const parameters = node.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.PARAMETERS.label);
+        const parameters = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.PARAMETERS.label);
         if (parameters != null) {
-            method = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.METHOD.label);
+            method = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.METHOD.label);
             if (method != null) {
                 method = method.text;
             }
-            label = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.LABEL.label);
+            label = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.LABEL.label);
             if (label != null) {
                 label = label.text;
             }
 
-            args = parameters.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
+            args = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
             if (args != null) {
                 args = args
-                    .childNodes
+                    .children
                     .map(n => n.text);
             } else {
                 args = [];
             }
         }
 
-        let code = node.childNodes.find(n => n.label === Dsl.CALL_PROPERTIES.CODE.label);
+        let code = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.CODE.label);
         if (code != null) {
-            code = code.childNodes
+            code = code.children
                 .sort((a, b) => a.label.localeCompare(b.label))
                 .map(n => n.text)
                 .join("");

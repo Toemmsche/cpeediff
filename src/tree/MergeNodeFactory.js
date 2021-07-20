@@ -20,46 +20,46 @@ import {NodeFactory} from "./NodeFactory.js";
 
 export class MergeNodeFactory extends AbstractNodeFactory {
 
-    static _fromNode(node, includeChildNodes) {
+    static _fromNode(node, includechildren) {
         const mergeNode = new MergeNode(node.label, node.text);
         for (const [key, value] of node.attributes) {
             mergeNode.attributes.set(key, value);
         }
-        if (includeChildNodes) {
+        if (includechildren) {
             for (const child of node) {
-                mergeNode.appendChild(this.getNode(child, includeChildNodes))
+                mergeNode.appendChild(this.getNode(child, includechildren))
             }
         }
         return mergeNode;
     }
 
-    static _fromDeltaNode(deltaNode, includeChildNodes) {
-        const mergeNode = this._fromNode(deltaNode, includeChildNodes);
+    static _fromDeltaNode(deltaNode, includechildren) {
+        const mergeNode = this._fromNode(deltaNode, includechildren);
         mergeNode.changeType = deltaNode.changeType;
         mergeNode.baseNode = deltaNode.baseNode;
         for (const [key, update] of deltaNode.updates) {
             mergeNode.updates.set(key, update.copy());
         }
-        if (includeChildNodes) {
+        if (includechildren) {
             for (const placeholder of mergeNode.placeholders) {
-                mergeNode.placeholders.push(this.getNode(placeholder, includeChildNodes));
+                mergeNode.placeholders.push(this.getNode(placeholder, includechildren));
             }
         }
         return mergeNode;
     }
 
-    static _fromMergeNode(mergeNode, includeChildNodes) {
-        const copy = this._fromDeltaNode(mergeNode, includeChildNodes);
+    static _fromMergeNode(mergeNode, includechildren) {
+        const copy = this._fromDeltaNode(mergeNode, includechildren);
         copy.changeOrigin = mergeNode.changeOrigin;
         copy.confidence = mergeNode.confidence;
         return copy;
     }
 
-    static _fromXmlString(xml, includeChildNodes) {
-        return this._fromNode(NodeFactory.getNode(xml, includeChildNodes), includeChildNodes);
+    static _fromXmlString(xml, includechildren) {
+        return this._fromNode(NodeFactory.getNode(xml, includechildren), includechildren);
     }
 
-    static _fromXmlDom(xmlElement, includeChildNodes) {
-        return this._fromNode(NodeFactory.getNode(xmlElement, includeChildNodes), includeChildNodes);
+    static _fromXmlDom(xmlElement, includechildren) {
+        return this._fromNode(NodeFactory.getNode(xmlElement, includechildren), includechildren);
     }
 }

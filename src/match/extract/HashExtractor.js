@@ -43,13 +43,13 @@ export class HashExtractor extends AbstractExtractor {
             const primes = PrimeGenerator.primes(node.numChildren());
             //todo built in map function
             childHash += node
-                .childNodes
+                .children
                 .map((n, i) => this.get(n) * primes[i])
                 .reduce((prev, curr) => prev + curr, 0);
         } else {
             //arbitrary order, achieved by simple addition
             childHash += node
-                .childNodes
+                .children
                 .map(n => this.get(n))
                 .reduce((prev, curr) => prev + curr, 0);
         }

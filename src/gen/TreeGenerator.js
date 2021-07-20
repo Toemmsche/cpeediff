@@ -93,7 +93,7 @@ export class TreeGenerator {
             return between;
         } else if (parent.label === Dsl.ELEMENTS.CHOOSE.label) {
             let between;
-            if (this._withProbability(0.5) && !parent.childNodes.some(n => n.label === Dsl.ELEMENTS.OTHERWISE.label)) {
+            if (this._withProbability(0.5) && !parent.children.some(n => n.label === Dsl.ELEMENTS.OTHERWISE.label)) {
                 between = this._randomOtherwise();
             } else {
                 between = this._randomAlternative();

@@ -99,7 +99,7 @@ export class EditScriptGenerator {
          Map every node in the child node list to its matching partner's child index.
          Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
          */
-        const nodes = oldParent.childNodes;
+        const nodes = oldParent.children;
         const arr = nodes.map(n => this.matching.getOld(n).childIndex);
         let lis = Lis.getLis(arr);
 
@@ -143,7 +143,7 @@ export class EditScriptGenerator {
 
     _delete(oldNode, editScript) {
         const oldPath = oldNode.toChildIndexPathString();
-        //TODO document that removeFromParent() does not change the parent attributes
+        //TODO document that removeFromParent() does not change the parent attribute
         oldNode.removeFromParent();
         editScript.delete(oldPath, oldNode.hasChildren());
 
