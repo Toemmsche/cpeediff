@@ -31,11 +31,11 @@ export class MatchPipeline {
     constructor(...matchers) {
         const len = matchers.length;
         //FixedMatcher is always the first matching algorithm in the pipeline
-        if(len > 0 && matchers[0].constructor !== FixedMatcher) {
+        if(len === 0 || matchers[0].constructor !== FixedMatcher) {
             matchers.unshift(new FixedMatcher());
         }
         //PropertyMatcher is always the last matching algorithm in the pipeline
-        if(len > 0 && matchers[len - 1].constructor !== PropertyMatcher) {
+        if(len === 0 || matchers[len - 1].constructor !== PropertyMatcher) {
             matchers.push(new PropertyMatcher());
         }
         this.matchers = matchers;
