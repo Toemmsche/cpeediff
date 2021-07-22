@@ -37,9 +37,9 @@ export class XmlDiffAdapter extends AbstractDiffAdapter {
                     throw new Error("unknown output");
                 }
 
-                //xmldiff output pattern: [{changeType}, {path} {description of the change}]
-                const changeType = line.split(",")[0].slice(1);
-                switch (changeType) {
+                //xmldiff output pattern: [{type}, {path} {description of the change}]
+                const type = line.split(",")[0].slice(1);
+                switch (type) {
                     case "delete":
                         deletionCounter++;
                         break;

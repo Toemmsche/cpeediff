@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {Change} from "./Change.js";
+import {EditOperation} from "./EditOperation.js";
 import {Dsl} from "../../Dsl.js";
 
 export class EditScript {
@@ -32,19 +32,19 @@ export class EditScript {
     }
 
     insert(newPath, newContent, subtree = false) {
-        this.changes.push(new Change(Dsl.CHANGE_TYPES.INSERTION.label, null, newPath, newContent));
+        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.INSERTION.label, null, newPath, newContent));
     }
 
     delete(oldPath, subtree = false) {
-        this.changes.push(new Change( Dsl.CHANGE_TYPES.DELETION.label, oldPath, null,  null));
+        this.changes.push(new EditOperation( Dsl.OPERATION_TYPES.DELETION.label, oldPath, null,  null));
     }
 
     move(oldPath, newPath) {
-        this.changes.push(new Change(Dsl.CHANGE_TYPES.MOVE_TO.label, oldPath,  newPath));
+        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.MOVE_TO.label, oldPath,  newPath));
     }
 
     update(oldPath, newContent) {
-        this.changes.push(new Change(Dsl.CHANGE_TYPES.UPDATE.label, oldPath, null, newContent));
+        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.UPDATE.label, oldPath, null, newContent));
     }
 
     [Symbol.iterator]() {

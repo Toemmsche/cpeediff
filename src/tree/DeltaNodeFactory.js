@@ -35,7 +35,7 @@ export class DeltaNodeFactory extends AbstractNodeFactory{
 
     static _fromDeltaNode(deltaNode, includechildren) {
         const copy = this._fromNode(deltaNode, includechildren);
-        copy.changeType = deltaNode.changeType;
+        copy.type = deltaNode.type;
         copy.baseNode = deltaNode.baseNode;
         for (const [key, update] of deltaNode.updates) {
             copy.updates.set(key, update.copy());

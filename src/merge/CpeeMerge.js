@@ -54,7 +54,7 @@ export class CpeeMerge {
     _insertCorrectly(nodeToInsert, referenceNode, matching) {
         const newParent = matching.getOther(referenceNode.parent);
         nodeToInsert.changeOrigin = referenceNode.changeOrigin;
-        nodeToInsert.changeType = referenceNode.changeType;
+        nodeToInsert.type = referenceNode.type;
         let i = referenceNode.childIndex - 1;
         while (i >= 0 && (!matching.hasAny(referenceNode.parent.getChild(i)) || matching.getOther(referenceNode.parent.getChild(i)).parent !== newParent)) {
             i--;

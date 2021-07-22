@@ -16,5 +16,30 @@
 
 export class Logger {
 
+    static LOG_LEVELS = {
+        INFO: "INFO",
+        DEBUG: "DEBUG",
+        WARN: "WARN",
+        ERROR: "ERROR"
+    }
+
+    handlers;
+
+    static info(message, source = null) {
+        const logMessage = new LogMessage(this.LOG_LEVELS.INFO, message, source)
+    }
+}
+
+class LogMessage{
+    level;
+    message;
+    source;
+
+    constructor(level, message, source) {
+        this.level = level;
+        this.message = message;
+        this.source = source;
+    }
+
 
 }

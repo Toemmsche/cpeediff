@@ -16,22 +16,22 @@
 
 
 
-export class Change {
+export class EditOperation {
 
-    changeType;
+    type;
     oldPath;
     newPath;
     newContent;
 
-    constructor(changeType, oldPath = null, newPath = null, newContent = null) {
-        this.changeType = changeType;
+    constructor(type, oldPath = null, newPath = null, newContent = null) {
+        this.type = type;
         this.oldPath = oldPath;
         this.newPath = newPath;
         this.newContent = newContent;
     }
 
     toString() {
-        return this.changeType + " " +
+        return this.type + " " +
             (this.oldPath !== null ? this.oldPath + " " : "") +
             (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
             (this.newPath !== null ? this.newPath + " " : "") +

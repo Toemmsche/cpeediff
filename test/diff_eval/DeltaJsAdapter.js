@@ -39,7 +39,8 @@ export class DeltaJsAdapter extends AbstractDiffAdapter{
         }
         for (let i = 0; i < delta.childNodes.length; i++) {
             const node = delta.childNodes.item(i);
-            if (node.children != null) {
+            if (node.childNodes != null) {
+                //operations are grouped in forests
                 for (let j = 0; j < node.childNodes.length; j++) {
                     const childNode = node.childNodes.item(j);
                     if (childNode.localName != null) {

@@ -90,7 +90,7 @@ export class DiffAlgorithmEvaluation {
                             console.log("Generating two unrelated process trees of size " + genParams.maxSize);
                             oldTree = treeGen.randomTree();
                             newTree = treeGen.randomTree();
-                            testInfo = new DiffTestInfo(dir, Math.max(newTree.toPreOrderArray().length, oldTree.toPreOrderArray().length));
+                            testInfo = new DiffTestInfo(dir, Math.max(newTree.size(), oldTree.size()));
                             break;
                         }
                         default: {
@@ -128,7 +128,7 @@ export class DiffAlgorithmEvaluation {
                         testInfo = new DiffTestInfo();
                     }
                     testInfo.name = dir;
-                    testInfo.maxSize = Math.max(oldTree.toPreOrderArray().length, newTree.toPreOrderArray().length);
+                    testInfo.maxSize = Math.max(oldTree.size(), newTree.size());
                 }
 
 

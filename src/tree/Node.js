@@ -399,5 +399,12 @@ export class Node {
         return this.toPreOrderArray()
             .filter(n => !n.isPropertyNode());
     }
+
+    /**
+     * @returns {number} The size of the subtree rooted at this node.
+     */
+    size() {
+        return this.toPostOrderArray().length;
+    }
 }
 

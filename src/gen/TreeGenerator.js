@@ -70,7 +70,7 @@ export class TreeGenerator {
                 const newChild = this._randomLeaf();
                 newNode.appendChild(newChild);
             }
-            currSize += newNode.toPreOrderArray().length;
+            currSize += newNode.size();
         }
 
         return new Preprocessor().prepareTree(root);
@@ -81,7 +81,7 @@ export class TreeGenerator {
         while (currSize < this.genParams.maxSize) {
             const newNode = this._randomCall();
             this._appendRandomly(root, newNode);
-            currSize += newNode.toPreOrderArray().length;
+            currSize += newNode.size();
         }
         return new Preprocessor().prepareTree(root);
     }
@@ -325,7 +325,7 @@ export class TreeGenerator {
 
 
     changeTree(tree, changeParams) {
-        const oldSize = tree.toPreOrderArray().length;
+        const oldSize = tree.size();
         //do not modify original tree
         tree = NodeFactory.getNode(tree);
         let insertionCounter = 0;
@@ -375,20 +375,20 @@ export class TreeGenerator {
                         break;
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 //TODO
                 console.log("invalid change op")
             }
         }
         return {
             tree: new Preprocessor().prepareTree(tree),
-            info: new DiffTestInfo(null, Math.max(oldSize, tree.toPreOrderArray().length), insertionCounter, moveCounter, updateCounter, deletionCounter)
+            info: new DiffTestInfo(null, Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
         };
 
     }
 
     _insertSubtreeRandomly(tree) {
-        const currSize = tree.toPreOrderArray().length;
+        const currSize = tree.size()
 
         let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent)
@@ -397,24 +397,18 @@ export class TreeGenerator {
         this._appendRandomly(parent, newNode);
         newNode = this._insertBetween(newNode);
 
-        //construct new tree with less nodes
-        //store old max size value
+        //inserted tree is much smaller
         const oldMaxSize = this.genParams.maxSize;
         this.genParams.maxSize = Math.max(Math.log2(oldMaxSize), 5);
         //construct random subtree around the new inner node
         this.randomTree(newNode);
         //restore old max size
         this.genParams.maxSize = oldMaxSize;
-
-        const newSize = tree.toPreOrderArray().length;
-        if (tree.toPreOrderArray().length <= currSize) {
-            throw new Error();
-        }
     }
 
 
     _insertLeafRandomly(tree) {
-        const currSize = tree.toPreOrderArray().length;
+        const currSize = tree.size()
 
         let parent = this._randomFrom(tree.innerNodes());
         parent = this._insertBetween(parent)
@@ -422,7 +416,7 @@ export class TreeGenerator {
         const newNode = this._randomLeaf();
         this._appendRandomly(parent, newNode);
 
-        if (tree.toPreOrderArray().length <= currSize) {
+        if (tree.size() <= currSize) {
             throw new Error();
         }
     }
@@ -435,18 +429,18 @@ export class TreeGenerator {
     }
 
     _deleteSubtreeRandomly(tree) {
-        const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot()));
-        if (node != null) {
-            node.removeFromParent();
-        }
+        //cannot delete arbitrarily sized subtrees
+        const oldMaxSize = this.genParams.maxSize;
+        const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot() && n.size() <= Math.sqrt(oldMaxSize)));
+        node.removeFromParent();
+
 
     }
 
     _deleteLeafRandomly(tree) {
         const node = this._randomFrom(tree.leaves());
-        if (node != null) {
-            node.removeFromParent();
-        }
+        node.removeFromParent();
+
     }
 
     _moveRandomly(tree) {
@@ -490,7 +484,7 @@ export class TreeGenerator {
                     //code change
                     const statements = node.text.split(";");
                     //remove a random statement
-                    if(this._withProbability(0.5)) {
+                    if (this._withProbability(0.5)) {
                         statements.splice(this._randInt(statements.length), 1);
                     }
                     //insert a new one
@@ -505,7 +499,7 @@ export class TreeGenerator {
                     } else {
                         //read and write to new variable
                         const newVariable = this._randomFrom(this.variables);
-                        statements.push(Config.VARIABLE_PREFIX + newVariable  + "++");
+                        statements.push(Config.VARIABLE_PREFIX + newVariable + "++");
                     }
                     node.text = statements.join(";") + ";";
                     break;

@@ -41,17 +41,17 @@ function parseOutput(output) {
 
     //parse output
     for (const change of output.changes) {
-        switch (change.changeType) {
-            case Dsl.CHANGE_TYPES.INSERTION.label:
+        switch (change.type) {
+            case Dsl.OPERATION_TYPES.INSERTION.label:
                 insertionCounter++;
                 break;
-            case Dsl.CHANGE_TYPES.DELETION.label:
+            case Dsl.OPERATION_TYPES.DELETION.label:
                 deletionCounter++;
                 break;
-            case Dsl.CHANGE_TYPES.MOVE_TO.label:
+            case Dsl.OPERATION_TYPES.MOVE_TO.label:
                 moveCounter++;
                 break;
-            case Dsl.CHANGE_TYPES.UPDATE.label:
+            case Dsl.OPERATION_TYPES.UPDATE.label:
                 updateCounter++;
                 break;
         }

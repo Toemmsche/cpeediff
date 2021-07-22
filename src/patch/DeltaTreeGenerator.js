@@ -40,7 +40,7 @@ export class DeltaTreeGenerator {
         const child = DeltaNodeFactory.getNode(node, true);
         parent.insertChild(childIndex, child);
         for (const descendant of child.toPreOrderArray()) {
-            descendant.changeType = Dsl.CHANGE_TYPES.INSERTION.label
+            descendant.type = Dsl.OPERATION_TYPES.INSERTION.label
         }
     }
 
@@ -70,10 +70,10 @@ export class DeltaTreeGenerator {
 
         //insert node
         parent.insertChild(targetIndex, node);
-        node.changeType = change.changeType;
+        node.type = change.type;
 
         //Insert placeholder at old position
-        movfrNode.changeType = Dsl.CHANGE_TYPES.MOVE_FROM;
+        movfrNode.type = Dsl.OPERATION_TYPES.MOVE_FROM;
 
         movfrParent.placeholders.push(movfrNode);
         //create entry in move map
@@ -128,7 +128,7 @@ export class DeltaTreeGenerator {
 
     _applyDelete(node) {
         for (const descendant of node.toPreOrderArray()) {
-            descendant.changeType = Dsl.CHANGE_TYPES.DELETION.label
+            descendant.type = Dsl.OPERATION_TYPES.DELETION.label
         }
 
         node.removeFromParent();
@@ -152,20 +152,20 @@ export class DeltaTreeGenerator {
         }
 
         for (const change of editScript) {
-            switch (change.changeType) {
-                case Dsl.CHANGE_TYPES.INSERTION.label: {
+            switch (change.type) {
+                case Dsl.OPERATION_TYPES.INSERTION.label: {
                     this._handleInsert(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.MOVE_TO.label: {
+                case Dsl.OPERATION_TYPES.MOVE_TO.label: {
                     this._handleMove(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.UPDATE.label: {
+                case Dsl.OPERATION_TYPES.UPDATE.label: {
                     this._handleUpdate(change);
                     break;
                 }
-                case Dsl.CHANGE_TYPES.DELETION.label: {
+                case Dsl.OPERATION_TYPES.DELETION.label: {
                     this._handleDelete(change);
                     break;
                 }
@@ -208,7 +208,7 @@ export class DeltaTreeGenerator {
         }
         while (node.placeholders.length > 0) {
             const placeholder = node.placeholders.pop();
-            if (!isMoveTo || !placeholder.changeType === Dsl.CHANGE_TYPES.MOVE_FROM) {
+            if (!isMoveTo || !placeholder.type === Dsl.OPERATION_TYPES.MOVE_FROM) {
                 node.insertChild(placeholder.childIndex, placeholder);
             }
         }

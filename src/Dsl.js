@@ -147,7 +147,7 @@ export const Dsl = {
     PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
 
     DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
-    CHANGE_TYPES: {
+    OPERATION_TYPES: {
         INSERTION: {
             label: "INSERT",
             uri: "http://cpee.org/ns/description/1.0/insert",
@@ -203,5 +203,5 @@ Dsl.INTERNAL_ORDERING_SET = new Set(
     .map(k => k.label));
 
 Dsl.CHANGE_TYPE_SET = new Set(
-    Object.values(Dsl.CHANGE_TYPES));
+    Object.values(Dsl.OPERATION_TYPES));
 

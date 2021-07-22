@@ -47,7 +47,7 @@ const argv = yargs(hideBin(process.argv))
                 description: "Similarity threshold for matching leaf nodes",
                 alias: "t",
                 type: "number",
-                default: 0.25
+                default: 0.4
             })
             .option("innerThreshold", {
                 description: "Similarity threshold for matching inner nodes",
@@ -103,8 +103,8 @@ const argv = yargs(hideBin(process.argv))
         const oldTree = parser.parseFromFile(argv.old);
         const newTree = parser.parseFromFile(argv.new);
 
-        const differ = new CpeeDiff(MatchPipeline.standard());
-        const editScript = differ.diff(oldTree, newTree, new StandardComparator());
+        const editScript  = new CpeeDiff().diff(oldTree, newTree);
+        fs.writeFileSync("newMAIN.xml", XmlFactory.serialize(newTree));
 
         switch (argv.format) {
             case "editScript": {

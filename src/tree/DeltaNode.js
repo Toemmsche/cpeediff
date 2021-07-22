@@ -24,17 +24,17 @@ export class DeltaNode extends Node {
     /**
      * @type String
      */
-    changeType;
+    type;
     updates;
     placeholders;
 
     //what original node it was mapped to (if any)
     baseNode;
 
-    constructor(label, text = null, changeType = "NIL", baseNode = null ) {
+    constructor(label, text = null, type = "NIL", baseNode = null ) {
         super(label, text);
         this.baseNode = baseNode;
-        this.changeType = changeType;
+        this.type = type;
         this.updates =  new Map();
         this.placeholders = [];
     }
@@ -66,24 +66,24 @@ export class DeltaNode extends Node {
     }
 
     isMove() {
-        return this.changeType === Dsl.CHANGE_TYPES.MOVE_TO.label
+        return this.type === Dsl.OPERATION_TYPES.MOVE_TO.label
     }
 
     isDeletion() {
-        return this.changeType === Dsl.CHANGE_TYPES.DELETION.label|| this.changeType === Dsl.CHANGE_TYPES.SUBTREE_DELETION;
+        return this.type === Dsl.OPERATION_TYPES.DELETION.label|| this.type === Dsl.OPERATION_TYPES.SUBTREE_DELETION;
     }
 
     isInsertion() {
-        return this.changeType === Dsl.CHANGE_TYPES.INSERTION.label|| this.changeType === Dsl.CHANGE_TYPES.SUBTREE_INSERTION;
+        return this.type === Dsl.OPERATION_TYPES.INSERTION.label|| this.type === Dsl.OPERATION_TYPES.SUBTREE_INSERTION;
     }
 
     isNil() {
-        return this.changeType === Dsl.CHANGE_TYPES.NIL;
+        return this.type === Dsl.OPERATION_TYPES.NIL;
     }
 
     toString() {
         let res = this.label;
-        res += " <" + this.changeType + (this.isUpdate() ? "-UPD" : "") + (this.baseNode !== null ? "_" + this.baseNode : "") + ">.js";
+        res += " <" + this.type + (this.isUpdate() ? "-UPD" : "") + (this.baseNode !== null ? "_" + this.baseNode : "") + ">.js";
         if (this.isUpdate()) {
             for (const [key, change]  of this.updates) {
                 res += " " + key + ": [" + change[0] + "] -> [" + change[1] + "].js";

@@ -18,7 +18,7 @@ import {Node} from "../tree/Node.js"
 import {MergeNode} from "../tree/MergeNode.js";
 import {DeltaNode} from "../tree/DeltaNode.js";
 import {EditScript} from "../diff/delta/EditScript.js";
-import {Change} from "../diff/delta/Change.js";
+import {EditOperation} from "../diff/delta/EditOperation.js";
 import xmldom from "xmldom";
 import {Dsl} from "../Dsl.js";
 
@@ -35,7 +35,7 @@ export class XmlDomFactory {
                 return this._convertDeltaNode(object);
             case EditScript:
                 return this._convertEditScript(object);
-            case Change:
+            case EditOperation:
                 return this._convertChange(object);
         }
     }
@@ -46,15 +46,15 @@ export class XmlDomFactory {
 
         function buildRecursive(deltaNode) {
 
-            const prefix = Object.values(Dsl.CHANGE_TYPES).find(ct => ct.label === deltaNode.changeType).prefix + ":"
+            const prefix = Object.values(Dsl.OPERATION_TYPES).find(ct => ct.label === deltaNode.type).prefix + ":"
             const xmlNode = doc.createElement(prefix + deltaNode.label);
             xmlNode.localName = deltaNode.label;
 
             //TODO delta variables
             if (deltaNode.isRoot()) {
                 xmlNode.setAttribute("xmlns", Dsl.DEFAULT_NAMESPACE);
-                for(const changeType of Object.values(Dsl.CHANGE_TYPES)) {
-                    xmlNode.setAttribute("xmlns:" + changeType.prefix, changeType.uri);
+                for(const type of Object.values(Dsl.OPERATION_TYPES)) {
+                    xmlNode.setAttribute("xmlns:" + type.prefix, type.uri);
                 }
             }
 
@@ -63,17 +63,17 @@ export class XmlDomFactory {
                 const oldVal = change[0];
                 const newVal = change[1];
                 if (key === "text") {
-                    deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":text", "true");
+                    deltaNode.attributes.set(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":text", "true");
                 } else {
                     if (oldVal == null) {
                         const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.INSERTION.prefix + ":" + key, val);
+                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.INSERTION.prefix + ":" + key, val);
                         deltaNode.attributes.delete(key);
                     } else if (newVal == null) {
-                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.DELETION.prefix + ":" + key, oldVal);
+                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.DELETION.prefix + ":" + key, oldVal);
                     } else {
                         const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.CHANGE_TYPES.UPDATE.label.prefix + ":" + key, val);
+                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":" + key, val);
                         deltaNode.attributes.delete(key);
                     }
                 }
@@ -125,7 +125,7 @@ export class XmlDomFactory {
             }
 
             if (node.text != null) {
-                xmlNode.appendChild(doc.createTextNode(node.data))
+                xmlNode.appendChild(doc.createTextNode(node.text))
             }
             return xmlNode;
         }
@@ -134,7 +134,7 @@ export class XmlDomFactory {
     static _convertChange(change) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
 
-        const xmlNode = doc.createElement(change.changeType);
+        const xmlNode = doc.createElement(change.type);
         if (change.oldPath != null) {
             xmlNode.setAttribute("oldPath", change.oldPath);
         }

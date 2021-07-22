@@ -15,7 +15,7 @@
 */
 
 import {NodeFactory} from "../../tree/NodeFactory.js";
-import {Change} from "./Change.js";
+import {EditOperation} from "./EditOperation.js";
 import xmldom from "xmldom";
 
 export class ChangeFactory {
@@ -28,7 +28,7 @@ export class ChangeFactory {
     }
 
     static _fromXmlDom(xmlElement) {
-        const [changeType, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath"), xmlElement.getAttribute("newPath")];
+        const [type, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath"), xmlElement.getAttribute("newPath")];
         let newContent;
         for (let i = 0; i < xmlElement.childNodes.length ; i++) {
             const childTNode = xmlElement.childNodes.item(i);
@@ -36,7 +36,7 @@ export class ChangeFactory {
                 newContent = NodeFactory.getNode(childTNode, true);
             }
         }
-        return new Change(changeType, oldPath, newPath, newContent);
+        return new EditOperation(type, oldPath, newPath, newContent);
     }
 
     static _fromXmlString(xml) {

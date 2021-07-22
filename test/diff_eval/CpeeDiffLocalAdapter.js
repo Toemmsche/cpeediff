@@ -22,14 +22,17 @@ import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {DiffTestResult} from "./DiffTestResult.js";
+import fs from "fs";
 
 export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
 
     constructor() {
-        super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
+        super("", TestConfig.DIFFS.CPEEDIFF.displayName + "_LOCAL");
     }
 
     _run(oldTree, newTree) {
+        fs.writeFileSync("newLOCAL.xml", XmlFactory.serialize(newTree));
+
         let time = new Date().getTime();
         const delta = new CpeeDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;
@@ -53,17 +56,17 @@ export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
 
         //parse output
         for (const change of output.changes) {
-            switch (change.changeType) {
-                case Dsl.CHANGE_TYPES.INSERTION.label:
+            switch (change.type) {
+                case Dsl.OPERATION_TYPES.INSERTION.label:
                     insertionCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.DELETION.label:
+                case Dsl.OPERATION_TYPES.DELETION.label:
                     deletionCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.MOVE_TO.label:
+                case Dsl.OPERATION_TYPES.MOVE_TO.label:
                     moveCounter++;
                     break;
-                case Dsl.CHANGE_TYPES.UPDATE.label:
+                case Dsl.OPERATION_TYPES.UPDATE.label:
                     updateCounter++;
                     break;
             }
