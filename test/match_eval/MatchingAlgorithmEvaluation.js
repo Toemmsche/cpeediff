@@ -60,7 +60,7 @@ export class MatchingAlgorithmEvaluation {
                             newTree = parser.parseWithMetadata(content);
                         } else if (file === TestConfig.OLD_TREE_FILENAME) {
                             oldTree = parser.parseWithMetadata(content);
-                        } else if (file === "expected.json") {
+                        } else if (file === TestConfig.EXPECTED_MATCHES_FILE_NAME) {
                             expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
                         }
                     }

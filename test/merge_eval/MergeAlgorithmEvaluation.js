@@ -59,15 +59,15 @@ export class MergeAlgorithmEvaluation {
 
                 fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
                         const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
-                        if (file === "base.xml") {
+                        if (file === TestConfig.BASE_FILE_NAME) {
                             base = parser.parseWithMetadata(content);
-                        } else if (file === "1.xml") {
+                        } else if (file === TestConfig.BRANCH_1_FILE_NAME) {
                             branch1 = parser.parseWithMetadata(content);
-                        } else if (file === "2.xml") {
+                        } else if (file === TestConfig.BRANCH_2_FILE_NAME) {
                             branch2 = parser.parseWithMetadata(content);
-                        } else if (file.startsWith("expected")) {
+                        } else if (file.startsWith(TestConfig.EXPECTED_MERGE_PREFIX)) {
                             expected.push(parser.parseWithMetadata(content));
-                        } else if (file.startsWith("accepted")) {
+                        } else if (file.startsWith(TestConfig.ACCEPTED_MERGE_PREFIX)) {
                             accepted.push(parser.parseWithMetadata(content));
                         }
                     }

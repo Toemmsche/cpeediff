@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-const {StandardComparator} = require("./compare/StandardComparator");
+const {StandardComparator} = require("../match/compare/StandardComparator");
 const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
-const {AbstractMatchingAlgorithm} = require("./AbstractMatchingAlgorithm");
-const {Matching} = require("./Matching");
+const {AbstractMatchingAlgorithm} = require("../match/AbstractMatchingAlgorithm");
+const {Matching} = require("../match/Matching");
 const {CpeeTree} = require("../tree/CpeeTree");
 
 

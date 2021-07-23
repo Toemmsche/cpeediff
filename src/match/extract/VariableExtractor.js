@@ -2,8 +2,8 @@
     Copyright 2021 Tom Papke
 
    Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use source file except in compliance with the License.
-   You may obtain a root of the License at
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
        http=//www.apache.org/licenses/LICENSE-2.0
 
@@ -79,9 +79,11 @@ export class VariableExtractor extends AbstractExtractor {
             const callProps = this.callPropertyExtractor.get(node);
             if (callProps.hasArgs()) {
                 for (const arg of callProps.args) {
-                    //do NOT use the label of the argument
-                    if (arg.includes(Config.VARIABLE_PREFIX)) {
-                       argVariables.push(arg.replaceAll(Config.VARIABLE_PREFIX, ""));
+                    const readVars = this._readVarsFromString(arg);
+                    if(readVars.length !== 1) {
+                        argVariables.push(arg);
+                    } else {
+                        argVariables.push(readVars[0])
                     }
                 }
             }
@@ -101,7 +103,7 @@ export class VariableExtractor extends AbstractExtractor {
         const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
         //negative lookahead for assignment operators and positive lookbehind for data element prefix
         //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
-        const regex = new RegExp("(?<="+ prefix +")[$_a-zA-Z](\\w|\\$)*(?=\\s*[^\\w_$])(?!\\s*=[^=])", "g");
+        const regex = new RegExp("(?<="+ prefix +")[$_a-zA-Z](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])", "g");
         const matches = str.match(regex);
         return matches == null ? [] : matches;
     }

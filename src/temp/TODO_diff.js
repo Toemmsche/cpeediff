@@ -18,7 +18,6 @@
 
 //TODO semi-features
 //      annotated merged tree output (with conrfidence)
-//      weigh call args and read code variables differently
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 //      call arguments sensitive to ordering ?
 //      CHANGE origin in xml

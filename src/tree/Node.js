@@ -50,6 +50,10 @@ export class Node {
      */
     text;
 
+    /*
+    Structural Information
+     */
+
     /**
      * Construct a new node with the given label and text content and an empty attribute map.
      * @param {String} label The label of the node
@@ -59,39 +63,34 @@ export class Node {
         this.label = label;
         this.text = text;
         this.attributes = new Map();
-
         this._children = [];
         this._parent = null;
         this._childIndex = null;
     }
 
-    /*
-    Structural Information
-     */
-
     /**
-     * The parent node of this node
-     * @type Node
+     * The parent node of this node. Null if this is the root node.
+     * @type Node|null
      * @private
      */
     _parent;
 
     /**
-     * @returns {Node} The parent node of this node.
+     * @returns {Node|null} The parent node of this node.
      */
     get parent() {
         return this._parent;
     }
 
     /**
-     * The index of this node within the parent's ordered child list.
-     * @type Number
+     * The index of this node within the parent's ordered child list. Null if this is the root node.
+     * @type Number|null
      * @private
      */
     _childIndex;
 
     /**
-     * @returns {Number} The index of this node within the parent's ordered child list.
+     * @returns {Number|null} The index of this node within the parent's ordered child list.
      */
     get childIndex() {
         return this._childIndex;
@@ -119,12 +118,10 @@ export class Node {
         const pathArr = [];
         let node = this;
         while (node != null) {
-            if (pathArr.includes(node)) {
-                console.log("up")
-            }
             pathArr.push(node);
             node = node._parent;
         }
+        //exclude root
         return pathArr.reverse().slice(1);
     }
 
@@ -144,7 +141,7 @@ export class Node {
 
     /**
      * @param index The index of the desired child of this node.
-     * @returns {Node} The child at the desired index, if it exists.
+     * @returns {Node|null} The child at the desired index, if it exists.
      */
     getChild(index) {
         return this._children[index];
@@ -158,20 +155,20 @@ export class Node {
     }
 
     /**
-     * @returns {Node} The sibling node with the next lower child index, if it exists.
+     * @returns {Node|null} The sibling node with the next lower child index, if it exists.
      */
     getLeftSibling() {
-        if(this._childIndex > 0) {
+        if (this._childIndex > 0) {
             return this.getSiblings()[this._childIndex - 1];
         }
         return null;
     }
 
     /**
-     * @returns {Node} The sibling node with the next higher child index, if it exists.
+     * @returns {Node|null} The sibling node with the next higher child index, if it exists.
      */
     getRightSibling() {
-        if(this._childIndex < this.getSiblings().length - 1) {
+        if (this._childIndex < this.getSiblings().length - 1) {
             return this.getSiblings()[this._childIndex + 1];
         }
         return null;
@@ -386,6 +383,7 @@ export class Node {
     }
 
     /**
+     * Warning: This function takes O(n) time!
      * @returns {number} The size of the subtree rooted at this node.
      */
     size() {

@@ -25,9 +25,18 @@ export const TestConfig = {
     CHANGE_PARAMS_FILENAME: "changeParams.json",
     RUN_SCRIPT_FILENAME: "run.sh",
 
-    DIFF_INFO_FILENAME: "info.json",
     OLD_TREE_FILENAME: "old.xml",
     NEW_TREE_FILENAME: "new.xml",
+
+    DIFF_INFO_FILENAME: "info.json",
+
+    EXPECTED_MATCHES_FILE_NAME: "expected.json",
+
+    BASE_FILE_NAME: "base.xml",
+    BRANCH_1_FILE_NAME: "1.xml",
+    BRANCH_2_FILE_NAME: "2.xml",
+    EXPECTED_MERGE_PREFIX: "expected",
+    ACCEPTED_MERGE_PREFIX: "accepted",
 
     MATCH_CASES_DIR: "test/test_set/match_cases",
     DIFF_CASES_DIR: "test/test_set/diff_cases",
@@ -105,8 +114,6 @@ export const TestConfig = {
     //      edit script size
     //      #nodes matched
     //      merging #tests with expected result
-
-
 
 
 }
