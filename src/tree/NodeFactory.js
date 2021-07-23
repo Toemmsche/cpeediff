@@ -20,24 +20,24 @@ import xmldom from "xmldom";
 
 export class NodeFactory extends AbstractNodeFactory {
 
-    static _fromNode(node, includechildren) {
+    static _fromNode(node, includeChildren) {
         const copy = new Node(node.label, node.text);
         for (const [key, value] of node.attributes) {
             copy.attributes.set(key, value);
         }
-        if (includechildren) {
+        if (includeChildren) {
             for (const child of node) {
-                copy.appendChild(this._fromNode(child, includechildren));
+                copy.appendChild(this._fromNode(child, includeChildren));
             }
         }
         return copy;
     }
 
-    static _fromXmlString(xml, includechildren) {
-        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml"), includechildren);
+    static _fromXmlString(xml, includeChildren) {
+        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml"), includeChildren);
     }
 
-    static _fromXmlDom(xmlElement, includechildren) {
+    static _fromXmlDom(xmlElement, includeChildren) {
         let root = new Node(xmlElement.localName);
 
         if(!(xmlElement.nodeType === 1 || xmlElement.nodeType === 3)) {
@@ -60,8 +60,8 @@ export class NodeFactory extends AbstractNodeFactory {
                     //relevant data, set as node text
                     root.text = childElement.data;
                 }
-            } else if (includechildren) {
-                const child = this._fromXmlDom(childElement, includechildren);
+            } else if (includeChildren) {
+                const child = this._fromXmlDom(childElement, includeChildren);
                 if(child != null) {
                     root.appendChild(child);
                 }

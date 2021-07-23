@@ -18,6 +18,7 @@ import {CpeeMerge} from "../../src/merge/CpeeMerge.js";
 import {TestConfig} from "../TestConfig.js";
 import {MergeTestResult} from "./MergeTestResult.js";
 import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
+import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 
 export class CpeeMergeAdapter extends AbstractMergeAdapter {
 
@@ -44,10 +45,10 @@ export class CpeeMergeAdapter extends AbstractMergeAdapter {
     }
 
     _verifyResult(output, expected, accepted) {
-        //TODO disregard child order where applicable
-        if (expected.some(t => t.deepEquals(output))) {
+        const hashExtractor = new HashExtractor();
+        if (expected.some(t => hashExtractor.get(t) === hashExtractor.get(output))) {
             return TestConfig.VERDICTS.OK;
-        } else if (accepted.some(t => t.deepEquals(output))) {
+        } else if (accepted.some(t => hashExtractor.get(t) === hashExtractor.get(output))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;

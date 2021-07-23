@@ -194,21 +194,6 @@ export class Node {
     }
 
     /**
-     * Determines if the subtree rooted at this node is equal to the subtree rooted at another node.
-     * Node content (label, attributes, and text) of all descendants (including the root) and child order is considered.
-     * @param {Node} other The root of the other subtree to compare against.
-     * @returns {Boolean} If the subtrees equal.
-     */
-    deepEquals(other) {
-        if (!this.contentEquals(other)) return false;
-        if (this.numChildren() !== other.numChildren()) return false;
-        for (let i = 0; i < this.numChildren(); i++) {
-            if (!this.getChild(i).deepEquals(other.getChild(i))) return false;
-        }
-        return true;
-    }
-
-    /**
      * @returns {boolean} If this node has at least one child.
      */
     hasChildren() {

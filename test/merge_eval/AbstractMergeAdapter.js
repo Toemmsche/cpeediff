@@ -20,6 +20,7 @@ import {TestConfig as Testconfig, TestConfig} from "../TestConfig.js";
 import fs from "fs";
 import {MergeTestResult} from "./MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
+import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 
 export class AbstractMergeAdapter {
 
@@ -70,10 +71,10 @@ export class AbstractMergeAdapter {
 
     _verifyResult(output, expected, accepted) {
         const actual = new Preprocessor().parseWithMetadata(output);
-        //TODO disregard child order where applicable
-        if (expected.some(t => t.deepEquals(actual))) {
+        const hashExtractor = new HashExtractor();
+        if (expected.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
             return TestConfig.VERDICTS.OK;
-        } else if (accepted.some(t => t.deepEquals(actual))) {
+        } else if (accepted.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;

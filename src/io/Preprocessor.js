@@ -51,7 +51,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
-                            const url = endpoint.childNodes.item(0).text;
+                            const url = endpoint.childNodes.item(0).data;
                             endpointToUrl.set(endpoint.localName, url);
                         }
                     }
@@ -59,7 +59,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const dataElement = childTNode.childNodes.item(j);
                         if (dataElement.nodeType === 1) { //Element, not Text
-                            const initialValue = dataElement.childNodes.item(0).text;
+                            const initialValue = dataElement.childNodes.item(0).data;
                             dataElements.set(dataElement.localName, initialValue);
                         }
                     }

@@ -17,6 +17,7 @@
 export class Logger {
 
     static LOG_LEVELS = {
+        STAT: "STAT",
         INFO: "INFO",
         DEBUG: "DEBUG",
         WARN: "WARN",

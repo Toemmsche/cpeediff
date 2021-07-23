@@ -15,6 +15,9 @@
 //      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
 //      evaluate robustness
 //      class for generated tests
+//      adjust for ignored misaligned children in mergfe eval
+//      use cmd line for merge
+//      configurable merge filenames
 
 
 /*

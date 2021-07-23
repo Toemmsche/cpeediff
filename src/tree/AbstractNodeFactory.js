@@ -20,38 +20,38 @@ import {MergeNode} from "./MergeNode.js";
 
 export class AbstractNodeFactory {
 
-    static getNode(source, includechildren = true) {
+    static getNode(source, includeChildren = true) {
         switch (source.constructor) {
             case Node:
-                return this._fromNode(source, includechildren);
+                return this._fromNode(source, includeChildren);
             case DeltaNode:
-                return this._fromDeltaNode(source, includechildren);
+                return this._fromDeltaNode(source, includeChildren);
             case MergeNode:
-                return this._fromMergeNode(source, includechildren);
+                return this._fromMergeNode(source, includeChildren);
             case String:
-                return this._fromXmlString(source, includechildren);
+                return this._fromXmlString(source, includeChildren);
             default:
-                return this._fromXmlDom(source, includechildren);
+                return this._fromXmlDom(source, includeChildren);
         }
     }
 
-    static _fromNode(node, includechildren) {
+    static _fromNode(node, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
-    static _fromDeltaNode(deltaNode, includechildren) {
+    static _fromDeltaNode(deltaNode, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
-    static _fromMergeNode(mergeNode, includechildren) {
+    static _fromMergeNode(mergeNode, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
-    static _fromXmlString(xml, includechildren) {
+    static _fromXmlString(xml, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
-    static _fromXmlDom(xmlElement, includechildren) {
+    static _fromXmlDom(xmlElement, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 

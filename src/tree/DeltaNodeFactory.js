@@ -20,39 +20,39 @@ import {DeltaNode} from "./DeltaNode.js";
 
 export class DeltaNodeFactory extends AbstractNodeFactory{
 
-    static _fromNode(node, includechildren) {
+    static _fromNode(node, includeChildren) {
         const deltaNode = new DeltaNode(node.label, node.text);
         for (const [key, value] of node.attributes) {
             deltaNode.attributes.set(key, value);
         }
-        if (includechildren) {
+        if (includeChildren) {
             for (const child of node) {
-                deltaNode.appendChild(this.getNode(child, includechildren))
+                deltaNode.appendChild(this.getNode(child, includeChildren))
             }
         }
         return deltaNode;
     }
 
-    static _fromDeltaNode(deltaNode, includechildren) {
-        const copy = this._fromNode(deltaNode, includechildren);
+    static _fromDeltaNode(deltaNode, includeChildren) {
+        const copy = this._fromNode(deltaNode, includeChildren);
         copy.type = deltaNode.type;
         copy.baseNode = deltaNode.baseNode;
         for (const [key, update] of deltaNode.updates) {
             copy.updates.set(key, update.copy());
         }
-        if (includechildren) {
+        if (includeChildren) {
             for (const placeholder of deltaNode.placeholders) {
-                copy.placeholders.push(this.getNode(placeholder, includechildren));
+                copy.placeholders.push(this.getNode(placeholder, includeChildren));
             }
         }
         return copy;
     }
 
-    static _fromXmlString(xml, includechildren) {
-       return this._fromNode(NodeFactory.getNode(xml, includechildren), includechildren);
+    static _fromXmlString(xml, includeChildren) {
+       return this._fromNode(NodeFactory.getNode(xml, includeChildren), includeChildren);
     }
 
-    static _fromXmlDom(xmlElement, includechildren) {
-        return this._fromNode(NodeFactory.getNode(xmlElement, includechildren), includechildren);
+    static _fromXmlDom(xmlElement, includeChildren) {
+        return this._fromNode(NodeFactory.getNode(xmlElement, includeChildren), includeChildren);
     }
 }
