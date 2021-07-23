@@ -18,6 +18,9 @@
 //      adjust for ignored misaligned children in mergfe eval
 //      use cmd line for merge
 //      configurable merge filenames
+//      flat and deep genearted cases
+//      cost is not correct see shuffled only
+//      node distribution as genparam
 
 
 /*

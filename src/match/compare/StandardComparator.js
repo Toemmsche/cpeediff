@@ -56,7 +56,7 @@ export class StandardComparator extends AbstractComparator {
         return 1 - (Lcs.getLCS(seqA, seqB).length / maxLength);
     }
 
-    _compareSets(setA, setB, defaultValue = null) {
+    _compareSet(setA, setB, defaultValue = null) {
         const maxSize = Math.max(setA.size, setB.size);
         //if readVariables is empty, we cannot decide on similarity
         if (maxSize === 0) return defaultValue;
@@ -78,7 +78,7 @@ export class StandardComparator extends AbstractComparator {
         return this._compareLcs(Array.of(...strA), Array.of(...strB));
     }
 
-    _compareCalls(node, other) {
+    comnpareCall(node, other) {
         //extract properties
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
@@ -121,8 +121,8 @@ export class StandardComparator extends AbstractComparator {
         let codeCV = null;
         if (nodeProps.hasCode() || otherProps.hasCode()) {
             //compare written and read variables
-            let writtenVariablesCV = this._compareSets(nodeWrittenVariables, otherWrittenVariables, 0);
-            let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables, writtenVariablesCV);
+            let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables, 0);
+            let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables, writtenVariablesCV);
 
             //weigh comparison values
             codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.CALL_MODVAR_WEIGHT, Config.COMPARATOR.CALL_READVAR_WEIGHT])
@@ -141,7 +141,7 @@ export class StandardComparator extends AbstractComparator {
         return Math.min(1, contentCV)
     }
 
-    _compareManipulates(node, other) {
+    _compareManipulate(node, other) {
         //extract written variables
         const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
         const otherWrittenVariables = this.variableExtractor.get(other).writtenVariables;
@@ -150,8 +150,8 @@ export class StandardComparator extends AbstractComparator {
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
 
-        let writtenVariablesCV = this._compareSets(nodeWrittenVariables, otherWrittenVariables);
-        let readVariablesCV = this._compareSets(nodeReadVariables, otherReadVariables);
+        let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables);
+        let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
         let contentCV = this._weightedAverage([writtenVariablesCV, readVariablesCV],
             [Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT, Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT]);
@@ -166,22 +166,23 @@ export class StandardComparator extends AbstractComparator {
     }
 
 
-    contentCompare(node, other) {
+    compareContent(node, other) {
         //different labels cannot be matched
         if (node.label !== other.label) return 1.0;
         switch (node.label) {
             case Dsl.ELEMENTS.CALL.label: {
-                return this._compareCalls(node, other);
+                return this.comnpareCall(node, other);
             }
             case Dsl.ELEMENTS.MANIPULATE.label: {
-                return this._compareManipulates(node, other);
+                return this._compareManipulate(node, other);
             }
             case Dsl.ELEMENTS.ALTERNATIVE.label:
             case Dsl.ELEMENTS.LOOP.label: {
+                //TODO compare text pqgram
                 //extract read variables
                 const nodeReadVariables = this.variableExtractor.get(node).readVariables;
                 const otherReadVariables = this.variableExtractor.get(other).readVariables;
-                return this._compareSets(nodeReadVariables, otherReadVariables);
+                return this._compareSet(nodeReadVariables, otherReadVariables);
             }
 
             default: {
@@ -190,7 +191,7 @@ export class StandardComparator extends AbstractComparator {
         }
     }
 
-    posCompare(node, other) {
+    comparePosition(node, other) {
         //TODO maybe use contentEquals()
         let compareLength = Config.COMPARATOR.PATH_COMPARE_RANGE;
         const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
@@ -200,7 +201,7 @@ export class StandardComparator extends AbstractComparator {
         return posCV;
     }
 
-    matchCompare(node, other) {
+    commonality(node, other) {
         //TODO weigh nodes
         let commonCounter = 0;
         const nodeSet = new Set(node
@@ -221,12 +222,12 @@ export class StandardComparator extends AbstractComparator {
     }
 
     compare(node, other) {
-        const compareValue = this._weightedAverage([this.contentCompare(node, other), this.posCompare(node, other)],
+        const compareValue = this._weightedAverage([this.compareContent(node, other), this.comparePosition(node, other)],
             [Config.COMPARATOR.CONTENT_WEIGHT, Config.COMPARATOR.STRUCTURE_WEIGHT]);
         return compareValue;
     }
 
-    sizeCompare(node, other) {
+    compareSize(node, other) {
         return this.sizeExtractor.get(node) - this.sizeExtractor.get(other);
     }
 }

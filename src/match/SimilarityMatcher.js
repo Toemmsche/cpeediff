@@ -21,8 +21,8 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
         //filter for unmatched nodes and sort ascending by size
-        const oldNodes = oldTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a, b));
-        const newNodes = newTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(a, b));
+        const oldNodes = oldTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.compareSize(a, b));
+        const newNodes = newTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.compareSize(a, b));
 
         //Only matchings of nodes with the same label are allowed
         const oldLabelMap = new Map();
@@ -47,7 +47,7 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
                         compareValue = comparator.compare(newNode, oldNode);
                     } else {
                         //compare inner nodes
-                        compareValue = (comparator.compare(newNode, oldNode) + comparator.matchCompare(newNode, oldNode)) / 2;
+                        compareValue = (comparator.compare(newNode, oldNode) + comparator.commonality(newNode, oldNode)) / 2;
                     }
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
@@ -69,6 +69,8 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
 
         //the best matchings can be persisted
         for (const [oldNode, bestMatch] of oldToNewMap) {
+            //TODO remove
+            if(oldNode.isInnerNode() || bestMatch.newNode.isInnerNode()) continue;
             matching.matchNew(bestMatch.newNode, oldNode);
         }
     }

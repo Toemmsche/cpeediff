@@ -23,6 +23,7 @@ import {HashMatcher} from "./HashMatcher.js";
 import {SimilarityMatcher} from "./SimilarityMatcher.js";
 import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
 import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
+import {PathMatcher} from "./PathMatcher.js";
 
 export class MatchPipeline {
 
@@ -50,7 +51,7 @@ export class MatchPipeline {
     }
 
     static standard() {
-        return new MatchPipeline(new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new UnmatchedMatcher(), new PropertyMatcher());
+        return new MatchPipeline(new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PropertyMatcher());
     }
 
 }

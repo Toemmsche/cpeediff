@@ -22,7 +22,7 @@ export class HashMatcher extends AbstractMatchingAlgorithm {
     match(oldTree, newTree, matching, comparator) {
         //filter for unmatched nodes and sort new Nodes descending by size
         const oldNodes = oldTree.nonPropertyNodes().filter(n => !matching.hasAny(n));
-        const newNodes = newTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.sizeCompare(b, a));
+        const newNodes = newTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.compareSize(b, a));
 
         const hashExtractor = new HashExtractor();
 
@@ -64,7 +64,7 @@ export class HashMatcher extends AbstractMatchingAlgorithm {
                         continue;
                     }
                     //compare positionally only, as content equality is guaranteed by the hash
-                    const posCV = comparator.posCompare(oldNode, newNode);
+                    const posCV = comparator.comparePosition(oldNode, newNode);
                     if (posCV === 0) {
                         //found a perfect match, match entire subtrees
                         const newPreOrder = newNode.toPreOrderArray();
