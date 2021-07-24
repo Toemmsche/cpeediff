@@ -21,8 +21,8 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
         //filter for unmatched nodes and sort ascending by size
-        const oldNodes = oldTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.compareSize(a, b));
-        const newNodes = newTree.nonPropertyNodes().filter(n => !matching.hasAny(n)).sort((a, b) => comparator.compareSize(a, b));
+        const oldNodes = oldTree.leaves().filter(n => !matching.hasAny(n));
+        const newNodes = newTree.leaves().filter(n => !matching.hasAny(n));
 
         //Only matchings of nodes with the same label are allowed
         const oldLabelMap = new Map();
@@ -41,21 +41,13 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
                 let minCompareValue = 1;
                 let minCompareNode = null;
                 for (const oldNode of oldLabelMap.get(newNode.label)) {
-                    let compareValue;
-                    if (newNode.isLeaf()) {
-                        //compare leaf nodes
-                        compareValue = comparator.compare(newNode, oldNode);
-                    } else {
-                        //compare inner nodes
-                        compareValue = (comparator.compare(newNode, oldNode) + comparator.commonality(newNode, oldNode)) / 2;
-                    }
+                    const compareValue = comparator.compare(newNode, oldNode);
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
                         minCompareNode = oldNode;
                     }
-
                 }
-                if (newNode.isLeaf() && minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD || newNode.isInnerNode() && minCompareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                if (minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
                     //ensure (partial) one-to-one matching
                     if (!oldToNewMap.has(minCompareNode) || minCompareValue < oldToNewMap.get(minCompareNode).compareValue) {
                         oldToNewMap.set(minCompareNode, {
@@ -67,10 +59,8 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
             }
         }
 
-        //the best matchings can be persisted
+        //the best matches can be persisted
         for (const [oldNode, bestMatch] of oldToNewMap) {
-            //TODO remove
-            if(oldNode.isInnerNode() || bestMatch.newNode.isInnerNode()) continue;
             matching.matchNew(bestMatch.newNode, oldNode);
         }
     }

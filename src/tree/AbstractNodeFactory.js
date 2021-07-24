@@ -18,8 +18,20 @@ import {Node} from "./Node.js";
 import {DeltaNode} from "./DeltaNode.js";
 import {MergeNode} from "./MergeNode.js";
 
+/**
+ * Abstract superclass for all node factories.
+ * Node factories allow the creation of a node instance ({@see Node}, {@see DeltaNode}, {@see MergeNode})
+ * from an existing node instance (copy/transformation), an xmldom object (extraction) or an XML String (parsing).
+ * @abstract
+ */
 export class AbstractNodeFactory {
 
+    /**
+     * Extract a new node instance from the source.
+     * @param {String|Node|DeltaNode|MergeNode|Object} source The source object or String.
+     * @param {Boolean} includeChildren If the created node should include the children present in the source.
+     * @returns {Node|DeltaNode|MergeNode} The newly created node.
+     */
     static getNode(source, includeChildren = true) {
         switch (source.constructor) {
             case Node:
@@ -31,26 +43,62 @@ export class AbstractNodeFactory {
             case String:
                 return this._fromXmlString(source, includeChildren);
             default:
+                //probably an xmldom object
                 return this._fromXmlDom(source, includeChildren);
         }
     }
 
+    /**
+     * Create a new node instance from a Node object.
+     * @param {Node} node The existing node object
+     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @throws Error
+     * @private
+     */
     static _fromNode(node, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
+    /**
+     * Create a new node instance from a DeltaNode object.
+     * @param {DeltaNode} deltaNode The existing delta node
+     * @param {Boolean} includeChildren If the created node should include the children of the existing delta node.
+     * @throws Error
+     * @private
+     */
     static _fromDeltaNode(deltaNode, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
+    /**
+     * Create a new node instance from a MergeNode object.
+     * @param {MergeNode} mergeNode The existing merge node
+     * @param {Boolean} includeChildren If the created node should include the children of the existing merge node.
+     * @throws Error
+     * @private
+     */
     static _fromMergeNode(mergeNode, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
+    /**
+     * Create a new node instance from a given XML document (as a string).
+     * @param {String} xml The source XML document as a string
+     * @param {Boolean} includeChildren If the created node should include the children given in the XML document.
+     * @throws Error
+     * @private
+     */
     static _fromXmlString(xml, includeChildren) {
         throw new Error("Interface method not implemented");
     }
 
+    /**
+     * Create a new node instance from an xmldom object.
+     * @param {Object} xmlElement The existing xmldom object
+     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @throws Error
+     * @private
+     */
     static _fromXmlDom(xmlElement, includeChildren) {
         throw new Error("Interface method not implemented");
     }

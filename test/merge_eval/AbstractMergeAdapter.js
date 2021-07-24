@@ -21,6 +21,7 @@ import fs from "fs";
 import {MergeTestResult} from "./MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class AbstractMergeAdapter {
 
@@ -55,16 +56,16 @@ export class AbstractMergeAdapter {
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                console.log(this.displayName + " timed out for " + name);
+                Logger.info(this.displayName + " timed out for " + name, this);
                 return new MergeTestResult(name, this.displayName, TestConfig.VERDICTS.TIMEOUT);
             } else {
-                console.log(this.displayName + " crashed on " + name + ": " + e.toString());
+               Logger.info(this.displayName + " crashed on " + name + ": " + e.toString(), this);
                 return new MergeTestResult(name, this.displayName, TestConfig.VERDICTS.RUNTIME_ERROR);
             }
         }
         const verdict = this._verifyResult(exec, expected, accepted);
         if(verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
-            console.log(this.displayName + " gave wrong answer for " + name);
+            Logger.info(this.displayName + " gave wrong answer for " + name, this);
         }
         return new MergeTestResult(name, this.displayName, verdict);
     }

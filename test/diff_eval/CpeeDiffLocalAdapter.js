@@ -23,6 +23,7 @@ import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {DiffTestResult} from "./DiffTestResult.js";
 import fs from "fs";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
 
@@ -82,10 +83,10 @@ export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                console.log(this.displayName + " timed out for " + info.name);
+                Logger.info(this.displayName + " timed out for " + info.name, this);
                 return DiffTestResult.timeout(info, this.displayName);
             } else {
-                console.log(this.displayName + " crashed for " + info.name + ": " + e.toString());
+                Logger.error(this.displayName + " crashed for " + info.name + ": " + e.toString(), this);
                 return DiffTestResult.fail(info, this.displayName)
             }
         }

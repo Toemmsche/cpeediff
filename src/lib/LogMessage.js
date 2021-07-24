@@ -14,17 +14,19 @@
    limitations under the License.
 */
 
-export class GeneratorParameters {
+export class LogMessage {
+    level;
+    message;
+    source;
 
-    maxSize;
-    maxDepth;
-    maxChildren;
-    maxVars;
+    constructor(level, message, source) {
+        this.level = level;
+        this.message = message;
+        this.source = source;
+    }
 
-    constructor(maxSize, maxDepth, maxChildren, maxVars) {
-        this.maxSize = maxSize;
-        this.maxDepth = maxDepth;
-        this.maxChildren = maxChildren;
-        this.maxVars = maxVars;
+    toString() {
+        return (this.source !== null ? "<" + this.source.constructor.name + ">" : "")
+            + "[" + this.level + "]: " + this.message;
     }
 }

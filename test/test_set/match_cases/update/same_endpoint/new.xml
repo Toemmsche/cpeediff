@@ -15,7 +15,6 @@
                     <method>:post</method>
                     <arguments>
                         <to>data.to</to>
-                        <persons>data.persons</persons>
                     </arguments>
                 </parameters>
                 <code>

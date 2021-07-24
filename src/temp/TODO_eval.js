@@ -21,6 +21,7 @@
 //      flat and deep genearted cases
 //      cost is not correct see shuffled only
 //      node distribution as genparam
+//      rewrite tests, remove data elements and property wrapper, use manipulates instead of cals (where sinnvoll)
 
 
 /*

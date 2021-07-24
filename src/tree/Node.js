@@ -15,16 +15,20 @@
 */
 
 import {Dsl} from "../Dsl.js";
+import {Logger} from "../lib/Logger.js";
 
 /**
  * A node inside a CPEE process tree parsed from an XML document.
- * Process trees are rooted trees that are ordered and labelled.
- * Additionally, each node can have attributes and text content.
+ * Process trees are rooted trees that are ordered and labeled.
+ * Additionally, each node can have optinal attributes and text content.
  *
- * Every node is either a leaf node if it corresponds to a leaf element in the CPEE DSL {@see Dsl},
+ * A node is either a leaf node if it corresponds to a leaf element in the CPEE DSL {@see Dsl},
  * an inner node if it corresponds to an inner element in the CPEE DSL {@see Dsl}
  * or a property node otherwise. Property nodes describe the content of their closes non-property node ancestor
  * in more detail, although their content does NOT contribute to the text content of their logical parent.
+ * @property {String} label The label of the node, equivalent to the XML tag
+ * @property {Map<String, String>} attributes The attributes of the node as key-value pairs
+ * @property {String} text The text content of the node
  */
 export class Node {
 
@@ -32,27 +36,10 @@ export class Node {
     Node Content
      */
 
-    /**
-     * The label of the node, equivalent to the XML tag
-     * @type String
-     */
     label;
-
-    /**
-     * The attributes of the node as key-value pairs
-     * @type Map<String,String>
-     */
     attributes;
-
-    /**
-     * The text content of the node
-     * @type String
-     */
     text;
 
-    /*
-    Structural Information
-     */
 
     /**
      * Construct a new node with the given label and text content and an empty attribute map.
@@ -67,6 +54,10 @@ export class Node {
         this._parent = null;
         this._childIndex = null;
     }
+
+    /*
+    Structural Information
+     */
 
     /**
      * The parent node of this node. Null if this is the root node.
@@ -230,7 +221,7 @@ export class Node {
      * @returns {boolean} If this node corresponds to a property in terms of the CPEE DSL {@see Dsl}.
      */
     isPropertyNode() {
-        return !Dsl.KEYWORD_SET.has(this.label);
+        return !Dsl.ELEMENT_SET.has(this.label);
     }
 
     /**
@@ -297,7 +288,7 @@ export class Node {
             this._parent.children.splice(this._childIndex, 1);
             this._parent._fixChildIndices();
         } else {
-            console.log("Cannot remove node that has no parent");
+            Logger.warn("Removing node " + this.toString() + " that has no parent", this);
         }
 
     }

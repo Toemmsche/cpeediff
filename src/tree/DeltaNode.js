@@ -20,37 +20,24 @@ import {Dsl} from "../Dsl.js";
 
 /**
  * A node inside a CPEE process tree annotated with change related information.
- * This serves as the basis for enhanced and interactive diff visualization.
+ * This class serves as the basis for enhanced and interactive diff visualization.
  * @extends Node
+ * @property {String} type The operation type associated with the node, may be NIL
+ * @property {Map<String, Update>} updates The updates applied to the content of the node
+ * @property {[DeltaNode]} placeholders An array of placeholders that hold optional child nodes
+ * that have been removed/moved away from the node.
+ * @property {Number|null} baseNode The ID (index in pre-order traversal) of the original node this was mapped to.
+ * May be null for inserted nodes.
  */
 export class DeltaNode extends Node {
 
-    /**
-     * The operation type associated with this node, may be NIL
-     * @type String
-     */
     type;
-
-    /**
-     * The updates applied to the content of this node
-     * @type Map<String,Update>
-     */
     updates;
-
-    /**
-     * An array of placeholders that hold optional child nodes that have been removed/moved away from this node.
-     * @type [DeltaNode]
-     */
     placeholders;
-
-    /**
-     * The ID (index in pre-order traversal) of the original node this was mapped to. May be null for inserted nodes.
-     * @type Number|null
-     */
     baseNode;
 
     /**
-     * Construct a new DeltaNode with the given information.
+     * Construct a new DeltaNode with the given information. Includes properties from {@see Node}.
      * @param {String} label The node label
      * @param {String} text The text content
      * @param {String} type The operation type associated with the node
@@ -129,7 +116,7 @@ export class DeltaNode extends Node {
      * @returns {boolean} If this node was not changed.
      */
     isNil() {
-        return this.type === Dsl.OPERATION_TYPES.NIL.label;
+        return this.type === Dsl.OPERATION_TYPES.NIL.label && !this.isUpdate();
     }
 
     //TODO

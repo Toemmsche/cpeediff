@@ -16,8 +16,8 @@
 
 export class ExpectedMatch {
 
-    matchPairs;
-    notMatchPairs;
+    matches;
+    notMatches;
 
     oldMatched
     notOldMatched;
@@ -26,8 +26,8 @@ export class ExpectedMatch {
     notNewMatched;
 
     constructor() {
-        this.matchPairs = [];
-        this.notMatchPairs = [];
+        this.matches = [];
+        this.notMatches = [];
         this.oldMatched = [];
         this.notOldMatched = [];
         this.newMatched = [];

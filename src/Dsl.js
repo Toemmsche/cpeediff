@@ -181,7 +181,7 @@ export const Dsl = {
     }
 }
 
-Dsl.KEYWORD_SET = new Set(
+Dsl.ELEMENT_SET = new Set(
     Object.values(Dsl.ELEMENTS)
     .map(k => k.label));
 

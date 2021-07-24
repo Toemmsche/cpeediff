@@ -59,7 +59,7 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
             }
         }
 
-        //persist best matchings
+        //persist best matches
         for (const [newNode, bestMatch] of newToOldMap) {
             matching.matchNew(newNode, bestMatch.node);
         }

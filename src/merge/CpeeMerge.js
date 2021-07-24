@@ -44,9 +44,11 @@ export class CpeeMerge {
 
     _setChangeOrigin(deltaTree, origin) {
         for (const node of deltaTree.toPreOrderArray()) {
-            node.changeOrigin = origin;
-            for (const [key, update] of node.updates) {
-                update.origin = origin;
+            if(!node.isNil()) {
+                node.changeOrigin = origin;
+                for (const [key, update] of node.updates) {
+                    update.origin = origin;
+                }
             }
         }
     }
@@ -250,35 +252,42 @@ export class CpeeMerge {
         const delta2 = differ.diff(base, tree2, new StandardComparator());
 
         const deltaTreeFactory = new DeltaTreeGenerator();
-        const dt1 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta1));
-        const dt2 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta2));
+        //Merge tree 1
+        const mt1 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta1));
+        //Merge tree 2
+        const mt2 = MergeNodeFactory.getNode(deltaTreeFactory.deltaTree(base, delta2));
 
-        const matching = this._getDeltaMatching(dt1, dt2);
+        const matching = this._getDeltaMatching(mt1, mt2);
 
-        this._setChangeOrigin(dt1, 1);
-        this._setChangeOrigin(dt2, 2);
+        this._setChangeOrigin(mt1, 1);
+        this._setChangeOrigin(mt2, 2);
 
-        this._applyDeletions(dt1, matching);
-        this._applyDeletions(dt2, matching);
-        this._applyDeletions(dt1, matching);
+        this._applyDeletions(mt1, matching);
+        this._applyDeletions(mt2, matching);
+        this._applyDeletions(mt1, matching);
 
-        const [updateConflicts, moveConflicts] = this._findConflicts(dt1, matching);
+        const [updateConflicts, moveConflicts] = this._findConflicts(mt1, matching);
 
-        this._applyMovesAndInsertions(dt1, matching);
-        this._applyMovesAndInsertions(dt2, matching);
+        this._applyMovesAndInsertions(mt1, matching);
+        this._applyMovesAndInsertions(mt2, matching);
 
         this._resolveMoveConflicts(moveConflicts, matching);
         this._resolveUpdateConflicts(updateConflicts, matching);
 
-        this._findOrderConflicts(dt1);
-        this._findOrderConflicts(dt2);
+        this._findOrderConflicts(mt1);
+        this._findOrderConflicts(mt2);
 
         //trim tree
-        return new Preprocessor().prepareTree(dt1);
+        return new Preprocessor().prepareTree(mt1);
     }
 
-    _findOrderConflicts(deltaTree) {
-        for (const node of deltaTree.toPreOrderArray()) {
+    /**
+     *
+     * @param {MergeNode} mergeTree
+     * @private
+     */
+    _findOrderConflicts(mergeTree) {
+        for (const node of mergeTree.toPreOrderArray()) {
             if (node.parent != null && node.parent.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
                 const leftSibling = node.getSiblings()[node.childIndex - 1];
                 const rightSibling = node.getSiblings()[node.childIndex + 1];

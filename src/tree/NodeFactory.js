@@ -18,6 +18,7 @@ import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
 import {Node} from "./Node.js"
 import xmldom from "xmldom";
 
+
 export class NodeFactory extends AbstractNodeFactory {
 
     static _fromNode(node, includeChildren) {

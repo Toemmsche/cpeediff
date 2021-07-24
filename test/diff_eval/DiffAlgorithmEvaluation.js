@@ -29,6 +29,7 @@ import {XccAdapter} from "./XccAdapter.js";
 import {UnixDiffAdapter} from "./UnixDiffAdapter.js";
 import {ChangeParameters} from "../../src/gen/ChangeParameters.js";
 import {XyDiffAdapter} from "./XyDiffAdapter.js";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class DiffAlgorithmEvaluation {
 
@@ -53,7 +54,7 @@ export class DiffAlgorithmEvaluation {
     }
 
     evalAll(caseDir = TestConfig.DIFF_CASES_DIR) {
-        console.log("Using " + caseDir + " to evaluate diff algorithms");
+        Logger.info("Using " + caseDir + " to evaluate diff algorithms", this);
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
@@ -87,14 +88,13 @@ export class DiffAlgorithmEvaluation {
 
                     switch (dir) {
                         case "gen_totally_different": {
-                            console.log("Generating two unrelated process trees of size " + genParams.maxSize);
+                            Logger.info("Generating two unrelated process trees", this);
                             oldTree = treeGen.randomTree();
                             newTree = treeGen.randomTree();
                             testInfo = new DiffTestInfo(dir, Math.max(newTree.size(), oldTree.size()));
                             break;
                         }
                         default: {
-                            console.log("Generating random process tree of size " + genParams.maxSize);
                             //TODO
                             oldTree = treeGen.randomTree();
                             if(dir === "gen_leaves_only_shuffled") {
@@ -121,7 +121,7 @@ export class DiffAlgorithmEvaluation {
                     );
                     if (oldTree == null || newTree == null) {
                         //test case is incomplete => skip
-                        console.log("Skip case " + dir + " due to missing files");
+                        Logger.warn("Skip case " + dir + " due to missing files", this);
                         return;
                     }
                     if (testInfo == null) {
@@ -134,7 +134,7 @@ export class DiffAlgorithmEvaluation {
 
                 resultsPerTest.set(testInfo, []);
                 for (const adapter of this.adapters) {
-                    console.log("Running diff case " + testInfo.name + " for " + adapter.displayName);
+                    Logger.info("Running diff case " + testInfo.name + " for " + adapter.displayName, this);
 
                     const result = adapter.evalCase(testInfo, oldTree, newTree);
                     resultsPerAdapter.get(adapter).push(result);
@@ -145,9 +145,9 @@ export class DiffAlgorithmEvaluation {
 
         //TODO aggregate metrics
         for (const [testInfo, results] of resultsPerTest) {
-            console.log("Results for case " + testInfo.name);
-            console.log(testInfo);
-            console.log(MarkDownFactory.tabularize(results));
+            Logger.info("Results for case " + testInfo.name, this);
+            Logger.info(testInfo, this);
+            Logger.info("\n" + MarkDownFactory.tabularize(results), this);
         }
     }
 

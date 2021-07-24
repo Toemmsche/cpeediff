@@ -6,6 +6,7 @@
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
 //      option to output matching
+//      logger
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -27,7 +28,6 @@
 //      colors in delta output
 
 //TODO tidy
-//      rename keywords to elements
 //      hide private properties everywhere
 //      model type in geneartor params
 //      use arrow notation (or dont use private function)
@@ -35,12 +35,9 @@
 //      Add documentation to _important_ local variables (eg DP array)
 //      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
-//      all numerical constants in a config file (goes against stateless idea)
 //      shorten some names (variables -> vars e..g)
 //      resolve naming conflicts (call as argunment)
-//      use simultenous init syntax ( [var1, var2,..] = ) wherever possible
-//      no construction paramters for comparator and matching
-
+//      use simultenous init syntax ( [var1, var2,..] = ) wherever necessary
 
 //TODO bugs+
 //      upodates are not detected at large
@@ -60,14 +57,10 @@
 
 //TODO REWRITE
 //      Turn autogenearted tests into class
-//      changet o edit operations
-//      rename data to text
 //      use the change types and keywords objects instead of strings
-//      wrap diff/namespace objects in functions (NO because of configurability)
 //      delete includes deleted tree
 //      implement hash yourself
 //      use underscores
-//      all constants (even attribute id strings into config, maybe split into config and DSL);
 //      add some patterns
 //      type and test coverage similar to markdwon-tables
 

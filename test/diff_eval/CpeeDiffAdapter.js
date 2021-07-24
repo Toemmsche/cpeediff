@@ -33,25 +33,6 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
         super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
     }
 
-    /*
-    _run(oldTree, newTree) {
-        let time = new Date().getTime();
-        const delta = new CpeeDiff().diff(oldTree, newTree);
-        time = new Date().getTime() - time;
-        //verify the correctness of our diff by patching the original tree with it
-        const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);
-        const hashExtractor = new HashExtractor();
-        if (hashExtractor.get(deltaTree) !== hashExtractor.get(newTree)) {
-            throw new Error("Invalid edit script");
-        }
-        return {
-            output: XmlFactory.serialize(delta),
-            runtime: time
-        };
-    }
-
-     */
-
     _run(oldTree, newTree) {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);

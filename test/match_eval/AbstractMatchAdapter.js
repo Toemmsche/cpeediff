@@ -18,6 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import {IdExtractor} from "../../src/match/extract/IdExtractor.js";
 import assert from "assert";
 import {MatchTestResult} from "./MatchTestResult.js";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class AbstractMatchAdapter {
 
@@ -47,14 +48,14 @@ export class AbstractMatchAdapter {
         }
 
         //verify that matching meets the expected results
-        for (const matchPair of expected.matchPairs) {
+        for (const matchPair of expected.matches) {
             const oldId = matchPair[0];
             const newId = matchPair[1];
             assert.ok(oldToNewIdMap.has(oldId), "old node " + oldId + " is not matched");
             assert.strictEqual(oldToNewIdMap.get(oldId), newId, "old node " + oldId + " is matched with " + oldToNewIdMap.get(oldId) + " instead of " + newId);
         }
 
-        for (const notMatchPair of expected.notMatchPairs) {
+        for (const notMatchPair of expected.notMatches) {
             const oldId = notMatchPair[0];
             const newId = notMatchPair[1];
             if (oldToNewIdMap.has(oldId)) {
@@ -86,17 +87,17 @@ export class AbstractMatchAdapter {
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                console.log(this.displayName + " timed out for " + name);
+               Logger.info(this.displayName + " timed out for " + name, this);
                 return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.TIMEOUT);
             } else {
-                console.log(this.displayName + " crashed on " + name + ": " + e.toString());
+               Logger.info(this.displayName + " crashed on " + name + ": " + e.toString(), this);
                 return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.RUNTIME_ERROR);
             }
         }
         try {
             this._verifyResult(matching, expected);
         } catch (e) {
-            console.log(this.displayName + " gave wrong answer for " + name + ": " + e.toString());
+            Logger.info(this.displayName + " gave wrong answer for " + name + ": " + e.toString(), this);
             return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.WRONG_ANSWER);
         }
         return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.OK);
