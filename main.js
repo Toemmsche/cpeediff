@@ -29,7 +29,7 @@ import {MergeAlgorithmEvaluation} from "./test/merge_eval/MergeAlgorithmEvaluati
 import {MatchingAlgorithmEvaluation} from "./test/match_eval/MatchingAlgorithmEvaluation.js";
 import {TestConfig} from "./test/TestConfig.js";
 import * as fs from "fs";
-import {Logger} from "./src/lib/Logger.js";
+import {Logger} from "./Logger.js";
 
 const argv = yargs(hideBin(process.argv))
     .command("diff <old> <new>", "Calculcate and shows the difference between two CPEE process trees", (yargs) => {

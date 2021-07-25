@@ -42,7 +42,7 @@ export class CallPropertyExtractor extends AbstractExtractor {
             if (args != null) {
                 args = args
                     .children
-                    .map(n => n.text);
+                    .map(n => n.label);
             } else {
                 args = [];
             }

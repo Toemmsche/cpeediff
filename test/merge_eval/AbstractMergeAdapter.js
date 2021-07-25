@@ -21,7 +21,7 @@ import fs from "fs";
 import {MergeTestResult} from "./MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
-import {Logger} from "../../src/lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 export class AbstractMergeAdapter {
 

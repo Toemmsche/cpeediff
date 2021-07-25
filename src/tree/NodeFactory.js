@@ -18,9 +18,20 @@ import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
 import {Node} from "./Node.js"
 import xmldom from "xmldom";
 
-
+/**
+ * Factory classes for creating Node objects from an existing node
+ * ({@see Node}, {@see DeltaNode}, {@see MergeNode}), an xmldom object (extraction) or an XML String (parsing).
+ * @extends AbstractNodeFactory
+ */
 export class NodeFactory extends AbstractNodeFactory {
 
+    /**
+     * Create a new Node instance of from an existing Node object.
+     * Equivalent to copying the node (by value).
+     * @param {Node} node The existing node object
+     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @return Node A copy of the existing node
+     */
     static _fromNode(node, includeChildren) {
         const copy = new Node(node.label, node.text);
         for (const [key, value] of node.attributes) {
@@ -34,10 +45,22 @@ export class NodeFactory extends AbstractNodeFactory {
         return copy;
     }
 
+    /**
+     * Create a new Node instance from an XML document (as a string).
+     * @param {String} xml The source XML document as a string
+     * @param {Boolean} includeChildren If the created node should include the children given in the XML document.
+     * @return Node The corresponding root node of the XML document tree.
+     */
     static _fromXmlString(xml, includeChildren) {
         return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml"), includeChildren);
     }
 
+    /**
+     * Create a new Node instance from an xmldom object.
+     * @param {Object} xmlElement The existing xmldom object
+     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @return Node The corresponding root node of the XML DOM tree.
+     */
     static _fromXmlDom(xmlElement, includeChildren) {
         let root = new Node(xmlElement.localName);
 

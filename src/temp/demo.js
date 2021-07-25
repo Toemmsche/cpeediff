@@ -27,45 +27,15 @@ import {CpeeMerge} from "../merge/CpeeMerge.js";
 import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
 import {CpeeDiffAdapter} from "../../test/diff_eval/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
+import {TestConfig} from "../../test/TestConfig.js";
 
 let old = new Preprocessor().parseFromFile(TestConfig.OLD_TREE_FILENAME);
 let newTre = new Preprocessor().parseFromFile(TestConfig.NEW_TREE_FILENAME);
 
 const es = new CpeeDiff().diff(old, newTre);
 
-function parseOutput(output) {
-    let updateCounter = 0;
-    let insertionCounter = 0;
-    let moveCounter = 0;
-    let deletionCounter = 0;
-
-    //parse output
-    for (const change of output.changes) {
-        switch (change.type) {
-            case Dsl.OPERATION_TYPES.INSERTION.label:
-                insertionCounter++;
-                break;
-            case Dsl.OPERATION_TYPES.DELETION.label:
-                deletionCounter++;
-                break;
-            case Dsl.OPERATION_TYPES.MOVE_TO.label:
-                moveCounter++;
-                break;
-            case Dsl.OPERATION_TYPES.UPDATE.label:
-                updateCounter++;
-                break;
-        }
-    }
-    return [insertionCounter, moveCounter, updateCounter, deletionCounter];
-}
 
 
-const dt = new DeltaTreeGenerator().deltaTree(old, es);
-
-
-
-console.log(parseOutput(es));
-console.log(parseOutput(es).reduce((a,b) => a + b))
 
 
 

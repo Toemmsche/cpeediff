@@ -20,14 +20,14 @@ import {MergeNode} from "./MergeNode.js";
 
 /**
  * Abstract superclass for all node factories.
- * Node factories allow the creation of a node instance ({@see Node}, {@see DeltaNode}, {@see MergeNode})
+ * Node factories allow the creation of nodes ({@see Node}, {@see DeltaNode}, {@see MergeNode})
  * from an existing node instance (copy/transformation), an xmldom object (extraction) or an XML String (parsing).
  * @abstract
  */
 export class AbstractNodeFactory {
 
     /**
-     * Extract a new node instance from the source.
+     * Create a new node from the source.
      * @param {String|Node|DeltaNode|MergeNode|Object} source The source object or String.
      * @param {Boolean} includeChildren If the created node should include the children present in the source.
      * @returns {Node|DeltaNode|MergeNode} The newly created node.
@@ -49,7 +49,7 @@ export class AbstractNodeFactory {
     }
 
     /**
-     * Create a new node instance from a Node object.
+     * Create a new node from a Node object.
      * @param {Node} node The existing node object
      * @param {Boolean} includeChildren If the created node should include the children of the existing node.
      * @throws Error
@@ -60,7 +60,7 @@ export class AbstractNodeFactory {
     }
 
     /**
-     * Create a new node instance from a DeltaNode object.
+     * Create a new node from a DeltaNode object.
      * @param {DeltaNode} deltaNode The existing delta node
      * @param {Boolean} includeChildren If the created node should include the children of the existing delta node.
      * @throws Error
@@ -71,7 +71,7 @@ export class AbstractNodeFactory {
     }
 
     /**
-     * Create a new node instance from a MergeNode object.
+     * Create a new node from a MergeNode object.
      * @param {MergeNode} mergeNode The existing merge node
      * @param {Boolean} includeChildren If the created node should include the children of the existing merge node.
      * @throws Error
@@ -82,7 +82,7 @@ export class AbstractNodeFactory {
     }
 
     /**
-     * Create a new node instance from a given XML document (as a string).
+     * Create a new node from an XML document (as a string).
      * @param {String} xml The source XML document as a string
      * @param {Boolean} includeChildren If the created node should include the children given in the XML document.
      * @throws Error
@@ -93,7 +93,7 @@ export class AbstractNodeFactory {
     }
 
     /**
-     * Create a new node instance from an xmldom object.
+     * Create a new node from an xmldom object.
      * @param {Object} xmlElement The existing xmldom object
      * @param {Boolean} includeChildren If the created node should include the children of the existing node.
      * @throws Error

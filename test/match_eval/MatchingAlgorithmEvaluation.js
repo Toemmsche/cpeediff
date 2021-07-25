@@ -19,8 +19,9 @@ import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
 import {ExpectedMatch} from "./ExpectedMatch.js";
 import {AggregateMatchResult} from "./AggregateMatchResult.js";
-import {MarkDownFactory} from "../MarkDownFactory.js";
+import {MarkDownFactory} from "../util/MarkDownFactory.js";
 import {CpeeMatchAdapter} from "./CpeeMatchAdapter.js";
+import {Logger} from "../../Logger.js";
 
 export class MatchingAlgorithmEvaluation {
 
@@ -38,7 +39,7 @@ export class MatchingAlgorithmEvaluation {
     }
 
     evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
-        console.log("Using " + caseDir + " to evaluate matching algorithms");
+       Logger.info("Using " + caseDir + " to evaluate matching algorithms", this);
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
@@ -67,13 +68,13 @@ export class MatchingAlgorithmEvaluation {
                 );
                 if (oldTree == null || newTree == null || expected == null) {
                     //test case is incomplete => skip
-                    console.log("Skip case " + dir + " due to missing files");
+                    Logger.warn("Skip case " + dir + " due to missing files", this);
                     return;
                 }
 
                 resultsPerTest.set(dir, []);
                 for (const adapter of this.adapters) {
-                    console.log("Running match case " + dir + " for " + adapter.displayName);
+                   Logger.info("Running match case " + dir + " for " + adapter.displayName + "...", this);
 
                     const result = adapter.evalCase(dir, oldTree, newTree, expected);
                     resultsPerAdapter.get(adapter).push(result);
@@ -98,7 +99,7 @@ export class MatchingAlgorithmEvaluation {
             }
             aggregateResults.push(new AggregateMatchResult(adapter.displayName, okCount, wrongAnswerCount, runtimeErrorCount));
         }
-        console.log(MarkDownFactory.tabularize(aggregateResults));
+        Logger.result(MarkDownFactory.tabularize(aggregateResults));
     }
 
 

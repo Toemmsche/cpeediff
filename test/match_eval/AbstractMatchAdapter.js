@@ -18,7 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import {IdExtractor} from "../../src/match/extract/IdExtractor.js";
 import assert from "assert";
 import {MatchTestResult} from "./MatchTestResult.js";
-import {Logger} from "../../src/lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 export class AbstractMatchAdapter {
 

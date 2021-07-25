@@ -6,18 +6,15 @@
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
 //      option to output matching
-//      logger
+//      use labelmap inside pathmatching
+//      use label-endpoint map for similarity matching (as option)
+//      unmatched matcher
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
 
-//TODO new algos
-//      IMPORTANT matchSimilarUnmatched() by 3DM (optimize topdown matching)
-
-//TODO maybe features
-//      conflict groups for reshuffling (toggleable)
-
 //TODO semi-features
+//      maybe collapse call comparison values ionto single equation
 //      annotated merged tree output (with conrfidence)
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 //      call arguments sensitive to ordering ?

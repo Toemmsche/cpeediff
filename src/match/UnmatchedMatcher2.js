@@ -20,6 +20,7 @@ import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
 export class UnmatchedMatcher2 extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
+        //FROM 3DM, optimize
         //traverse in post order
         for(const newNode of newTree.toPostOrderArray().filter(n => !n.isPropertyNode() && !matching.hasNew(n))) {
             const leftSibling = newNode.getLeftSibling();

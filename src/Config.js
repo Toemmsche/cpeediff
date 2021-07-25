@@ -20,19 +20,19 @@ export const Config = {
     COMPARATOR: {
         PATH_COMPARE_RANGE: 3,
 
+        //General weights
+        WRITTEN_VAR_WEIGHT: 2,
+        READ_VAR_WEIGHT: 1,
+
         //Call weights
         CALL_ENDPOINT_WEIGHT: 3,
         CALL_METHOD_WEIGHT: 1,
         CALL_LABEL_WEIGHT: 0.5,
         CALL_ARGS_WEIGHT: 2,
-        CALL_MODVAR_WEIGHT: 2,
-        CALL_READVAR_WEIGHT: 1,
         CALL_SERVICE_WEIGHT: 1.5,
         CALL_CODE_WEIGHT: 1,
 
-        //Manipulate Weights
-        MANIPULATE_MODVAR_WEIGHT: 2,
-        MANIPULATE_READVAR_WEIGHT: 1,
+
 
         EPSILON_PENALTY: 0.01,
 

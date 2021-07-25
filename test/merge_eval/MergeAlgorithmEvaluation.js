@@ -18,11 +18,11 @@ import {TestConfig} from "../TestConfig.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
 import {AggregateMergeResult} from "./AggregateMergeResult.js";
-import {MarkDownFactory} from "../MarkDownFactory.js";
+import {MarkDownFactory} from "../util/MarkDownFactory.js";
 import {_3dmAdapter} from "./_3dmAdapter.js";
 import {CpeeMergeAdapter} from "./CpeeMergeAdapter.js";
 import {XccPatchAdapter} from "./XccPatchAdapter.js";
-import {Logger} from "../../src/lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -81,7 +81,7 @@ export class MergeAlgorithmEvaluation {
 
                 resultsPerTest.set(dir, []);
                 for (const adapter of this.adapters) {
-                    Logger.info("Running merge case " + dir + " for " + adapter.displayName, this);
+                    Logger.info("Running merge case " + dir + " for " + adapter.displayName + "...", this);
 
                     const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
                     resultsPerAdapter.get(adapter).push(result);
@@ -110,7 +110,7 @@ export class MergeAlgorithmEvaluation {
 
             aggregateResults.push(new AggregateMergeResult(adapter.displayName, okCount, acceptableCount, wrongAnswerCount, runtimeErrorCount));
         }
-        Logger.info("Results:\n" + MarkDownFactory.tabularize(aggregateResults), this);
+        Logger.result("Results:\n" + MarkDownFactory.tabularize(aggregateResults), this);
     }
 
 

@@ -26,34 +26,41 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
 
         for (const [newNode, oldNode] of matching.newToOldMap) {
             //copy paths, reverse them and remove first element, discard already matched nodes
-            const newPath = newNode.path.slice().reverse().slice(1);
-            const oldPath = oldNode.path.slice().reverse().slice(1);
+            const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
+            const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));;
 
             //index in newPath where last matching occurred
-            for (let i = 0; i < oldPath.length; i++) {
-                for (let k = 0; k < newPath.length; k++) {
-                    if (matching.hasOld(oldPath[i]) || matching.hasNew(newPath[k])) {
-                        continue;
-                    }
-                    const compareValue = comparator.compare(newPath[k], oldPath[i]);
-                    if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD
-                        //never overwrite a better matching
-                        && (!oldToNewMap.has(oldPath[i]) || compareValue < oldToNewMap.get(oldPath[i]).compareValue)
-                        && (!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue)) {
-                        if(oldToNewMap.has(oldPath[i])) {
-                            newToOldMap.delete(oldToNewMap.get(oldPath[i]).node);
+            //TODO use labelmap
+            const labelMap = new Map();
+            for (const oldNode of oldPath) {
+                if(!labelMap.has(oldNode.label)) {
+                    labelMap.set(oldNode.label, []);
+                }
+                labelMap.get(oldNode.label).push(oldNode);
+            }
+            for(const newNode of newPath) {
+                if(labelMap.has(newNode.label)) {
+                    for(const oldNode of labelMap.get(newNode.label)) {
+                        const compareValue = comparator.compare(newNode, oldNode);
+                        if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD
+                            //never overwrite a better matching
+                            && (!oldToNewMap.has(oldNode) || compareValue < oldToNewMap.get(oldNode).compareValue)
+                            && (!newToOldMap.has(newNode) || compareValue < newToOldMap.get(newNode).compareValue)) {
+                            if(oldToNewMap.has(oldNode)) {
+                                newToOldMap.delete(oldToNewMap.get(oldNode).node);
+                            }
+                            if(newToOldMap.has(newNode)) {
+                                oldToNewMap.delete(newToOldMap.get(newNode).node);
+                            }
+                            oldToNewMap.set(oldNode, {
+                                compareValue: compareValue,
+                                node: newNode
+                            });
+                            newToOldMap.set(newNode, {
+                                compareValue: compareValue,
+                                node: oldNode
+                            });
                         }
-                        if(newToOldMap.has(newPath[k])) {
-                            oldToNewMap.delete(newToOldMap.get(newPath[k]).node);
-                        }
-                        oldToNewMap.set(oldPath[i], {
-                            compareValue: compareValue,
-                            node: newPath[k]
-                        });
-                        newToOldMap.set(newPath[k], {
-                            compareValue: compareValue,
-                            node: oldPath[i]
-                        });
                     }
                 }
             }

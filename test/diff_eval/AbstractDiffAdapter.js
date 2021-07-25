@@ -20,7 +20,7 @@ import fs from "fs";
 import {DiffTestResult} from "./DiffTestResult.js";
 import xmldom from "xmldom";
 import {execFileSync} from "child_process";
-import {Logger} from "../../src/lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 export class AbstractDiffAdapter {
 

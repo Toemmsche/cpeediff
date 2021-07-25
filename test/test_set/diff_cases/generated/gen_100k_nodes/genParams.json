@@ -1,0 +1,5 @@
+{
+  "maxSize": 100000,
+  "maxChildren": 30,
+  "maxVars": 8
+}

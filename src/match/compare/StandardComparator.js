@@ -73,22 +73,17 @@ export class StandardComparator extends AbstractComparator {
 
     }
 
-    _comparePqGrams(strA, strB) {
-        if (strA == null && strB == null) return 0;
-        if (strA == null && strB != null) return 1;
-        if (strA != null && strB == null) return 1;
+    _comparePqGrams(strA, strB, defaultValue = null) {
+        if (strA == null || strB == null) return defaultValue;
         //TODO
         return this._compareLcs(Array.of(...strA), Array.of(...strB));
     }
 
-    comnpareCall(node, other) {
+    _compareCall(node, other) {
         //extract properties
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
 
-        //extract arguments
-        const nodeArguments = this.variableExtractor.get(node).argVariables;
-        const otherArguments = this.variableExtractor.get(other).argVariables;
 
         //extract written variables
         const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
@@ -108,7 +103,7 @@ export class StandardComparator extends AbstractComparator {
         const endPointCV = nodeProps.endpoint === otherProps.endpoint ? 0 : 1;
         const labelCV = this._comparePqGrams(nodeProps.label, otherProps.label);
         const methodCV = nodeProps.method === otherProps.method ? 0 : 1;
-        const argCV = this._compareLcs(nodeArguments, otherArguments);
+        const argCV = this._compareLcs(nodeProps.args, otherProps.args);
 
         const serviceCallCV = this._weightedAverage([endPointCV, labelCV, methodCV, argCV],
             [Config.COMPARATOR.CALL_ENDPOINT_WEIGHT,
@@ -125,11 +120,11 @@ export class StandardComparator extends AbstractComparator {
         if (nodeProps.hasCode() || otherProps.hasCode()) {
 
             //compare written and read variables
-            let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables, 0);
-            let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables, writtenVariablesCV);
+            let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables);
+            let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
             //weigh comparison values
-            codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.CALL_MODVAR_WEIGHT, Config.COMPARATOR.CALL_READVAR_WEIGHT])
+            codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT])
 
             //small penalty for code string inequality
             //TODO
@@ -158,7 +153,7 @@ export class StandardComparator extends AbstractComparator {
         let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
         let contentCV = this._weightedAverage([writtenVariablesCV, readVariablesCV],
-            [Config.COMPARATOR.MANIPULATE_MODVAR_WEIGHT, Config.COMPARATOR.MANIPULATE_READVAR_WEIGHT]);
+            [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT]);
 
         //small penalty for code string inequality
         if (node.text !== other.text) {
@@ -175,7 +170,7 @@ export class StandardComparator extends AbstractComparator {
         if (node.label !== other.label) return 1.0;
         switch (node.label) {
             case Dsl.ELEMENTS.CALL.label: {
-                return this.comnpareCall(node, other);
+                return this._compareCall(node, other);
             }
             case Dsl.ELEMENTS.MANIPULATE.label: {
                 return this._compareManipulate(node, other);

@@ -20,7 +20,7 @@ import {Dsl} from "../Dsl.js";
 import {DiffTestInfo} from "../../test/diff_eval/DiffTestInfo.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
 import {Config} from "../Config.js";
-import {Logger} from "../lib/Logger.js";
+import {Logger} from "../../Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
 
 /**
@@ -82,7 +82,7 @@ export class TreeGenerator {
      * @returns {Node} The root node of the generated process tree
      */
     randomTree(root = this._randomRoot()) {
-        Logger.info("Generating random process tree with parameters " + this._genParams.toString(), this);
+        Logger.info("Generating random process tree with parameters " + this._genParams.toString() + "...", this);
         Logger.startTimed();
         //The inner nodes, from which a new parent node is picked at each extension step
         const inners = [root];
@@ -138,7 +138,7 @@ export class TreeGenerator {
     _pickValidParent(node, inners) {
         //honor max width parameters as good as possible
         const filteredInners = inners.filter(n => n.numChildren() < this._genParams.maxChildren);
-        if(filteredInners.length > 0) {
+        if (filteredInners.length > 0) {
             //this would block
             inners = filteredInners;
         }
@@ -147,12 +147,12 @@ export class TreeGenerator {
         //TODO critical too?
         if (node.isInnerNode() && node.label === Dsl.ELEMENTS.ALTERNATIVE.label) {
             return this._randomFrom(inners.filter(n => n.label === Dsl.ELEMENTS.CHOOSE.label));
-        } else if(node.isInnerNode() && node.label === Dsl.ELEMENTS.OTHERWISE.label) {
+        } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.OTHERWISE.label) {
             //find a choose node with no existing otherwise branch
             return this._randomFrom(inners.filter(n => {
-                if(n.label !== Dsl.ELEMENTS.CHOOSE.label) return false;
-                for(const child of n) {
-                    if(child.label === Dsl.ELEMENTS.OTHERWISE.label) return false;
+                if (n.label !== Dsl.ELEMENTS.CHOOSE.label) return false;
+                for (const child of n) {
+                    if (child.label === Dsl.ELEMENTS.OTHERWISE.label) return false;
                 }
                 return true;
             }));
@@ -497,6 +497,8 @@ export class TreeGenerator {
      * and information about relevant for testing with this tree.
      */
     changeTree(tree, changeParams) {
+        Logger.info("Changing process tree with parameters " + changeParams + "...", this);
+        Logger.startTimed();
         const oldSize = tree.size();
         //do not modify original tree
         tree = NodeFactory.getNode(tree);
@@ -551,8 +553,10 @@ export class TreeGenerator {
                 Logger.warn("Edit operation not possible", this);
             }
         }
+        const preparedTree = new Preprocessor().prepareTree(tree);
+        Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
-            tree: new Preprocessor().prepareTree(tree),
+            tree: preparedTree,
             info: new DiffTestInfo(null, Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
         };
 

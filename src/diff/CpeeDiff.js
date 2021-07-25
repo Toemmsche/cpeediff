@@ -19,6 +19,7 @@ import {StandardComparator} from "../match/compare/StandardComparator.js";
 import {EditScriptGenerator} from "./delta/EditScriptGenerator.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
 import {MatchPipeline} from "../match/MatchPipeline.js";
+import {Logger} from "../../Logger.js";
 
 export class CpeeDiff {
     
@@ -35,6 +36,7 @@ export class CpeeDiff {
         const oldTreeCopy = NodeFactory.getNode(oldTree);
         const matching = this.matchPipeline.execute(oldTreeCopy, newTree, comparator);
         //generate edit script
-        return this.editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
+        const editScript = this.editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
+        return editScript;
     }
 }

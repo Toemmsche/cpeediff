@@ -15,7 +15,7 @@
 */
 
 import {Dsl} from "../Dsl.js";
-import {Logger} from "../lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 /**
  * A node inside a CPEE process tree parsed from an XML document.
@@ -221,7 +221,7 @@ export class Node {
      * @returns {boolean} If this node corresponds to a property in terms of the CPEE DSL {@see Dsl}.
      */
     isPropertyNode() {
-        return !Dsl.ELEMENT_SET.has(this.label) && !this._parent?.isPropertyNode();
+        return !Dsl.ELEMENT_SET.has(this.label) || this._parent?.isPropertyNode();
     }
 
     /**

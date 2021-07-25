@@ -15,13 +15,13 @@
 //      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
 //      evaluate robustness
 //      class for generated tests
-//      adjust for ignored misaligned children in mergfe eval
 //      use cmd line for merge
 //      configurable merge filenames
 //      flat and deep genearted cases
 //      cost is not correct see shuffled only
 //      node distribution as genparam
 //      rewrite tests, remove data elements and property wrapper, use manipulates instead of cals (where sinnvoll)
+//      use scraper for match and merge
 
 
 /*

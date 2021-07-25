@@ -23,7 +23,7 @@ import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {DiffTestResult} from "./DiffTestResult.js";
 import fs from "fs";
-import {Logger} from "../../src/lib/Logger.js";
+import {Logger} from "../../Logger.js";
 
 export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
 
@@ -72,7 +72,7 @@ export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
-        Logger.stat("Cost of edit script " + output.cost, this);
+        Logger.stat("Cost of edit script: " + output.cost, this);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 

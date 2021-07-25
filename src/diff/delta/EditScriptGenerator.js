@@ -19,6 +19,7 @@ import {EditScript} from "./EditScript.js";
 import {NodeFactory} from "../../tree/NodeFactory.js";
 import {Config} from "../../Config.js";
 import {Lis} from "../../lib/Lis.js";
+import {Logger} from "../../../Logger.js";
 
 export class EditScriptGenerator {
 
@@ -26,6 +27,8 @@ export class EditScriptGenerator {
     _editScript;
 
     generateEditScript(oldTree, newTree, matching) {
+        Logger.info("Generating edit script...", this);
+        Logger.startTimed();
         this._matching = matching;
         this._editScript = new EditScript();
 
@@ -78,7 +81,7 @@ export class EditScriptGenerator {
             }
         }
 
-
+        Logger.stat("Edit script generation took " + Logger.endTimed() + "ms", this);
         return this._editScript;
     }
 
