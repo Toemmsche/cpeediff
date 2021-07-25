@@ -16,8 +16,8 @@ limitations under the License.
 
 import {Node} from "../tree/Node.js"
 import {NodeFactory} from "../tree/NodeFactory.js";
-import {TreeGenerator} from "../gen/TreeGenerator.js";
-import {GeneratorParameters} from "../gen/GeneratorParameters.js";
+import {TreeGenerator} from "../../test/gen/TreeGenerator.js";
+import {GeneratorParameters} from "../../test/gen/GeneratorParameters.js";
 import {XmlFactory} from "../io/XmlFactory.js";
 import {CpeeDiff} from "../diff/CpeeDiff.js";
 import fs from "fs";

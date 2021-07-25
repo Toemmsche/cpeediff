@@ -14,12 +14,12 @@
    limitations under the License.
 */
 
-import {Node} from "../tree/Node.js"
-import {Preprocessor} from "../io/Preprocessor.js";
-import {Dsl} from "../Dsl.js";
-import {DiffTestInfo} from "../../test/diff_eval/DiffTestInfo.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {Config} from "../Config.js";
+import {Node} from "../../src/tree/Node.js"
+import {Preprocessor} from "../../src/io/Preprocessor.js";
+import {Dsl} from "../../src/Dsl.js";
+import {DiffTestInfo} from "../diff_eval/DiffTestInfo.js";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
+import {Config} from "../../src/Config.js";
 import {Logger} from "../../Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
 
