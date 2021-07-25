@@ -126,7 +126,7 @@ export class Node {
     /**
      * @returns {number} The number of children of this node.
      */
-    numChildren() {
+    degree() {
         return this._children.length;
     }
 
@@ -185,7 +185,7 @@ export class Node {
      * @returns {boolean} If this node has at least one child.
      */
     hasChildren() {
-        return this.numChildren() > 0;
+        return this.degree() > 0;
     }
 
     /**

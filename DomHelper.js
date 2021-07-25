@@ -14,17 +14,19 @@
    limitations under the License.
 */
 
-export class GeneratorParameters {
+/**
+ * Helper class to navigate DOM objects.
+ */
+export class DomHelper {
 
-    maxSize;
-    maxDepth;
-    maxDegree;
-    maxVars;
-
-    constructor(maxSize, maxDepth, maxDegree, maxVars) {
-        this.maxSize = maxSize;
-        this.maxDepth = maxDepth;
-        this.maxDegree = maxDegree;
-        this.maxVars = maxVars;
+    static firstChildElement(xmlElement, localName = null) {
+        let child = xmlElement?.firstChild;
+        while(child?.nodeType !== 1 && (localName == null || child?.localName !== localName)) {
+            child = child?.nextSibling;
+        }
+        return child;
     }
+
+
 }
+

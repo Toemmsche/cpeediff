@@ -64,7 +64,7 @@ describe("Node", () => {
         it('should append child at the end of node', () => {
             tree.appendChild(newNode);
 
-            const lastChild = tree.getChild(tree.numChildren() - 1);
+            const lastChild = tree.getChild(tree.degree() - 1);
             assert.ok(newNode.contentEquals(lastChild));
 
             assert.strictEqual(newNode.parent, tree);

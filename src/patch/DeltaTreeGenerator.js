@@ -181,12 +181,12 @@ export class DeltaTreeGenerator {
         if (indexPath !== "") {
             //remove root path "/"
             for (let index of indexPath.split("/").map(str => parseInt(str))) {
-                if (index > currNode.numChildren()) {
+                if (index > currNode.degree()) {
                     throw new Error("Edit script not applicable to tree");
                 }
                 if (moveFromPlaceHolder != null) {
                     /*
-                    if (index > moveFromPlaceHolder.numChildren()) {
+                    if (index > moveFromPlaceHolder.degree()) {
                         throw new Error("Edit script not applicable to tree");
                     }
                     */

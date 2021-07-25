@@ -35,7 +35,7 @@ describe("NodeFactory", () => {
             let copy = NodeFactory.getNode(bookAirCall);
 
             //verify content equality
-            assert.strictEqual(copy.numChildren(), bookAirCall.numChildren());
+            assert.strictEqual(copy.degree(), bookAirCall.degree());
             assert.strictEqual(copy.text, bookAirCall.text);
             assert.strictEqual(copy.attributes.size, bookAirCall.attributes.size);
             for (const key of bookAirCall.attributes.keys()) {
@@ -52,7 +52,7 @@ describe("NodeFactory", () => {
             copy = NodeFactory.getNode(bookAirCall, true);
 
             //verify structural equality
-            assert.strictEqual(copy.numChildren(), bookAirCall.numChildren());
+            assert.strictEqual(copy.degree(), bookAirCall.degree());
             assert.ok(copy.getChild(0).contentEquals(bookAirCall.getChild(0)));
         })
     })

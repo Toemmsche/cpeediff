@@ -40,7 +40,7 @@ export class HashExtractor extends AbstractExtractor {
         let childHash = 0;
         if (node.hasInternalOrdering()) {
             //preserve order by multiplying child hashes with distinct prime number based on index
-            const primes = PrimeGenerator.primes(node.numChildren());
+            const primes = PrimeGenerator.primes(node.degree());
             //todo built in map function
             childHash += node
                 .children

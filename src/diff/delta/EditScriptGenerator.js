@@ -168,7 +168,7 @@ export class EditScriptGenerator {
                 deleteLater.push(copiedNode);
             } else {
                 this._matching.matchNew(newNode, copiedNode);
-                for (let i = 0; i < copiedNode.numChildren(); i++) {
+                for (let i = 0; i < copiedNode.degree(); i++) {
                     matchOrRemove(copiedNode.getChild(i), newNode.getChild(i));
                 }
             }

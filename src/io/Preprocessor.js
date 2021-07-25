@@ -20,6 +20,7 @@ import {NodeFactory} from "../tree/NodeFactory.js";
 import {Dsl} from "../Dsl.js";
 import xmldom from "xmldom";
 import {Config} from "../Config.js";
+import {DomHelper} from "../../DomHelper.js";
 
 export class Preprocessor {
 
@@ -31,18 +32,15 @@ export class Preprocessor {
         const endpointToUrl = new Map();
         const dataElements = new Map();
 
-        //Parse options
-        let doc = new xmldom.DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""), "text/xml").firstChild;
-
-        //skip processing instruction and excess text
-        while (doc.nodeType !== 1) {
-            doc = doc.nextSibling;
-        }
+        //skip comments and processing instructions
+        const root = DomHelper.firstChildElement(new xmldom.DOMParser().parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ""),
+            "text/xml"));
 
         let tree;
-        if (doc.localName === "properties") {
-            for (let i = 0; i < doc.childNodes.length; i++) {
-                const childTNode = doc.childNodes.item(i);
+        //TODO CONFIG for this
+        if (root.localName === "properties") {
+            for (let i = 0; i < root.childNodes.length; i++) {
+                const childTNode = root.childNodes.item(i);
                 if (childTNode.localName === "dslx") {
                     let j = 0;
                     while (childTNode.childNodes.item(j).localName !== "description") j++;
@@ -51,7 +49,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const endpoint = childTNode.childNodes.item(j);
                         if (endpoint.nodeType === 1) { //Element, not Text
-                            const url = endpoint.childNodes.item(0).data;
+                            const url = endpoint.firstChild.data;
                             endpointToUrl.set(endpoint.localName, url);
                         }
                     }
@@ -59,7 +57,7 @@ export class Preprocessor {
                     for (let j = 0; j < childTNode.childNodes.length; j++) {
                         const dataElement = childTNode.childNodes.item(j);
                         if (dataElement.nodeType === 1) { //Element, not Text
-                            const initialValue = dataElement.childNodes.item(0).data;
+                            const initialValue = dataElement.firstChild.data;
                             dataElements.set(dataElement.localName, initialValue);
                         }
                     }
@@ -68,7 +66,7 @@ export class Preprocessor {
 
         } else {
             //hop straight into tree parsing
-            tree = NodeFactory.getNode(doc, true);
+            tree = NodeFactory.getNode(root, true);
         }
 
         return this.prepareTree(tree, endpointToUrl, dataElements);

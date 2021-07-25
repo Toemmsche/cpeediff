@@ -21,6 +21,7 @@ import {DiffTestResult} from "./DiffTestResult.js";
 import xmldom from "xmldom";
 import {execFileSync} from "child_process";
 import {Logger} from "../../Logger.js";
+import {DomHelper} from "../../DomHelper.js";
 
 export class AbstractDiffAdapter {
 
@@ -57,11 +58,8 @@ export class AbstractDiffAdapter {
         let deletionCounter = 0;
 
         //parse output
-        let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
-        //look for delta node that encloses the diff, skp processing instruction
-        while (delta.nodeType !== 1 || delta.localName !== "delta") {
-            delta = delta.nextSibling;
-        }
+        const delta = DomHelper.firstChildElement(
+            new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
         for (let i = 0; i < delta.childNodes.length; i++) {
             const childNode = delta.childNodes.item(i);
             if (childNode.localName != null) {

@@ -1,5 +1,5 @@
 {
   "maxSize": 10000,
-  "maxChildren": 20,
+  "maxDegree": 20,
   "maxVars": 8
 }

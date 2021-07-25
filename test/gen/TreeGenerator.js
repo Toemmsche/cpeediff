@@ -137,7 +137,7 @@ export class TreeGenerator {
      */
     _pickValidParent(node, inners) {
         //honor max width parameters as good as possible
-        const filteredInners = inners.filter(n => n.numChildren() < this._genParams.maxChildren);
+        const filteredInners = inners.filter(n => n.degree() < this._genParams.maxDegree);
         if (filteredInners.length > 0) {
             //this would block
             inners = filteredInners;
@@ -411,7 +411,7 @@ export class TreeGenerator {
      * @private
      */
     _appendRandomly(parent, child) {
-        let insertionIndex = this._randInt(parent.numChildren());
+        let insertionIndex = this._randInt(parent.degree());
         if (parent.isRoot() && insertionIndex === 0) {
             insertionIndex++;
         }

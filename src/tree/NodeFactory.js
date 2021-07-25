@@ -17,6 +17,7 @@
 import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
 import {Node} from "./Node.js"
 import xmldom from "xmldom";
+import {DomHelper} from "../../DomHelper.js";
 
 /**
  * Factory classes for creating Node objects from an existing node
@@ -52,7 +53,9 @@ export class NodeFactory extends AbstractNodeFactory {
      * @return Node The corresponding root node of the XML document tree.
      */
     static _fromXmlString(xml, includeChildren) {
-        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml"), includeChildren);
+        //skip comments, text, and processing instructions
+        return this._fromXmlDom(DomHelper.firstChildElement(
+            new xmldom.DOMParser().parseFromString(xml, "text/xml")), includeChildren);
     }
 
     /**
@@ -64,7 +67,7 @@ export class NodeFactory extends AbstractNodeFactory {
     static _fromXmlDom(xmlElement, includeChildren) {
         let root = new Node(xmlElement.localName);
 
-        if(!(xmlElement.nodeType === 1 || xmlElement.nodeType === 3)) {
+        if (!(xmlElement.nodeType === 1 || xmlElement.nodeType === 3)) {
             return null;
         }
         //parse attributes
@@ -84,9 +87,9 @@ export class NodeFactory extends AbstractNodeFactory {
                     //relevant data, set as node text
                     root.text = childElement.data;
                 }
-            } else if (includeChildren) {
+            } else if (childElement.nodeType === 1 && includeChildren) {
                 const child = this._fromXmlDom(childElement, includeChildren);
-                if(child != null) {
+                if (child != null) {
                     root.appendChild(child);
                 }
             }

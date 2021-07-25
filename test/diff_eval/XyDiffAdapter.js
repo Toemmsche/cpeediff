@@ -18,6 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import {DiffTestResult} from "./DiffTestResult.js";
 import xmldom from "xmldom";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DomHelper} from "../../DomHelper.js";
 
 export class XyDiffAdapter extends AbstractDiffAdapter {
 
@@ -32,16 +33,10 @@ export class XyDiffAdapter extends AbstractDiffAdapter {
         let deletionCounter = 0;
 
         //parse output
-        let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
         //enclosing tag for diff is "unit_delta"
-        while (delta.nodeType !== 1 || delta.localName !== "unit_delta") {
-            delta = delta.nextSibling;
-        }
-        delta = delta.firstChild;
+        let delta = DomHelper.firstChildElement(new xmldom.DOMParser().parseFromString(output, "text/xml"), "unit_delta");
         //changes are further enclosed in a "t" tag
-        while (delta.nodeType !== 1 || delta.localName !== "t") {
-            delta = delta.nextSibling;
-        }
+        delta = DomHelper.firstChildElement(delta, "t");
         for (let i = 0; i < delta.childNodes.length; i++) {
             const childNode = delta.childNodes.item(i);
             if (childNode.localName != null) {

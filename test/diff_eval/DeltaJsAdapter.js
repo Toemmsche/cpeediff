@@ -18,6 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
 import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
 import xmldom from "xmldom";
+import {DomHelper} from "../../DomHelper.js";
 
 export class DeltaJsAdapter extends AbstractDiffAdapter{
 
@@ -32,11 +33,10 @@ export class DeltaJsAdapter extends AbstractDiffAdapter{
         let deletionCounter = 0;
 
         //parse output
-        let delta = new xmldom.DOMParser().parseFromString(output, "text/xml").firstChild;
-        //look for delta node that encloses the diff
-        while (delta.localName !== "delta") {
-            delta = delta.nextSibling;
-        }
+        //diff is enclosed in delta
+        let delta = DomHelper.firstChildElement(
+            new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
+
         for (let i = 0; i < delta.childNodes.length; i++) {
             const node = delta.childNodes.item(i);
             if (node.childNodes != null) {

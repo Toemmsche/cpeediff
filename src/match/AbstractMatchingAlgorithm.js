@@ -16,6 +16,9 @@
 
 export class AbstractMatchingAlgorithm {
 
+    match(oldTree, newTree, matching, comparator) {
+
+    }
 
 }
 

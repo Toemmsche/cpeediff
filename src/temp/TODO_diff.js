@@ -9,6 +9,7 @@
 //      use labelmap inside pathmatching
 //      use label-endpoint map for similarity matching (as option)
 //      unmatched matcher
+//      TRY NEW BOTTOM BUILD UP N" MAP COMMONAIL:TY ALGO
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -17,9 +18,7 @@
 //      maybe collapse call comparison values ionto single equation
 //      annotated merged tree output (with conrfidence)
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
-//      call arguments sensitive to ordering ?
 //      CHANGE origin in xml
-//      ignore comments during xml parsing
 //      command line interface (help, error messages, logging, etc.)
 //      option to turn of preprocessing like removing description nodes or empty control flow structures
 //      colors in delta output
@@ -31,7 +30,6 @@
 //      use arrow notation (or dont use private function)
 //      IMPORTANT: maybe mark clearly which nodes belong to which tree, e.g. oldNode, deltaNode, etc. just more meaningful variable names
 //      Add documentation to _important_ local variables (eg DP array)
-//      use scientific names for variables (elementIndex instead of type index (XPATH),
 //      use xpath like syntax
 //      shorten some names (variables -> vars e..g)
 //      resolve naming conflicts (call as argunment)
@@ -66,21 +64,6 @@
 
 //TODO advanced semantics
 //     if parallel_branch matched, match paralell (same for choose and otherwise/alternative)
-/*
-Merge Ideas:
-
-
-3way:
-idea 1: Use mapping between DeltaTree (without move_from) for T1 and T2 to produce a merged tree (CpeeMerge)
-
-idea 2: Merge the set of leaf nodes, then
- */
-
-/*
-pipeline
-
-Parser -> preprocessor -> validator (for old and new tree --> warnings and forbidden moves) -> match -> editScript -> deltaTree -> merge
- */
 
 /*
 Problems with examined matching algorithms:
