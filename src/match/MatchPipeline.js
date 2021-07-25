@@ -24,6 +24,7 @@ import {SimilarityMatcher} from "./SimilarityMatcher.js";
 import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
 import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
 import {PathMatcher} from "./PathMatcher.js";
+import {Logger} from "../lib/Logger.js";
 
 export class MatchPipeline {
 
@@ -43,9 +44,15 @@ export class MatchPipeline {
     }
     
     execute(oldTree, newTree, comparator = new StandardComparator(), matching = new Matching()) {
+
         comparator.matching = matching;
         for(const matcher of this.matchers) {
+            Logger.info("Applying matching module " + matcher.constructor.name, this);
+            Logger.startTimed();
+            const prevMatches = matching.size();
             matcher.match(oldTree, newTree, matching, comparator);
+            Logger.stat("Matching module " + matcher.constructor.name + " took " + Logger.endTimed()
+                + "ms and found " + (matching.size() - prevMatches) + " matches", this);
         }
         return matching;
     }

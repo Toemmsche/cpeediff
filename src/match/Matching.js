@@ -72,5 +72,9 @@ export class Matching {
         return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
     }
 
+    size() {
+        return this.newToOldMap.size;
+    }
+
 }
 

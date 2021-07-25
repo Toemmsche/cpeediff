@@ -221,7 +221,7 @@ export class Node {
      * @returns {boolean} If this node corresponds to a property in terms of the CPEE DSL {@see Dsl}.
      */
     isPropertyNode() {
-        return !Dsl.ELEMENT_SET.has(this.label);
+        return !Dsl.ELEMENT_SET.has(this.label) && !this._parent?.isPropertyNode();
     }
 
     /**

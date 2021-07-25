@@ -548,8 +548,7 @@ export class TreeGenerator {
                     }
                 }
             } catch (e) {
-                //TODO
-                console.log("invalid change op")
+                Logger.warn("Edit operation not possible", this);
             }
         }
         return {

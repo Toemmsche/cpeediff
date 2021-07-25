@@ -15,6 +15,8 @@
 */
 
 export const Config = {
+
+
     COMPARATOR: {
         PATH_COMPARE_RANGE: 3,
 

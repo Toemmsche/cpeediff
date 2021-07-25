@@ -51,6 +51,9 @@ export class StandardComparator extends AbstractComparator {
     }
 
     _compareLcs(seqA, seqB, defaultValue = null) {
+        if(seqA == null || seqB == null) {
+            return defaultValue;
+        }
         const maxLength = Math.max(seqA.length, seqB.length);
         if (maxLength === 0) return defaultValue;
         return 1 - (Lcs.getLCS(seqA, seqB).length / maxLength);
@@ -120,6 +123,7 @@ export class StandardComparator extends AbstractComparator {
 
         let codeCV = null;
         if (nodeProps.hasCode() || otherProps.hasCode()) {
+
             //compare written and read variables
             let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables, 0);
             let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables, writtenVariablesCV);

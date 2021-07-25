@@ -26,6 +26,7 @@ import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import fs from "fs";
 import {execFileSync} from "child_process";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class CpeeDiffAdapter extends AbstractDiffAdapter {
 
@@ -74,7 +75,7 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
-        console.log(delta.cost);
+        Logger.stat("Cost of edit script: " + delta.cost, this);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }

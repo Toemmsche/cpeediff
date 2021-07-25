@@ -15,8 +15,7 @@
 */
 
 import {LogMessage} from "./LogMessage.js";
-import {log} from "util";
-import {stat} from "fs";
+import {Config} from "../Config.js";
 
 /**
  * A simple logging class.
@@ -31,6 +30,12 @@ export class Logger {
         WARN: "WARN",
         ERROR: "ERROR"
     }
+    /**
+     * A map of handlers for each log level. By default, log messages are redirected to stdout.
+     * @type Map<String,Set<Function>>
+     * @private
+     */
+    static _handlers = new Map();
 
     /**
      * A default handler that prints the formatted log message to stdout.
@@ -41,18 +46,14 @@ export class Logger {
         console.log(logMsg.toString());
     }
 
-    /**
-     * A map of handlers for each log level. By default, log messages are redirected to stdout.
-     * @type Map<String,Set<Function>>
-     * @private
-     */
-    static _handlers = new Map();
+
     /**
      * A list of default handlers for log messages where no specific handlers are available.
      * @type [Function]
      * @private
      */
     static _defaultHandlers = [this._logToConsoleHandler];
+    static _startTime;
 
     /**
      * Handle an incoming log message.. Either log level specific handlers or default handlers are used.
@@ -60,15 +61,15 @@ export class Logger {
      * @private
      */
     static _handleLog(logMsg) {
-        if(this._enabled) {
+        if (this._enabled) {
             //handle with specific handlers
-            if(this._handlers.has(logMsg.level)) {
-                for(const handler of this._handlers.get(logMsg.level)) {
+            if (this._handlers.has(logMsg.level)) {
+                for (const handler of this._handlers.get(logMsg.level)) {
                     handler(logMsg);
                 }
             } else {
                 //handle with default handlers
-                for(const handler of this._defaultHandlers) {
+                for (const handler of this._defaultHandlers) {
                     handler(logMsg);
                 }
             }
@@ -100,24 +101,27 @@ export class Logger {
         this._handleLog(logMessage);
     }
 
+    static result(message, source = null) {
+        //results are always printed to stdout
+        console.log(message);
+    }
+
     static _enabled = true;
 
     static disableLogging() {
-     this._enabled = false;
+        this._enabled = false;
     }
 
     static enableLogging() {
         this._enabled = true;
     }
 
-    static _startTime;
-
     static startTimed() {
         this._startTime = new Date().getTime();
     }
 
     static endTimed() {
-        return  new Date().getTime() - this._startTime;
+        return new Date().getTime() - this._startTime;
     }
 
 }

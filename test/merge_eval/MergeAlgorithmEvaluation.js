@@ -22,6 +22,7 @@ import {MarkDownFactory} from "../MarkDownFactory.js";
 import {_3dmAdapter} from "./_3dmAdapter.js";
 import {CpeeMergeAdapter} from "./CpeeMergeAdapter.js";
 import {XccPatchAdapter} from "./XccPatchAdapter.js";
+import {Logger} from "../../src/lib/Logger.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -39,7 +40,7 @@ export class MergeAlgorithmEvaluation {
     }
 
     evalAll(caseDir = TestConfig.MERGE_CASES_DIR) {
-        console.log("Using " + caseDir + " to evaluate merge algorithms");
+        Logger.info("Using " + caseDir + " to evaluate merge algorithms", this);
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
@@ -74,13 +75,13 @@ export class MergeAlgorithmEvaluation {
                 );
                 if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
                     //test case is incomplete => skip
-                    console.log("Skip case " + dir + " due to missing files");
+                    Logger.warn("Skip case " + dir + " due to missing files", this);
                     return;
                 }
 
                 resultsPerTest.set(dir, []);
                 for (const adapter of this.adapters) {
-                    console.log("Running merge case " + dir + " for " + adapter.displayName);
+                    Logger.info("Running merge case " + dir + " for " + adapter.displayName, this);
 
                     const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
                     resultsPerAdapter.get(adapter).push(result);
@@ -109,7 +110,7 @@ export class MergeAlgorithmEvaluation {
 
             aggregateResults.push(new AggregateMergeResult(adapter.displayName, okCount, acceptableCount, wrongAnswerCount, runtimeErrorCount));
         }
-        console.log(MarkDownFactory.tabularize(aggregateResults));
+        Logger.info("Results:\n" + MarkDownFactory.tabularize(aggregateResults), this);
     }
 
 

@@ -28,6 +28,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      use ? operator wherever possible and sinnvoll
 //      hide private properties everywhere
 //      model type in geneartor params
 //      use arrow notation (or dont use private function)
@@ -40,6 +41,8 @@
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever necessary
 
 //TODO bugs+
+//      fix move_to
+//      fix deltatree gen
 //      upodates are not detected at large
 //      test conversion to XML
 //      namespaces
