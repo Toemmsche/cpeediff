@@ -25,12 +25,13 @@ import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
 import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
 import {PathMatcher} from "./PathMatcher.js";
 import {Logger} from "../../Logger.js";
+import {CommonalityMatcher} from "./CommonalityMatcher.js";
 
 export class MatchPipeline {
 
     matchers;
     
-    constructor(...matchers) {
+    constructor(matchers) {
         const len = matchers.length;
         //FixedMatcher is always the first matching algorithm in the pipeline
         if(len === 0 || matchers[0].constructor !== FixedMatcher) {
@@ -44,8 +45,6 @@ export class MatchPipeline {
     }
     
     execute(oldTree, newTree, comparator = new StandardComparator(), matching = new Matching()) {
-
-        comparator.matching = matching;
         for(const matcher of this.matchers) {
             Logger.info("Running matching module " + matcher.constructor.name + "...", this);
             Logger.startTimed();
@@ -58,7 +57,7 @@ export class MatchPipeline {
     }
 
     static standard() {
-        return new MatchPipeline(new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PropertyMatcher(), );
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PropertyMatcher()]);
     }
 
 }

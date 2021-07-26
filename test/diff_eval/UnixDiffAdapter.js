@@ -15,9 +15,9 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 
-export class UnixDiffAdapter extends AbstractDiffAdapter {
+export class UnixDiffAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.UNIXDIFF.path, TestConfig.DIFFS.UNIXDIFF.displayName);

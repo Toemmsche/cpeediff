@@ -16,11 +16,11 @@
 
 import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 import xmldom from "xmldom";
 import {DomHelper} from "../../DomHelper.js";
 
-export class DeltaJsAdapter extends AbstractDiffAdapter{
+export class DeltaJsAdapter extends DiffAdapter{
 
     constructor() {
         super(TestConfig.DIFFS.DELTAJS.path, TestConfig.DIFFS.DELTAJS.displayName);

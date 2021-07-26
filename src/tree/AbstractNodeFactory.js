@@ -95,7 +95,7 @@ export class AbstractNodeFactory {
     /**
      * Create a new node from an xmldom object.
      * @param {Object} xmlElement The existing xmldom object
-     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @param {Boolean} includeChildren If the created node should include the children of the xmldom object.
      * @throws Error
      * @private
      */

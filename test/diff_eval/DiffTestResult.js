@@ -14,8 +14,6 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-
 export class DiffTestResult {
 
     info;
@@ -40,14 +38,6 @@ export class DiffTestResult {
         this.updates = updates;
         this.deletions = deletions;
         this.diffSize = diffSize;
-    }
-
-    static fail(info, algorithm) {
-        return new DiffTestResult(info, algorithm, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED, TestConfig.VERDICTS.FAILED);
-    }
-    
-    static timeout(info, algorithm) {
-        return new DiffTestResult(info, algorithm, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT, TestConfig.VERDICTS.TIMEOUT);
     }
 }
 

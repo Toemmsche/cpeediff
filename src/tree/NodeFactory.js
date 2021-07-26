@@ -20,14 +20,14 @@ import xmldom from "xmldom";
 import {DomHelper} from "../../DomHelper.js";
 
 /**
- * Factory classes for creating Node objects from an existing node
- * ({@see Node}, {@see DeltaNode}, {@see MergeNode}), an xmldom object (extraction) or an XML String (parsing).
+ * Factory class for creating Node objects from an existing node ({@see Node}, {@see DeltaNode}, {@see MergeNode}),
+ * an xmldom object (extraction) or an XML String (parsing).
  * @extends AbstractNodeFactory
  */
 export class NodeFactory extends AbstractNodeFactory {
 
     /**
-     * Create a new Node instance of from an existing Node object.
+     * Create a new Node instance from an existing Node object.
      * Equivalent to copying the node (by value).
      * @param {Node} node The existing node object
      * @param {Boolean} includeChildren If the created node should include the children of the existing node.
@@ -61,7 +61,7 @@ export class NodeFactory extends AbstractNodeFactory {
     /**
      * Create a new Node instance from an xmldom object.
      * @param {Object} xmlElement The existing xmldom object
-     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @param {Boolean} includeChildren If the created node should include the children of the xmldom object.
      * @return Node The corresponding root node of the XML DOM tree.
      */
     static _fromXmlDom(xmlElement, includeChildren) {

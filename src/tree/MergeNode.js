@@ -21,7 +21,7 @@ import {Confidence} from "./Confidence.js";
  * A node inside a CPEE process tree that is the result of a merge.
  * @extends DeltaNode
  * @property {Number} changeOrigin The branch in which this node was changed (either none: 0, branch 1: 1, branch 2: 2 or both: 3)
- * @property {Confidence} confidence An object containing information about the merge confidence regarding the node's
+ * @property {Confidence} confidence An object containing testCase.information about the merge confidence regarding the node's
  * content, parent node, and position (within its parent's child list).
  */
 export class MergeNode extends DeltaNode {

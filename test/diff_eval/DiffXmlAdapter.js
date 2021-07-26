@@ -15,10 +15,9 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
-import {DiffTestResult} from "./DiffTestResult.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 
-export class DiffXmlAdapter extends AbstractDiffAdapter {
+export class DiffXmlAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.DIFFXML.path, TestConfig.DIFFS.DIFFXML.displayName);

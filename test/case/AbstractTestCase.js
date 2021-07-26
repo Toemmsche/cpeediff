@@ -14,13 +14,19 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {DiffAdapter} from "./DiffAdapter.js";
+/**
+ * Abstract superclass for all test cases.
+ */
+export class AbstractTestCase {
 
-export class XccAdapter extends DiffAdapter{
-
-    constructor() {
-        super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+    /**
+     * Construct a test case from a test case directory.
+     * @param {String} testCaseDir An absolute or relative path to the directory containing the files
+     * that define the test case.
+     * @return AbstractTestCase The constructed test case
+     */
+    static from(testCaseDir) {
+        return null;
     }
 }
 

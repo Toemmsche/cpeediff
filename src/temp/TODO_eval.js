@@ -5,11 +5,11 @@
 //      run profiler and write tests
 //      confidence level for merging
 //      problem export classes
-//      further reduce duplicate code amond evaluator
+//      further reduce duplicate code amond evaluator => Directory Scraper and domhelper
 //      verify algo change detection
 //      separarated diff-accuracy cases from diff-performance cases
 //      fix algorithm names
-//        check change model of evaluated diffs, map it to your operations (update and move esp), move as attribute !
+//        check change model of evaluated diffs, map it to your operations (update and move esp), move as attribute (what about copy?)!
 //          impossible for XCC, Deltajs, XyDiff
 //      add match evaluation for 3DM
 //      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
@@ -22,6 +22,7 @@
 //      node distribution as genparam
 //      rewrite tests, remove data elements and property wrapper, use manipulates instead of cals (where sinnvoll)
 //      use scraper for match and merge
+//      maybe do not use preprocessed trees for evaluation
 
 
 /*

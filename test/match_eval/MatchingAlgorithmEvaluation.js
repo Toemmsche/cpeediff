@@ -22,6 +22,7 @@ import {AggregateMatchResult} from "./AggregateMatchResult.js";
 import {MarkDownFactory} from "../util/MarkDownFactory.js";
 import {CpeeMatchAdapter} from "./CpeeMatchAdapter.js";
 import {Logger} from "../../Logger.js";
+import {DirectoryScraper} from "../util/DirectoryScraper.js";
 
 export class MatchingAlgorithmEvaluation {
 
@@ -38,8 +39,8 @@ export class MatchingAlgorithmEvaluation {
         return new MatchingAlgorithmEvaluation(adapters);
     }
 
-    evalAll(caseDir = TestConfig.MATCH_CASES_DIR) {
-       Logger.info("Using " + caseDir + " to evaluate matching algorithms", this);
+    evalAll(rootDir = TestConfig.MATCH_CASES_DIR) {
+       Logger.info("Using " + rootDir + " to evaluate matching algorithms", this);
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
@@ -48,40 +49,41 @@ export class MatchingAlgorithmEvaluation {
         }
 
         const parser = new Preprocessor();
-        fs.readdirSync(caseDir).forEach((caseCategory) => {
-            const categoryDir = caseDir  + "/" + caseCategory;
-            fs.readdirSync(categoryDir).forEach((dir) => {
-                let oldTree;
-                let newTree;
-                let expected;
 
-                fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
-                        const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
-                        if (file === TestConfig.NEW_TREE_FILENAME) {
-                            newTree = parser.parseWithMetadata(content);
-                        } else if (file === TestConfig.OLD_TREE_FILENAME) {
-                            oldTree = parser.parseWithMetadata(content);
-                        } else if (file === TestConfig.EXPECTED_MATCHES_FILE_NAME) {
-                            expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
-                        }
+        //collect all directories representing testCases
+        const caseDirs = DirectoryScraper.scrape(rootDir);
+        for(const testCaseDir of caseDirs) {
+            const testCaseName = testCaseDir.split("/").pop();
+            let oldTree;
+            let newTree;
+            let expected;
+
+            fs.readdirSync(testCaseDir).forEach((file) => {
+                    const content = fs.readFileSync(testCaseDir + "/" + file).toString();
+                    if (file === TestConfig.NEW_TREE_FILENAME) {
+                        newTree = parser.parseWithMetadata(content);
+                    } else if (file === TestConfig.OLD_TREE_FILENAME) {
+                        oldTree = parser.parseWithMetadata(content);
+                    } else if (file === TestConfig.EXPECTED_MATCHES_FILE_NAME) {
+                        expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
                     }
-                );
-                if (oldTree == null || newTree == null || expected == null) {
-                    //test case is incomplete => skip
-                    Logger.warn("Skip case " + dir + " due to missing files", this);
-                    return;
                 }
+            );
+            if (oldTree == null || newTree == null || expected == null) {
+                //test case is incomplete => skip
+                Logger.warn("Skip case " + testCaseName + " due to missing files", this);
+                return;
+            }
 
-                resultsPerTest.set(dir, []);
-                for (const adapter of this.adapters) {
-                   Logger.info("Running match case " + dir + " for " + adapter.displayName + "...", this);
+            resultsPerTest.set(test, []);
+            for (const adapter of this.adapters) {
+                Logger.info("Running match case " + testCaseName + " for " + adapter.displayName + "...", this);
 
-                    const result = adapter.evalCase(dir, oldTree, newTree, expected);
-                    resultsPerAdapter.get(adapter).push(result);
-                    resultsPerTest.get(dir).push(result);
-                }
-            })
-        });
+                const result = adapter.evalCase(testCaseName, oldTree, newTree, expected);
+                resultsPerAdapter.get(adapter).push(result);
+                resultsPerTest.get(testCaseName).push(result);
+            }
+        }
 
         const aggregateResults = [];
         for (const [adapter, resultsList] of resultsPerAdapter) {

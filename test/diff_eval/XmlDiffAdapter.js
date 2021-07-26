@@ -16,9 +16,9 @@
 
 import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 
-export class XmlDiffAdapter extends AbstractDiffAdapter {
+export class XmlDiffAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);

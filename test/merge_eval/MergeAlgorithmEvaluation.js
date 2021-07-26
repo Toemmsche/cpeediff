@@ -23,6 +23,7 @@ import {_3dmAdapter} from "./_3dmAdapter.js";
 import {CpeeMergeAdapter} from "./CpeeMergeAdapter.js";
 import {XccPatchAdapter} from "./XccPatchAdapter.js";
 import {Logger} from "../../Logger.js";
+import {DirectoryScraper} from "../util/DirectoryScraper.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -49,46 +50,47 @@ export class MergeAlgorithmEvaluation {
         }
 
         const parser = new Preprocessor();
-        fs.readdirSync(caseDir).forEach((caseCategory) => {
-            const categoryDir = caseDir + "/" + caseCategory;
-            fs.readdirSync(categoryDir).forEach((dir) => {
-                let base;
-                let branch1;
-                let branch2;
-                let expected = [];
-                let accepted = [];
 
-                fs.readdirSync(categoryDir + "/" + dir).forEach((file) => {
-                        const content = fs.readFileSync(categoryDir + "/" + dir + "/" + file).toString();
-                        if (file === TestConfig.BASE_FILE_NAME) {
-                            base = parser.parseWithMetadata(content);
-                        } else if (file === TestConfig.BRANCH_1_FILE_NAME) {
-                            branch1 = parser.parseWithMetadata(content);
-                        } else if (file === TestConfig.BRANCH_2_FILE_NAME) {
-                            branch2 = parser.parseWithMetadata(content);
-                        } else if (file.startsWith(TestConfig.EXPECTED_MERGE_PREFIX)) {
-                            expected.push(parser.parseWithMetadata(content));
-                        } else if (file.startsWith(TestConfig.ACCEPTED_MERGE_PREFIX)) {
-                            accepted.push(parser.parseWithMetadata(content));
-                        }
+        //collect all directories representing testCases
+        const caseDirs = DirectoryScraper.scrape(rootDir);
+        for (const testCaseDir of caseDirs) {
+            const testCaseName = testCaseDir.split("/").pop();
+            let base;
+            let branch1;
+            let branch2;
+            let expected = [];
+            let accepted = [];
+
+            fs.readdirSync(testCaseDir).forEach((file) => {
+                    const content = fs.readFileSync(testCaseDir + "/" + file).toString();
+                    if (file === TestConfig.BASE_FILE_NAME) {
+                        base = parser.parseWithMetadata(content);
+                    } else if (file === TestConfig.BRANCH_1_FILE_NAME) {
+                        branch1 = parser.parseWithMetadata(content);
+                    } else if (file === TestConfig.BRANCH_2_FILE_NAME) {
+                        branch2 = parser.parseWithMetadata(content);
+                    } else if (file.startsWith(TestConfig.EXPECTED_MERGE_PREFIX)) {
+                        expected.push(parser.parseWithMetadata(content));
+                    } else if (file.startsWith(TestConfig.ACCEPTED_MERGE_PREFIX)) {
+                        accepted.push(parser.parseWithMetadata(content));
                     }
-                );
-                if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
-                    //test case is incomplete => skip
-                    Logger.warn("Skip case " + dir + " due to missing files", this);
-                    return;
                 }
+            );
+            if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
+                //test case is incomplete => skip
+                Logger.warn("Skip case " + testCaseName + " due to missing files", this);
+                return;
+            }
 
-                resultsPerTest.set(dir, []);
-                for (const adapter of this.adapters) {
-                    Logger.info("Running merge case " + dir + " for " + adapter.displayName + "...", this);
+            resultsPerTest.set(testCaseName, []);
+            for (const adapter of this.adapters) {
+                Logger.info("Running merge case " + testCaseName + " for " + adapter.displayName + "...", this);
 
-                    const result = adapter.evalCase(dir, base, branch1, branch2, expected, accepted)
-                    resultsPerAdapter.get(adapter).push(result);
-                    resultsPerTest.get(dir).push(result);
-                }
-            })
-        });
+                const result = adapter.evalCase(testCaseName, base, branch1, branch2, expected, accepted)
+                resultsPerAdapter.get(adapter).push(result);
+                resultsPerTest.get(testCaseName).push(result);
+            }
+        }
 
         const aggregateResults = [];
         for (const [adapter, resultsList] of resultsPerAdapter) {

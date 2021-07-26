@@ -82,6 +82,7 @@ export class EditScriptGenerator {
         }
 
         Logger.stat("Edit script generation took " + Logger.endTimed() + "ms", this);
+        Logger.stat("Cost of edit script: " + this._editScript.cost, this);
         return this._editScript;
     }
 

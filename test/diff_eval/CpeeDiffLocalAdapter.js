@@ -18,14 +18,14 @@ import {CpeeDiff} from "../../src/diff/CpeeDiff.js";
 import {DeltaTreeGenerator} from "../../src/patch/DeltaTreeGenerator.js";
 import {Dsl} from "../../src/Dsl.js";
 import {XmlFactory} from "../../src/io/XmlFactory.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {DiffTestResult} from "./DiffTestResult.js";
 import fs from "fs";
 import {Logger} from "../../Logger.js";
 
-export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
+export class CpeeDiffLocalAdapter extends DiffAdapter {
 
     constructor() {
         super("", TestConfig.DIFFS.CPEEDIFF.displayName + "_LOCAL");
@@ -72,27 +72,26 @@ export class CpeeDiffLocalAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
-        Logger.stat("Cost of edit script: " + output.cost, this);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 
-    evalCase(info, oldTree, newTree) {
+    evalCase(testCase) {
         let exec;
         try {
-            exec = this._run(oldTree, newTree);
+            exec = this._run(testCase.oldTree, testCase.newTree);
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                Logger.info(this.displayName + " timed out for " + info.name, this);
-                return DiffTestResult.timeout(info, this.displayName);
+                Logger.info(this.displayName + " timed out for " + testCase.info.name, this);
+                return testCase.timeout( this.displayName);
             } else {
-                Logger.error(this.displayName + " crashed for " + info.name + ": " + e.toString(), this);
-                return DiffTestResult.fail(info, this.displayName)
+                Logger.info(this.displayName + " crashed for " + testCase.info.name + ": " + e.toString(), this);
+                return testCase.fail(this.displayName)
             }
         }
         const counters = this._parseOutput(exec.output);
         const changesFound = counters.reduce((a, b) => a + b, 0);
-        return new DiffTestResult(info, this.displayName, exec.runtime, changesFound, ...counters, XmlFactory.serialize(exec.output).length)
+        return new DiffTestResult(testCase.info, this.displayName, exec.runtime, changesFound, ...counters, XmlFactory.serialize(exec.output).length)
     }
 }
 

@@ -19,7 +19,7 @@ import {Config} from "../../src/Config.js";
 import {DeltaTreeGenerator} from "../../src/patch/DeltaTreeGenerator.js";
 import {Dsl} from "../../src/Dsl.js";
 import {XmlFactory} from "../../src/io/XmlFactory.js";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {EditScriptFactory} from "../../src/diff/delta/EditScriptFactory.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
@@ -28,7 +28,7 @@ import fs from "fs";
 import {execFileSync} from "child_process";
 import {Logger} from "../../Logger.js";
 
-export class CpeeDiffAdapter extends AbstractDiffAdapter {
+export class CpeeDiffAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
@@ -75,7 +75,6 @@ export class CpeeDiffAdapter extends AbstractDiffAdapter {
                     break;
             }
         }
-        Logger.stat("Cost of edit script: " + delta.cost, this);
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }

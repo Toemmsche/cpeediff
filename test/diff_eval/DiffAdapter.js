@@ -23,7 +23,7 @@ import {execFileSync} from "child_process";
 import {Logger} from "../../Logger.js";
 import {DomHelper} from "../../DomHelper.js";
 
-export class AbstractDiffAdapter {
+export class DiffAdapter {
 
     pathPrefix;
     displayName;
@@ -84,23 +84,23 @@ export class AbstractDiffAdapter {
         return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 
-    evalCase(info, oldTree, newTree) {
+    evalCase(testCase) {
         let exec;
         try {
-            exec = this._run(oldTree, newTree);
+            exec = this._run(testCase.oldTree, testCase.newTree);
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                Logger.info(this.displayName + " timed out for " + info.name, this);
-                return DiffTestResult.timeout(info, this.displayName);
+                Logger.info(this.displayName + " timed out for " + testCase.info.name, this);
+                return testCase.timeout( this.displayName);
             } else {
-                Logger.info(this.displayName + " crashed for " + info.name + ": " + e.toString(), this);
-                return DiffTestResult.fail(info, this.displayName)
+                Logger.info(this.displayName + " crashed for " + testCase.info.name + ": " + e.toString(), this);
+                return testCase.fail(this.displayName)
             }
         }
         const counters = this._parseOutput(exec.output);
         const changesFound = counters.reduce((a, b) => a + b, 0);
-        return new DiffTestResult(info, this.displayName, exec.runtime, changesFound, ...counters, exec.output.length)
+        return new DiffTestResult(testCase.info, this.displayName, exec.runtime, changesFound, ...counters, exec.output.length)
     }
 }
 

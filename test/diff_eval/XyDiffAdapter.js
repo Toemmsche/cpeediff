@@ -15,12 +15,12 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import {DiffTestResult} from "./DiffTestResult.js";
 import xmldom from "xmldom";
-import {AbstractDiffAdapter} from "./AbstractDiffAdapter.js";
+import {DiffAdapter} from "./DiffAdapter.js";
 import {DomHelper} from "../../DomHelper.js";
 
-export class XyDiffAdapter extends AbstractDiffAdapter {
+
+export class XyDiffAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.XYDIFF.path, TestConfig.DIFFS.XYDIFF.displayName);
@@ -68,25 +68,6 @@ export class XyDiffAdapter extends AbstractDiffAdapter {
         }
         //all moves are detected twice
         return [insertionCounter, moveCounter / 2, updateCounter, deletionCounter];
-    }
-
-    evalCase(info, oldTree, newTree) {
-        let exec;
-        try {
-            exec = this._run(oldTree, newTree);
-        } catch (e) {
-            //check if timeout or runtime error
-            if (e.code === "ETIMEDOUT") {
-                console.log(this.displayName + " timed out for " + info.name);
-                return DiffTestResult.timeout(info, this.displayName);
-            } else {
-                console.log(this.displayName + " crashed for " + info.name + ": " + e.toString());
-                return DiffTestResult.fail(info, this.displayName)
-            }
-        }
-        const counters = this._parseOutput(exec.output);
-        const changesFound = counters.reduce((a, b) => a + b, 0);
-        return new DiffTestResult(info, this.displayName, exec.runtime, changesFound, ...counters, exec.output.length)
     }
 }
 

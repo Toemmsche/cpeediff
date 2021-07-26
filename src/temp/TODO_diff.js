@@ -24,6 +24,8 @@
 //      colors in delta output
 
 //TODO tidy
+//      decide which properties are read only (e.g. placeholders) use with get() function
+//      bne consistenwit .... or array
 //      use ? operator wherever possible and sinnvoll
 //      hide private properties everywhere
 //      model type in geneartor params

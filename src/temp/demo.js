@@ -29,8 +29,8 @@ import {CpeeDiffAdapter} from "../../test/diff_eval/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
 import {TestConfig} from "../../test/TestConfig.js";
 
-let old = new Preprocessor().parseFromFile(TestConfig.OLD_TREE_FILENAME);
-let newTre = new Preprocessor().parseFromFile(TestConfig.NEW_TREE_FILENAME);
+let old = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/old.xml");
+let newTre = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/new.xml");
 
 const es = new CpeeDiff().diff(old, newTre);
 

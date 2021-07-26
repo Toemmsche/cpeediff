@@ -17,9 +17,20 @@
 import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
 import {NodeFactory} from "./NodeFactory.js";
 import {DeltaNode} from "./DeltaNode.js";
-
+/**
+ * Factory class for creating DeltaNode objects from an existing node({@see Node}, {@see DeltaNode}, {@see MergeNode}),
+ * an xmldom object (extraction) or an XML String (parsing).
+ * @extends AbstractNodeFactory
+ */
 export class DeltaNodeFactory extends AbstractNodeFactory{
 
+    /**
+     * Create a new DeltaNode instance from an existing Node object.
+     * The fields inherited from Node are copied by value.
+     * @param {Node} node The existing node object
+     * @param {Boolean} includeChildren If the created node should include the children of the existing node.
+     * @return DeltaNode A delta node with base values of the existing node.
+     */
     static _fromNode(node, includeChildren) {
         const deltaNode = new DeltaNode(node.label, node.text);
         for (const [key, value] of node.attributes) {
@@ -33,6 +44,14 @@ export class DeltaNodeFactory extends AbstractNodeFactory{
         return deltaNode;
     }
 
+    /**
+     * Create a new DeltaNode instance of from an existing DeltaNode object.
+     * This is essentially a copy by value.
+     * @param {DeltaNode} node The existing delta node object
+     * @param {Boolean} includeChildren If the created node should include the children (and placeholders)
+     * of the existing delta node.
+     * @return DeltaNode A copy of the existing delta node
+     */
     static _fromDeltaNode(deltaNode, includeChildren) {
         const copy = this._fromNode(deltaNode, includeChildren);
         copy.type = deltaNode.type;
@@ -48,10 +67,22 @@ export class DeltaNodeFactory extends AbstractNodeFactory{
         return copy;
     }
 
+    /**
+     * Create a new DeltaNode instance from an XML document (as a string).
+     * @param {String} xml The source XML document as a string
+     * @param {Boolean} includeChildren If the created node should include the children given in the XML document.
+     * @return DeltaNode The corresponding root delta node of the XML document tree.
+     */
     static _fromXmlString(xml, includeChildren) {
        return this._fromNode(NodeFactory.getNode(xml, includeChildren), includeChildren);
     }
 
+    /**
+     * Create a new DeltaNode instance from an xmldom object.
+     * @param {Object} xmlElement The existing xmldom object
+     * @param {Boolean} includeChildren If the created node should include the children of the xmldom object.
+     * @return Node The corresponding root delta node of the XML DOM tree.
+     */
     static _fromXmlDom(xmlElement, includeChildren) {
         return this._fromNode(NodeFactory.getNode(xmlElement, includeChildren), includeChildren);
     }

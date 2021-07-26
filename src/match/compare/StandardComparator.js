@@ -21,20 +21,25 @@ import {Dsl} from "../../Dsl.js";
 import {Lcs} from "../../lib/Lcs.js";
 import {AbstractComparator} from "./AbstractComparator.js";
 import {Config} from "../../Config.js";
+import {ElementSizeExtractor} from "../extract/ElementSizeExtractor.js";
 
 export class StandardComparator extends AbstractComparator {
 
     callPropertyExtractor;
     variableExtractor;
     sizeExtractor;
-    matching;
+    elementSizeExtractor;
 
-    constructor(matching) {
+    constructor() {
         super();
         this.callPropertyExtractor = new CallPropertyExtractor()
         this.variableExtractor = new VariableExtractor(this.callPropertyExtractor);
         this.sizeExtractor = new SizeExtractor();
-        this.matching = matching;
+        this.elementSizeExtractor = new ElementSizeExtractor();
+    }
+
+    fastElementSize(node) {
+        return this.elementSizeExtractor.get(node);
     }
 
     _weightedAverage(items, weights) {
@@ -200,25 +205,6 @@ export class StandardComparator extends AbstractComparator {
         return posCV;
     }
 
-    commonality(node, other) {
-        //TODO weigh nodes
-        let commonCounter = 0;
-        const nodeSet = new Set(node
-            .toPreOrderArray()
-            .slice(1)
-            .filter(n => !n.isPropertyNode()));
-        const otherSet = new Set(other
-            .toPreOrderArray()
-            .slice(1)
-            .filter(n => !n.isPropertyNode()));
-        for (const node of nodeSet) {
-            if (this.matching.hasAny(node) && otherSet.has(this.matching.getOther(node))) {
-                commonCounter++;
-            }
-        }
-
-        return 1 - (commonCounter / Math.max(nodeSet.size, otherSet.size));
-    }
 
     compare(node, other) {
         const compareValue = this._weightedAverage([this.compareContent(node, other), this.comparePosition(node, other)],

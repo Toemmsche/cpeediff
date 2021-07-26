@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+       http=//www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,14 +14,19 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {DiffAdapter} from "./DiffAdapter.js";
+import {AbstractExtractor} from "./AbstractExtractor.js";
 
-export class XccAdapter extends DiffAdapter{
+export class ElementSizeExtractor extends AbstractExtractor {
 
-    constructor() {
-        super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+    _extract(node) {
+        let size = 0;
+        if(!node.isPropertyNode()) {
+            size = 1;
+            for(const child of node) {
+                size += this.get(child);
+            }
+        }
+        this._memo.set(node, size);
     }
+
 }
-
-
