@@ -64,6 +64,11 @@ export class DiffAlgorithmEvaluation {
         for(const testCaseDir of caseDirs) {
             const testCase = DiffTestCase.from(testCaseDir);
 
+            if(testCase == null) {
+                Logger.warn("Skipping diff case directory " + testCaseDir, this);
+                continue;
+            }
+
             resultsPerTest.set(testCase.info, []);
             for (const adapter of this.adapters) {
                 Logger.info("Running diff case " + testCase.info.name + " for " + adapter.displayName + "...", this);

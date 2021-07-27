@@ -139,7 +139,7 @@ export class Logger {
      * @type {boolean}
      * @private
      */
-    static _enabled = true;
+    static _enabled = false;
 
     /**
      * Disable logging. Result logs are not affected.

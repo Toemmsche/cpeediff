@@ -31,6 +31,7 @@ import {TestConfig} from "./test/TestConfig.js";
 import * as fs from "fs";
 import {Logger} from "./Logger.js";
 
+
 const argv = yargs(hideBin(process.argv))
     .command("diff <old> <new>", "Calculcate and shows the difference between two CPEE process trees", (yargs) => {
         yargs
@@ -79,7 +80,6 @@ const argv = yargs(hideBin(process.argv))
                 type: "boolean",
                 default: false
             })
-
             .check(argv => {
                 if (!fs.existsSync(argv.old)) {
                     throw new Error(argv.old + " ist not a valid file path");
@@ -175,5 +175,8 @@ const argv = yargs(hideBin(process.argv))
         }
     })
     .help()
+    .demandCommand()
+    .strictCommands()
     .argv;
+
 

@@ -11,6 +11,7 @@
                     </arguments>
                 </parameters>
             </call>
+            <terminate></terminate>
         </alternative>
     </choose>
 </description>
