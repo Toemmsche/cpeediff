@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
 import {IdExtractor} from "../../src/match/extract/IdExtractor.js";
 import assert from "assert";
-import {MatchTestResult} from "./MatchTestResult.js";
 import {Logger} from "../../Logger.js";
+import {TestConfig} from "../TestConfig.js";
+import {ActualMatching} from "../actual/ActualMatching.js";
 
-export class AbstractMatchAdapter {
+export class MatchAdapter {
 
     pathPrefix;
     displayName;
@@ -80,27 +80,27 @@ export class AbstractMatchAdapter {
         }
     }
 
-    evalCase(name, oldTree, newTree, expected) {
+    evalCase(testCase) {
         let matching;
         try {
-            matching = this._run(oldTree, newTree);
+            matching = this._run(testCase.oldTree, testCase.newTree);
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-               Logger.info(this.displayName + " timed out for " + name, this);
-                return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.TIMEOUT);
+                Logger.info(this.displayName + " timed out for " + testCase.name, this);
+                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.TIMEOUT)
             } else {
-               Logger.info(this.displayName + " crashed on " + name + ": " + e.toString(), this);
-                return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.RUNTIME_ERROR);
+                Logger.info(this.displayName + " crashed on " + testCase.name + ": " + e.toString(), this);
+                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR)
             }
         }
         try {
-            this._verifyResult(matching, expected);
+            this._verifyResult(matching, testCase.expected);
         } catch (e) {
-            Logger.info(this.displayName + " gave wrong answer for " + name + ": " + e.toString(), this);
-            return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.WRONG_ANSWER);
+            Logger.info(this.displayName + " gave wrong answer for " + testCase.name + ": " + e.toString(), this);
+            return testCase.complete(this.displayName, new ActualMatching(matching), TestConfig.VERDICTS.WRONG_ANSWER)
         }
-        return new MatchTestResult(name, this.displayName, TestConfig.VERDICTS.OK);
+        return testCase.complete(this.displayName, new ActualMatching(matching), TestConfig.VERDICTS.OK)
     }
 }
 

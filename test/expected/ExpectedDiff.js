@@ -14,30 +14,24 @@
    limitations under the License.
 */
 
-export class DiffTestResult {
+import {AbstractExpected} from "./AbstractExpected.js";
 
-    info;
-    algorithm;
-    runtime;
+export class ExpectedDiff extends AbstractExpected{
 
-    changes;
+    maxSize;
     insertions;
     moves;
     updates;
     deletions;
 
-    diffSize;
 
-    constructor(info,algorithm, runtime, changes, insertions, moves, updates, deletions, diffSize) {
-        this.info = info;
-        this.algorithm = algorithm;
-        this.runtime = runtime;
-        this.changes = changes;
+    constructor( maxSize, insertions = 0, moves = 0, updates = 0, deletions  = 0) {
+        super();
+        this.maxSize = maxSize;
         this.insertions = insertions;
         this.moves = moves;
         this.updates = updates;
         this.deletions = deletions;
-        this.diffSize = diffSize;
     }
 }
 

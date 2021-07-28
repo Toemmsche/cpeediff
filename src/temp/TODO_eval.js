@@ -21,8 +21,9 @@
 //      cost is not correct see shuffled only
 //      node distribution as genparam
 //      rewrite tests, remove data elements and property wrapper, use manipulates instead of cals (where sinnvoll)
-//      use scraper for match and merge
 //      maybe do not use preprocessed trees for evaluation
+//      rename info.json
+//      migrate to testcase architecture in merge and match eval
 
 
 /*

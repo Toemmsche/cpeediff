@@ -14,18 +14,13 @@
    limitations under the License.
 */
 
-export class AggregateMatchResult {
+import {TestConfig} from "../TestConfig.js";
+import {MergeAdapter} from "./MergeAdapter.js";
 
-    algorithmName;
-    ok;
-    wrongAnswer;
-    runtimeError;
+export class XccPatchAdapter extends MergeAdapter  {
 
-    constructor(algorithmName, ok, wrongAnswer, runtimeError) {
-        this.algorithmName = algorithmName;
-        this.ok = ok;
-        this.wrongAnswer = wrongAnswer;
-        this.runtimeError = runtimeError;
+    constructor() {
+        super(TestConfig.MERGES.XCC.path, TestConfig.MERGES.XCC.displayName);
     }
 }
 

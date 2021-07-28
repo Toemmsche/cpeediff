@@ -25,14 +25,20 @@ import {Preprocessor} from "../io/Preprocessor.js";
 import {Config} from "../Config.js";
 import {CpeeMerge} from "../merge/CpeeMerge.js";
 import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
-import {CpeeDiffAdapter} from "../../test/diff_eval/CpeeDiffAdapter.js";
+import {CpeeDiffAdapter} from "../../test/diff_adapters/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
 import {TestConfig} from "../../test/TestConfig.js";
+import {Logger} from "../../Logger.js";
 
-let old = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/old.xml");
-let newTre = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/new.xml");
+Logger.enableLogging();
 
-const es = new CpeeDiff().diff(old, newTre);
+let base = new Preprocessor().parseFromFile("test/test_set/merge_cases/deletion/close_deletions/base.xml");
+let b1 = new Preprocessor().parseFromFile("test/test_set/merge_cases/deletion/close_deletions/1.xml");
+let b2 = new Preprocessor().parseFromFile("test/test_set/merge_cases/deletion/close_deletions/2.xml");
+
+const es = new CpeeMerge().merge(base, b1,b2);
+
+console.log(XmlFactory.serialize(es));
 
 
 

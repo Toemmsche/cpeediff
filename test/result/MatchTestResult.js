@@ -14,24 +14,12 @@
    limitations under the License.
 */
 
-export class ExpectedMatch {
+import {AbstractTestResult} from "./AbstractTestResult.js";
 
-    matches;
-    notMatches;
+export class MatchTestResult extends AbstractTestResult{
 
-    oldMatched
-    notOldMatched;
-
-    newMatched;
-    notNewMatched;
-
-    constructor() {
-        this.matches = [];
-        this.notMatches = [];
-        this.oldMatched = [];
-        this.notOldMatched = [];
-        this.newMatched = [];
-        this.notNewMatched = [];
+    constructor(caseName, algorithm,actual, verdict) {
+        super(caseName, algorithm, actual, verdict);
     }
 }
 

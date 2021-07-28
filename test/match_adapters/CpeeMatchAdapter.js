@@ -14,20 +14,21 @@
    limitations under the License.
 */
 
-export class AggregateMergeResult {
+import {TestConfig} from "../TestConfig.js";
+import {MatchPipeline} from "../../src/match/MatchPipeline.js";
+import {MatchAdapter} from "./MatchAdapter.js";
 
-    algorithmName;
-    ok;
-    acceptable
-    wrongAnswer;
-    runtimeError;
+export class CpeeMatchAdapter extends MatchAdapter{
 
-    constructor(algorithmName, ok, acceptable, wrongAnswer, runtimeError) {
-        this.algorithmName = algorithmName;
-        this.ok = ok;
-        this.acceptable = acceptable;
-        this.wrongAnswer = wrongAnswer;
-        this.runtimeError = runtimeError;
+    matchPipeline;
+
+    constructor() {
+        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName);
+        this.matchPipeline = MatchPipeline.standard();
+    }
+
+    _run(oldTree, newTree) {
+        return this.matchPipeline.execute(oldTree, newTree);
     }
 }
 

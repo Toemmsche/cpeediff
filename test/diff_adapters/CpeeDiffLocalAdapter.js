@@ -21,9 +21,10 @@ import {XmlFactory} from "../../src/io/XmlFactory.js";
 import {DiffAdapter} from "./DiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
-import {DiffTestResult} from "./DiffTestResult.js";
+import {DiffTestResult} from "../result/DiffTestResult.js";
 import fs from "fs";
 import {Logger} from "../../Logger.js";
+import {ActualDiff} from "../actual/ActualDiff.js";
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {
 
@@ -82,16 +83,16 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                Logger.info(this.displayName + " timed out for " + testCase.info.name, this);
-                return testCase.timeout( this.displayName);
+                Logger.info(this.displayName + " timed out for " + testCase.name, this);
+                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.TIMEOUT);
             } else {
-                Logger.info(this.displayName + " crashed for " + testCase.info.name + ": " + e.toString(), this);
-                return testCase.fail(this.displayName)
+                Logger.info(this.displayName + " crashed for " + testCase.name + ": " + e.toString(), this);
+                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR)
             }
         }
         const counters = this._parseOutput(exec.output);
-        const changesFound = counters.reduce((a, b) => a + b, 0);
-        return new DiffTestResult(testCase.info, this.displayName, exec.runtime, changesFound, ...counters, XmlFactory.serialize(exec.output).length)
+        //An OK verdict is emitted because the diff algorithm didnt fail
+        return testCase.complete(this.displayName,  new ActualDiff(exec.output, exec.runtime, ...counters), TestConfig.VERDICTS.OK);
     }
 }
 

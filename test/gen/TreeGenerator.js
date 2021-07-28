@@ -17,7 +17,7 @@
 import {Node} from "../../src/tree/Node.js"
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {Dsl} from "../../src/Dsl.js";
-import {DiffTestInfo} from "../case/DiffTestInfo.js";
+import {ExpectedDiff} from "../expected/ExpectedDiff.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {Config} from "../../src/Config.js";
 import {Logger} from "../../Logger.js";
@@ -493,7 +493,7 @@ export class TreeGenerator {
      * Apply changes (edit operations) to an existing tree. The distribution and amount of changes can be specified.
      * @param {Node} tree The root node of the tree to be changed.
      * @param {ChangeParameters} changeParams A set of parameters for the changes.
-     * @returns {{tree: Node, info: DiffTestInfo}} An anonymous object containing the root of the changed tree
+     * @returns {{tree: Node, expected: ExpectedDiff}} An anonymous object containing the root of the changed tree
      * and information about relevant for testing with this tree.
      */
     changeTree(tree, changeParams) {
@@ -557,7 +557,7 @@ export class TreeGenerator {
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             tree: preparedTree,
-            info: new DiffTestInfo(null, Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
+            expected: new ExpectedDiff(null, Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
         };
 
     }

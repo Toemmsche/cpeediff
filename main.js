@@ -24,16 +24,18 @@ import {Preprocessor} from "./src/io/Preprocessor.js";
 import {CpeeDiff} from "./src/diff/CpeeDiff.js";
 import {XmlFactory} from "./src/io/XmlFactory.js";
 import {DeltaTreeGenerator} from "./src/patch/DeltaTreeGenerator.js";
-import {DiffAlgorithmEvaluation} from "./test/diff_eval/DiffAlgorithmEvaluation.js";
-import {MergeAlgorithmEvaluation} from "./test/merge_eval/MergeAlgorithmEvaluation.js";
-import {MatchingAlgorithmEvaluation} from "./test/match_eval/MatchingAlgorithmEvaluation.js";
+import {DiffAlgorithmEvaluation} from "./test/eval/DiffAlgorithmEvaluation.js";
+import {MergeAlgorithmEvaluation} from "./test/eval/MergeAlgorithmEvaluation.js";
+import {MatchingAlgorithmEvaluation} from "./test/eval/MatchingAlgorithmEvaluation.js";
 import {TestConfig} from "./test/TestConfig.js";
 import * as fs from "fs";
 import {Logger} from "./Logger.js";
-
+import * as util from "util";
+import {CpeeMerge} from "./src/merge/CpeeMerge.js";
+import {NodeFactory} from "./src/tree/NodeFactory.js";
 
 const argv = yargs(hideBin(process.argv))
-    .command("diff <old> <new>", "Calculcate and shows the difference between two CPEE process trees", (yargs) => {
+    .command("diff <old> <new>", "Calculcate and show the difference between two CPEE process trees", (yargs) => {
         yargs
             .positional("old", {
                 description: "The original CPEE process tree as an XML document",
@@ -173,6 +175,45 @@ const argv = yargs(hideBin(process.argv))
         if (argv.suite === "all" || argv.suite === "merge") {
             MergeAlgorithmEvaluation.all().evalAll(TestConfig.MERGE_CASES_DIR);
         }
+    })
+    .command("merge <base> <branch1> <branch2>", "Perform a three-way merge for process trees", (yargs) => {
+        yargs
+            .positional("base", {
+                description: "The base CPEE process tree as an XML document",
+                type: "string"
+            })
+            .positional("branch1", {
+                description: "The first branch CPEE process tree as an XML document",
+                type: "string"
+            })
+            .positional("branch2", {
+                description: "The second branch CPEE process tree as an XML document",
+                type: "string"
+            })
+            .option("verbose", {
+            description: "Provide extended log messages",
+            alias: "v",
+            type: "boolean",
+            default: false
+        })
+    }, (argv) => {
+        if (argv.verbose) {
+            Logger.enableLogging();
+        } else {
+            Logger.disableLogging();
+        }
+        //parse
+        const parser = new Preprocessor();
+        const base = parser.parseFromFile(argv.base);
+        const branch1 = parser.parseFromFile(argv.branch1);
+        const branch2 = parser.parseFromFile(argv.branch2);
+
+        //merge
+        const merger = new CpeeMerge();
+        const merged = merger.merge(base, branch1, branch2);
+
+        //print normal tree (no merge or delta annotations)
+        Logger.result(XmlFactory.serialize(NodeFactory.getNode(merged)));
     })
     .help()
     .demandCommand()

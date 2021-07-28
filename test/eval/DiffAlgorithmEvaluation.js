@@ -17,13 +17,13 @@
 import {TestConfig} from "../TestConfig.js";
 import * as fs from "fs";
 import {MarkDownFactory} from "../util/MarkDownFactory.js";
-import {CpeeDiffAdapter} from "./CpeeDiffAdapter.js";
-import {XmlDiffAdapter} from "./XmlDiffAdapter.js";
-import {DiffXmlAdapter} from "./DiffXmlAdapter.js";
-import {DeltaJsAdapter} from "./DeltaJsAdapter.js";
-import {XccAdapter} from "./XccAdapter.js";
-import {UnixDiffAdapter} from "./UnixDiffAdapter.js";
-import {XyDiffAdapter} from "./XyDiffAdapter.js";
+import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
+import {XmlDiffAdapter} from "../diff_adapters/XmlDiffAdapter.js";
+import {DiffXmlAdapter} from "../diff_adapters/DiffXmlAdapter.js";
+import {DeltaJsAdapter} from "../diff_adapters/DeltaJsAdapter.js";
+import {XccAdapter} from "../diff_adapters/XccAdapter.js";
+import {UnixDiffAdapter} from "../diff_adapters/UnixDiffAdapter.js";
+import {XyDiffAdapter} from "../diff_adapters/XyDiffAdapter.js";
 import {Logger} from "../../Logger.js";
 import {DirectoryScraper} from "../util/DirectoryScraper.js";
 import {DiffTestCase} from "../case/DiffTestCase.js";
@@ -69,20 +69,20 @@ export class DiffAlgorithmEvaluation {
                 continue;
             }
 
-            resultsPerTest.set(testCase.info, []);
+            resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
-                Logger.info("Running diff case " + testCase.info.name + " for " + adapter.displayName + "...", this);
+                Logger.info("Running diff case " + testCase.name + " for " + adapter.displayName + "...", this);
 
                 const result = adapter.evalCase(testCase);
                 resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(testCase.info).push(result);
+                resultsPerTest.get(testCase).push(result);
             }
         }
 
         //TODO aggregate metrics
-        for (const [testInfo, results] of resultsPerTest) {
-            Logger.result("Results for case " + testInfo.name, this);
-            Logger.result(testInfo, this);
+        for (const [testCase, results] of resultsPerTest) {
+            Logger.result("Results for case " + testCase.name, this);
+            Logger.result(testCase, this);
             Logger.result("\n" + MarkDownFactory.tabularize(results), this);
         }
     }

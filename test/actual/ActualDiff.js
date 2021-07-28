@@ -14,17 +14,35 @@
    limitations under the License.
 */
 
-export class MatchTestResult {
+import {AbstractActual} from "./AbstractActual.js";
 
-    name;
-    algorithm;
-    verdict;
+export class ActualDiff extends AbstractActual {
 
-    constructor(name,algorithm, verdict) {
-        this.algorithm = algorithm;
-        this.name = name;
-        this.verdict = verdict
+
+    runtime;
+
+    changes;
+    insertions;
+    moves;
+    updates;
+    deletions;
+
+
+    constructor(raw, runtime, insertions, moves, updates, deletions) {
+        super(raw);
+        this.runtime = runtime;
+        this.changes = insertions + moves + updates + deletions;
+        this.insertions = insertions;
+        this.moves = moves;
+        this.updates = updates;
+        this.deletions = deletions;
+        this.diffSize = raw.length;
     }
+
+    diffSize;
+
+
+
 }
 
 

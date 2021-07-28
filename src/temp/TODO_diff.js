@@ -9,7 +9,8 @@
 //      use labelmap inside pathmatching
 //      use label-endpoint map for similarity matching (as option)
 //      unmatched matcher
-//      TRY NEW BOTTOM BUILD UP N" MAP COMMONAIL:TY ALGO
+//      turn single function classes in to functions
+//      add timings to merger
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out

@@ -18,12 +18,14 @@ import {execFileSync} from "child_process";
 import {XmlFactory} from "../../src/io/XmlFactory.js";
 import {TestConfig as Testconfig, TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {MergeTestResult} from "./MergeTestResult.js";
+import {MergeTestResult} from "../result/MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {Logger} from "../../Logger.js";
+import {ActualMerge} from "../actual/ActualMerge.js";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
-export class AbstractMergeAdapter {
+export class MergeAdapter {
 
     pathPrefix;
     displayName;
@@ -33,7 +35,7 @@ export class AbstractMergeAdapter {
         this.displayName = displayName;
     }
 
-    _run(name, base, branch1, branch2) {
+    _run(base, branch1, branch2) {
         const baseString = XmlFactory.serialize(base);
         const branch1String = XmlFactory.serialize(branch1);
         const branch2String = XmlFactory.serialize(branch2);
@@ -49,33 +51,33 @@ export class AbstractMergeAdapter {
         return execFileSync(this.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
     }
 
-    evalCase(name, base, branch1, branch2, expected, accepted) {
+    evalCase(testCase) {
         let exec;
         try {
-            exec = this._run(name, base, branch1, branch2);
+            exec = this._run(testCase.base, testCase.branch1, testCase.branch2);
         } catch (e) {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
-                Logger.info(this.displayName + " timed out for " + name, this);
-                return new MergeTestResult(name, this.displayName, TestConfig.VERDICTS.TIMEOUT);
+                Logger.info(this.displayName + " timed out for " + testCase.name, this);
+                return testCase.complete(this.displayName, null, Testconfig.VERDICTS.TIMEOUT);
             } else {
-               Logger.info(this.displayName + " crashed on " + name + ": " + e.toString(), this);
-                return new MergeTestResult(name, this.displayName, TestConfig.VERDICTS.RUNTIME_ERROR);
+               Logger.info(this.displayName + " crashed on " + testCase.name + ": " + e.toString(), this);
+                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
             }
         }
-        const verdict = this._verifyResult(exec, expected, accepted);
+        const actual = new Preprocessor().parseWithMetadata(exec);
+        const verdict = this._verifyResult(actual, testCase.expected);
         if(verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
-            Logger.info(this.displayName + " gave wrong answer for " + name, this);
+            Logger.info(this.displayName + " gave wrong answer for " + testCase.name, this);
         }
-        return new MergeTestResult(name, this.displayName, verdict);
+        return testCase.complete(this.displayName, new ActualMerge(exec, actual), verdict);
     }
 
-    _verifyResult(output, expected, accepted) {
-        const actual = new Preprocessor().parseWithMetadata(output);
+    _verifyResult(actual, expectedMerge) {
         const hashExtractor = new HashExtractor();
-        if (expected.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
+        if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
             return TestConfig.VERDICTS.OK;
-        } else if (accepted.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
+        } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;

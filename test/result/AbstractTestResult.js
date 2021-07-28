@@ -14,18 +14,19 @@
    limitations under the License.
 */
 
-export class LogMessage {
-    level;
-    message;
-    source;
+export class AbstractTestResult {
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+    caseName;
+    algorithm;
+    actual;
+    verdict;
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
+    constructor(caseName, algorithm, actual, verdict) {
+        this.caseName = caseName;
+        this.algorithm = algorithm;
+        this.actual = actual;
+        this.verdict = verdict;
     }
 }
+
+

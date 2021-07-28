@@ -14,24 +14,8 @@
    limitations under the License.
 */
 
-export class DiffTestInfo {
+export class AbstractExpected {
 
-    name;
-    maxSize;
-    insertions;
-    moves;
-    updates;
-    deletions;
-
-
-    constructor(name, maxSize, insertions = 0, moves = 0, updates = 0, deletions  = 0) {
-        this.name = name;
-        this.maxSize = maxSize;
-        this.insertions = insertions;
-        this.moves = moves;
-        this.updates = updates;
-        this.deletions = deletions;
-    }
 }
 
 

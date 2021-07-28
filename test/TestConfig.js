@@ -28,7 +28,7 @@ export const TestConfig = {
     OLD_TREE_FILENAME: "old.xml",
     NEW_TREE_FILENAME: "new.xml",
 
-    DIFF_INFO_FILENAME: "info.json",
+    DIFF_EXPECTED_FILENAME: "info.json",
 
     EXPECTED_MATCHES_FILE_NAME: "expected.json",
 

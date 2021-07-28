@@ -14,16 +14,15 @@
    limitations under the License.
 */
 
-export class MergeTestResult {
+import {AbstractActual} from "./AbstractActual.js";
 
-    name;
-    algorithm;
-    verdict;
+export class ActualMatching extends AbstractActual {
 
-    constructor(name, algorithm, verdict) {
-        this.algorithm = algorithm;
-        this.name = name;
-        this.verdict = verdict;
+    matching;
+
+    constructor(raw, matching) {
+        super(raw);
+        this.matching = matching;
     }
 }
 

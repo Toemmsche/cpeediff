@@ -14,18 +14,14 @@
    limitations under the License.
 */
 
-export class LogMessage {
-    level;
-    message;
-    source;
+import {TestConfig} from "../TestConfig.js";
+import {MergeAdapter} from "./MergeAdapter.js";
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+export class _3dmAdapter extends MergeAdapter  {
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
+    constructor() {
+        super(TestConfig.MERGES._3DM.path, TestConfig.MERGES._3DM.displayName);
     }
 }
+
+

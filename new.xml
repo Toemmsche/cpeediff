@@ -1,17 +1,1358 @@
 <description
     xmlns="http://cpee.org/ns/description/1.0">
-    <choose mode="inclusive">
-        <alternative condition="data.costs > 700">
-            <call endpoint="http://gruppe.wst.univie.ac.at/~mangler/services/approval.php">
-                <parameters>
-                    <label>Approve Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <costs>data.costs</costs>
-                    </arguments>
-                </parameters>
-            </call>
-            <terminate></terminate>
-        </alternative>
-    </choose>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:patch</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.kpGhgaFiCW = 420;data.cCbSXvNCQ = 420;data.cqrzPEMUNPIgF = 420;</finalize>
+            <prepare>fun(data.yJJbtuDVHYGAx);fun(data.CTzMpGqxOdMoXU);fun(data.vzWZIa);fun(data.IDogn_);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:delete</method>
+        </parameters>
+        <code>
+            <finalize>data.yJJbtuDVHYGAx = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="QmlglLSJyTwsWDpvkHal">
+        <parameters>
+            <label>zNjaedqAlMXIPRQdjxkFea</label>
+            <method>:put</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.yJJbtuDVHYGAx = 420;data.JHOHrJqfpu = 420;data.kpGhgaFiCW = 420;data.vbTOr = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="EwjjTzQcurran_zQRUqcZHqcGgC">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:post</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <IDogn_>data.IDogn_</IDogn_>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.vzWZIa = 420;data.qbXGdNpoOV = 420;data.cXPwJOdJxvco = 420;data.cCbSXvNCQ = 420;</finalize>
+            <prepare>fun(data.XU_aiiIM);fun(data.PKdCyYqpbWLrlg);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:put</method>
+            <arguments>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.wPppNHYkTp = 420;data.PmHacxnxHzbbmI = 420;data.yJJbtuDVHYGAx = 420;data.cXPwJOdJxvco = 420;data.zUfpDpzHNzcZ = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);fun(data.kpGhgaFiCW);fun(data.XU_aiiIM);fun(data.vzWZIa);fun(data.PmHacxnxHzbbmI);fun(data.JHOHrJqfpu);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:post</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <IDogn_>data.IDogn_</IDogn_>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.CTzMpGqxOdMoXU = 420;data.JHOHrJqfpu = 420;data.LpzxXcLBABc = 420;data.IDogn_ = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.qbXGdNpoOV);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>_qffsNfmGsdWLESScuRTmOIZdPblg</label>
+            <method>:patch</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.qbXGdNpoOV = 420;data.PmHacxnxHzbbmI = 420;data.CTzMpGqxOdMoXU = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>hkpnenqJBc_rWLlFLObqsHfZxra</label>
+            <method>:get</method>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.iQVfwITUsCGnr = 420;data.IDogn_ = 420;</finalize>
+            <prepare>fun(data.vbTOr);fun(data.QQPcvHnzbjU);fun(data.cXPwJOdJxvco);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="KncPPwtVcUBCyLO">
+        <parameters>
+            <label>GQragCptJ_YDz</label>
+            <method>:post</method>
+            <arguments>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;data.CTzMpGqxOdMoXU = 420;data.vbTOr = 420;data.zUfpDpzHNzcZ = 420;data.siJCoDAJv = 420;data.JHOHrJqfpu = 420;</finalize>
+            <prepare>fun(data.JHOHrJqfpu);fun(data.wPppNHYkTp);fun(data.qbXGdNpoOV);fun(data.cCbSXvNCQ);fun(data.cXPwJOdJxvco);fun(data.cqrzPEMUNPIgF);</prepare>
+        </code>
+    </call>
+    <call endpoint="djVRNTmQrvjcBoPDOFT">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:put</method>
+            <arguments>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;data.kpGhgaFiCW = 420;</finalize>
+            <prepare>fun(data.LpzxXcLBABc);fun(data.qbXGdNpoOV);fun(data.vzWZIa);</prepare>
+        </code>
+    </call>
+    <call endpoint="QqwkpBtMRaS_tHK">
+        <parameters>
+            <label>hkpnenqJBc_rWLlFLObqsHfZxra</label>
+            <method>:delete</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.IDogn_);</prepare>
+        </code>
+    </call>
+    <call endpoint="RKag_lkolVpNBoeQDvViAZn_GNLF">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:delete</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.cqrzPEMUNPIgF = 420;</finalize>
+            <prepare>fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="QmlglLSJyTwsWDpvkHal">
+        <parameters>
+            <label>RdhPWMDbEYQBxrlLrWItqvfJ</label>
+            <method>:patch</method>
+        </parameters>
+        <code>
+            <finalize>data.QQPcvHnzbjU = 420;data.iQVfwITUsCGnr = 420;data.wPppNHYkTp = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.siJCoDAJv);fun(data.CTzMpGqxOdMoXU);fun(data.vzWZIa);</prepare>
+        </code>
+    </call>
+    <call endpoint="zyUIZUWKSWJjDQXt">
+        <parameters>
+            <label>GQragCptJ_YDz</label>
+            <method>:put</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.zUfpDpzHNzcZ = 420;data.QQPcvHnzbjU = 420;data.JHOHrJqfpu = 420;data.yJJbtuDVHYGAx = 420;data.PKdCyYqpbWLrlg = 420;data.PmHacxnxHzbbmI = 420;</finalize>
+            <prepare>fun(data.wPppNHYkTp);fun(data.PmHacxnxHzbbmI);fun(data.zUfpDpzHNzcZ);fun(data.yJJbtuDVHYGAx);fun(data.PKdCyYqpbWLrlg);fun(data.iQVfwITUsCGnr);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:put</method>
+            <arguments>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.cqrzPEMUNPIgF = 420;data.iQVfwITUsCGnr = 420;data.qbXGdNpoOV = 420;data.vzWZIa = 420;data.LpzxXcLBABc = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:get</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.CTzMpGqxOdMoXU = 420;data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.vbTOr);fun(data.cXPwJOdJxvco);fun(data.vzWZIa);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="_URzayNNJUxA">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:delete</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.vzWZIa);fun(data.LpzxXcLBABc);</prepare>
+        </code>
+    </call>
+    <call endpoint="djVRNTmQrvjcBoPDOFT">
+        <parameters>
+            <label>hkpnenqJBc_rWLlFLObqsHfZxra</label>
+            <method>:delete</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.PKdCyYqpbWLrlg = 420;data.LpzxXcLBABc = 420;data.zUfpDpzHNzcZ = 420;</finalize>
+            <prepare>fun(data.iQVfwITUsCGnr);fun(data.vbTOr);fun(data.PKdCyYqpbWLrlg);fun(data.QQPcvHnzbjU);</prepare>
+        </code>
+    </call>
+    <call endpoint="QmlglLSJyTwsWDpvkHal">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:put</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.kpGhgaFiCW);fun(data.XU_aiiIM);fun(data.cCbSXvNCQ);fun(data.cqrzPEMUNPIgF);</prepare>
+        </code>
+    </call>
+    <call endpoint="nyvviZNkJvixuHdXWC">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:put</method>
+            <arguments>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;data.XU_aiiIM = 420;data.cCbSXvNCQ = 420;</finalize>
+            <prepare>fun(data.vbTOr);fun(data.kpGhgaFiCW);fun(data.PmHacxnxHzbbmI);fun(data.cqrzPEMUNPIgF);fun(data.cCbSXvNCQ);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>sSrylTBNWAor_eA</label>
+            <method>:put</method>
+            <arguments>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.vbTOr);fun(data.CTzMpGqxOdMoXU);fun(data.cqrzPEMUNPIgF);fun(data.kpGhgaFiCW);</prepare>
+        </code>
+    </call>
+    <call endpoint="QmlglLSJyTwsWDpvkHal">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:patch</method>
+            <arguments>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <IDogn_>data.IDogn_</IDogn_>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.cXPwJOdJxvco = 420;</finalize>
+            <prepare>fun(data.QQPcvHnzbjU);fun(data.vzWZIa);fun(data.wPppNHYkTp);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>rXWEeIxCNLRHRHwggtTABai</label>
+            <method>:put</method>
+            <arguments>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.cXPwJOdJxvco = 420;data.qbXGdNpoOV = 420;</finalize>
+            <prepare>fun(data.JHOHrJqfpu);fun(data.vzWZIa);fun(data.cXPwJOdJxvco);fun(data.cqrzPEMUNPIgF);fun(data.vbTOr);</prepare>
+        </code>
+    </call>
+    <call endpoint="QqwkpBtMRaS_tHK">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:get</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.LpzxXcLBABc = 420;data.cXPwJOdJxvco = 420;data.vzWZIa = 420;data.kpGhgaFiCW = 420;</finalize>
+            <prepare>fun(data.wPppNHYkTp);fun(data.JHOHrJqfpu);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>oZtnnhlbKgUwgBgWYlRNqYol</label>
+            <method>:get</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.kpGhgaFiCW);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>sSrylTBNWAor_eA</label>
+            <method>:put</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.cqrzPEMUNPIgF = 420;data.qbXGdNpoOV = 420;data.siJCoDAJv = 420;data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.siJCoDAJv);fun(data.cqrzPEMUNPIgF);fun(data.LpzxXcLBABc);fun(data.vbTOr);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:put</method>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.PmHacxnxHzbbmI = 420;data.LpzxXcLBABc = 420;data.wPppNHYkTp = 420;data.kpGhgaFiCW = 420;</finalize>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.zUfpDpzHNzcZ);fun(data.PKdCyYqpbWLrlg);fun(data.PmHacxnxHzbbmI);fun(data.vzWZIa);fun(data.iQVfwITUsCGnr);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="_URzayNNJUxA">
+        <parameters>
+            <label>RdhPWMDbEYQBxrlLrWItqvfJ</label>
+            <method>:put</method>
+            <arguments>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.PmHacxnxHzbbmI = 420;data.IDogn_ = 420;data.PKdCyYqpbWLrlg = 420;data.siJCoDAJv = 420;</finalize>
+            <prepare>fun(data.XU_aiiIM);fun(data.LpzxXcLBABc);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:put</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.XU_aiiIM = 420;data.qbXGdNpoOV = 420;data.vzWZIa = 420;data.IDogn_ = 420;</finalize>
+            <prepare>fun(data.kpGhgaFiCW);fun(data.yJJbtuDVHYGAx);fun(data.qbXGdNpoOV);fun(data.CTzMpGqxOdMoXU);fun(data.vbTOr);fun(data.XU_aiiIM);</prepare>
+        </code>
+    </call>
+    <call endpoint="liaeKympMBwAsyelIfJD">
+        <parameters>
+            <label>XOwHYzxcpOKUULx</label>
+            <method>:delete</method>
+            <arguments>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <IDogn_>data.IDogn_</IDogn_>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;data.zUfpDpzHNzcZ = 420;data.XU_aiiIM = 420;data.wPppNHYkTp = 420;</finalize>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.JHOHrJqfpu);fun(data.zUfpDpzHNzcZ);fun(data.qbXGdNpoOV);</prepare>
+        </code>
+    </call>
+    <call endpoint="zyUIZUWKSWJjDQXt">
+        <parameters>
+            <label>uxBnQLOv_JPELlcnchSMdvnCiLc</label>
+            <method>:post</method>
+            <arguments>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vzWZIa = 420;data.QQPcvHnzbjU = 420;data.yJJbtuDVHYGAx = 420;data.PmHacxnxHzbbmI = 420;data.PKdCyYqpbWLrlg = 420;</finalize>
+            <prepare>fun(data.qbXGdNpoOV);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:delete</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <vbTOr>data.vbTOr</vbTOr>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <IDogn_>data.IDogn_</IDogn_>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.iQVfwITUsCGnr);fun(data.yJJbtuDVHYGAx);fun(data.qbXGdNpoOV);fun(data.LpzxXcLBABc);fun(data.kpGhgaFiCW);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="_URzayNNJUxA">
+        <parameters>
+            <label>wkWWSBCNlERRzobtFaA</label>
+            <method>:delete</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;</finalize>
+            <prepare>fun(data.PmHacxnxHzbbmI);fun(data.vbTOr);</prepare>
+        </code>
+    </call>
+    <call endpoint="WJvDMxwElszuNksSId">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:delete</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.wPppNHYkTp = 420;data.IDogn_ = 420;data.vbTOr = 420;data.cCbSXvNCQ = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.QQPcvHnzbjU);fun(data.cqrzPEMUNPIgF);fun(data.wPppNHYkTp);</prepare>
+        </code>
+    </call>
+    <call endpoint="KncPPwtVcUBCyLO">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:put</method>
+            <arguments>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.wPppNHYkTp);fun(data.kpGhgaFiCW);fun(data.CTzMpGqxOdMoXU);fun(data.vbTOr);fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="QqwkpBtMRaS_tHK">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:get</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.yJJbtuDVHYGAx = 420;data.vzWZIa = 420;</finalize>
+            <prepare>fun(data.vzWZIa);fun(data.cqrzPEMUNPIgF);fun(data.qbXGdNpoOV);fun(data.zUfpDpzHNzcZ);fun(data.LpzxXcLBABc);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:post</method>
+            <arguments>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.PKdCyYqpbWLrlg = 420;data.wPppNHYkTp = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.JHOHrJqfpu);fun(data.XU_aiiIM);fun(data.wPppNHYkTp);fun(data.qbXGdNpoOV);</prepare>
+        </code>
+    </call>
+    <call endpoint="_URzayNNJUxA">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:delete</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.JHOHrJqfpu = 420;data.vzWZIa = 420;data.LpzxXcLBABc = 420;data.qbXGdNpoOV = 420;</finalize>
+            <prepare>fun(data.CTzMpGqxOdMoXU);fun(data.PmHacxnxHzbbmI);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>oZtnnhlbKgUwgBgWYlRNqYol</label>
+            <method>:get</method>
+            <arguments>
+                <vbTOr>data.vbTOr</vbTOr>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vzWZIa = 420;data.zUfpDpzHNzcZ = 420;</finalize>
+            <prepare>fun(data.PmHacxnxHzbbmI);fun(data.PKdCyYqpbWLrlg);fun(data.JHOHrJqfpu);fun(data.vzWZIa);fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>GQragCptJ_YDz</label>
+            <method>:patch</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.IDogn_ = 420;data.PmHacxnxHzbbmI = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="EwjjTzQcurran_zQRUqcZHqcGgC">
+        <parameters>
+            <label>XOwHYzxcpOKUULx</label>
+            <method>:put</method>
+            <arguments>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.IDogn_ = 420;data.iQVfwITUsCGnr = 420;data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.zUfpDpzHNzcZ);fun(data.PmHacxnxHzbbmI);fun(data.cCbSXvNCQ);fun(data.CTzMpGqxOdMoXU);fun(data.LpzxXcLBABc);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:delete</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <IDogn_>data.IDogn_</IDogn_>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.zUfpDpzHNzcZ = 420;data.vzWZIa = 420;data.yJJbtuDVHYGAx = 420;</finalize>
+            <prepare>fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="RnSLCkJygbi">
+        <parameters>
+            <label>oZtnnhlbKgUwgBgWYlRNqYol</label>
+            <method>:put</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.vzWZIa = 420;data.yJJbtuDVHYGAx = 420;data.XU_aiiIM = 420;data.cXPwJOdJxvco = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.QQPcvHnzbjU);fun(data.cqrzPEMUNPIgF);fun(data.cXPwJOdJxvco);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>PNWSseAZlz_DBxHakk</label>
+            <method>:delete</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <IDogn_>data.IDogn_</IDogn_>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.iQVfwITUsCGnr = 420;data.kpGhgaFiCW = 420;data.qbXGdNpoOV = 420;data.yJJbtuDVHYGAx = 420;data.PKdCyYqpbWLrlg = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);fun(data.vzWZIa);fun(data.cXPwJOdJxvco);fun(data.XU_aiiIM);</prepare>
+        </code>
+    </call>
+    <call endpoint="QqwkpBtMRaS_tHK">
+        <parameters>
+            <label>rXWEeIxCNLRHRHwggtTABai</label>
+            <method>:get</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.zUfpDpzHNzcZ = 420;data.wPppNHYkTp = 420;data.QQPcvHnzbjU = 420;data.cqrzPEMUNPIgF = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);fun(data.cqrzPEMUNPIgF);fun(data.vzWZIa);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="RnSLCkJygbi">
+        <parameters>
+            <label>sSrylTBNWAor_eA</label>
+            <method>:post</method>
+            <arguments>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <IDogn_>data.IDogn_</IDogn_>
+                <vbTOr>data.vbTOr</vbTOr>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;</finalize>
+            <prepare>fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="zyUIZUWKSWJjDQXt">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:delete</method>
+            <arguments>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.wPppNHYkTp = 420;data.CTzMpGqxOdMoXU = 420;</finalize>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.wPppNHYkTp);fun(data.IDogn_);</prepare>
+        </code>
+    </call>
+    <call endpoint="EwjjTzQcurran_zQRUqcZHqcGgC">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:patch</method>
+            <arguments>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <IDogn_>data.IDogn_</IDogn_>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PKdCyYqpbWLrlg = 420;data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.IDogn_);fun(data.wPppNHYkTp);fun(data.CTzMpGqxOdMoXU);fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>bvBsveYsRhFnpdWdZkMsni</label>
+            <method>:put</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <vbTOr>data.vbTOr</vbTOr>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;data.cXPwJOdJxvco = 420;data.CTzMpGqxOdMoXU = 420;data.QQPcvHnzbjU = 420;data.siJCoDAJv = 420;data.vzWZIa = 420;</finalize>
+            <prepare>fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="RnSLCkJygbi">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:post</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.yJJbtuDVHYGAx = 420;data.cXPwJOdJxvco = 420;data.LpzxXcLBABc = 420;</finalize>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.cCbSXvNCQ);fun(data.iQVfwITUsCGnr);fun(data.wPppNHYkTp);fun(data.PKdCyYqpbWLrlg);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:get</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.IDogn_ = 420;data.yJJbtuDVHYGAx = 420;data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.XU_aiiIM);fun(data.JHOHrJqfpu);fun(data.PmHacxnxHzbbmI);fun(data.zUfpDpzHNzcZ);</prepare>
+        </code>
+    </call>
+    <call endpoint="WJvDMxwElszuNksSId">
+        <parameters>
+            <label>XOwHYzxcpOKUULx</label>
+            <method>:get</method>
+            <arguments>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <IDogn_>data.IDogn_</IDogn_>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.PmHacxnxHzbbmI = 420;data.wPppNHYkTp = 420;data.vbTOr = 420;data.yJJbtuDVHYGAx = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>wkWWSBCNlERRzobtFaA</label>
+            <method>:patch</method>
+            <arguments>
+                <vbTOr>data.vbTOr</vbTOr>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.cXPwJOdJxvco = 420;data.cqrzPEMUNPIgF = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:put</method>
+            <arguments>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <vbTOr>data.vbTOr</vbTOr>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.IDogn_ = 420;data.zUfpDpzHNzcZ = 420;data.cqrzPEMUNPIgF = 420;data.cCbSXvNCQ = 420;data.LpzxXcLBABc = 420;data.vzWZIa = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);fun(data.XU_aiiIM);fun(data.qbXGdNpoOV);fun(data.IDogn_);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>uxBnQLOv_JPELlcnchSMdvnCiLc</label>
+            <method>:get</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.siJCoDAJv = 420;data.qbXGdNpoOV = 420;data.vbTOr = 420;</finalize>
+            <prepare>fun(data.yJJbtuDVHYGAx);fun(data.XU_aiiIM);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>oZtnnhlbKgUwgBgWYlRNqYol</label>
+            <method>:put</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;data.LpzxXcLBABc = 420;data.siJCoDAJv = 420;data.vzWZIa = 420;data.qbXGdNpoOV = 420;data.IDogn_ = 420;</finalize>
+            <prepare>fun(data.PmHacxnxHzbbmI);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>XOwHYzxcpOKUULx</label>
+            <method>:patch</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.JHOHrJqfpu = 420;data.qbXGdNpoOV = 420;data.PKdCyYqpbWLrlg = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="q_WnTnFOIIdxfqPqB">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:post</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vzWZIa = 420;data.qbXGdNpoOV = 420;</finalize>
+            <prepare>fun(data.PKdCyYqpbWLrlg);fun(data.CTzMpGqxOdMoXU);fun(data.QQPcvHnzbjU);fun(data.XU_aiiIM);fun(data.siJCoDAJv);fun(data.cqrzPEMUNPIgF);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:patch</method>
+            <arguments>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <vbTOr>data.vbTOr</vbTOr>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.XU_aiiIM);fun(data.cXPwJOdJxvco);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:patch</method>
+            <arguments>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;data.cqrzPEMUNPIgF = 420;data.XU_aiiIM = 420;data.cCbSXvNCQ = 420;data.cXPwJOdJxvco = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="WJvDMxwElszuNksSId">
+        <parameters>
+            <label>XOwHYzxcpOKUULx</label>
+            <method>:delete</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.PKdCyYqpbWLrlg);</prepare>
+        </code>
+    </call>
+    <call endpoint="liaeKympMBwAsyelIfJD">
+        <parameters>
+            <label>hkpnenqJBc_rWLlFLObqsHfZxra</label>
+            <method>:get</method>
+            <arguments>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.siJCoDAJv);fun(data.zUfpDpzHNzcZ);fun(data.QQPcvHnzbjU);fun(data.vzWZIa);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>bvBsveYsRhFnpdWdZkMsni</label>
+            <method>:delete</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.yJJbtuDVHYGAx = 420;</finalize>
+            <prepare>fun(data.CTzMpGqxOdMoXU);fun(data.zUfpDpzHNzcZ);fun(data.cqrzPEMUNPIgF);fun(data.cXPwJOdJxvco);fun(data.qbXGdNpoOV);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="RnSLCkJygbi">
+        <parameters>
+            <label>uxBnQLOv_JPELlcnchSMdvnCiLc</label>
+            <method>:delete</method>
+            <arguments>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.vzWZIa = 420;data.siJCoDAJv = 420;data.qbXGdNpoOV = 420;data.IDogn_ = 420;data.cXPwJOdJxvco = 420;</finalize>
+            <prepare>fun(data.CTzMpGqxOdMoXU);fun(data.cXPwJOdJxvco);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>QMwjlTIupEhtvfnxMo</label>
+            <method>:post</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.kpGhgaFiCW = 420;data.LpzxXcLBABc = 420;data.cXPwJOdJxvco = 420;</finalize>
+            <prepare>fun(data.PKdCyYqpbWLrlg);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:get</method>
+            <arguments>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <vbTOr>data.vbTOr</vbTOr>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.cXPwJOdJxvco = 420;data.XU_aiiIM = 420;data.wPppNHYkTp = 420;data.qbXGdNpoOV = 420;</finalize>
+            <prepare>fun(data.cCbSXvNCQ);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>PNWSseAZlz_DBxHakk</label>
+            <method>:post</method>
+            <arguments>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.LpzxXcLBABc);fun(data.CTzMpGqxOdMoXU);fun(data.XU_aiiIM);fun(data.yJJbtuDVHYGAx);</prepare>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>bvBsveYsRhFnpdWdZkMsni</label>
+            <method>:delete</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.CTzMpGqxOdMoXU = 420;data.vzWZIa = 420;data.kpGhgaFiCW = 420;</finalize>
+            <prepare>fun(data.PKdCyYqpbWLrlg);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>BoyenzJIkpsXnMvEjAyuNqrvAnONk</label>
+            <method>:put</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.cXPwJOdJxvco = 420;data.PKdCyYqpbWLrlg = 420;data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.XU_aiiIM);fun(data.cqrzPEMUNPIgF);fun(data.qbXGdNpoOV);fun(data.PKdCyYqpbWLrlg);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>RdhPWMDbEYQBxrlLrWItqvfJ</label>
+            <method>:put</method>
+            <arguments>
+                <QQPcvHnzbjU>data.QQPcvHnzbjU</QQPcvHnzbjU>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.zUfpDpzHNzcZ = 420;data.XU_aiiIM = 420;data.cqrzPEMUNPIgF = 420;data.LpzxXcLBABc = 420;</finalize>
+            <prepare>fun(data.zUfpDpzHNzcZ);fun(data.qbXGdNpoOV);fun(data.JHOHrJqfpu);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>PNWSseAZlz_DBxHakk</label>
+            <method>:delete</method>
+            <arguments>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.wPppNHYkTp = 420;data.XU_aiiIM = 420;data.CTzMpGqxOdMoXU = 420;data.kpGhgaFiCW = 420;data.cCbSXvNCQ = 420;</finalize>
+            <prepare>fun(data.iQVfwITUsCGnr);</prepare>
+        </code>
+    </call>
+    <call endpoint="cTmTyDCwIdUNQrDiXVNvHijlhndyd">
+        <parameters>
+            <label>taUZDSpxWJyupcXimUxvQEjh</label>
+            <method>:get</method>
+            <arguments>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.zUfpDpzHNzcZ = 420;data.cCbSXvNCQ = 420;data.vbTOr = 420;data.kpGhgaFiCW = 420;data.PKdCyYqpbWLrlg = 420;data.CTzMpGqxOdMoXU = 420;</finalize>
+            <prepare>fun(data.LpzxXcLBABc);fun(data.CTzMpGqxOdMoXU);fun(data.IDogn_);fun(data.yJJbtuDVHYGAx);fun(data.PmHacxnxHzbbmI);fun(data.QQPcvHnzbjU);</prepare>
+        </code>
+    </call>
+    <call endpoint="WJvDMxwElszuNksSId">
+        <parameters>
+            <label>jOua_HrrmxlSUigyRJq</label>
+            <method>:post</method>
+            <arguments>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <vbTOr>data.vbTOr</vbTOr>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.kpGhgaFiCW);fun(data.cqrzPEMUNPIgF);fun(data.vzWZIa);fun(data.cXPwJOdJxvco);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>zNjaedqAlMXIPRQdjxkFea</label>
+            <method>:patch</method>
+            <arguments>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.LpzxXcLBABc = 420;data.PmHacxnxHzbbmI = 420;data.wPppNHYkTp = 420;data.iQVfwITUsCGnr = 420;data.PKdCyYqpbWLrlg = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="vweYdEwoOMf">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:get</method>
+            <arguments>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <vbTOr>data.vbTOr</vbTOr>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.PKdCyYqpbWLrlg);fun(data.siJCoDAJv);</prepare>
+        </code>
+    </call>
+    <call endpoint="RKag_lkolVpNBoeQDvViAZn_GNLF">
+        <parameters>
+            <label>PNWSseAZlz_DBxHakk</label>
+            <method>:put</method>
+            <arguments>
+                <IDogn_>data.IDogn_</IDogn_>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.JHOHrJqfpu = 420;data.wPppNHYkTp = 420;data.cCbSXvNCQ = 420;data.iQVfwITUsCGnr = 420;data.vzWZIa = 420;data.vbTOr = 420;</finalize>
+            <prepare>fun(data.JHOHrJqfpu);</prepare>
+        </code>
+    </call>
+    <call endpoint="q_WnTnFOIIdxfqPqB">
+        <parameters>
+            <label>zNjaedqAlMXIPRQdjxkFea</label>
+            <method>:patch</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <vbTOr>data.vbTOr</vbTOr>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.yJJbtuDVHYGAx);fun(data.wPppNHYkTp);fun(data.vbTOr);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:post</method>
+            <arguments>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.vzWZIa = 420;data.wPppNHYkTp = 420;data.CTzMpGqxOdMoXU = 420;data.yJJbtuDVHYGAx = 420;data.kpGhgaFiCW = 420;</finalize>
+            <prepare>fun(data.zUfpDpzHNzcZ);fun(data.wPppNHYkTp);fun(data.iQVfwITUsCGnr);</prepare>
+        </code>
+    </call>
+    <call endpoint="eVVmTFIGCCp">
+        <parameters>
+            <label>bvBsveYsRhFnpdWdZkMsni</label>
+            <method>:get</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <wPppNHYkTp>data.wPppNHYkTp</wPppNHYkTp>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.CTzMpGqxOdMoXU);fun(data.QQPcvHnzbjU);fun(data.vbTOr);fun(data.LpzxXcLBABc);fun(data.kpGhgaFiCW);fun(data.PKdCyYqpbWLrlg);</prepare>
+        </code>
+    </call>
+    <call endpoint="zyUIZUWKSWJjDQXt">
+        <parameters>
+            <label>sLwiFaLWNpEQvrnplBZ</label>
+            <method>:get</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.cCbSXvNCQ);fun(data.IDogn_);fun(data.wPppNHYkTp);fun(data.PmHacxnxHzbbmI);fun(data.siJCoDAJv);fun(data.vzWZIa);</prepare>
+        </code>
+    </call>
+    <call endpoint="RKag_lkolVpNBoeQDvViAZn_GNLF">
+        <parameters>
+            <label>_qffsNfmGsdWLESScuRTmOIZdPblg</label>
+            <method>:get</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.zUfpDpzHNzcZ = 420;</finalize>
+            <prepare>fun(data.CTzMpGqxOdMoXU);fun(data.cCbSXvNCQ);fun(data.XU_aiiIM);</prepare>
+        </code>
+    </call>
+    <call endpoint="rsYTOeHeAIwYwacYwOOrV">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:patch</method>
+            <arguments>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <vbTOr>data.vbTOr</vbTOr>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.JHOHrJqfpu);</prepare>
+        </code>
+    </call>
+    <call endpoint="KncPPwtVcUBCyLO">
+        <parameters>
+            <label>GQragCptJ_YDz</label>
+            <method>:get</method>
+            <arguments>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.iQVfwITUsCGnr = 420;data.zUfpDpzHNzcZ = 420;data.QQPcvHnzbjU = 420;data.kpGhgaFiCW = 420;data.vzWZIa = 420;</finalize>
+            <prepare>fun(data.wPppNHYkTp);fun(data.PKdCyYqpbWLrlg);fun(data.QQPcvHnzbjU);fun(data.vbTOr);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>wkWWSBCNlERRzobtFaA</label>
+            <method>:delete</method>
+        </parameters>
+        <code>
+            <finalize>data.vbTOr = 420;data.QQPcvHnzbjU = 420;data.PKdCyYqpbWLrlg = 420;data.IDogn_ = 420;</finalize>
+            <prepare>fun(data.cXPwJOdJxvco);fun(data.LpzxXcLBABc);fun(data.siJCoDAJv);fun(data.zUfpDpzHNzcZ);fun(data.CTzMpGqxOdMoXU);fun(data.XU_aiiIM);</prepare>
+        </code>
+    </call>
+    <call endpoint="AZLDulvBHeybWov">
+        <parameters>
+            <label>uxBnQLOv_JPELlcnchSMdvnCiLc</label>
+            <method>:post</method>
+            <arguments>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <CTzMpGqxOdMoXU>data.CTzMpGqxOdMoXU</CTzMpGqxOdMoXU>
+                <cqrzPEMUNPIgF>data.cqrzPEMUNPIgF</cqrzPEMUNPIgF>
+                <qbXGdNpoOV>data.qbXGdNpoOV</qbXGdNpoOV>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+                <IDogn_>data.IDogn_</IDogn_>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.yJJbtuDVHYGAx);fun(data.cCbSXvNCQ);fun(data.cqrzPEMUNPIgF);</prepare>
+        </code>
+    </call>
+    <call endpoint="RKag_lkolVpNBoeQDvViAZn_GNLF">
+        <parameters>
+            <label>lUoeDiiatxRVdOpzTZsacEqcFY</label>
+            <method>:get</method>
+            <arguments>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <kpGhgaFiCW>data.kpGhgaFiCW</kpGhgaFiCW>
+                <vbTOr>data.vbTOr</vbTOr>
+                <IDogn_>data.IDogn_</IDogn_>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.QQPcvHnzbjU = 420;</finalize>
+            <prepare>fun(data.kpGhgaFiCW);</prepare>
+        </code>
+    </call>
+    <call endpoint="QqwkpBtMRaS_tHK">
+        <parameters>
+            <label>kaxhSfJcAAJYjkhJ_aIdFnx</label>
+            <method>:post</method>
+            <arguments>
+                <yJJbtuDVHYGAx>data.yJJbtuDVHYGAx</yJJbtuDVHYGAx>
+                <PKdCyYqpbWLrlg>data.PKdCyYqpbWLrlg</PKdCyYqpbWLrlg>
+                <zUfpDpzHNzcZ>data.zUfpDpzHNzcZ</zUfpDpzHNzcZ>
+                <PmHacxnxHzbbmI>data.PmHacxnxHzbbmI</PmHacxnxHzbbmI>
+                <cXPwJOdJxvco>data.cXPwJOdJxvco</cXPwJOdJxvco>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.QQPcvHnzbjU = 420;data.wPppNHYkTp = 420;data.yJJbtuDVHYGAx = 420;data.vbTOr = 420;data.CTzMpGqxOdMoXU = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="liaeKympMBwAsyelIfJD">
+        <parameters>
+            <label>GQragCptJ_YDz</label>
+            <method>:put</method>
+            <arguments>
+                <siJCoDAJv>data.siJCoDAJv</siJCoDAJv>
+                <JHOHrJqfpu>data.JHOHrJqfpu</JHOHrJqfpu>
+                <cCbSXvNCQ>data.cCbSXvNCQ</cCbSXvNCQ>
+                <iQVfwITUsCGnr>data.iQVfwITUsCGnr</iQVfwITUsCGnr>
+                <LpzxXcLBABc>data.LpzxXcLBABc</LpzxXcLBABc>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize>data.PmHacxnxHzbbmI = 420;data.cqrzPEMUNPIgF = 420;data.XU_aiiIM = 420;</finalize>
+            <prepare>fun(data.wPppNHYkTp);fun(data.JHOHrJqfpu);fun(data.LpzxXcLBABc);fun(data.CTzMpGqxOdMoXU);</prepare>
+        </code>
+    </call>
+    <call endpoint="fpgiJNcx_TfDQiY">
+        <parameters>
+            <label>hkpnenqJBc_rWLlFLObqsHfZxra</label>
+            <method>:patch</method>
+        </parameters>
+        <code>
+            <finalize>data.cXPwJOdJxvco = 420;data.siJCoDAJv = 420;data.PmHacxnxHzbbmI = 420;data.qbXGdNpoOV = 420;data.iQVfwITUsCGnr = 420;data.kpGhgaFiCW = 420;</finalize>
+        </code>
+    </call>
+    <call endpoint="cPizztDTzHQbyMQkHBwGKEoFXFAY">
+        <parameters>
+            <label>sSrylTBNWAor_eA</label>
+            <method>:post</method>
+            <arguments>
+                <vzWZIa>data.vzWZIa</vzWZIa>
+                <XU_aiiIM>data.XU_aiiIM</XU_aiiIM>
+            </arguments>
+        </parameters>
+        <code>
+            <prepare>fun(data.PKdCyYqpbWLrlg);fun(data.wPppNHYkTp);</prepare>
+        </code>
+    </call>
 </description>

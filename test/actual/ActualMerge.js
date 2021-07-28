@@ -14,21 +14,15 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {MatchPipeline} from "../../src/match/MatchPipeline.js";
-import {AbstractMatchAdapter} from "./AbstractMatchAdapter.js";
+import {AbstractActual} from "./AbstractActual.js";
 
-export class CpeeMatchAdapter extends AbstractMatchAdapter{
+export class ActualMerge extends AbstractActual {
 
-    matchPipeline;
-
-    constructor() {
-        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName);
-        this.matchPipeline = MatchPipeline.standard();
-    }
-
-    _run(oldTree, newTree) {
-        return this.matchPipeline.execute(oldTree, newTree);
+    tree;
+    
+    constructor(raw, tree) {
+        super(raw);
+        this.tree = tree;
     }
 }
 

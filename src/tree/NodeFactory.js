@@ -47,6 +47,18 @@ export class NodeFactory extends AbstractNodeFactory {
     }
 
     /**
+     * Create a new Node instance from a MergeNode object.
+     * @param {MergeNode} mergeNode The existing merge node
+     * @param {Boolean} includeChildren If the created node should include the children of the existing merge node.
+     * @return Node A copy of the merge node with the same base values and children.
+     * @private
+     */
+    static _fromMergeNode(mergeNode, includeChildren) {
+        //Because MergeNode inherits from Node, we can delegate
+        return this._fromNode(mergeNode, includeChildren);
+    }
+
+    /**
      * Create a new Node instance from an XML document (as a string).
      * @param {String} xml The source XML document as a string
      * @param {Boolean} includeChildren If the created node should include the children given in the XML document.

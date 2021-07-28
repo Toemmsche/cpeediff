@@ -14,18 +14,28 @@
    limitations under the License.
 */
 
-export class LogMessage {
-    level;
-    message;
-    source;
+import {AbstractExpected} from "./AbstractExpected.js";
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+export class ExpectedMatch extends AbstractExpected {
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
+    matches;
+    notMatches;
+
+    oldMatched
+    notOldMatched;
+
+    newMatched;
+    notNewMatched;
+
+    constructor() {
+        super();
+        this.matches = [];
+        this.notMatches = [];
+        this.oldMatched = [];
+        this.notOldMatched = [];
+        this.newMatched = [];
+        this.notNewMatched = [];
     }
 }
+
+

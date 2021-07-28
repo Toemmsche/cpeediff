@@ -14,13 +14,18 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
+export class AggregateMatchResult {
 
-export class _3dmAdapter extends AbstractMergeAdapter  {
+    algorithm;
+    ok;
+    wrongAnswer;
+    runtimeError;
 
-    constructor() {
-        super(TestConfig.MERGES._3DM.path, TestConfig.MERGES._3DM.displayName);
+    constructor(algorithm, ok, wrongAnswer, runtimeError) {
+        this.algorithm = algorithm;
+        this.ok = ok;
+        this.wrongAnswer = wrongAnswer;
+        this.runtimeError = runtimeError;
     }
 }
 

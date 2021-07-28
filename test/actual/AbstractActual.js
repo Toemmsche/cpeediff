@@ -14,18 +14,13 @@
    limitations under the License.
 */
 
-export class LogMessage {
-    level;
-    message;
-    source;
+export class AbstractActual {
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+    raw;
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
+    constructor(raw) {
+        this.raw = raw;
     }
 }
+
+

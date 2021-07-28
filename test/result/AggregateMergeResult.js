@@ -14,13 +14,20 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {AbstractMergeAdapter} from "./AbstractMergeAdapter.js";
+export class AggregateMergeResult {
 
-export class XccPatchAdapter extends AbstractMergeAdapter  {
+    algorithm;
+    ok;
+    acceptable
+    wrongAnswer;
+    runtimeError;
 
-    constructor() {
-        super(TestConfig.MERGES.XCC.path, TestConfig.MERGES.XCC.displayName);
+    constructor(algorithm, ok, acceptable, wrongAnswer, runtimeError) {
+        this.algorithm = algorithm;
+        this.ok = ok;
+        this.acceptable = acceptable;
+        this.wrongAnswer = wrongAnswer;
+        this.runtimeError = runtimeError;
     }
 }
 

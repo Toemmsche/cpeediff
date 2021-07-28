@@ -38,12 +38,17 @@ export class Logger {
     static _handlers = new Map();
 
     /**
-     * A default handler that prints the formatted log message to stdout.
+     * A default handler that prints the formatted log message to stdout
+     * or stderr in the case of an error or debug message.
      * @param {LogMessage} logMsg The incoming log message.
      * @private
      */
     static _logToConsoleHandler = (logMsg) => {
-        console.log(logMsg.toString());
+        if(logMsg.level === this.LOG_LEVELS.ERROR || logMsg.level === this.LOG_LEVELS.DEBUG) {
+            console.error(logMsg.toString());
+        } else {
+            console.log(logMsg.toString());
+        }
     }
 
 

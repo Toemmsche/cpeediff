@@ -15,12 +15,15 @@
 */
 
 import {markdownTable} from "markdown-table";
+import {DiffTestResult} from "../result/DiffTestResult.js";
 
 export class MarkDownFactory {
 
     static tabularize(sources) {
         if (sources.length > 0) {
             switch (sources[0].constructor) {
+                case DiffTestResult:
+                    return markdownTable([DiffTestResult.header(), ...sources.map(res => res.valArr())]);
                 default:
                     return this._tabularizePrimitives(sources);
             }
@@ -49,5 +52,7 @@ export class MarkDownFactory {
     static _isPrimitive(val) {
         return val !== Object(val);
     }
+
+    s
 }
 

@@ -25,7 +25,6 @@ import {Dsl} from "../Dsl.js";
 export class XmlDomFactory {
 
     static convert(object) {
-
         switch (object.constructor) {
             case Node:
                 return this._convertNode(object);

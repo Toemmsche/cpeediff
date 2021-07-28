@@ -17,12 +17,13 @@
 import {TestConfig} from "../TestConfig.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
-import {ExpectedMatch} from "./ExpectedMatch.js";
-import {AggregateMatchResult} from "./AggregateMatchResult.js";
+import {ExpectedMatch} from "../expected/ExpectedMatch.js";
+import {AggregateMatchResult} from "../result/AggregateMatchResult.js";
 import {MarkDownFactory} from "../util/MarkDownFactory.js";
-import {CpeeMatchAdapter} from "./CpeeMatchAdapter.js";
+import {CpeeMatchAdapter} from "../match_adapters/CpeeMatchAdapter.js";
 import {Logger} from "../../Logger.js";
 import {DirectoryScraper} from "../util/DirectoryScraper.js";
+import {MatchTestCase} from "../case/MatchTestCase.js";
 
 export class MatchingAlgorithmEvaluation {
 
@@ -53,35 +54,21 @@ export class MatchingAlgorithmEvaluation {
         //collect all directories representing testCases
         const caseDirs = DirectoryScraper.scrape(rootDir);
         for(const testCaseDir of caseDirs) {
-            const testCaseName = testCaseDir.split("/").pop();
-            let oldTree;
-            let newTree;
-            let expected;
+            const testCase = MatchTestCase.from(testCaseDir);
 
-            fs.readdirSync(testCaseDir).forEach((file) => {
-                    const content = fs.readFileSync(testCaseDir + "/" + file).toString();
-                    if (file === TestConfig.NEW_TREE_FILENAME) {
-                        newTree = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.OLD_TREE_FILENAME) {
-                        oldTree = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.EXPECTED_MATCHES_FILE_NAME) {
-                        expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
-                    }
-                }
-            );
-            if (oldTree == null || newTree == null || expected == null) {
+            if (testCase == null) {
                 //test case is incomplete => skip
-                Logger.warn("Skip case " + testCaseName + " due to missing files", this);
-                return;
+                Logger.warn("Skipping match case directory " + testCaseDir, this);
+                continue;
             }
 
-            resultsPerTest.set(test, []);
+            resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
-                Logger.info("Running match case " + testCaseName + " for " + adapter.displayName + "...", this);
+                Logger.info("Running match case " + testCase.name + " for " + adapter.displayName + "...", this);
 
-                const result = adapter.evalCase(testCaseName, oldTree, newTree, expected);
+                const result = adapter.evalCase(testCase)
                 resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(testCaseName).push(result);
+                resultsPerTest.get(testCase).push(result);
             }
         }
 

@@ -14,18 +14,14 @@
    limitations under the License.
 */
 
-export class LogMessage {
-    level;
-    message;
-    source;
+import {AbstractTestResult} from "./AbstractTestResult.js";
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+export class MergeTestResult extends  AbstractTestResult{
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
+
+    constructor(caseName, algorithm, actual, verdict) {
+        super(caseName, algorithm, actual, verdict);
     }
 }
+
+

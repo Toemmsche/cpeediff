@@ -17,13 +17,14 @@
 import {TestConfig} from "../TestConfig.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
-import {AggregateMergeResult} from "./AggregateMergeResult.js";
+import {AggregateMergeResult} from "../result/AggregateMergeResult.js";
 import {MarkDownFactory} from "../util/MarkDownFactory.js";
-import {_3dmAdapter} from "./_3dmAdapter.js";
-import {CpeeMergeAdapter} from "./CpeeMergeAdapter.js";
-import {XccPatchAdapter} from "./XccPatchAdapter.js";
+import {_3dmAdapter} from "../merge_adapters/_3dmAdapter.js";
+import {CpeeMergeAdapter} from "../merge_adapters/CpeeMergeAdapter.js";
+import {XccPatchAdapter} from "../merge_adapters/XccPatchAdapter.js";
 import {Logger} from "../../Logger.js";
 import {DirectoryScraper} from "../util/DirectoryScraper.js";
+import {MergeTestCase} from "../case/MergeTestCase.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -40,8 +41,8 @@ export class MergeAlgorithmEvaluation {
         return new MergeAlgorithmEvaluation(adapters);
     }
 
-    evalAll(caseDir = TestConfig.MERGE_CASES_DIR) {
-        Logger.info("Using " + caseDir + " to evaluate merge algorithms", this);
+    evalAll(rootDir = TestConfig.MERGE_CASES_DIR) {
+        Logger.info("Using " + rootDir + " to evaluate merge algorithms", this);
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
@@ -49,46 +50,24 @@ export class MergeAlgorithmEvaluation {
             resultsPerAdapter.set(adapter, []);
         }
 
-        const parser = new Preprocessor();
-
         //collect all directories representing testCases
         const caseDirs = DirectoryScraper.scrape(rootDir);
         for (const testCaseDir of caseDirs) {
-            const testCaseName = testCaseDir.split("/").pop();
-            let base;
-            let branch1;
-            let branch2;
-            let expected = [];
-            let accepted = [];
+            const testCase = MergeTestCase.from(testCaseDir);
 
-            fs.readdirSync(testCaseDir).forEach((file) => {
-                    const content = fs.readFileSync(testCaseDir + "/" + file).toString();
-                    if (file === TestConfig.BASE_FILE_NAME) {
-                        base = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.BRANCH_1_FILE_NAME) {
-                        branch1 = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.BRANCH_2_FILE_NAME) {
-                        branch2 = parser.parseWithMetadata(content);
-                    } else if (file.startsWith(TestConfig.EXPECTED_MERGE_PREFIX)) {
-                        expected.push(parser.parseWithMetadata(content));
-                    } else if (file.startsWith(TestConfig.ACCEPTED_MERGE_PREFIX)) {
-                        accepted.push(parser.parseWithMetadata(content));
-                    }
-                }
-            );
-            if (base == null || branch1 == null || branch2 == null || expected.length === 0) {
+            if (testCase == null) {
                 //test case is incomplete => skip
-                Logger.warn("Skip case " + testCaseName + " due to missing files", this);
-                return;
+                Logger.warn("Skipping merge case directory " + testCaseDir, this);
+                continue;
             }
 
-            resultsPerTest.set(testCaseName, []);
+            resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
-                Logger.info("Running merge case " + testCaseName + " for " + adapter.displayName + "...", this);
+                Logger.info("Running merge case " + testCase.name + " for " + adapter.displayName + "...", this);
 
-                const result = adapter.evalCase(testCaseName, base, branch1, branch2, expected, accepted)
+                const result = adapter.evalCase(testCase)
                 resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(testCaseName).push(result);
+                resultsPerTest.get(testCase).push(result);
             }
         }
 

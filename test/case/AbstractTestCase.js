@@ -14,10 +14,27 @@
    limitations under the License.
 */
 
+import exp from "constants";
+
 /**
  * Abstract superclass for all test cases.
+ * @property {String} name The name of this test case
+ * @property {AbstractExpected} expected The expected result for this test case
  */
 export class AbstractTestCase {
+
+    name;
+    expected;
+
+    /**
+     * Create a new test case
+     * @param {String} name The name of this test case
+     * @param {AbstractExpected} expected The expected result for this test case
+     */
+    constructor(name, expected) {
+        this.name = name;
+        this.expected = expected;
+    }
 
     /**
      * Construct a test case from a test case directory.
