@@ -114,8 +114,8 @@ export class EditScriptGenerator {
                 for (let j = 0; j < nodes.length; j++) {
                     const lisMatchIndex = this._matching.getOld(nodes[j]).childIndex;
                     if(inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
-                        //move within node list
-                        node.changeChildIndex(j);
+                        //move within node list, adjust index for move further back
+                        node.changeChildIndex(j > node.childIndex ? j - 1 : j);
                         const newPath = node.toChildIndexPathString();
                         this._editScript.move(oldPath, newPath);
                         inLis.add(node);
@@ -125,7 +125,7 @@ export class EditScriptGenerator {
                 inLis.add(node);
 
                 //move to end of node list
-                node.changeChildIndex(nodes.length);
+                node.changeChildIndex(nodes.length - 1);
                 const newPath = node.toChildIndexPathString();
                 this._editScript.move(oldPath, newPath);
                 this._editScript.cost++;

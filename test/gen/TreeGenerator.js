@@ -118,9 +118,14 @@ export class TreeGenerator {
         return preparedTree;
     }
 
-    randomLeavesOnly(root = this._randomRoot()) {
+    /**
+     * Generate a random process tree that only contains leaf nodes.
+     * @param {Node} root The root node of the generated process tree. A random root by default.
+     * @return Node The root of the generated process tree
+      */
+    leavesOnly(root = this._randomRoot()) {
         let currSize = 1;
-        while (currSize < this._genParams.maxSize) {
+        while (currSize < this._genParams.maxSize && currSize < this._genParams.maxDegree) {
             const newNode = this._randomCall();
             this._appendRandomly(root, newNode);
             currSize += newNode.size();
@@ -557,7 +562,7 @@ export class TreeGenerator {
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             tree: preparedTree,
-            expected: new ExpectedDiff(null, Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
+            expected: new ExpectedDiff( Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
         };
 
     }

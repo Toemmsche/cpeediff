@@ -267,10 +267,6 @@ export class Node {
      * @param {Number} newIndex The new child index.
      */
     changeChildIndex(newIndex) {
-        //The node currently residing at position newIndex will be pushed back, no matter what.
-        if (newIndex > this._childIndex) {
-            newIndex--;
-        }
         //delete
         this._parent._children.splice(this._childIndex, 1);
         //insert

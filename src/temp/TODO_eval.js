@@ -7,7 +7,6 @@
 //      problem export classes
 //      further reduce duplicate code amond evaluator => Directory Scraper and domhelper
 //      verify algo change detection
-//      separarated diff-accuracy cases from diff-performance cases
 //      fix algorithm names
 //        check change model of evaluated diffs, map it to your operations (update and move esp), move as attribute (what about copy?)!
 //          impossible for XCC, Deltajs, XyDiff
@@ -15,15 +14,14 @@
 //      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
 //      evaluate robustness
 //      class for generated tests
-//      use cmd line for merge
-//      configurable merge filenames
 //      flat and deep genearted cases
 //      cost is not correct see shuffled only
 //      node distribution as genparam
 //      rewrite tests, remove data elements and property wrapper, use manipulates instead of cals (where sinnvoll)
 //      maybe do not use preprocessed trees for evaluation
 //      rename info.json
-//      migrate to testcase architecture in merge and match eval
+//      rm -f
+//      add tree size in bytes
 
 
 /*

@@ -1,16 +1,15 @@
 //TODO features
 //      compare path with weights depending on closeness
-//      dynamic weights for comparison
 //      command line visualization including "live" patching and filtered changes
-//      data passses in parallel branches
+//      data passes in parallel branches
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
 //      option to output matching
-//      use labelmap inside pathmatching
-//      use label-endpoint map for similarity matching (as option)
-//      unmatched matcher
+//      use label-endpoint map for similarity matching (as option) -> ask Jürgen
+//      unmatched matcher (focus on replacement nodes)
 //      turn single function classes in to functions
 //      add timings to merger
+//      time map in Logger
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -57,13 +56,11 @@
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
+//      use id for mapping and matching
+//      delta instead of editscript
 //      Turn autogenearted tests into class
 //      use the change types and keywords objects instead of strings
 //      delete includes deleted tree
-//      implement hash yourself
-//      use underscores
-//      add some patterns
-//      type and test coverage similar to markdwon-tables
 
 //TODO advanced semantics
 //     if parallel_branch matched, match paralell (same for choose and otherwise/alternative)

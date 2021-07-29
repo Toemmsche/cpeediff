@@ -98,7 +98,7 @@ export class DiffTestCase extends AbstractTestCase {
                     //TODO
                     oldTree = treeGen.randomTree();
                     if (testCaseName === "gen_leaves_only_shuffled") {
-                        oldTree = treeGen.randomLeavesOnly();
+                        oldTree = treeGen.leavesOnly();
                     }
                     const changedInfo = treeGen.changeTree(oldTree, changeParams);
                     newTree = changedInfo.tree;
