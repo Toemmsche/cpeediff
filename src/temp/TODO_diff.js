@@ -15,6 +15,7 @@
 //      trees are still too small because of preprocessor, check that out
 
 //TODO semi-features
+//      comparison default values
 //      maybe collapse call comparison values ionto single equation
 //      annotated merged tree output (with conrfidence)
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case

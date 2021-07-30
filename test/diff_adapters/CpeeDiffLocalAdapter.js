@@ -92,7 +92,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         }
         const counters = this._parseOutput(exec.output);
         //An OK verdict is emitted because the diff algorithm didnt fail
-        return testCase.complete(this.displayName,  new ActualDiff(exec.output, exec.runtime, ...counters), TestConfig.VERDICTS.OK);
+        return testCase.complete(this.displayName,  new ActualDiff(XmlFactory.serialize(exec.output), exec.runtime, ...counters), TestConfig.VERDICTS.OK);
     }
 }
 

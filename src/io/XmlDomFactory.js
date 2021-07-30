@@ -52,38 +52,34 @@ export class XmlDomFactory {
             //TODO delta variables
             if (deltaNode.isRoot()) {
                 xmlNode.setAttribute("xmlns", Dsl.DEFAULT_NAMESPACE);
-                for(const type of Object.values(Dsl.OPERATION_TYPES)) {
+                for (const type of Object.values(Dsl.OPERATION_TYPES)) {
                     xmlNode.setAttribute("xmlns:" + type.prefix, type.uri);
                 }
             }
 
-            //set namespace of updated fields
-            for (const [key, change] of deltaNode.updates) {
-                const oldVal = change[0];
-                const newVal = change[1];
-                if (key === "text") {
-                    deltaNode.attributes.set(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":text", "true");
-                } else {
-                    if (oldVal == null) {
-                        const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.INSERTION.prefix + ":" + key, val);
-                        deltaNode.attributes.delete(key);
-                    } else if (newVal == null) {
-                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.DELETION.prefix + ":" + key, oldVal);
-                    } else {
-                        const val = deltaNode.attributes.get(key);
-                        deltaNode.attributes.set(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":" + key, val);
-                        deltaNode.attributes.delete(key);
-                    }
-                }
-            }
-
             for (const [key, value] of deltaNode.attributes) {
-                xmlNode.setAttribute(key, value);
+                if (deltaNode.updates.has(key)) {
+                    const oldVal = deltaNode.updates.get(key).oldVal;
+                    const newVal = deltaNode.updates.get(key).newVal;
+                    if (oldVal == null) {
+                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.INSERTION.prefix + ":" + key, newVal);
+                    } else if (newVal == null) {
+                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.DELETION.prefix + ":" + key, oldVal);
+                    } else {
+                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.UPDATE.prefix + ":" + key, newVal);
+                    }
+                } else {
+                    xmlNode.setAttribute(key, value);
+                }
             }
 
             for (const child of deltaNode) {
                 xmlNode.appendChild(buildRecursive(child));
+            }
+
+            if (deltaNode.updates.has("text")) {
+                //Text content can only be updated, not inserted or deleted
+                xmlNode.setAttribute(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":data", "true");
             }
 
             if (deltaNode.text != null) {

@@ -182,11 +182,10 @@ export class StandardComparator extends AbstractComparator {
             }
             case Dsl.ELEMENTS.ALTERNATIVE.label:
             case Dsl.ELEMENTS.LOOP.label: {
-                //TODO compare text pqgram
                 //extract read variables
                 const nodeReadVariables = this.variableExtractor.get(node).readVariables;
                 const otherReadVariables = this.variableExtractor.get(other).readVariables;
-                return this._compareSet(nodeReadVariables, otherReadVariables);
+                return this._compareSet(nodeReadVariables, otherReadVariables, 0);
             }
 
             default: {

@@ -21,56 +21,63 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
         //use a temporary map until the best matches are found
-        const oldToNewMap = new Map();
-        const newToOldMap = new Map();
+        /**
+         * @type {Map<Node, Set<Node>>}
+         */
+        const possibleMap = new Map();
 
-        for (const [newNode, oldNode] of matching.newToOldMap) {
+        //Match inner nodes that are along the path of already matched nodes.
+        matchLoop: for (const [newNode, oldNode] of matching.newToOldMap) {
+
             //copy paths, reverse them and remove first element, discard already matched nodes
             const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
             const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
 
-            /*
-            Only nodes with the same label can be matched.
-            The usage of a hash map speeds up the matching if different labels are present (to be expected)
-             */
-            const labelMap = new Map();
-            for (const oldNode of oldPath) {
-                if(!labelMap.has(oldNode.label)) {
-                    labelMap.set(oldNode.label, []);
-                }
-                labelMap.get(oldNode.label).push(oldNode);
-            }
-            for(const newNode of newPath) {
-                if(labelMap.has(newNode.label)) {
-                    for(const oldNode of labelMap.get(newNode.label)) {
-                        const compareValue = comparator.compare(newNode, oldNode);
-                        if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD
-                            //never overwrite a better matching
-                            && (!oldToNewMap.has(oldNode) || compareValue < oldToNewMap.get(oldNode).compareValue)
-                            && (!newToOldMap.has(newNode) || compareValue < newToOldMap.get(newNode).compareValue)) {
-                            if(oldToNewMap.has(oldNode)) {
-                                newToOldMap.delete(oldToNewMap.get(oldNode).node);
-                            }
-                            if(newToOldMap.has(newNode)) {
-                                oldToNewMap.delete(newToOldMap.get(newNode).node);
-                            }
-                            oldToNewMap.set(oldNode, {
-                                compareValue: compareValue,
-                                node: newNode
-                            });
-                            newToOldMap.set(newNode, {
-                                compareValue: compareValue,
-                                node: oldNode
-                            });
+            for (const newNode of newPath) {
+                for (const oldNode of oldPath) {
+                    if (possibleMap.has(newNode) && possibleMap.get(newNode).has(oldNode)) {
+                        //Everything from the remaining path has already been visited
+                        continue matchLoop;
+                    }
+
+                    if (newNode.label === oldNode.label) {
+                        if (!possibleMap.has(newNode)) {
+                            possibleMap.set(newNode, new Set());
                         }
+                        //Set remembers insertion order
+                        possibleMap.get(newNode).add(oldNode);
                     }
                 }
             }
         }
 
-        //persist best matches
-        for (const [newNode, bestMatch] of newToOldMap) {
-            matching.matchNew(newNode, bestMatch.node);
+        //use a temporary map until the best matches are found
+        const oldToNewMap = new Map();
+        for (const [newNode, oldNodeSet] of possibleMap) {
+            //the minimum compare value
+            let minCompareValue = 1;
+            let minCompareNode = null;
+            for (const oldNode of oldNodeSet) {
+                const compareValue = comparator.compare(newNode, oldNode);
+                if (compareValue < minCompareValue) {
+                    minCompareValue = compareValue;
+                    minCompareNode = oldNode;
+                }
+            }
+            if (minCompareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                //ensure (partial) one-to-one matching
+                if (!oldToNewMap.has(minCompareNode) || minCompareValue < oldToNewMap.get(minCompareNode).compareValue) {
+                    oldToNewMap.set(minCompareNode, {
+                        newNode: newNode,
+                        compareValue: minCompareValue
+                    })
+                }
+            }
+        }
+
+        //the best matches can be persisted
+        for (const [oldNode, bestMatch] of oldToNewMap) {
+            matching.matchNew(bestMatch.newNode, oldNode);
         }
     }
 }
