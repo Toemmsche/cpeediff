@@ -214,4 +214,12 @@ export class EditScriptGenerator {
 
         this._editScript.cost++;
     }
+
+    /**
+     * Convert adjacent edits to sequence operations
+     * @private
+     */
+    _postProcess() {
+        //TODO
+    }
 }
