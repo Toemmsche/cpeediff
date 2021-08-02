@@ -31,14 +31,18 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
 
             //copy paths, reverse them and remove first element, discard already matched nodes
             const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
-            const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
+            let oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
 
             for (const newNode of newPath) {
                 for (const oldNode of oldPath) {
+
                     if (possibleMap.has(newNode) && possibleMap.get(newNode).has(oldNode)) {
-                        //Everything from the remaining path has already been visited
+                        //cut everything from oldNode upwards from oldPath
+                        const oldNodeIndex = oldPath.indexOf(oldNode);
+                        oldPath = oldPath.slice(0, oldNodeIndex)
                         continue matchLoop;
                     }
+
 
                     if (newNode.label === oldNode.label) {
                         if (!possibleMap.has(newNode)) {

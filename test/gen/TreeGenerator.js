@@ -22,6 +22,7 @@ import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {Config} from "../../src/Config.js";
 import {Logger} from "../../Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
+import {EditScript} from "../../src/diff/delta/EditScript.js";
 
 /**
  * A generator class for random (but well-formed) CPEE process trees.
@@ -56,6 +57,14 @@ export class TreeGenerator {
      * @private
      */
     _variables;
+
+    /**
+     * A possible edit script for representing the changes performed by {@see changeTree}.
+     * This edit script does not have to be of minimum cost, it rather acts as a cost ceiling.
+     * @type EditScript
+     * @private
+     */
+    _possibleEditScript;
 
     /**
      * Construct a new generator with the given parameters.
@@ -122,7 +131,7 @@ export class TreeGenerator {
      * Generate a random process tree that only contains leaf nodes.
      * @param {Node} root The root node of the generated process tree. A random root by default.
      * @return Node The root of the generated process tree
-      */
+     */
     leavesOnly(root = this._randomRoot()) {
         let currSize = 1;
         while (currSize < this._genParams.maxSize && currSize < this._genParams.maxDegree) {
@@ -507,22 +516,21 @@ export class TreeGenerator {
         const oldSize = tree.size();
         //do not modify original tree
         tree = NodeFactory.getNode(tree);
-        let insertionCounter = 0;
-        let updateCounter = 0;
-        let deletionCounter = 0;
-        let moveCounter = 0;
 
         //set up random distribution of changes according to parameters
         const distributionString = "i".repeat(changeParams.insertionWeight)
             + "m".repeat(changeParams.moveWeight)
             + "u".repeat(changeParams.updateWeight)
             + "d".repeat(changeParams.deletionWeight);
+
+        //Construct a possible edit script to describe the changes between the two trees
+        //This edit script is not necessarily of minimum cost, but rather acts as a cost ceiling.
+        this._possibleEditScript = new EditScript();
         for (let i = 0; i < changeParams.numChanges; i++) {
-            const op = this._randomFrom(distributionString.split(""));
+            const opChar = this._randomFrom(distributionString.split(""));
             try {
-                switch (op) {
+                switch (opChar) {
                     case "i": {
-                        insertionCounter++;
                         //we can insert a subtree, a leaf node, or a property node (only call arguments are supported)
                         if (this._withProbability(0.2)) {
                             this._insertSubtreeRandomly(tree);
@@ -534,7 +542,6 @@ export class TreeGenerator {
                         break;
                     }
                     case "d": {
-                        deletionCounter++;
                         //we can delete a subtree or a leaf node
                         if (this._withProbability(0.2)) {
                             this._deleteSubtreeRandomly(tree);
@@ -544,12 +551,10 @@ export class TreeGenerator {
                         break;
                     }
                     case "m": {
-                        moveCounter++;
                         this._moveRandomly(tree);
                         break;
                     }
                     case "u": {
-                        updateCounter++;
                         this._updateRandomly(tree);
                         break;
                     }
@@ -558,11 +563,13 @@ export class TreeGenerator {
                 Logger.warn("Edit operation not possible", this);
             }
         }
-        const preparedTree = new Preprocessor().prepareTree(tree);
+        //Record all changes applied during tree preparation
+        const preparedTree = new Preprocessor().prepareTree(tree, new Map(), new Map(), false, this._possibleEditScript);
+
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             tree: preparedTree,
-            expected: new ExpectedDiff( Math.max(oldSize, tree.size()), insertionCounter, moveCounter, updateCounter, deletionCounter)
+            expected: new ExpectedDiff(Math.max(oldSize, tree.size()), this._possibleEditScript)
         };
 
     }
@@ -574,9 +581,9 @@ export class TreeGenerator {
      * @private
      */
     _insertSubtreeRandomly(tree) {
-        const newNode = this._randomInner();
-        const parent = this._pickValidParent(newNode, tree.innerNodes());
-        this._appendRandomly(parent, newNode);
+        const insertedTree = this._randomInner();
+        const parent = this._pickValidParent(insertedTree, tree.innerNodes());
+        this._appendRandomly(parent,insertedTree);
 
         //inserted tree is much smaller
         const generator = new TreeGenerator(Object.assign(new GeneratorParameters(), this._genParams));
@@ -589,8 +596,11 @@ export class TreeGenerator {
 
         Logger.disableLogging();
         //construct random subtree around the new inner node
-        generator.randomTree(newNode);
+        generator.randomTree(insertedTree);
         Logger.enableLogging();
+
+        //append insert operation to edit script
+        this._possibleEditScript.insert(insertedTree);
     }
 
     /**
@@ -599,9 +609,12 @@ export class TreeGenerator {
      * @private
      */
     _insertLeafRandomly(tree) {
-        const newNode = this._randomLeaf();
-        let parent = this._pickValidParent(newNode, tree.innerNodes());
-        this._appendRandomly(parent, newNode);
+        const insertedNode = this._randomLeaf();
+        let parent = this._pickValidParent(insertedNode, tree.innerNodes());
+        this._appendRandomly(parent, insertedNode);
+
+        //append insert operation to edit script
+        this._possibleEditScript.insert(insertedNode);
     }
 
     /**
@@ -611,9 +624,12 @@ export class TreeGenerator {
      */
     _insertArgRandomly(tree) {
         const parent = this._randomFrom(tree.toPreOrderArray().filter(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label));
-        let newArg = this._randomFrom(this._variables);
-        newArg = new Node(newArg, Config.VARIABLE_PREFIX + newArg);
-        this._appendRandomly(parent, newArg);
+        let insertedArg = this._randomFrom(this._variables);
+        insertedArg = new Node(insertedArg, Config.VARIABLE_PREFIX + insertedArg);
+        this._appendRandomly(parent, insertedArg);
+
+        //append insert operation to edit script
+        this._possibleEditScript.insert(insertedArg)
     }
 
     /**
@@ -626,6 +642,9 @@ export class TreeGenerator {
         const oldMaxSize = this._genParams.maxSize;
         const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot() && n.size() <= Math.sqrt(oldMaxSize)));
         node.removeFromParent();
+
+        //append delete  operation to edit script
+        this._possibleEditScript.delete(node);
     }
 
     /**
@@ -637,6 +656,8 @@ export class TreeGenerator {
         const node = this._randomFrom(tree.leaves());
         node.removeFromParent();
 
+        //append delete  operation to edit script
+        this._possibleEditScript.delete(node);
     }
 
     /**
@@ -651,9 +672,14 @@ export class TreeGenerator {
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
         movedNode.removeFromParent();
+        const oldPath = movedNode.toChildIndexPathString();
+
         let parent = this._pickValidParent(movedNode, tree.innerNodes());
 
         this._appendRandomly(parent, movedNode);
+
+        //append move operation to edit script
+        this._possibleEditScript.move(oldPath, movedNode.toChildIndexPathString());
     }
 
     /**
@@ -668,7 +694,7 @@ export class TreeGenerator {
             //Change node data depending on type
             switch (node.label) {
                 case Dsl.CALL_PROPERTIES.LABEL.label: {
-                    node.text = this._randomFrom(this._labels);
+                    node.text += this._randomString(10);
                     break;
                 }
                 case Dsl.CALL_PROPERTIES.METHOD.label: {
@@ -730,6 +756,9 @@ export class TreeGenerator {
                 node.attributes.set(this._randomString(10), this._randomString(10));
             }
         }
+
+        //append update operation to edit script
+        this._possibleEditScript.update(node);
     }
 }
 

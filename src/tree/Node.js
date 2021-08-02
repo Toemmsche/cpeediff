@@ -102,7 +102,7 @@ export class Node {
     }
 
     /**
-     * Returns all nodes that lie on the path from this node (inclusive) to the root (exclusive).
+     * Returns all nodes that lie on the path from the root (exclusive) to this node (inclusive)
      * @returns {Node[]} The array of all nodes on this node's path.
      */
     get path() {
@@ -300,7 +300,7 @@ export class Node {
     }
 
     /**
-     * Returns the child index of each node in the path from this node (inclusive) to the root (exclusive).
+     * Returns the child index of each node in the path from the root (exclusive) to this node (inclusive).
      * @returns {string} The array of child indices of all nodes on the path.
      */
     toChildIndexPathString() {

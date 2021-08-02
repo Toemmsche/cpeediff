@@ -25,6 +25,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      new node as in inserted vs new node as in from new tree
 //      decide which properties are read only (e.g. placeholders) use with get() function
 //      bne consistenwit .... or array
 //      use ? operator wherever possible and sinnvoll

@@ -29,18 +29,23 @@ import {CpeeDiffAdapter} from "../../test/diff_adapters/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
 import {TestConfig} from "../../test/TestConfig.js";
 import {Logger} from "../../Logger.js";
+import {HashExtractor} from "../match/extract/HashExtractor.js";
 
 Logger.enableLogging();
 
-let base = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/old.xml");
-let newTree = new Preprocessor().parseFromFile("test/test_set/match_cases/update/leaf_update/new.xml");
+let base = new Preprocessor().parseFromFile("old.xml");
+let newTree = new Preprocessor().parseFromFile("new.xml");
 
 
 const es = new CpeeDiff().diff(base, newTree)
 
+const deltaTree = NodeFactory.getNode(new DeltaTreeGenerator().deltaTree(base, es));
+
+const h = new HashExtractor();
+console.log(h.get(newTree) === h.get(deltaTree));
+
 console.log(XmlFactory.serialize(es));
-
-
+console.log(XmlFactory.serialize(deltaTree));
 
 
 

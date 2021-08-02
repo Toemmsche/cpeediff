@@ -72,21 +72,25 @@ export class Preprocessor {
         return this.prepareTree(tree, endpointToUrl, dataElements);
     }
 
-    prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false) {
+    prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false, editScript = null) {
         //traverse tree in post-order (bottom-up)
         for (const node of tree.toPostOrderArray()) {
+            let updated = false;
+            let deleted = false;
+
             //only preserve semantically relevant attributes
             for (const key of node.attributes.keys()) {
                 if (Dsl.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
                     node.attributes.delete(key);
+                    updated = true;
                 } else {
                     //trim attribute value
                     const val = node.attributes.get(key);
                     const trimmedVal = val.trim();
                     //TODO trim ends of newlines
-                    if(trimmedVal !== val) {
-                        node.attributes.delete(key);
+                    if (trimmedVal !== val) {
                         node.attributes.set(key, trimmedVal);
+                        updated = true;
                     }
                 }
             }
@@ -96,9 +100,11 @@ export class Preprocessor {
                 //replace endpoint identifier with actual endpoint URL (if it exists)
                 if (endpointToUrl.has(endpoint)) {
                     node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, endpointToUrl.get(endpoint));
+                    updated = true;
                 }
             } else if (node.label === Dsl.ELEMENTS.CALL.label) {
                 node.attributes.set(Dsl.CALL_PROPERTIES.ENDPOINT.label, Math.floor(Math.random * 1000000).toString()); //random endpoint
+                updated = true;
             }
 
             //trim irrelevant nodes
@@ -106,11 +112,22 @@ export class Preprocessor {
                 || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())
                 || (node.label === Dsl.ELEMENTS.MANIPULATE.label) && (node.text == null || node.text === "")) {
                 node.removeFromParent();
+                deleted = true;
             }
 
             //trim data
             if (node.text != null) {
-                node.text = node.text.trim();
+                const newText = node.text.trim();
+                if (newText !== node.text) {
+                    node.text = newText;
+                    updated = true;
+                }
+            }
+
+            if (deleted) {
+                editScript?.delete(node);
+            } else if (updated) {
+                editScript?.update(node);
             }
         }
 
@@ -123,6 +140,8 @@ export class Preprocessor {
                 script.text += Config.VARIABLE_PREFIX + dataElement + " = " + initialValue + ";";
             }
             tree.insertChild(0, script);
+
+            editScript?.insert(script);
         }
 
         return tree;

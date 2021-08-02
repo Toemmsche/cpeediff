@@ -15,23 +15,28 @@
 */
 
 import {AbstractExpected} from "./AbstractExpected.js";
+import {XmlFactory} from "../../src/io/XmlFactory.js";
 
 export class ExpectedDiff extends AbstractExpected{
 
     maxSize;
-    insertions;
-    moves;
-    updates;
-    deletions;
+    editScript;
 
-
-    constructor( maxSize, insertions = 0, moves = 0, updates = 0, deletions  = 0) {
+    constructor( maxSize, editScript = null) {
         super();
         this.maxSize = maxSize;
-        this.insertions = insertions;
-        this.moves = moves;
-        this.updates = updates;
-        this.deletions = deletions;
+        this.editScript = editScript;
+    }
+
+    toString() {
+        return "Max Size of process trees: " + this.maxSize + "\n" +
+            "Cost: " + this.editScript?.cost + "\n" +
+            "Diff Size: " + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + "\n" +
+            "Total changes: " +  + this.editScript?.totalChanges() + "\n" +
+            "Insertions: " + this.editScript?.insertionCounter() + "\n" +
+            "Moves: " + this.editScript?.moveCounter() + "\n" +
+            "Updates: " + this.editScript?.updateCounter() + "\n" +
+            "Deletions: " + this.editScript?.deletionCounter();
     }
 }
 

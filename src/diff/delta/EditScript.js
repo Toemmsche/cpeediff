@@ -16,6 +16,7 @@
 
 import {EditOperation} from "./EditOperation.js";
 import {Dsl} from "../../Dsl.js";
+import {NodeFactory} from "../../tree/NodeFactory.js";
 
 export class EditScript {
 
@@ -31,20 +32,48 @@ export class EditScript {
         return this.changes.map(c => c.toString()).join("\n");
     }
 
-    insert(newPath, newContent, subtree = false) {
-        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.INSERTION.label, null, newPath, newContent));
+    insert(insertedNode) {
+        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.INSERTION.label, null,
+            insertedNode.toChildIndexPathString(), NodeFactory.getNode(insertedNode)));
+        //TODO speed up
+        this.cost += insertedNode.size();
     }
 
-    delete(oldPath, subtree = false) {
-        this.changes.push(new EditOperation( Dsl.OPERATION_TYPES.DELETION.label, oldPath, null,  null));
+    delete(deletedNode) {
+        this.changes.push(new EditOperation( Dsl.OPERATION_TYPES.DELETION.label, deletedNode.toChildIndexPathString(), null,  null));
+        this.cost += deletedNode.size();
     }
 
     move(oldPath, newPath) {
         this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.MOVE_TO.label, oldPath,  newPath));
+        this.cost++;
     }
 
-    update(oldPath, newContent) {
-        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.UPDATE.label, oldPath, null, newContent));
+    update(updatedNode) {
+        this.changes.push(new EditOperation(Dsl.OPERATION_TYPES.UPDATE.label, updatedNode.toChildIndexPathString(),
+            null, NodeFactory.getNode(updatedNode, false)));
+        const path = updatedNode.toChildIndexPathString();
+        this.cost++;
+    }
+
+    totalChanges() {
+        return this.changes.length;
+    }
+
+    insertionCounter() {
+        return this.changes.filter(c => c.type === Dsl.OPERATION_TYPES.INSERTION.label).length;
+    }
+
+    moveCounter() {
+        return this.changes.filter(c => c.type === Dsl.OPERATION_TYPES.MOVE_TO.label).length;
+    }
+
+    updateCounter() {
+        return this.changes.filter(c => c.type === Dsl.OPERATION_TYPES.UPDATE.label).length;
+    }
+
+    deletionCounter() {
+        return this.changes.filter(c => c.type === Dsl.OPERATION_TYPES.DELETION.label).length;
     }
 
     [Symbol.iterator]() {

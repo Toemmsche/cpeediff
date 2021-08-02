@@ -128,7 +128,6 @@ export class EditScriptGenerator {
                 node.changeChildIndex(nodes.length - 1);
                 const newPath = node.toChildIndexPathString();
                 this._editScript.move(oldPath, newPath);
-                this._editScript.cost++;
             }
         }
     }
@@ -137,9 +136,8 @@ export class EditScriptGenerator {
         const oldPath = oldNode.toChildIndexPathString();
         //TODO document that removeFromParent() does not change the parent attribute
         oldNode.removeFromParent();
-        this._editScript.delete(oldPath, oldNode.hasChildren());
+        this._editScript.delete(oldNode);
 
-        this._editScript.cost += oldNode.size();
     }
 
     _move(oldNode) {
@@ -156,8 +154,6 @@ export class EditScriptGenerator {
         newParent.insertChild(insertionIndex, oldNode);
         const newPath = oldNode.toChildIndexPathString();
         this._editScript.move(oldPath, newPath);
-
-        this._editScript.cost++;
     }
 
     _insert(newNode) {
@@ -188,9 +184,7 @@ export class EditScriptGenerator {
         newParent.insertChild(insertionIndex, copy);
         const newPath = copy.toChildIndexPathString();
 
-        this._editScript.insert(newPath, NodeFactory.getNode(copy, true), copy.hasChildren());
-
-        this._editScript.cost += copy.size();
+        this._editScript.insert(copy);
     }
 
     _findInsertionIndex(newNode) {
@@ -207,12 +201,14 @@ export class EditScriptGenerator {
 
     _update(oldNode) {
         const newNode = this._matching.getOld(oldNode);
-        const oldPath = oldNode.toChildIndexPathString();
-        //TODO possibnle minimal node update
-        //during edit script generation, we don't need to update the data/attributes of the match
-        this._editScript.update(oldPath, NodeFactory.getNode(newNode, false));
 
-        this._editScript.cost++;
+        //overwrite old values
+        oldNode.attributes = new Map();
+        for(const [key, val] of newNode.attributes) {
+            oldNode.attributes.set(key,val);
+        }
+        oldNode.text = newNode.text;
+        this._editScript.update(oldNode);
     }
 
     /**

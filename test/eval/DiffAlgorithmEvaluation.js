@@ -61,14 +61,16 @@ export class DiffAlgorithmEvaluation {
 
         //collect all directories representing testCases
         const caseDirs = DirectoryScraper.scrape(rootDir);
-        for(const testCaseDir of caseDirs) {
+        for (const testCaseDir of caseDirs) {
             const testCase = DiffTestCase.from(testCaseDir);
 
-            if(testCase == null) {
+
+            if (testCase == null) {
                 Logger.warn("Skipping diff case directory " + testCaseDir, this);
                 continue;
             }
 
+            Logger.info("============DIFF TEST CASE " + testCase.name + "=============", this);
             resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
                 Logger.info("Running diff case " + testCase.name + " for " + adapter.displayName + "...", this);
@@ -77,16 +79,9 @@ export class DiffAlgorithmEvaluation {
                 resultsPerAdapter.get(adapter).push(result);
                 resultsPerTest.get(testCase).push(result);
             }
-        }
-
-        //TODO aggregate metrics
-        for (const [testCase, results] of resultsPerTest) {
-            Logger.result("Results for case " + testCase.name, this);
-            Logger.result(testCase, this);
-            Logger.result("\n" + MarkDownFactory.tabularize(results), this);
+            Logger.result("expected: \n" + testCase.expected.toString(), this);
+            Logger.result(MarkDownFactory.tabularize(resultsPerTest.get(testCase)), this);
         }
     }
-
-
 }
 
