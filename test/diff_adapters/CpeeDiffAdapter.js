@@ -61,16 +61,16 @@ export class CpeeDiffAdapter extends DiffAdapter {
         let delta = EditScriptFactory.getEditScript(output);
         for (const change of delta.changes) {
             switch (change.type) {
-                case Dsl.OPERATION_TYPES.INSERTION.label:
+                case Dsl.CHANGE_MODEL.INSERTION.label:
                     insertionCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.DELETION.label:
+                case Dsl.CHANGE_MODEL.DELETION.label:
                     deletionCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.MOVE_TO.label:
+                case Dsl.CHANGE_MODEL.MOVE_TO.label:
                     moveCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.UPDATE.label:
+                case Dsl.CHANGE_MODEL.UPDATE.label:
                     updateCounter++;
                     break;
             }

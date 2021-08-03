@@ -45,14 +45,14 @@ export class XmlDomFactory {
 
         function buildRecursive(deltaNode) {
 
-            const prefix = Object.values(Dsl.OPERATION_TYPES).find(ct => ct.label === deltaNode.type).prefix + ":"
+            const prefix = Object.values(Dsl.CHANGE_MODEL).find(ct => ct.label === deltaNode.type).prefix + ":"
             const xmlNode = doc.createElement(prefix + deltaNode.label);
             xmlNode.localName = deltaNode.label;
 
             //TODO delta variables
             if (deltaNode.isRoot()) {
                 xmlNode.setAttribute("xmlns", Dsl.DEFAULT_NAMESPACE);
-                for (const type of Object.values(Dsl.OPERATION_TYPES)) {
+                for (const type of Object.values(Dsl.CHANGE_MODEL)) {
                     xmlNode.setAttribute("xmlns:" + type.prefix, type.uri);
                 }
             }
@@ -62,11 +62,11 @@ export class XmlDomFactory {
                     const oldVal = deltaNode.updates.get(key).oldVal;
                     const newVal = deltaNode.updates.get(key).newVal;
                     if (oldVal == null) {
-                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.INSERTION.prefix + ":" + key, newVal);
+                        xmlNode.setAttribute(Dsl.CHANGE_MODEL.INSERTION.prefix + ":" + key, newVal);
                     } else if (newVal == null) {
-                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.DELETION.prefix + ":" + key, oldVal);
+                        xmlNode.setAttribute(Dsl.CHANGE_MODEL.DELETION.prefix + ":" + key, oldVal);
                     } else {
-                        xmlNode.setAttribute(Dsl.OPERATION_TYPES.UPDATE.prefix + ":" + key, newVal);
+                        xmlNode.setAttribute(Dsl.CHANGE_MODEL.UPDATE.prefix + ":" + key, newVal);
                     }
                 } else {
                     xmlNode.setAttribute(key, value);
@@ -79,7 +79,7 @@ export class XmlDomFactory {
 
             if (deltaNode.updates.has("text")) {
                 //Text content can only be updated, not inserted or deleted
-                xmlNode.setAttribute(Dsl.OPERATION_TYPES.UPDATE.label.prefix + ":data", "true");
+                xmlNode.setAttribute(Dsl.CHANGE_MODEL.UPDATE.label.prefix + ":data", "true");
             }
 
             if (deltaNode.text != null) {

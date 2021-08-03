@@ -40,7 +40,7 @@ export class DeltaTreeGenerator {
         const child = DeltaNodeFactory.getNode(node, true);
         parent.insertChild(childIndex, child);
         for (const descendant of child.toPreOrderArray()) {
-            descendant.type = Dsl.OPERATION_TYPES.INSERTION.label
+            descendant.type = Dsl.CHANGE_MODEL.INSERTION.label
         }
     }
 
@@ -73,7 +73,7 @@ export class DeltaTreeGenerator {
         node.type = change.type;
 
         //Insert placeholder at old position
-        movfrNode.type = Dsl.OPERATION_TYPES.MOVE_FROM;
+        movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM;
 
         movfrParent.placeholders.push(movfrNode);
         //create entry in move map
@@ -128,7 +128,7 @@ export class DeltaTreeGenerator {
 
     _applyDelete(node) {
         for (const descendant of node.toPreOrderArray()) {
-            descendant.type = Dsl.OPERATION_TYPES.DELETION.label
+            descendant.type = Dsl.CHANGE_MODEL.DELETION.label
         }
 
         node.removeFromParent();
@@ -141,7 +141,7 @@ export class DeltaTreeGenerator {
     }
 
     deltaTree(tree, editScript) {
-        //copy this.tree
+        //copy this tree
         tree = DeltaNodeFactory.getNode(tree);
         this.tree = tree;
         this.moveMap = new Map();
@@ -153,19 +153,19 @@ export class DeltaTreeGenerator {
 
         for (const change of editScript) {
             switch (change.type) {
-                case Dsl.OPERATION_TYPES.INSERTION.label: {
+                case Dsl.CHANGE_MODEL.INSERTION.label: {
                     this._handleInsert(change);
                     break;
                 }
-                case Dsl.OPERATION_TYPES.MOVE_TO.label: {
+                case Dsl.CHANGE_MODEL.MOVE_TO.label: {
                     this._handleMove(change);
                     break;
                 }
-                case Dsl.OPERATION_TYPES.UPDATE.label: {
+                case Dsl.CHANGE_MODEL.UPDATE.label: {
                     this._handleUpdate(change);
                     break;
                 }
-                case Dsl.OPERATION_TYPES.DELETION.label: {
+                case Dsl.CHANGE_MODEL.DELETION.label: {
                     this._handleDelete(change);
                     break;
                 }
@@ -173,7 +173,6 @@ export class DeltaTreeGenerator {
         }
         return this.tree;
     }
-
 
     _findNode(indexPath) {
         let currNode = this.tree;
@@ -208,7 +207,7 @@ export class DeltaTreeGenerator {
         }
         while (node.placeholders.length > 0) {
             const placeholder = node.placeholders.pop();
-            if (!isMoveTo || !placeholder.type === Dsl.OPERATION_TYPES.MOVE_FROM) {
+            if (!isMoveTo || !placeholder.type === Dsl.CHANGE_MODEL.MOVE_FROM) {
                 node.insertChild(placeholder.childIndex, placeholder);
             }
         }

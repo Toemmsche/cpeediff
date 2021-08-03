@@ -51,7 +51,6 @@ export class Logger {
         }
     }
 
-
     /**
      * A list of default handlers for log messages where no specific handlers are available.
      * @type [Function]
@@ -65,6 +64,10 @@ export class Logger {
      * @private
      */
     static _handleLog(logMsg) {
+        //TODO remove
+        if(logMsg.level === this.LOG_LEVELS.ERROR || logMsg.level === this.LOG_LEVELS.WARN) {
+            throw new Error(logMsg.message);
+        }
         if (this._enabled) {
             //handle with specific handlers
             if (this._handlers.has(logMsg.level)) {

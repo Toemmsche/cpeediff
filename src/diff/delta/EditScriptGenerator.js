@@ -29,6 +29,9 @@ export class EditScriptGenerator {
     generateEditScript(oldTree, newTree, matching) {
         Logger.info("Generating edit script...", this);
         Logger.startTimed();
+
+        const copyOfOld = NodeFactory.getNode(oldTree);
+
         this._matching = matching;
         this._editScript = new EditScript();
 
@@ -79,6 +82,11 @@ export class EditScriptGenerator {
             if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
                 this._alignChildren(oldNode, this._editScript);
             }
+        }
+
+        //verify edit script
+        if(!this._editScript.verify(copyOfOld, newTree)) {
+            Logger.error("Generated edit script is not valid for the given trees", this);
         }
 
         Logger.stat("Edit script generation took " + Logger.endTimed() + "ms", this);

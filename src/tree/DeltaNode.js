@@ -95,28 +95,28 @@ export class DeltaNode extends Node {
      * @returns {boolean} If this node was moved.
      */
     isMove() {
-        return this.type === Dsl.OPERATION_TYPES.MOVE_TO.label
+        return this.type === Dsl.CHANGE_MODEL.MOVE_TO.label
     }
 
     /**
      * @returns {boolean} If this node was deleted.
      */
     isDeletion() {
-        return this.type === Dsl.OPERATION_TYPES.DELETION.label;
+        return this.type === Dsl.CHANGE_MODEL.DELETION.label;
     }
 
     /**
      * @returns {boolean} If this node was inserted.
      */
     isInsertion() {
-        return this.type === Dsl.OPERATION_TYPES.INSERTION.label;
+        return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
     }
 
     /**
      * @returns {boolean} If this node was not changed.
      */
     isNil() {
-        return this.type === Dsl.OPERATION_TYPES.NIL.label && !this.isUpdate();
+        return this.type === Dsl.CHANGE_MODEL.NIL.label && !this.isUpdate();
     }
 
     //TODO

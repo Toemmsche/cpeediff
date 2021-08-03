@@ -515,6 +515,7 @@ export class TreeGenerator {
         Logger.startTimed();
         const oldSize = tree.size();
         //do not modify original tree
+        const oldTree = tree;
         tree = NodeFactory.getNode(tree);
 
         //set up random distribution of changes according to parameters
@@ -564,8 +565,11 @@ export class TreeGenerator {
             }
         }
         //Record all changes applied during tree preparation
-        const preparedTree = new Preprocessor().prepareTree(tree, new Map(), new Map(), false, this._possibleEditScript);
-
+        const preparedTree = new Preprocessor().prepareTree(tree, new Map(), new Map(),  this._possibleEditScript);
+        //Verify correctness of the edit script
+        if(!this._possibleEditScript.verify(oldTree, preparedTree)) {
+            Logger.error("Edit script not valid for changed tree", this);
+        }
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             tree: preparedTree,

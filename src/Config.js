@@ -32,8 +32,6 @@ export const Config = {
         CALL_SERVICE_WEIGHT: 1.5,
         CALL_CODE_WEIGHT: 1,
 
-
-
         EPSILON_PENALTY: 0.01,
 
         CONTENT_WEIGHT: 5,

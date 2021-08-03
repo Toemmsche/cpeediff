@@ -1,165 +1,27 @@
-<description
-    xmlns="http://cpee.org/ns/description/1.0">
-    <call endpoint="cIXSZpEoMXAgohpb">
-        <parameters>
-            <label>FPJBxuJMLrPboGyBJrLgbh</label>
-            <method>:post</method>
-        </parameters>
-        <code>
-            <update>data.fhywYq = 420;data.dPNNXYBpNeHPVk = 420;data.bPcak = 420;</update>
-        </code>
-    </call>
-    <call endpoint="XfOWlmIOLY">
-        <parameters>
-            <label>lOGrcepHWXlWfHkIIZ</label>
-            <method>:patch</method>
-        </parameters>
-        <code>
-            <update>data.OOQpgSUNm = 420;data.fhywYq = 420;data.bPcak = 420;data.mwCFVl = 420;</update>
-        </code>
-    </call>
-    <call endpoint="FTTjPFZWCcIkPdUicfynZwYkv">
-        <parameters>
-            <label>BvOIrpCviYAOeHcxJMuKrbQJjMUZl</label>
-            <method>:post</method>
-        </parameters>
-    </call>
-    <call endpoint="olKHhOyGqLuucEbNvyHFLwXbZ">
-        <parameters>
-            <label>PbscfyAQjIE</label>
-            <method>:delete</method>
-        </parameters>
-        <code>
-            <update>data.dPNNXYBpNeHPVk = 420;data.bPcak = 420;data.RCdRS = 420;data.bAPeRuVjXey = 420;</update>
-        </code>
-    </call>
-    <call endpoint="cIXSZpEoMXAgohpb">
-        <parameters>
-            <label>BOkrbNICgW</label>
-            <method>:post</method>
-        </parameters>
-        <code>
-            <update>data.mwCFVl = 420;data.RCdRS = 420;data.kgMfdJUphz = 420;</update>
-        </code>
-    </call>
-    <call endpoint="olKHhOyGqLuucEbNvyHFLwXbZPPuWbfifWR">
-        <parameters>
-            <label>WQeebmbHGZmexPRFDzeCSZmKOuHbc</label>
-            <method>:post</method>
-        </parameters>
-        <code>
-            <update>data.RfDFTtV = 420;data.OOQpgSUNm = 420;data.fhywYq = 420;data.bPcak = 420;</update>
-        </code>
-    </call>
-    <call endpoint="XfOWlmIOLY">
-        <parameters>
-            <label>BvOIrpCviYAOeHcxJMuKrbQJjMUZl</label>
-            <method>:put</method>
-        </parameters>
-        <code>
-            <update>data.fhywYq = 420;data.RCdRS = 420;data.alAbstB = 420;</update>
-        </code>
-    </call>
-    <call endpoint="olKHhOyGqLuucEbNvyHFLwXbZ">
-        <parameters>
-            <label>uANwNnoxjhlXYIHmYn</label>
-            <method>:put</method>
-        </parameters>
-        <code>
-            <update>data.dPNNXYBpNeHPVk = 420;</update>
-        </code>
-    </call>
-    <call endpoint="olKHhOyGqLuucEbNvyHFLwXbZ">
-        <parameters>
-            <label>FPJBxuJMLrPboGyBJrLgbh</label>
-            <method>:put</method>
-        </parameters>
-        <code>
-            <update>data.alAbstB = 420;data.kgMfdJUphz = 420;data.bPcak = 420;data.RCdRS = 420;data.RfDFTtV = 420;</update>
-        </code>
-    </call>
-    <call endpoint="XfOWlmIOLYTGOhQYzpAK" DbXLoEiSmU="cuneugPOmu">
-        <parameters>
-            <label>iqTyuxzCHgqWg</label>
-            <method>:patch</method>
-        </parameters>
-        <code>
-            <update>data.RCdRS = 420;</update>
-        </code>
-    </call>
-    <call endpoint="cIXSZpEoMXAgohpb">
-        <parameters>
-            <label>lOGrcepHWXlWfHkIIZ</label>
-            <method>:put</method>
-        </parameters>
-        <code>
-            <update>data.RfDFTtV = 420;</update>
-        </code>
-    </call>
-    <call endpoint="OYNirvmAEErG">
-        <parameters>
-            <label>PbscfyAQjIE</label>
-            <method>:patch</method>
-        </parameters>
-    </call>
-    <call endpoint="jptKzQuGEEz">
-        <parameters>
-            <label>tsJYYxlEgMpqYPCtcQCbYXT</label>
-            <method>:delete</method>
-        </parameters>
-        <code>
-            <update>data.bPcak = 420;</update>
-        </code>
-    </call>
-    <call endpoint="olKHhOyGqLuucEbNvyHFLwXbZBLxcldcKyX">
-        <parameters>
-            <label>iqTyuxzCHgqWg</label>
-            <method>:delete</method>
-        </parameters>
-        <code>
-            <update>data.fhywYq = 420;data.dPNNXYBpNeHPVk = 420;</update>
-        </code>
-    </call>
-    <choose mode="exclusive">
-        <alternative condition="data.alAbstB &lt; 69">
-            <loop condition="data.RCdRS &lt; 69">
-                <call endpoint="uKOZSfMnFLJJBE">
-                    <parameters>
-                        <label>WQeebmbHGZmexPRFDzeCSZmKOuHbc</label>
-                        <method>:get</method>
-                    </parameters>
-                    <code>
-                        <update>data.OOQpgSUNm = 420;data.dPNNXYBpNeHPVk = 420;</update>
-                    </code>
-                </call>
-            </loop>
-            <call endpoint="jptKzQuGEEz">
+<properties xmlns="http://cpee.org/ns/properties/2.0">
+    <dataelements>
+        <airline>null</airline>
+        <from>Vienna</from>
+        <to>Prague</to>
+        <costs>0</costs>
+    </dataelements>
+    <endpoints>
+        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
+    </endpoints>
+    <dslx>
+        <description xmlns="http://cpee.org/ns/description/1.0">
+            <call id="a1" endpoint="bookAir">
                 <parameters>
-                    <label>FPJBxuJMLrPboGyBJrLgbh</label>
-                    <method>:delete</method>
+                    <method>:post</method>
+                    <arguments>
+                        <from>data.from</from>
+                        <to>data.to</to>
+                    </arguments>
                 </parameters>
                 <code>
-                    <update>data.alAbstB = 420;data.kgMfdJUphz = 420;data.dPNNXYBpNeHPVk = 420;</update>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
                 </code>
             </call>
-        </alternative>
-    </choose>
-    <call endpoint="jptKzQuGEEz">
-        <parameters>
-            <label>FPJBxuJMLrPboGyBJrLgbh</label>
-            <method>:put</method>
-        </parameters>
-        <code>
-            <update>data.RCdRS = 420;data.alAbstB = 420;data.RfDFTtV = 420;data.bAPeRuVjXey = 420;data.dPNNXYBpNeHPVk = 420;data.fhywYq = 420;</update>
-        </code>
-    </call>
-    <call endpoint="FTTjPFZWCcIkPdUicfynZwYkv">
-        <parameters>
-            <label>BvOIrpCviYAOeHcxJMuKrbQJjMUZl</label>
-            <method>:patch</method>
-        </parameters>
-        <code>
-            <update>data.fhywYq = 420;data.bAPeRuVjXey = 420;data.OOQpgSUNm = 420;data.dPNNXYBpNeHPVk = 420;data.bPcak = 420;data.mwCFVl = 420;</update>
-        </code>
-    </call>
-</description>
+        </description>
+    </dslx>
+</properties>

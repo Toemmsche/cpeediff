@@ -38,12 +38,6 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         let time = new Date().getTime();
         const delta = new CpeeDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;
-        //verify the correctness of our diff by patching the original tree with it
-        const deltaTree = new DeltaTreeGenerator().deltaTree(oldTree, delta);
-        const hashExtractor = new HashExtractor();
-        if (hashExtractor.get(deltaTree) !== hashExtractor.get(newTree)) {
-            throw new Error("Invalid edit script");
-        }
         return {
             output: delta,
             runtime: time
@@ -59,16 +53,16 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         //parse output
         for (const change of output.changes) {
             switch (change.type) {
-                case Dsl.OPERATION_TYPES.INSERTION.label:
+                case Dsl.CHANGE_MODEL.INSERTION.label:
                     insertionCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.DELETION.label:
+                case Dsl.CHANGE_MODEL.DELETION.label:
                     deletionCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.MOVE_TO.label:
+                case Dsl.CHANGE_MODEL.MOVE_TO.label:
                     moveCounter++;
                     break;
-                case Dsl.OPERATION_TYPES.UPDATE.label:
+                case Dsl.CHANGE_MODEL.UPDATE.label:
                     updateCounter++;
                     break;
             }

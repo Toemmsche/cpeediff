@@ -72,7 +72,7 @@ export class Preprocessor {
         return this.prepareTree(tree, endpointToUrl, dataElements);
     }
 
-    prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), withInitScript = false, editScript = null) {
+    prepareTree(tree, endpointToUrl = new Map(), dataElements = new Map(), editScript = null) {
         //traverse tree in post-order (bottom-up)
         for (const node of tree.toPostOrderArray()) {
             let updated = false;
@@ -80,6 +80,7 @@ export class Preprocessor {
 
             //only preserve semantically relevant attributes
             for (const key of node.attributes.keys()) {
+                //TODO no property ignore list
                 if (Dsl.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
                     node.attributes.delete(key);
                     updated = true;
