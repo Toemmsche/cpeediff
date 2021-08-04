@@ -19,7 +19,7 @@ import {StandardComparator} from "../match/compare/StandardComparator.js";
 import {EditScriptGenerator} from "./delta/EditScriptGenerator.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
 import {MatchPipeline} from "../match/MatchPipeline.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 
 export class CpeeDiff {
     

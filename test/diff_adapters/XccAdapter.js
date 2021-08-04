@@ -16,11 +16,55 @@
 
 import {TestConfig} from "../TestConfig.js";
 import {DiffAdapter} from "./DiffAdapter.js";
+import {DomHelper} from "../../util/DomHelper.js";
+import xmldom from "xmldom";
 
-export class XccAdapter extends DiffAdapter{
+export class XccAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+    }
+
+    _parseOutput(output) {
+        let updateCounter = 0;
+        let insertionCounter = 0;
+        let moveCounter = 0;
+        let deletionCounter = 0;
+
+        //parse output
+        const delta = DomHelper.firstChildElement(
+            new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
+        const moveIds = new Set();
+        for (let i = 0; i < delta.childNodes.length; i++) {
+            const childNode = delta.childNodes.item(i);
+            if (childNode.localName != null) {
+                switch (childNode.localName) {
+                    case "insert":
+                        //moves are insertions and deletions with the same "id" attribute
+                        if (childNode.hasAttribute("id") && !moveIds.has(childNode.getAttribute("id"))) {
+                            moveCounter++;
+                            moveIds.add(childNode.getAttribute("id"));
+                        } else {
+                            insertionCounter++;
+                        }
+
+                        break;
+                    case "delete":
+                        //moves are insertions and deletions with the same "id" attribute
+                        if (childNode.hasAttribute("id") && !moveIds.has(childNode.getAttribute("id"))) {
+                            moveCounter++;
+                            moveIds.add(childNode.getAttribute("id"));
+                        } else {
+                            deletionCounter++;
+                        }
+                        break;
+                    case "update":
+                        updateCounter++;
+                        break;
+                }
+            }
+        }
+        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
     }
 }
 

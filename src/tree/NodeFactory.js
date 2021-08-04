@@ -17,7 +17,7 @@
 import {AbstractNodeFactory} from "./AbstractNodeFactory.js";
 import {Node} from "./Node.js"
 import xmldom from "xmldom";
-import {DomHelper} from "../../DomHelper.js";
+import {DomHelper} from "../../util/DomHelper.js";
 
 /**
  * Factory class for creating Node objects from an existing node ({@see Node}, {@see DeltaNode}, {@see MergeNode}),

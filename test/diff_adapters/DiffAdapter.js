@@ -20,8 +20,8 @@ import fs from "fs";
 import {DiffTestResult} from "../result/DiffTestResult.js";
 import xmldom from "xmldom";
 import {execFileSync} from "child_process";
-import {Logger} from "../../Logger.js";
-import {DomHelper} from "../../DomHelper.js";
+import {Logger} from "../../util/Logger.js";
+import {DomHelper} from "../../util/DomHelper.js";
 import {ActualDiff} from "../actual/ActualDiff.js";
 
 export class DiffAdapter {
@@ -70,6 +70,8 @@ export class DiffAdapter {
                         break;
                     case "add":
                     case "insert":
+                        //map copies to insertions
+                    case "copy":
                         insertionCounter++;
                         break;
                     case "remove":

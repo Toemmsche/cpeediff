@@ -20,7 +20,7 @@ import {NodeFactory} from "../tree/NodeFactory.js";
 import {Dsl} from "../Dsl.js";
 import xmldom from "xmldom";
 import {Config} from "../Config.js";
-import {DomHelper} from "../../DomHelper.js";
+import {DomHelper} from "../../util/DomHelper.js";
 
 export class Preprocessor {
 
@@ -39,30 +39,23 @@ export class Preprocessor {
         let tree;
         //TODO CONFIG for this
         if (root.localName === "properties") {
-            for (let i = 0; i < root.childNodes.length; i++) {
-                const childTNode = root.childNodes.item(i);
-                if (childTNode.localName === "dslx") {
-                    let j = 0;
-                    while (childTNode.childNodes.item(j).localName !== "description") j++;
-                    tree = NodeFactory.getNode(childTNode.childNodes.item(j), true);
-                } else if (childTNode.localName === "endpoints") {
-                    for (let j = 0; j < childTNode.childNodes.length; j++) {
-                        const endpoint = childTNode.childNodes.item(j);
-                        if (endpoint.nodeType === 1) { //Element, not Text
-                            const url = endpoint.firstChild.data;
-                            endpointToUrl.set(endpoint.localName, url);
-                        }
-                    }
-                } else if (childTNode.localName === "dataelements") {
-                    for (let j = 0; j < childTNode.childNodes.length; j++) {
-                        const dataElement = childTNode.childNodes.item(j);
-                        if (dataElement.nodeType === 1) { //Element, not Text
-                            const initialValue = dataElement.firstChild.data;
-                            dataElements.set(dataElement.localName, initialValue);
-                        }
-                    }
-                }
-            }
+
+            //Parse process tree
+            const xmlDslx = DomHelper.firstChildElement(root, Dsl.PROPERTIES_ROOT);
+            const xmlDescription = DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.ROOT.label);
+            tree = NodeFactory.getNode(xmlDescription, true);
+
+            //Parse endpoints
+            const xmlEndpoints = DomHelper.firstChildElement(root, Dsl.CALL_PROPERTIES.ENDPOINT.label + "s");
+            DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
+                endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
+            });
+
+            //Parse initial values for data elements
+            const xmlDataElements = DomHelper.firstChildElement(root, Dsl.DATA_ELEMENTS);
+            DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
+                dataElements.set(xmlDataElement.localName, xmlDataElement.firstChild.data);
+            });
 
         } else {
             //hop straight into tree parsing
@@ -80,8 +73,7 @@ export class Preprocessor {
 
             //only preserve semantically relevant attributes
             for (const key of node.attributes.keys()) {
-                //TODO no property ignore list
-                if (Dsl.PROPERTY_IGNORE_LIST.includes(key) || node.attributes.get(key) === "") {
+                if (node.attributes.get(key) === "") {
                     node.attributes.delete(key);
                     updated = true;
                 } else {
@@ -109,7 +101,7 @@ export class Preprocessor {
             }
 
             //trim irrelevant nodes
-            if (node.isPropertyNode() && (Dsl.PROPERTY_IGNORE_LIST.includes(node.label) || node.isEmpty())
+            if (node.isPropertyNode() && node.isEmpty()
                 || (node.isInnerNode() && !node.hasChildren() && !node.isRoot())
                 || (node.label === Dsl.ELEMENTS.MANIPULATE.label) && (node.text == null || node.text === "")) {
                 node.removeFromParent();
@@ -118,7 +110,7 @@ export class Preprocessor {
 
             //trim data
             if (node.text != null) {
-                const newText = node.text.trim();
+                let newText = node.text.trim();
                 if (newText !== node.text) {
                     node.text = newText;
                     updated = true;

@@ -18,7 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import fs from "fs";
 import {DiffAdapter} from "./DiffAdapter.js";
 import xmldom from "xmldom";
-import {DomHelper} from "../../DomHelper.js";
+import {DomHelper} from "../../util/DomHelper.js";
 
 export class DeltaJsAdapter extends DiffAdapter{
 

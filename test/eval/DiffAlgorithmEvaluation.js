@@ -16,7 +16,7 @@
 
 import {TestConfig} from "../TestConfig.js";
 import * as fs from "fs";
-import {MarkDownFactory} from "../util/MarkDownFactory.js";
+import {MarkDownFactory} from "../../util/MarkDownFactory.js";
 import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
 import {XmlDiffAdapter} from "../diff_adapters/XmlDiffAdapter.js";
 import {DiffXmlAdapter} from "../diff_adapters/DiffXmlAdapter.js";
@@ -24,9 +24,10 @@ import {DeltaJsAdapter} from "../diff_adapters/DeltaJsAdapter.js";
 import {XccAdapter} from "../diff_adapters/XccAdapter.js";
 import {UnixDiffAdapter} from "../diff_adapters/UnixDiffAdapter.js";
 import {XyDiffAdapter} from "../diff_adapters/XyDiffAdapter.js";
-import {Logger} from "../../Logger.js";
-import {DirectoryScraper} from "../util/DirectoryScraper.js";
+import {Logger} from "../../util/Logger.js";
+import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {DiffTestCase} from "../case/DiffTestCase.js";
+import {Config} from "../../src/Config.js";
 
 export class DiffAlgorithmEvaluation {
 
@@ -52,6 +53,9 @@ export class DiffAlgorithmEvaluation {
 
     evalAll(rootDir = TestConfig.DIFF_CASES_DIR) {
         Logger.info("Using " + rootDir + " to evaluate diff algorithms", this);
+
+        //turn off pretty print for efficiency and fairness reasons
+        Config.PRETTY_XML = false;
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();

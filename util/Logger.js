@@ -15,7 +15,7 @@
 */
 
 import {LogMessage} from "./LogMessage.js";
-import {Config} from "./src/Config.js";
+import {Config} from "../src/Config.js";
 
 /**
  * A simple logging class.
@@ -65,7 +65,7 @@ export class Logger {
      */
     static _handleLog(logMsg) {
         //TODO remove
-        if(logMsg.level === this.LOG_LEVELS.ERROR || logMsg.level === this.LOG_LEVELS.WARN) {
+        if(logMsg.level === this.LOG_LEVELS.ERROR) {
             throw new Error(logMsg.message);
         }
         if (this._enabled) {

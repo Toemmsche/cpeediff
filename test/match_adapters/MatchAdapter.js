@@ -16,7 +16,7 @@
 
 import {IdExtractor} from "../../src/match/extract/IdExtractor.js";
 import assert from "assert";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {TestConfig} from "../TestConfig.js";
 import {ActualMatching} from "../actual/ActualMatching.js";
 

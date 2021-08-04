@@ -78,7 +78,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
                             minCompareNode = oldLeaf;
                         }
                     }
-                    if (minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
+                    if (minCompareValue < Config.COMPARISON_THRESHOLD) {
                         if (!oldToNewLeafMap.has(minCompareNode)) {
                             oldToNewLeafMap.set(minCompareNode, []);
                         }
@@ -133,7 +133,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
                     if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNew(newPath[k]))) {
                         //If so, we terminate to preserve ancestor order within the path
                         return;
-                    } else if (comparator.compare(newPath[k], oldPath[i]) < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                    } else if (comparator.compare(newPath[k], oldPath[i]) < Config.COMPARISON_THRESHOLD) {
                         matching.matchNew(newPath[k], oldPath[i]);
                         //update last matching index to avoid a false positive of the first if branch in subsequent iterations
                         j = k + 1;
@@ -175,7 +175,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
 
             //index in newPath where last matching occurred
             for (let i = 0; i < newLcs.length; i++) {
-                if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.INNER_NODE_SIMILARITY_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
+                if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.COMPARISON_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
                     matching.matchNew(newLcs[i], oldLcs[i]);
                 }
             }

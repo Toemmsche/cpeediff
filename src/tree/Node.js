@@ -15,7 +15,7 @@
 */
 
 import {Dsl} from "../Dsl.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 
 /**
  * A node inside a CPEE process tree parsed from an XML document.

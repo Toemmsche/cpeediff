@@ -28,7 +28,7 @@ import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
 import {CpeeDiffAdapter} from "../../test/diff_adapters/CpeeDiffAdapter.js";
 import {Dsl} from "../Dsl.js";
 import {TestConfig} from "../../test/TestConfig.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {HashExtractor} from "../match/extract/HashExtractor.js";
 
 Logger.enableLogging();

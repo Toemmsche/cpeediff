@@ -83,7 +83,7 @@ export class CommonalityMatcher extends AbstractMatchingAlgorithm {
                 }
             }
 
-            if (minCV <= Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+            if (minCV <= Config.COMPARISON_THRESHOLD) {
                 //create new match
                 matching.matchNew(newInner, bestMatch);
 

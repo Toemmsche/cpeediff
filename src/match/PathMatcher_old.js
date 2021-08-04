@@ -45,7 +45,7 @@ export class PathMatcher_old extends AbstractMatchingAlgorithm {
                     for(const oldNode of labelMap.get(newNode.label)) {
 
                         const compareValue = comparator.compare(newNode, oldNode);
-                        if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD
+                        if (compareValue < Config.COMPARISON_THRESHOLD
                             //never overwrite a better matching
                             && (!oldToNewMap.has(oldNode) || compareValue < oldToNewMap.get(oldNode).compareValue)
                             && (!newToOldMap.has(newNode) || compareValue < newToOldMap.get(newNode).compareValue)) {

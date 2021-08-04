@@ -23,7 +23,7 @@ import {TestConfig} from "../TestConfig.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import {DiffTestResult} from "../result/DiffTestResult.js";
 import fs from "fs";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {ActualDiff} from "../actual/ActualDiff.js";
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {

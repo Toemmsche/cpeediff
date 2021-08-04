@@ -21,7 +21,7 @@ import fs from "fs";
 import {MergeTestResult} from "../result/MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {ActualMerge} from "../actual/ActualMerge.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
 

@@ -17,6 +17,9 @@
 
 export const Dsl = {
 
+    PROPERTIES_ROOT: "properties",
+    DATA_ELEMENTS: "dataelements",
+
     ELEMENTS: {
         ROOT: {
             label: "description",
@@ -139,12 +142,6 @@ export const Dsl = {
     },
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
     CHOOSE_MODES: ["inclusive", "exclusive"],
-    DATA_PASS: {
-        VARIABLE_KEY: "pass",
-        LOCAL_KEY: "local"
-    },
-
-    PROPERTY_IGNORE_LIST: ["id", "description", "xmlns", "documentation", "doc"],
 
     DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
     CHANGE_MODEL: {
@@ -202,6 +199,6 @@ Dsl.INTERNAL_ORDERING_SET = new Set(
     .filter(k => k.isOrdered)
     .map(k => k.label));
 
-Dsl.CHANGE_TYPE_SET = new Set(
+Dsl.CHANGE_MODEL_SET = new Set(
     Object.values(Dsl.CHANGE_MODEL));
 

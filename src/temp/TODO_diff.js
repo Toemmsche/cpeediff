@@ -10,6 +10,7 @@
 //      turn single function classes in to functions
 //      add timings to merger
 //      time map in Logger
+//      print diff info option
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out

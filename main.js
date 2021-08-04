@@ -29,8 +29,7 @@ import {MergeAlgorithmEvaluation} from "./test/eval/MergeAlgorithmEvaluation.js"
 import {MatchingAlgorithmEvaluation} from "./test/eval/MatchingAlgorithmEvaluation.js";
 import {TestConfig} from "./test/TestConfig.js";
 import * as fs from "fs";
-import {Logger} from "./Logger.js";
-import * as util from "util";
+import {Logger} from "./util/Logger.js";
 import {CpeeMerge} from "./src/merge/CpeeMerge.js";
 import {NodeFactory} from "./src/tree/NodeFactory.js";
 
@@ -45,15 +44,9 @@ const argv = yargs(hideBin(process.argv))
                 description: "The changed CPEE process tree as an XML document",
                 type: "string"
             })
-            .option("leafThreshold", {
-                description: "Similarity threshold for matching leaf nodes",
+            .option("threshold", {
+                description: "Similarity threshold for matching nodes",
                 alias: "t",
-                type: "number",
-                default: 0.4
-            })
-            .option("innerThreshold", {
-                description: "Similarity threshold for matching inner nodes",
-                alias: "i",
                 type: "number",
                 default: 0.4
             })
@@ -77,7 +70,7 @@ const argv = yargs(hideBin(process.argv))
                 default: "editScript"
             })
             .option("verbose", {
-                description: "Provide extended log messages",
+                description: "Provide extended log messages. Warning: This includes a lot of stats about the performance of each algorithm component.",
                 alias: "v",
                 type: "boolean",
                 default: false
@@ -104,12 +97,12 @@ const argv = yargs(hideBin(process.argv))
         if (argv.verbose) {
             Logger.enableLogging();
         } else {
+            //Disabling logging does not affect the output of results
             Logger.disableLogging();
         }
         Config.ADD_INIT_SCRIPT = argv.addInitScript;
         Config.VARIABLE_PREFIX = argv.variablePrefix;
-        Config.LEAF_SIMILARITY_THRESHOLD = argv.leafThreshold;
-        Config.INNER_NODE_SIMILARITY_THRESHOLD = argv.innerThreshold;
+        Config.COMPARISON_THRESHOLD = argv.threshold;
 
         const parser = new Preprocessor();
         const oldTree = parser.parseFromFile(argv.old);

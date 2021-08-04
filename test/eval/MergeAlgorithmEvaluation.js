@@ -18,13 +18,14 @@ import {TestConfig} from "../TestConfig.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
 import {AggregateMergeResult} from "../result/AggregateMergeResult.js";
-import {MarkDownFactory} from "../util/MarkDownFactory.js";
+import {MarkDownFactory} from "../../util/MarkDownFactory.js";
 import {_3dmAdapter} from "../merge_adapters/_3dmAdapter.js";
 import {CpeeMergeAdapter} from "../merge_adapters/CpeeMergeAdapter.js";
 import {XccPatchAdapter} from "../merge_adapters/XccPatchAdapter.js";
-import {Logger} from "../../Logger.js";
-import {DirectoryScraper} from "../util/DirectoryScraper.js";
+import {Logger} from "../../util/Logger.js";
+import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {MergeTestCase} from "../case/MergeTestCase.js";
+import {Config} from "../../src/Config.js";
 
 export class MergeAlgorithmEvaluation {
 
@@ -43,6 +44,9 @@ export class MergeAlgorithmEvaluation {
 
     evalAll(rootDir = TestConfig.MERGE_CASES_DIR) {
         Logger.info("Using " + rootDir + " to evaluate merge algorithms", this);
+
+        //turn off pretty print for efficiency and fairness reasons
+        Config.PRETTY_XML = false;
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();

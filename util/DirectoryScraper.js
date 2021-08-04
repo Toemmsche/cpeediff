@@ -16,7 +16,7 @@
 
 
 import * as fs from "fs";
-import {Logger} from "../../Logger.js";
+import {Logger} from "./Logger.js";
 
 export class DirectoryScraper {
 

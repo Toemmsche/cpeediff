@@ -47,7 +47,7 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
                         minCompareNode = oldNode;
                     }
                 }
-                if (minCompareValue < Config.LEAF_SIMILARITY_THRESHOLD) {
+                if (minCompareValue < Config.COMPARISON_THRESHOLD) {
                     //ensure (partial) one-to-one matching
                     if (!oldToNewMap.has(minCompareNode) || minCompareValue < oldToNewMap.get(minCompareNode).compareValue) {
                         oldToNewMap.set(minCompareNode, {

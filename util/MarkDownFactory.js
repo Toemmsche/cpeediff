@@ -15,7 +15,7 @@
 */
 
 import {markdownTable} from "markdown-table";
-import {DiffTestResult} from "../result/DiffTestResult.js";
+import {DiffTestResult} from "../test/result/DiffTestResult.js";
 
 export class MarkDownFactory {
 

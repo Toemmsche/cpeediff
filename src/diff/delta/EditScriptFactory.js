@@ -17,6 +17,7 @@
 import xmldom from "xmldom";
 import {EditScript} from "./EditScript.js";
 import {ChangeFactory} from "./ChangeFactory.js";
+import {DomHelper} from "../../../util/DomHelper.js";
 
 export class EditScriptFactory {
 
@@ -34,12 +35,7 @@ export class EditScriptFactory {
         if(xmlElement.hasAttribute("cost") != null) {
             editScript.cost = parseInt(xmlElement.getAttribute("cost"));
         }
-        for (let i = 0; i < xmlElement.childNodes.length; i++) {
-            const childNode = xmlElement.childNodes.item(i);
-            if (childNode.nodeType === 1) {
-                editScript.changes.push(ChangeFactory.getChange(childNode));
-            }
-        }
+        DomHelper.forAllChildElements(xmlElement, (xmlChange) => editScript.changes.push(ChangeFactory.getChange(xmlChange)))
         return editScript;
     }
 

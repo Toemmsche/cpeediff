@@ -26,7 +26,7 @@ import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
 import fs from "fs";
 import {execFileSync} from "child_process";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 
 export class CpeeDiffAdapter extends DiffAdapter {
 

@@ -40,7 +40,7 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
                         return;
                     }
                     const compareValue = comparator.compare(newPath[k], oldPath[i]);
-                    if (compareValue < Config.INNER_NODE_SIMILARITY_THRESHOLD) {
+                    if (compareValue < Config.COMPARISON_THRESHOLD) {
                         if (!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue) {
                             newToOldMap.set(newPath[k], {
                                 oldNode: oldPath[i],

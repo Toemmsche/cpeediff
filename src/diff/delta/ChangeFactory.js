@@ -17,6 +17,7 @@
 import {NodeFactory} from "../../tree/NodeFactory.js";
 import {EditOperation} from "./EditOperation.js";
 import xmldom from "xmldom";
+import {DomHelper} from "../../../util/DomHelper.js";
 
 export class ChangeFactory {
 
@@ -30,11 +31,9 @@ export class ChangeFactory {
     static _fromXmlDom(xmlElement) {
         const [type, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath"), xmlElement.getAttribute("newPath")];
         let newContent;
-        for (let i = 0; i < xmlElement.childNodes.length ; i++) {
-            const childTNode = xmlElement.childNodes.item(i);
-            if(childTNode.nodeType === 1) {
-                newContent = NodeFactory.getNode(childTNode, true);
-            }
+        const xmlContent = DomHelper.firstChildElement(xmlElement);
+        if(xmlContent != null) {
+            newContent = NodeFactory.getNode(xmlContent);
         }
         return new EditOperation(type, oldPath, newPath, newContent);
     }

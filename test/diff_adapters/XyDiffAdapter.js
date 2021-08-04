@@ -17,7 +17,7 @@
 import {TestConfig} from "../TestConfig.js";
 import xmldom from "xmldom";
 import {DiffAdapter} from "./DiffAdapter.js";
-import {DomHelper} from "../../DomHelper.js";
+import {DomHelper} from "../../util/DomHelper.js";
 
 
 export class XyDiffAdapter extends DiffAdapter {

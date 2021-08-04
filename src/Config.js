@@ -38,13 +38,14 @@ export const Config = {
         STRUCTURE_WEIGHT: 1
     },
 
-    LEAF_SIMILARITY_THRESHOLD: 0.4,
-    INNER_NODE_SIMILARITY_THRESHOLD: 0.4,
+    COMPARISON_THRESHOLD: 0.4,
 
     EXACT_EDIT_SCRIPT: false,
 
     VARIABLE_PREFIX: "data.",
-    ADD_INIT_SCRIPT: false
+    ADD_INIT_SCRIPT: false,
+
+    PRETTY_XML: true
 }
 
 

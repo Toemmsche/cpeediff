@@ -19,14 +19,22 @@
  */
 export class DomHelper {
 
-    static firstChildElement(xmlElement, localName = null) {
-        let child = xmlElement?.firstChild;
-        while(child?.nodeType !== 1 && (localName == null || child?.localName !== localName)) {
-            child = child?.nextSibling;
+    static firstChildElement(xmlParent, localName = null) {
+        let xmlChild = xmlParent?.firstChild;
+        while(xmlChild != null && (xmlChild.nodeType !== 1 || (localName != null && xmlChild.localName !== localName))) {
+            xmlChild = xmlChild.nextSibling;
         }
-        return child;
+        return xmlChild;
     }
-
-
+    
+    static forAllChildElements(xmlParent, func) {
+        if(xmlParent == null) return;
+        for (let i = 0; i < xmlParent.childNodes.length; i++) {
+            const xmlChild = xmlParent.childNodes.item(i);
+            if(xmlChild.nodeType === 1) {
+                func(xmlChild);
+            }
+        }
+    }
 }
 

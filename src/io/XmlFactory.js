@@ -18,6 +18,7 @@ import xmldom from "xmldom";
 import vkbeautify from "vkbeautify";
 import {XmlDomFactory} from "./XmlDomFactory.js";
 import {Dsl} from "../Dsl.js";
+import {Config} from "../Config.js";
 
 export class XmlFactory {
 
@@ -25,6 +26,10 @@ export class XmlFactory {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
         const root = XmlDomFactory.convert(object);
         doc.insertBefore(root, null);
-        return vkbeautify.xml(new xmldom.XMLSerializer().serializeToString(doc));
+        let xmlString = new xmldom.XMLSerializer().serializeToString(doc);
+        if(Config.PRETTY_XML) {
+            xmlString = vkbeautify.xml(xmlString);
+        }
+        return xmlString;
     }
 }

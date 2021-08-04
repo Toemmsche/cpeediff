@@ -20,7 +20,7 @@ import {Dsl} from "../../src/Dsl.js";
 import {ExpectedDiff} from "../expected/ExpectedDiff.js";
 import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {Config} from "../../src/Config.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
 import {EditScript} from "../../src/diff/delta/EditScript.js";
 

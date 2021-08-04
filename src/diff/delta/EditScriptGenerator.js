@@ -19,7 +19,7 @@ import {EditScript} from "./EditScript.js";
 import {NodeFactory} from "../../tree/NodeFactory.js";
 import {Config} from "../../Config.js";
 import {Lis} from "../../lib/Lis.js";
-import {Logger} from "../../../Logger.js";
+import {Logger} from "../../../util/Logger.js";
 
 export class EditScriptGenerator {
 

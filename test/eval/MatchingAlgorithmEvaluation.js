@@ -19,11 +19,12 @@ import {Preprocessor} from "../../src/io/Preprocessor.js";
 import * as fs from "fs";
 import {ExpectedMatch} from "../expected/ExpectedMatch.js";
 import {AggregateMatchResult} from "../result/AggregateMatchResult.js";
-import {MarkDownFactory} from "../util/MarkDownFactory.js";
+import {MarkDownFactory} from "../../util/MarkDownFactory.js";
 import {CpeeMatchAdapter} from "../match_adapters/CpeeMatchAdapter.js";
-import {Logger} from "../../Logger.js";
-import {DirectoryScraper} from "../util/DirectoryScraper.js";
+import {Logger} from "../../util/Logger.js";
+import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {MatchTestCase} from "../case/MatchTestCase.js";
+import {Config} from "../../src/Config.js";
 
 export class MatchingAlgorithmEvaluation {
 
@@ -42,6 +43,9 @@ export class MatchingAlgorithmEvaluation {
 
     evalAll(rootDir = TestConfig.MATCH_CASES_DIR) {
        Logger.info("Using " + rootDir + " to evaluate matching algorithms", this);
+
+        //turn off pretty print for efficiency and fairness reasons
+        Config.PRETTY_XML = false;
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();

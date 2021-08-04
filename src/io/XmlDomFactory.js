@@ -82,7 +82,7 @@ export class XmlDomFactory {
                 xmlNode.setAttribute(Dsl.CHANGE_MODEL.UPDATE.label.prefix + ":data", "true");
             }
 
-            if (deltaNode.text != null) {
+            if (deltaNode.text != null && deltaNode.text !== "") {
                 xmlNode.appendChild(doc.createTextNode(deltaNode.text))
             }
 

@@ -22,7 +22,7 @@ import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {GeneratorParameters} from "../gen/GeneratorParameters.js";
 import {ChangeParameters} from "../gen/ChangeParameters.js";
 import {TreeGenerator} from "../gen/TreeGenerator.js";
-import {Logger} from "../../Logger.js";
+import {Logger} from "../../util/Logger.js";
 import {DiffTestResult} from "../result/DiffTestResult.js";
 
 /**
@@ -125,8 +125,9 @@ export class DiffTestCase extends AbstractTestCase {
                 return null;
             }
             if (expected == null) {
-                expected = new ExpectedDiff(Math.max(oldTree.size(), newTree.size()));
+                expected = new ExpectedDiff();
             }
+            expected.maxSize = Math.max(oldTree.size(), newTree.size());
         }
         return new DiffTestCase(testCaseName, oldTree, newTree, expected);
     }
