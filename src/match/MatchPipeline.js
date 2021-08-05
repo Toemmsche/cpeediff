@@ -26,6 +26,7 @@ import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
 import {PathMatcher} from "./PathMatcher.js";
 import {Logger} from "../../util/Logger.js";
 import {PathMatcher_old} from "./PathMatcher_old.js";
+import {SimilarityMatcher_old} from "./SimilarityMatcher_old.js";
 
 export class MatchPipeline {
 

@@ -18,6 +18,7 @@ import {DeltaNodeFactory} from "./DeltaNodeFactory.js";
 import {Dsl} from "../Dsl.js";
 import {Update} from "../diff/Update.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
+import {Logger} from "../../util/Logger.js";
 
 export class Patcher {
 
@@ -47,6 +48,7 @@ export class Patcher {
                 }
             }
         }
+        Logger.debug("Inner moves: " + this.innerMoves + " leaf moves: " + this.leafMoves, this)
         return this._tree;
     }
 
@@ -63,9 +65,19 @@ export class Patcher {
         return currNode;
     }
 
+
+    innerMoves = 0;
+    leafMoves = 0;
+
     _handleMove(change) {
         const movedNode = this._findNode(change.oldPath);
         movedNode.removeFromParent();
+
+        if(movedNode.isLeaf()) {
+            this.leafMoves++;
+        } else {
+            this.innerMoves++;
+        }
 
         //Extract new child index
         const indexArr = change.newPath.split("/").map(str => parseInt(str));

@@ -47,7 +47,7 @@ export class SimilarityMatcher_old extends AbstractMatchingAlgorithm {
                         compareValue = comparator.compare(newNode, oldNode);
                     } else {
                         //compare inner nodes
-                        compareValue = (comparator.compare(newNode, oldNode) + comparator.commonality(newNode, oldNode)) / 2;
+                        compareValue = (comparator.compare(newNode, oldNode) + this.commonality(newNode, oldNode, matching)) / 2;
                     }
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
@@ -73,5 +73,19 @@ export class SimilarityMatcher_old extends AbstractMatchingAlgorithm {
             //if(oldNode.isInnerNode() || bestMatch.newNode.isInnerNode()) continue;
             matching.matchNew(bestMatch.newNode, oldNode);
         }
+    }
+
+    commonality(newNode, oldNode, matching) {
+        let common = 0;
+        const newSet = new Set(...newNode.leaves());
+        const oldSet = new Set(...oldNode.leaves());
+
+        for(const newCand of newSet) {
+            if(matching.hasNew(newCand) && oldSet.has(matching.getNew(newCand))) {
+                common++;
+            }
+        }
+
+        return  1 - (common / (Math.max(newSet.size , oldSet.size)));
     }
 }

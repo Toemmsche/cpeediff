@@ -87,11 +87,15 @@ export class DiffTestCase extends AbstractTestCase {
 
             const treeGen = new TreeGenerator(genParams);
             switch (testCaseName) {
+                case "gen_deep_and_wide":
+                    Logger.info("Generating process tree with O(n) depth and width", this);
+                    oldTree = treeGen.oldDeepAndWide();
+                    newTree = treeGen.newDeepAndWide();
+                    break;
                 case "gen_totally_different": {
                     Logger.info("Generating two unrelated process trees", this);
                     oldTree = treeGen.randomTree();
                     newTree = treeGen.randomTree();
-                    expected = new ExpectedDiff(Math.max(newTree.size(), oldTree.size()));
                     break;
                 }
                 default: {
@@ -124,11 +128,11 @@ export class DiffTestCase extends AbstractTestCase {
             if (oldTree == null || newTree == null) {
                 return null;
             }
-            if (expected == null) {
-                expected = new ExpectedDiff();
-            }
-            expected.maxSize = Math.max(oldTree.size(), newTree.size());
         }
+        if (expected == null) {
+            expected = new ExpectedDiff();
+        }
+        expected.maxSize = Math.max(oldTree.size(), newTree.size());
         return new DiffTestCase(testCaseName, oldTree, newTree, expected);
     }
 

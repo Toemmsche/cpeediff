@@ -36,6 +36,7 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
             for (const newNode of newPath) {
                 for (const oldNode of oldPath) {
 
+                    //TODO fix
                     if (possibleMap.has(newNode) && possibleMap.get(newNode).has(oldNode)) {
                         //cut everything from oldNode upwards from oldPath
                         const oldNodeIndex = oldPath.indexOf(oldNode);

@@ -143,6 +143,55 @@ export class TreeGenerator {
     }
 
     /**
+     * Generate the first version of process tree that is both O(n) deep and O(n) wide.
+     * It should force the worst case complexity in the CpeeDiff algorithm.
+     * @param {Node} root The root node of the generated process tree. A random root by default.
+     * @return Node The root of the generated process tree.
+     */
+    oldDeepAndWide(root = this._randomRoot()) {
+        //Make O(n) deep
+        let currNode = root;
+        for (let i = 0; i < this._genParams.maxSize / 2; i++) {
+            const nextChild = new Node(Dsl.ELEMENTS.CRITICAL.label);
+            currNode.appendChild(nextChild);
+            currNode = nextChild;
+        }
+
+        //Make O(n) wide
+        for (let i = 0; i < this._genParams.maxSize / 2; i++) {
+            const nextChild = new Node(Dsl.ELEMENTS.TERMINATE.label);
+            currNode.appendChild(nextChild);
+        }
+        return root;
+    }
+
+    /**
+     * Generate the second version of a random process tree that is both O(n) deep and O(n) wide.
+     * It should force the worst case complexity in the CpeeDiff algorithm.
+     * @param {Node} root The root node of the generated process tree. A random root by default.
+     * @return Node The root of the generated process tree.
+     */
+    newDeepAndWide(root = this._randomRoot()) {
+        //Make O(n) deep
+        let currNode = root;
+        for (let i = 0; i < this._genParams.maxSize / 2; i++) {
+            const nextChild = new Node(Dsl.ELEMENTS.CRITICAL.label);
+            currNode.appendChild(nextChild);
+            currNode = nextChild;
+        }
+
+        //Make O(n) wide
+        for (let i = 0; i < this._genParams.maxSize / 2; i++) {
+            const nextChild = new Node(Dsl.ELEMENTS.TERMINATE.label);
+            currNode.appendChild(nextChild);
+        }
+
+        return root;
+    }
+
+
+
+    /**
      * Picks a valid parent node among a collection of inner nodes.
      * @param {Node} node The node for which a parent should be found.
      * @param {[Node]} inners The array of inner nodes from which the parent should be picked.

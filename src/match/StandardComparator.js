@@ -56,7 +56,7 @@ export class StandardComparator extends AbstractComparator {
     }
 
     _compareLcs(seqA, seqB, defaultValue = null) {
-        if(seqA == null || seqB == null) {
+        if (seqA == null || seqB == null) {
             return defaultValue;
         }
         const maxLength = Math.max(seqA.length, seqB.length);
@@ -140,7 +140,7 @@ export class StandardComparator extends AbstractComparator {
         //TODO
         const contentCV = this._weightedAverage([serviceCallCV, codeCV],
             [Config.COMPARATOR.CALL_SERVICE_WEIGHT,
-                codeCV == null ? 0 : Config.COMPARATOR.CALL_CODE_WEIGHT])
+                Config.COMPARATOR.CALL_CODE_WEIGHT])
         //TODO
         return Math.min(1, contentCV)
     }
@@ -161,6 +161,7 @@ export class StandardComparator extends AbstractComparator {
             [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT]);
 
         //small penalty for code string inequality
+        //TODO
         if (node.text !== other.text) {
             contentCV += Config.COMPARATOR.EPSILON_PENALTY;
         }

@@ -11,6 +11,7 @@
 //      add timings to merger
 //      time map in Logger
 //      print diff info option
+//      option to output no diff
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -41,6 +42,7 @@
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever necessary
 
 //TODO bugs+
+//      fix performance and excessive movement
 //      fix move_to
 //      fix deltatree gen
 //      upodates are not detected at large

@@ -15,7 +15,6 @@
 */
 
 import {LogMessage} from "./LogMessage.js";
-import {Config} from "../src/Config.js";
 
 /**
  * A simple logging class.
@@ -31,32 +30,18 @@ export class Logger {
         ERROR: "ERROR"
     }
     /**
-     * A map of handlers for each log level. By default, log messages are redirected to stdout.
-     * @type Map<String,Set<Function>>
+     * Wether logging is enabled.
+     * @type {boolean}
      * @private
      */
-    static _handlers = new Map();
+    static _enabled = false;
 
     /**
-     * A default handler that prints the formatted log message to stdout
-     * or stderr in the case of an error or debug message.
-     * @param {LogMessage} logMsg The incoming log message.
+     * Helper variable for {@see startTimed} and {@see endTimed}
+     * @type Number
      * @private
      */
-    static _logToConsoleHandler = (logMsg) => {
-        if(logMsg.level === this.LOG_LEVELS.ERROR || logMsg.level === this.LOG_LEVELS.DEBUG) {
-            console.error(logMsg.toString());
-        } else {
-            console.log(logMsg.toString());
-        }
-    }
-
-    /**
-     * A list of default handlers for log messages where no specific handlers are available.
-     * @type [Function]
-     * @private
-     */
-    static _defaultHandlers = [this._logToConsoleHandler];
+    static _startTime;
 
     /**
      * Handle an incoming log message. Either log level specific handlers or default handlers are used.
@@ -65,21 +50,10 @@ export class Logger {
      */
     static _handleLog(logMsg) {
         //TODO remove
-        if(logMsg.level === this.LOG_LEVELS.ERROR) {
-            throw new Error(logMsg.message);
-        }
-        if (this._enabled) {
-            //handle with specific handlers
-            if (this._handlers.has(logMsg.level)) {
-                for (const handler of this._handlers.get(logMsg.level)) {
-                    handler(logMsg);
-                }
-            } else {
-                //handle with default handlers
-                for (const handler of this._defaultHandlers) {
-                    handler(logMsg);
-                }
-            }
+        if (logMsg.level === this.LOG_LEVELS.ERROR || logMsg.level === this.LOG_LEVELS.DEBUG) {
+            console.error(logMsg.toString());
+        } else if (this._enabled) {
+            console.log(logMsg.toString());
         }
     }
 
@@ -132,6 +106,7 @@ export class Logger {
         const logMessage = new LogMessage(this.LOG_LEVELS.ERROR, message, source);
         this._handleLog(logMessage);
     }
+
     /**
      * Puplish a result. Results are directly published to stdout.
      * @param {String} message The message to log
@@ -141,13 +116,6 @@ export class Logger {
         //results are always printed to stdout
         console.log(message);
     }
-
-    /**
-     * Wether logging is enabled or not.
-     * @type {boolean}
-     * @private
-     */
-    static _enabled = false;
 
     /**
      * Disable logging. Result logs are not affected.
@@ -164,17 +132,10 @@ export class Logger {
     }
 
     /**
-     * Helper variable for {@see startTimed} and {@see endTimed}
-     * @type Number
-     * @private
-     */
-    static _startTime;
-
-    /**
      *  Start a timer.
      */
     static startTimed() {
-        if(this._enabled) {
+        if (this._enabled) {
             this._startTime = new Date().getTime();
         }
     }
@@ -184,11 +145,11 @@ export class Logger {
      * @returns {Number} The elapsed time in milliseconds.
      */
     static endTimed() {
-        if(this._enabled) {
-            if(this._startTime == null) {
+        if (this._enabled) {
+            if (this._startTime == null) {
                 this.warn("Bad timer", this);
             }
-            const elapsedTime =  new Date().getTime() - this._startTime;
+            const elapsedTime = new Date().getTime() - this._startTime;
             this._startTime = null;
             return elapsedTime;
         }
