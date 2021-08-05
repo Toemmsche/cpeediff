@@ -33,10 +33,10 @@ export class ExpectedDiff extends AbstractExpected{
             "Cost: " + this.editScript?.cost + "\n" +
             "Diff Size: " + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + "\n" +
             "Total changes: " +  + this.editScript?.totalChanges() + "\n" +
-            "Insertions: " + this.editScript?.insertionCounter() + "\n" +
-            "Moves: " + this.editScript?.moveCounter() + "\n" +
-            "Updates: " + this.editScript?.updateCounter() + "\n" +
-            "Deletions: " + this.editScript?.deletionCounter();
+            "Insertions: " + this.editScript?.insertions() + "\n" +
+            "Moves: " + this.editScript?.moves() + "\n" +
+            "Updates: " + this.editScript?.updates() + "\n" +
+            "Deletions: " + this.editScript?.deletions();
     }
 }
 

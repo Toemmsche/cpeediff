@@ -15,7 +15,7 @@
 */
 
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
-import {HashExtractor} from "./extract/HashExtractor.js";
+import {HashExtractor} from "../extract/HashExtractor.js";
 
 export class HashMatcher extends AbstractMatchingAlgorithm {
 

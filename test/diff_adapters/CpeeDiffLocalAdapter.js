@@ -20,7 +20,7 @@ import {Dsl} from "../../src/Dsl.js";
 import {XmlFactory} from "../../src/io/XmlFactory.js";
 import {DiffAdapter} from "./DiffAdapter.js";
 import {TestConfig} from "../TestConfig.js";
-import {HashExtractor} from "../../src/match/extract/HashExtractor.js";
+import {HashExtractor} from "../../src/extract/HashExtractor.js";
 import {DiffTestResult} from "../result/DiffTestResult.js";
 import fs from "fs";
 import {Logger} from "../../util/Logger.js";
@@ -45,29 +45,29 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
 
         //parse output
-        for (const change of output.changes) {
+        for (const change of output) {
             switch (change.type) {
                 case Dsl.CHANGE_MODEL.INSERTION.label:
-                    insertionCounter++;
+                    insertions++;
                     break;
                 case Dsl.CHANGE_MODEL.DELETION.label:
-                    deletionCounter++;
+                    deletions++;
                     break;
                 case Dsl.CHANGE_MODEL.MOVE_TO.label:
-                    moveCounter++;
+                    moves++;
                     break;
                 case Dsl.CHANGE_MODEL.UPDATE.label:
-                    updateCounter++;
+                    updates++;
                     break;
             }
         }
-        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+        return [insertions, moves, updates, deletions, output.cost];
     }
 
     evalCase(testCase) {

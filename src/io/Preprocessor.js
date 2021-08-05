@@ -37,11 +37,10 @@ export class Preprocessor {
             "text/xml"));
 
         let tree;
-        //TODO CONFIG for this
-        if (root.localName === "properties") {
+        if (root.localName === Dsl.PROPERTIES_ROOT) {
 
             //Parse process tree
-            const xmlDslx = DomHelper.firstChildElement(root, Dsl.PROPERTIES_ROOT);
+            const xmlDslx = DomHelper.firstChildElement(root, Dsl.DSLX);
             const xmlDescription = DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.ROOT.label);
             tree = NodeFactory.getNode(xmlDescription, true);
 

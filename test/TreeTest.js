@@ -94,11 +94,11 @@ describe("Node", () => {
         });
     });
 
-    describe("#changeChildIndex()", () => {
+    describe("#changeIndex()", () => {
         it('should move a node to a different position within its child list', () => {
             const newIndex = 1;
 
-            bookAirCall.changeChildIndex(newIndex);
+            bookAirCall.changeIndex(newIndex);
 
             assert.strictEqual(bookAirCall.childIndex, newIndex);
             //parent should not change
@@ -121,7 +121,7 @@ describe("Node", () => {
 
             //permutation of unordered child lists should not affect the hash
             copy = tree.copy();
-            bookAirCall.getChild(0).changeChildIndex(2);
+            bookAirCall.getChild(0).changeIndex(2);
             assert.strictEqual(tree.hash(), copy.hash());
         });
     });
@@ -137,9 +137,9 @@ describe("Node", () => {
         });
     });
 
-    describe("#toChildIndexPathString()", () => {
+    describe("#toXPathString()", () => {
         it('should return the path from root to the node using child indices', () => {
-            assert.strictEqual(toArgument.toChildIndexPathString(), "0/0/2/1");
+            assert.strictEqual(toArgument.toXPathString(), "0/0/2/1");
         });
     });
 

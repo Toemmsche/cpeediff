@@ -15,13 +15,13 @@
 */
 
 import {MatchPipeline} from "../match/MatchPipeline.js";
-import {StandardComparator} from "../match/compare/StandardComparator.js";
+import {StandardComparator} from "../match/StandardComparator.js";
 import {Matching} from "../match/Matching.js";
-import {MergeNodeFactory} from "../tree/MergeNodeFactory.js";
+import {MergeNodeFactory} from "./MergeNodeFactory.js";
 import {CpeeDiff} from "../diff/CpeeDiff.js";
 import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
 import {Preprocessor} from "../io/Preprocessor.js";
-import {Update} from "../diff/delta/Update.js";
+import {Update} from "../diff/Update.js";
 
 export class CpeeMerge {
 

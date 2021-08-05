@@ -22,7 +22,7 @@ import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {Config} from "../../src/Config.js";
 import {Logger} from "../../util/Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
-import {EditScript} from "../../src/diff/delta/EditScript.js";
+import {EditScript} from "../../src/diff/EditScript.js";
 
 /**
  * A generator class for random (but well-formed) CPEE process trees.
@@ -676,14 +676,14 @@ export class TreeGenerator {
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
         movedNode.removeFromParent();
-        const oldPath = movedNode.toChildIndexPathString();
+        const oldPath = movedNode.toXPathString();
 
         let parent = this._pickValidParent(movedNode, tree.innerNodes());
 
         this._appendRandomly(parent, movedNode);
 
         //append move operation to edit script
-        this._possibleEditScript.move(oldPath, movedNode.toChildIndexPathString());
+        this._possibleEditScript.move(oldPath, movedNode.toXPathString());
     }
 
     /**

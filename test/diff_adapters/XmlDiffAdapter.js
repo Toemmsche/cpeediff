@@ -25,10 +25,10 @@ export class XmlDiffAdapter extends DiffAdapter {
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
 
         //parse output
         for (const line of output.split("\n")) {
@@ -41,21 +41,25 @@ export class XmlDiffAdapter extends DiffAdapter {
                 const type = line.split(",")[0].slice(1);
                 switch (type) {
                     case "delete":
-                        deletionCounter++;
+                        deletions++;
                         break;
                     case "insert":
-                        insertionCounter++;
+                        insertions++;
                         break;
                     case "move":
-                        moveCounter++;
+                        moves++;
                         break;
                     default:
-                        updateCounter++;
+                        //There are many operations that are best mapped to an update like "insert-attribute"
+                        //or "rename"
+                        updates++;
                         break;
                 }
             }
         }
-        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+        //Every operation has unit cost
+        const cost = insertions + moves + updates + deletions;
+        return [insertions, moves, updates, deletions, cost];
     }
 }
 

@@ -29,17 +29,17 @@ export class DiffTestResult extends AbstractTestResult{
     valArr() {
         //A non-OK verdict indicates failure, fill array with it
         if(this.verdict === TestConfig.VERDICTS.TIMEOUT || this.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
-            return [this.algorithm, ...(new Array(7).fill(this.verdict))];
+            return [this.algorithm, ...(new Array(8).fill(this.verdict))];
         }
-        return [this.algorithm, this.actual.runtime, this.actual.changes,
-            this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions, this.actual.diffSize];
+        return [this.algorithm, this.actual.runtime, this.actual.cost, this.actual.diffSize, this.actual.changes,
+            this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
     }
 
     /**
      * @return String[] An array containing the descriptors of all values that should appear in the evaluation table.
      */
     static header() {
-        return ["Algorithm", "Runtime", "Total Changes", "Insertions", "Moves", "Updates", "Deletions", "Diff Size"];
+        return ["Algorithm", "Runtime", "Cost","Diff Size", "Total Changes", "Insertions", "Moves", "Updates", "Deletions" ];
     }
 }
 

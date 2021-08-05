@@ -18,6 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import xmldom from "xmldom";
 import {DiffAdapter} from "./DiffAdapter.js";
 import {DomHelper} from "../../util/DomHelper.js";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
 
 export class XyDiffAdapter extends DiffAdapter {
@@ -27,47 +28,54 @@ export class XyDiffAdapter extends DiffAdapter {
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
+
+        let cost = 0;
 
         //parse output
         //enclosing tag for diff is "unit_delta"
         let delta = DomHelper.firstChildElement(new xmldom.DOMParser().parseFromString(output, "text/xml"), "unit_delta");
         //changes are further enclosed in a "t" tag
         delta = DomHelper.firstChildElement(delta, "t");
-        for (let i = 0; i < delta.childNodes.length; i++) {
-            const childNode = delta.childNodes.item(i);
-            if (childNode.localName != null) {
-                //edit operations are shortened to a single letter
-                switch (childNode.localName) {
-                    case "i":
-                        if(childNode.hasAttribute("move") && childNode.getAttribute("move") === "yes") {
-                            moveCounter++;
-                        } else {
-                            insertionCounter++;
-                        }
-                        break;
-                    case "d":
-                        if(childNode.hasAttribute("move") && childNode.getAttribute("move") === "yes") {
-                            moveCounter++;
-                        } else {
-                            deletionCounter++;
-                        }
-                        break;
-                    default:
-                        /*
-                        XyDiff represents changes on attributes (which are updates in our change model)
-                        by prefixing the change operation with the letter "a".
-                         */
-                        updateCounter++;
-                        break;
-                }
+        DomHelper.forAllChildElements(delta, (xmlOperation) => {
+            //edit operations are shortened to a single letter
+            switch (xmlOperation.localName) {
+                case "i":
+                    if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
+                        moves++;
+                    } else {
+                        insertions++;
+                        //adjust cost
+                        cost += NodeFactory.getNode(DomHelper.firstChildElement(xmlOperation)).size();
+                    }
+                    break;
+                case "d":
+                    if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
+                        moves++;
+                    } else {
+                        deletions++;
+                        //adjust cost
+                        cost += NodeFactory.getNode(DomHelper.firstChildElement(xmlOperation)).size();
+                    }
+                    break;
+                default:
+                    /*
+                    XyDiff represents changes on attributes (which are updates in our change model)
+                    by prefixing the change operation with the letter "a".
+                     */
+                    updates++;
+                    break;
             }
-        }
+        })
+        //every move is counted twice
+        moves /= 2;
+        //moves and updates have unit cost
+        cost += moves + updates;
         //all moves are detected twice
-        return [insertionCounter, moveCounter / 2, updateCounter, deletionCounter];
+        return [insertions, moves, updates, deletions, cost];
     }
 }
 

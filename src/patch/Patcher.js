@@ -14,9 +14,9 @@
    limitations under the License.
 */
 
-import {DeltaNodeFactory} from "../tree/DeltaNodeFactory.js";
+import {DeltaNodeFactory} from "./DeltaNodeFactory.js";
 import {Dsl} from "../Dsl.js";
-import {Update} from "../diff/delta/Update.js";
+import {Update} from "../diff/Update.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
 
 export class Patcher {

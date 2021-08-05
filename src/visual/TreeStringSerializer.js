@@ -15,7 +15,7 @@
 */
 
 import {Node} from "../tree/Node.js"
-import {HashExtractor} from "../match/extract/HashExtractor.js";
+import {HashExtractor} from "../extract/HashExtractor.js";
 
 export class TreeStringSerializer {
     

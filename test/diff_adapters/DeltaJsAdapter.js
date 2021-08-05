@@ -15,54 +15,74 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import fs from "fs";
 import {DiffAdapter} from "./DiffAdapter.js";
 import xmldom from "xmldom";
 import {DomHelper} from "../../util/DomHelper.js";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
-export class DeltaJsAdapter extends DiffAdapter{
+export class DeltaJsAdapter extends DiffAdapter {
 
     constructor() {
         super(TestConfig.DIFFS.DELTAJS.path, TestConfig.DIFFS.DELTAJS.displayName);
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
+
+        let cost = 0;
 
         //parse output
         //diff is enclosed in delta
         let delta = DomHelper.firstChildElement(
             new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
 
-        for (let i = 0; i < delta.childNodes.length; i++) {
-            const node = delta.childNodes.item(i);
-            if (node.childNodes != null) {
-                //operations are grouped in forests
-                for (let j = 0; j < node.childNodes.length; j++) {
-                    const childNode = node.childNodes.item(j);
-                    if (childNode.localName != null) {
-                        switch (childNode.localName) {
-                            case "move":
-                                moveCounter++;
-                                break;
-                            case "insert":
-                                insertionCounter++;
-                                break;
-                            case "remove":
-                                deletionCounter++;
-                                break;
-                            case "update":
-                                updateCounter++;
-                                break;
+        DomHelper.forAllChildElements(delta, (xmlForest) => {
+            //operations are grouped as forests
+            DomHelper.forAllChildElements(xmlForest, (xmlOperation) => {
+                //A lot of random insertions/deletions are present
+                if (xmlOperation.childNodes.length === 0) return;
+                switch (xmlOperation.localName) {
+                    case "move":
+                        moves++;
+                        break;
+                    case "insert":
+                        const xmlInsertedElement = DomHelper.firstChildElement(xmlOperation);
+                        if (xmlInsertedElement == null) {
+                            //Text insertions are mapped to updates
+                            updates++;
+                            return;
+                        } else {
+                            insertions++;
+                            DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
+                                cost += NodeFactory.getNode(xmlElement).size();
+                            });
                         }
-                    }
+                        break;
+                    case "remove":
+                        const xmlDeletedElement = DomHelper.firstChildElement(xmlOperation);
+                        if (xmlDeletedElement == null) {
+                            //Text deletions are mapped to updates
+                            updates++;
+                            return;
+                        } else {
+                            deletions++;
+                            DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
+                                cost += NodeFactory.getNode(xmlElement).size();
+                            });
+                        }
+                        break;
+                    case "update":
+                        updates++;
+                        break;
                 }
-            }
-        }
-        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+            })
+        })
+        //moves and updates have unit cost
+        cost += updates + moves;
+        return [insertions, moves, updates, deletions, cost];
     }
 }
 

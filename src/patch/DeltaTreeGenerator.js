@@ -14,10 +14,10 @@
    limitations under the License.
 */
 
-import {DeltaNodeFactory} from "../tree/DeltaNodeFactory.js";
+import {DeltaNodeFactory} from "./DeltaNodeFactory.js";
 import {Dsl} from "../Dsl.js";
-import {IdExtractor} from "../match/extract/IdExtractor.js";
-import {Update} from "../diff/delta/Update.js";
+import {IdExtractor} from "../extract/IdExtractor.js";
+import {Update} from "../diff/Update.js";
 
 export class DeltaTreeGenerator {
 

@@ -15,28 +15,28 @@
 */
 
 
-import {StandardComparator} from "../match/compare/StandardComparator.js";
-import {EditScriptGenerator} from "./delta/EditScriptGenerator.js";
+import {StandardComparator} from "../match/StandardComparator.js";
+import {EditScriptGenerator} from "./EditScriptGenerator.js";
 import {NodeFactory} from "../tree/NodeFactory.js";
 import {MatchPipeline} from "../match/MatchPipeline.js";
 import {Logger} from "../../util/Logger.js";
 
 export class CpeeDiff {
     
-    matchPipeline;
-    editScriptGenerator;
+    _matchPipeline;
+    _editScriptGenerator;
     
-    constructor(matchPipeline = MatchPipeline.standard()) {
-        this.matchPipeline = matchPipeline;
-        this.editScriptGenerator = new EditScriptGenerator();
+    constructor(_matchPipeline = MatchPipeline.standard()) {
+        this._matchPipeline = _matchPipeline;
+        this._editScriptGenerator = new EditScriptGenerator();
     }
 
     diff(oldTree, newTree, comparator = new StandardComparator()) {
-        //this will modify the old tree, hence a copy is used
+        //Edit script generation will modify the old tree, hence a copy is used
         const oldTreeCopy = NodeFactory.getNode(oldTree);
-        const matching = this.matchPipeline.execute(oldTreeCopy, newTree, comparator);
+        const matching = this._matchPipeline.execute(oldTreeCopy, newTree, comparator);
         //generate edit script
-        const editScript = this.editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
+        const editScript = this._editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
         return editScript;
     }
 }

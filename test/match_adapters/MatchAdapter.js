@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {IdExtractor} from "../../src/match/extract/IdExtractor.js";
+import {IdExtractor} from "../../src/extract/IdExtractor.js";
 import assert from "assert";
 import {Logger} from "../../util/Logger.js";
 import {TestConfig} from "../TestConfig.js";

@@ -18,6 +18,7 @@
 export const Dsl = {
 
     PROPERTIES_ROOT: "properties",
+    DSLX: "dslx",
     DATA_ELEMENTS: "dataelements",
 
     ELEMENTS: {

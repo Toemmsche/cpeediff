@@ -146,7 +146,7 @@ export class Node {
     }
 
     /**
-     * @returns {Node|null} The sibling node with the next lower child index, if it exists.
+     * @returns {Node|null} The sibling node with the next lower index, if it exists.
      */
     getLeftSibling() {
         if (this._childIndex > 0) {
@@ -156,7 +156,7 @@ export class Node {
     }
 
     /**
-     * @returns {Node|null} The sibling node with the next higher child index, if it exists.
+     * @returns {Node|null} The sibling node with the next higher index, if it exists.
      */
     getRightSibling() {
         if (this._childIndex < this.getSiblings().length - 1) {
@@ -263,15 +263,15 @@ export class Node {
 
     /**
      * Move this node to a new position within the child list of its parent.
-     * Afterwards, the child index should equal the specified index.
-     * @param {Number} newIndex The new child index.
+     * Afterwards, the index should equal the specified index.
+     * @param {Number} newIndex The new index.
      */
-    changeChildIndex(newIndex) {
+    changeIndex(newIndex) {
         //delete
         this._parent._children.splice(this._childIndex, 1);
         //insert
         this._parent._children.splice(newIndex, 0, this);
-        //adjust child indices
+        //adjust indices of all children
         this._parent._fixChildIndices();
     }
 
@@ -290,7 +290,7 @@ export class Node {
     }
 
     /**
-     * Restore the correct child indices of all children.
+     * Restore the correct indices of all children.
      * @private
      */
     _fixChildIndices() {
@@ -300,10 +300,10 @@ export class Node {
     }
 
     /**
-     * Returns the child index of each node in the path from the root (exclusive) to this node (inclusive).
-     * @returns {string} The array of child indices of all nodes on the path.
+     * Returns the index of each node in the path from the root (exclusive) to this node (inclusive).
+     * @returns {string} The array of indices of all nodes on the path.
      */
-    toChildIndexPathString() {
+    toXPathString() {
         //discard root node
         return this.path.map(n => n.childIndex).join("/");
     }

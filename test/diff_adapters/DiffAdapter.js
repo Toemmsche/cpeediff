@@ -53,38 +53,36 @@ export class DiffAdapter {
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
 
         //parse output
         const delta = DomHelper.firstChildElement(
             new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
-        for (let i = 0; i < delta.childNodes.length; i++) {
-            const childNode = delta.childNodes.item(i);
-            if (childNode.localName != null) {
-                switch (childNode.localName) {
-                    case "move":
-                        moveCounter++;
-                        break;
-                    case "add":
-                    case "insert":
-                        //map copies to insertions
-                    case "copy":
-                        insertionCounter++;
-                        break;
-                    case "remove":
-                    case "delete":
-                        deletionCounter++;
-                        break;
-                    case "update":
-                        updateCounter++;
-                        break;
-                }
+        DomHelper.forAllChildElements(delta, (xmlOperation) => {
+            switch (xmlOperation.localName) {
+                case "move":
+                    moves++;
+                    break;
+                case "add":
+                case "insert":
+                //map copies to insertions
+                case "copy":
+                    insertions++;
+                    break;
+                case "remove":
+                case "delete":
+                    deletions++;
+                    break;
+                case "update":
+                    updates++;
+                    break;
             }
-        }
-        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+        })
+        const cost = insertions + moves + updates + deletions;
+        return [insertions, moves, updates, deletions, cost];
     }
 
     evalCase(testCase) {

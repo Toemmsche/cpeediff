@@ -15,10 +15,10 @@
 */
 
 import {Node} from "../tree/Node.js"
-import {MergeNode} from "../tree/MergeNode.js";
-import {DeltaNode} from "../tree/DeltaNode.js";
-import {EditScript} from "../diff/delta/EditScript.js";
-import {EditOperation} from "../diff/delta/EditOperation.js";
+import {MergeNode} from "../merge/MergeNode.js";
+import {DeltaNode} from "../patch/DeltaNode.js";
+import {EditScript} from "../diff/EditScript.js";
+import {EditOperation} from "../diff/EditOperation.js";
 import xmldom from "xmldom";
 import {Dsl} from "../Dsl.js";
 
@@ -95,7 +95,7 @@ export class XmlDomFactory {
 
         const xmlNode = doc.createElement("delta");
         xmlNode.setAttribute("cost", editScript.cost);
-        for (const change of editScript.changes) {
+        for (const change of editScript) {
             xmlNode.appendChild(this._convertChange(change));
         }
 

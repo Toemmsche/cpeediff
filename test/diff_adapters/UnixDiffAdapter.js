@@ -24,18 +24,18 @@ export class UnixDiffAdapter extends DiffAdapter {
     }
 
     _parseOutput(output) {
-        let insertionCounter = 0;
-        let deletionCounter = 0;
+        let insertions = 0;
+        let deletions = 0;
 
         for (const line of output.split("\n")) {
             if (line.startsWith("<")) {
-                deletionCounter++;
+                deletions++;
             } else if (line.startsWith(">")) {
-                insertionCounter++;
+                insertions++;
             }
         }
         //unix diff cannot detect moves or updates
-        return [insertionCounter, 0, 0, deletionCounter];
+        return [insertions, 0, 0, deletions, insertions + deletions];
     }
 }
 

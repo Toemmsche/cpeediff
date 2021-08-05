@@ -15,8 +15,8 @@
 */
 
 import {Node} from "./Node.js";
-import {DeltaNode} from "./DeltaNode.js";
-import {MergeNode} from "./MergeNode.js";
+import {DeltaNode} from "../patch/DeltaNode.js";
+import {MergeNode} from "../merge/MergeNode.js";
 
 /**
  * Abstract superclass for all node factories.
@@ -27,7 +27,7 @@ import {MergeNode} from "./MergeNode.js";
 export class AbstractNodeFactory {
 
     /**
-     * Create a new node from the source.
+     * Create a new node from a source.
      * @param {String|Node|DeltaNode|MergeNode|Object} source The source object or String.
      * @param {Boolean} includeChildren If the created node should include the children present in the source.
      * @returns {Node|DeltaNode|MergeNode} The newly created node.
@@ -63,7 +63,7 @@ export class AbstractNodeFactory {
      * Create a new node from a DeltaNode object.
      * @param {DeltaNode} deltaNode The existing delta node
      * @param {Boolean} includeChildren If the created node should include the children of the existing delta node.
-     * @throws Error
+     * @throws Error This is an abstract method
      * @private
      */
     static _fromDeltaNode(deltaNode, includeChildren) {
@@ -74,7 +74,7 @@ export class AbstractNodeFactory {
      * Create a new node from a MergeNode object.
      * @param {MergeNode} mergeNode The existing merge node
      * @param {Boolean} includeChildren If the created node should include the children of the existing merge node.
-     * @throws Error
+     * @throws Error This is an abstract method
      * @private
      */
     static _fromMergeNode(mergeNode, includeChildren) {
@@ -85,7 +85,7 @@ export class AbstractNodeFactory {
      * Create a new node from an XML document (as a string).
      * @param {String} xml The source XML document as a string
      * @param {Boolean} includeChildren If the created node should include the children given in the XML document.
-     * @throws Error
+     * @throws Error This is an abstract method
      * @private
      */
     static _fromXmlString(xml, includeChildren) {
@@ -96,7 +96,7 @@ export class AbstractNodeFactory {
      * Create a new node from an xmldom object.
      * @param {Object} xmlElement The existing xmldom object
      * @param {Boolean} includeChildren If the created node should include the children of the xmldom object.
-     * @throws Error
+     * @throws Error This is an abstract method
      * @private
      */
     static _fromXmlDom(xmlElement, includeChildren) {

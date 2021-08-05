@@ -27,8 +27,10 @@ export class ActualDiff extends AbstractActual {
     updates;
     deletions;
 
+    cost;
 
-    constructor(raw, runtime, insertions, moves, updates, deletions) {
+
+    constructor(raw, runtime, insertions, moves, updates, deletions, cost = 0) {
         super(raw);
         this.runtime = runtime;
         this.changes = insertions + moves + updates + deletions;
@@ -37,6 +39,7 @@ export class ActualDiff extends AbstractActual {
         this.updates = updates;
         this.deletions = deletions;
         this.diffSize = raw.length;
+        this.cost = cost;
     }
 
     diffSize;

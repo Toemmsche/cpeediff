@@ -18,6 +18,7 @@ import {TestConfig} from "../TestConfig.js";
 import {DiffAdapter} from "./DiffAdapter.js";
 import {DomHelper} from "../../util/DomHelper.js";
 import xmldom from "xmldom";
+import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
 export class XccAdapter extends DiffAdapter {
 
@@ -26,45 +27,53 @@ export class XccAdapter extends DiffAdapter {
     }
 
     _parseOutput(output) {
-        let updateCounter = 0;
-        let insertionCounter = 0;
-        let moveCounter = 0;
-        let deletionCounter = 0;
+        let updates = 0;
+        let insertions = 0;
+        let moves = 0;
+        let deletions = 0;
 
+        let cost = 0;
         //parse output
         const delta = DomHelper.firstChildElement(
             new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
-        const moveIds = new Set();
-        for (let i = 0; i < delta.childNodes.length; i++) {
-            const childNode = delta.childNodes.item(i);
-            if (childNode.localName != null) {
-                switch (childNode.localName) {
-                    case "insert":
-                        //moves are insertions and deletions with the same "id" attribute
-                        if (childNode.hasAttribute("id") && !moveIds.has(childNode.getAttribute("id"))) {
-                            moveCounter++;
-                            moveIds.add(childNode.getAttribute("id"));
-                        } else {
-                            insertionCounter++;
-                        }
-
-                        break;
-                    case "delete":
-                        //moves are insertions and deletions with the same "id" attribute
-                        if (childNode.hasAttribute("id") && !moveIds.has(childNode.getAttribute("id"))) {
-                            moveCounter++;
-                            moveIds.add(childNode.getAttribute("id"));
-                        } else {
-                            deletionCounter++;
-                        }
-                        break;
-                    case "update":
-                        updateCounter++;
-                        break;
-                }
+        DomHelper.forAllChildElements(delta, (xmlOperation) => {
+            switch (xmlOperation.localName) {
+                case "insert":
+                    //moves are insertions and deletions with the same "id" attribute
+                    if (xmlOperation.hasAttribute("id")) {
+                        moves++;
+                    } else {
+                        insertions++;
+                        //determine cost
+                        const xmlNewValue = DomHelper.firstChildElement(xmlOperation, "newvalue");
+                        DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
+                            cost += NodeFactory.getNode(xmlElement).size();
+                        })
+                    }
+                    break;
+                case "delete":
+                    //moves are insertions and deletions with the same "id" attribute
+                    if (xmlOperation.hasAttribute("id")) {
+                        moves++;
+                    } else {
+                        deletions++;
+                        //determine cost
+                        const xmlNewValue = DomHelper.firstChildElement(xmlOperation, "oldvalue");
+                        DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
+                            cost += NodeFactory.getNode(xmlElement).size();
+                        })
+                    }
+                    break;
+                case "update":
+                    updates++;
+                    break;
             }
-        }
-        return [insertionCounter, moveCounter, updateCounter, deletionCounter];
+        })
+        moves /= 2;
+        //updates and moves have unit cost
+        cost += updates + moves;
+        //every move is counted twice
+        return [insertions, moves, updates, deletions, cost];
     }
 }
 

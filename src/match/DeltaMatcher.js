@@ -15,7 +15,7 @@
 */
 
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
-import {DeltaNode} from "../tree/DeltaNode.js";
+import {DeltaNode} from "../patch/DeltaNode.js";
 
 export class DeltaMatcher extends AbstractMatchingAlgorithm {
 

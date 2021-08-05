@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {StandardComparator} = require("../match/compare/StandardComparator");
+const {StandardComparator} = require("../match/StandardComparator");
 const {Lcs} = require("../lib/Lcs");
 const {Config} = require("../Config");
 const {AbstractMatchingAlgorithm} = require("../match/AbstractMatchingAlgorithm");
@@ -73,7 +73,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
                         let longestLCS = -1;
                         if (compareValue < minCompareValue) {
                             minCompareValue = compareValue;
-                            // longestLCS = Lcs.getLCS(oldLeaf.path, newLeaf.path, (a,b) => a.label === b.label);
+                            // longestLCS = getLcs(oldLeaf.path, newLeaf.path, (a,b) => a.label === b.label);
                             //Discard all matching with a higher comparison value
                             minCompareNode = oldLeaf;
                         }
@@ -168,7 +168,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
             const newPath = newLeaf.path.slice().reverse().slice(1);
             const oldPath = oldLeaf.path.slice().reverse().slice(1);
 
-            const lcs = Lcs.getLCS(newPath, oldPath, (a, b) => a.label === b.label, true);
+            const lcs = getLcs(newPath, oldPath, (a, b) => a.label === b.label, true);
 
             const newLcs = lcs.get(0);
             const oldLcs = lcs.get(1);
