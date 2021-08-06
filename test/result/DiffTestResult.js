@@ -26,7 +26,7 @@ export class DiffTestResult extends AbstractTestResult{
     /**
      * @return any[] An array of all values that should appear in the evaluation table.
      */
-    valArr() {
+    values() {
         //A non-OK verdict indicates failure, fill array with it
         if(this.verdict === TestConfig.VERDICTS.TIMEOUT || this.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
             return [this.algorithm, ...(new Array(8).fill(this.verdict))];

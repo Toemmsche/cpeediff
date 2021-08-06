@@ -6,7 +6,7 @@
 //      fix algorithm names
 //        check change model of evaluated diffs, map it to your operations (update and move esp), move as attribute (what about copy?)!
 //          impossible for XCC, Deltajs, XyDiff
-//      increasing number of changes with different parameters (maxVars, size, numChanges, distribution, etc.)
+//      increasing number of changes with different parameters (maxVars, size, totalChanges, distribution, etc.)
 //      evaluate robustness
 //      class for generated tests
 //      flat and deep genearted cases
@@ -17,7 +17,7 @@
 //      rename info.json
 //      rm -f
 //      add tree size in bytes
-//      Find out how deltajs indicates moves
+//      Find out how deltajs indicates moves and updates on nod eattributes,,,way to difficulat to decode yourself
 
 
 /*

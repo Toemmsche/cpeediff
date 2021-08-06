@@ -23,7 +23,7 @@ export class MarkDownFactory {
         if (sources.length > 0) {
             switch (sources[0].constructor) {
                 case DiffTestResult:
-                    return markdownTable([DiffTestResult.header(), ...sources.map(res => res.valArr())]);
+                    return markdownTable([DiffTestResult.header(), ...sources.map(res => res.values())]);
                 default:
                     return this._tabularizePrimitives(sources);
             }

@@ -35,13 +35,22 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
 
         //use a temporary map until the best matches are found
         const oldToNewMap = new Map();
-        for (const newNode of newNodes) {
+        newNodeLoop: for (const newNode of newNodes) {
             if (oldLabelMap.has(newNode.label)) {
                 //the minimum compare value
                 let minCompareValue = 1;
                 let minCompareNode = null;
-                for (const oldNode of oldLabelMap.get(newNode.label)) {
+                //skip perfect matches
+                for (const oldNode of oldLabelMap.get(newNode.label).filter(n => !matching.hasOld(n))) {
                     const compareValue = comparator.compare(newNode, oldNode);
+
+                    //Perfect match? => add to M and resume with different node
+                    if(compareValue === 0) {
+                        matching.matchNew(newNode, oldNode);
+                        oldToNewMap.delete(oldNode);
+                        continue newNodeLoop;
+                    }
+
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
                         minCompareNode = oldNode;

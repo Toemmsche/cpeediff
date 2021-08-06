@@ -5,8 +5,7 @@
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
 //      option to output matching
-//      use label-endpoint map for similarity matching (as option) -> ask Jürgen
-//      unmatched matcher (focus on replacement nodes)
+//      unmatched matcher (focus on replacement nodes) IMPORTANT
 //      turn single function classes in to functions
 //      add timings to merger
 //      time map in Logger

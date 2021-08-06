@@ -576,7 +576,7 @@ export class TreeGenerator {
         //Construct a possible edit script to describe the changes between the two trees
         //This edit script is not necessarily of minimum cost, but rather acts as a cost ceiling.
         this._possibleEditScript = new EditScript();
-        for (let i = 0; i < changeParams.numChanges; i++) {
+        for (let i = 0; i < changeParams.totalChanges; i++) {
             const opChar = this._randomFrom(distributionString.split(""));
             try {
                 switch (opChar) {

@@ -22,7 +22,6 @@ import {StandardComparator} from "./StandardComparator.js";
 import {HashMatcher} from "./HashMatcher.js";
 import {SimilarityMatcher} from "./SimilarityMatcher.js";
 import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
-import {UnmatchedMatcher2} from "./UnmatchedMatcher2.js";
 import {PathMatcher} from "./PathMatcher.js";
 import {Logger} from "../../util/Logger.js";
 import {PathMatcher_old} from "./PathMatcher_old.js";
@@ -59,7 +58,7 @@ export class MatchPipeline {
 
     static standard() {
         //PathMatcher is executed twice to capture missed matches
-        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new PropertyMatcher()]);
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
 }

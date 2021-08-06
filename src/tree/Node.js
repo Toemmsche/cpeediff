@@ -139,7 +139,7 @@ export class Node {
     }
 
     /**
-     * @returns {Node[]} The child list of the parent node.
+     * @returns {Node[]} The child list of the parent node. Null if the node does not have a parent.
      */
     getSiblings() {
         return this._parent._children;

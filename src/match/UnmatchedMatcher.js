@@ -14,61 +14,94 @@
    limitations under the License.
 */
 
-import {Config} from "../Config.js";
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
 
 export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
-        //TODO speed this up if large parts are matched
-        for (const [newNode, oldNode] of matching.newToOldMap) {
-            //TODO use method similar to 3DM, pathmatching for now
+        /*
+        Match unmatched nodes whose parents, left siblings, and right siblings are matched and whose labels are equal.
+        If one node does not have a left/right sibling, the other one cannot have one either.
 
-            //copy paths, reverse them and remove first element, discard already matched nodes
-            const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
-            const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
+        Only non-property nodes (excluding the root) are considered.
+         */
+        for (const newNode of newTree.nonPropertyNodes().filter(n => !matching.hasNew(n))) {
 
-            const newToOldMap = new Map();
+            const leftSibling = newNode.getLeftSibling();
+            const rightSibling = newNode.getRightSibling();
+            const parent = newNode.parent;
 
-            //index in newPath where last matching occurred
-            let j = 0;
-            for (let i = 0; i < oldPath.length; i++) {
-                for (let k = j; k < newPath.length; k++) {
-                    //relax similarity threshold
-                    if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNew(newNode))) {
-                        //a matching within the path has been found, discard
-                        return;
-                    }
-                    const compareValue = comparator.compare(newPath[k], oldPath[i]);
-                    if (compareValue < Config.COMPARISON_THRESHOLD) {
-                        if (!newToOldMap.has(newPath[k]) || compareValue < newToOldMap.get(newPath[k]).compareValue) {
-                            newToOldMap.set(newPath[k], {
-                                oldNode: oldPath[i],
-                                compareValue: compareValue
-                            });
-                        }
-                        //update last matching index to avoid a false positive of the first if branch in subsequent iterations
-                        j = k + 1;
-                        break;
-                    }
-                }
+            //Left or right sibling must either not exist, or be matched
+            if (!this._nullOrTrue(leftSibling, (n) => matching.hasNew(n))
+                || !this._nullOrTrue(rightSibling, (n) => matching.hasNew(n))
+                || !this._nullOrTrue(parent, (n) => matching.hasNew(n))) {
+                continue;
             }
 
-            //ensure (partial) one-to-one matching
-            const oldToNewMap = new Map();
-            for (const [newNode, bestMatch] of newToOldMap) {
-                if (!oldToNewMap.has(bestMatch.oldNode) || bestMatch.compareValue < oldToNewMap.get(bestMatch.oldNode).compareValue) {
-                    oldToNewMap.set(bestMatch.oldNode, {
-                        newNode: newNode,
-                        compareValue: bestMatch.compareValue
-                    })
-                }
+            const rightSiblingMatch = matching.getNew(rightSibling);
+            const leftSiblingMatch = matching.getNew(leftSibling);
+            const parentMatch = matching.getNew(parent);
+
+            //If they are matched, their parent must be matched to the parent of the node
+            if (!this._nullOrTrue(leftSiblingMatch, (n) => n.parent === parentMatch)
+                || !this._nullOrTrue(rightSiblingMatch, (n) => n.parent === parentMatch)) {
+                continue;
             }
 
-            //the best matchings can be persisted
-            for (const [oldNode, bestMatch] of oldToNewMap) {
-                matching.matchNew(bestMatch.newNode, oldNode);
+            let potentialMatch;
+
+            //Case 1: Node has both a right and a left sibling
+            if (leftSibling != null && rightSibling != null) {
+                if (rightSiblingMatch.getLeftSibling() == null || rightSiblingMatch.getLeftSibling() !== leftSiblingMatch.getRightSibling()) {
+                    continue;
+                }
+                potentialMatch = rightSiblingMatch.getLeftSibling();
+
+                //Case 2: Node has a left, but no right sibling
+            } else if (rightSibling == null && leftSibling != null) {
+                if (leftSiblingMatch.getRightSibling() == null) {
+                    continue;
+                }
+                potentialMatch = leftSiblingMatch.getRightSibling();
+                //potential match cannot have a right sibling
+                if(potentialMatch.getRightSibling() != null) {
+                    continue;
+                }
+
+                //Case 3: Node has a right, but no left sibling
+            } else if (rightSibling != null && leftSibling == null) {
+                if (rightSiblingMatch.getLeftSibling() == null) {
+                    continue;
+                }
+                potentialMatch = rightSiblingMatch.getLeftSibling();
+                //potential match cannot have a left sibling
+                if(potentialMatch.getLeftSibling() != null) {
+                    continue;
+                }
+                //Case 4: Node has neither a left nor a right sibling
+            } else {
+                potentialMatch = parentMatch.getChild(0);
+            }
+
+            if(potentialMatch == null) {
+                console.log("sdf29");
+            }
+            //Potential match must be unmatched and have the same label
+            if (potentialMatch.label === newNode.label && !matching.hasOld(potentialMatch)) {
+                matching.matchNew(newNode, potentialMatch);
             }
         }
     }
+
+    /**
+     * @param {Node} node The input node
+     * @param {Function} boolFunc A boolean function taking a single node as an argument.
+     * @return boolean True if the input node is null (soft equality) or the boolean function evaluates to true.
+     * @private
+     */
+    _nullOrTrue(node, boolFunc) {
+        if (node == null) return true;
+        return boolFunc(node);
+    }
+
 }
