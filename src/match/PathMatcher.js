@@ -24,7 +24,7 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
         /**
          * @type {Map<Node, Set<Node>>}
          */
-        const possibleMap = new Map();
+        let candidateMap = new Map();
 
         //Match inner nodes that are along the path of already matched nodes.
         matchLoop: for (const [newNode, oldNode] of matching.newToOldMap) {
@@ -37,7 +37,7 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
                 for (const oldNode of oldPath) {
 
                     //TODO fix
-                    if (possibleMap.has(newNode) && possibleMap.get(newNode).has(oldNode)) {
+                    if (candidateMap.has(newNode) && candidateMap.get(newNode).has(oldNode)) {
                         //cut everything from oldNode upwards from oldPath
                         const oldNodeIndex = oldPath.indexOf(oldNode);
                         oldPath = oldPath.slice(0, oldNodeIndex)
@@ -46,19 +46,26 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
 
 
                     if (newNode.label === oldNode.label) {
-                        if (!possibleMap.has(newNode)) {
-                            possibleMap.set(newNode, new Set());
+                        if (!candidateMap.has(newNode)) {
+                            candidateMap.set(newNode, new Set());
                         }
                         //Set remembers insertion order
-                        possibleMap.get(newNode).add(oldNode);
+                        candidateMap.get(newNode).add(oldNode);
                     }
                 }
             }
         }
+        
+        /*
+        To avoid suboptimal matches, the candidate map is sorted ascending by size of the candidate set.
+        As a result, unique matches are found first and not overwritten by more vague matches.
+         */
+        candidateMap = new Map(
+            [...candidateMap.entries()].sort((a,b) => a[1].size - b[1].size));
 
         //use a temporary map until the best matches are found
         const oldToNewMap = new Map();
-        for (const [newNode, oldNodeSet] of possibleMap) {
+        for (const [newNode, oldNodeSet] of candidateMap) {
             //the minimum compare value
             let minCompareValue = 1;
             let minCompareNode = null;

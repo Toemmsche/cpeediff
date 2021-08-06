@@ -39,10 +39,12 @@ export class DeltaJsAdapter extends DiffAdapter {
         let delta = DomHelper.firstChildElement(
             new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
 
+
         DomHelper.forAllChildElements(delta, (xmlForest) => {
             //operations are grouped as forests
             DomHelper.forAllChildElements(xmlForest, (xmlOperation) => {
-                //A lot of random insertions/deletions are present
+                //Deltajs does not mark moves or updates. Instead, they are provided as insertions.
+                //We are so generous and detect updates among their delta
                 if (xmlOperation.childNodes.length === 0) return;
                 switch (xmlOperation.localName) {
                     case "move":
@@ -80,6 +82,8 @@ export class DeltaJsAdapter extends DiffAdapter {
                 }
             })
         })
+        //every update is counted twice
+        updates /= 2;
         //moves and updates have unit cost
         cost += updates + moves;
         return [insertions, moves, updates, deletions, cost];

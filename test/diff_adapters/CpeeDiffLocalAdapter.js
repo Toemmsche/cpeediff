@@ -33,8 +33,6 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
     }
 
     _run(oldTree, newTree) {
-        fs.writeFileSync("newLOCAL.xml", XmlFactory.serialize(newTree));
-
         let time = new Date().getTime();
         const delta = new CpeeDiff().diff(oldTree, newTree);
         time = new Date().getTime() - time;

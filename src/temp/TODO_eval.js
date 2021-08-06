@@ -17,6 +17,7 @@
 //      rename info.json
 //      rm -f
 //      add tree size in bytes
+//      Find out how deltajs indicates moves
 
 
 /*
