@@ -18,8 +18,8 @@ import {AbstractTestResult} from "./AbstractTestResult.js";
 
 export class MatchTestResult extends AbstractTestResult{
 
-    constructor(caseName, algorithm,actual, verdict) {
-        super(caseName, algorithm, actual, verdict);
+    constructor(caseName, algorithm,runtime,actual, verdict) {
+        super(caseName, algorithm,runtime, actual, verdict);
     }
 }
 

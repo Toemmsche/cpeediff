@@ -27,4 +27,8 @@ export class GeneratorParameters {
         this.maxDegree = maxDegree;
         this.maxVars = maxVars;
     }
+
+    toString() {
+        return JSON.stringify(this);
+    }
 }

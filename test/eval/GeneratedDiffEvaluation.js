@@ -33,24 +33,25 @@ import {XccAdapter} from "../diff_adapters/XccAdapter.js";
 import {UnixDiffAdapter} from "../diff_adapters/UnixDiffAdapter.js";
 import fs from "fs";
 import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
+import {AggregateDiffResult} from "../result/AggregateDiffResult.js";
 
 export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
 
     //TODO init with default value
     constructor(adapters = []) {
-       super(adapters);
+        super(adapters);
     }
 
     static all() {
-        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeDiffAdapter());
         return new GeneratedDiffEvaluation(adapters);
     }
 
     static fast() {
-        let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeDiffAdapter());
         return new GeneratedDiffEvaluation(adapters);
@@ -63,15 +64,86 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
         //turn off pretty print for efficiency and fairness reasons
         Config.PRETTY_XML = false;
 
-        this._standard();
+        //Simply run all functions...
+        this.standardSingle();
+        this.standardAggregate();
     }
 
-    _standard() {
+    standardSingle() {
+        Logger.info("Standard evaluation of diff algorithms", this);
+        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
+            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+
+            //choose sensible generator and change parameters
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
+            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
+
+            const testId = [size, changeParams.totalChanges].join("_");
+
+            const treeGen = new TreeGenerator(genParams);
+
+            const oldTree = treeGen.randomTree();
+            const changedInfo = treeGen.changeTree(oldTree, changeParams);
+            const newTree = changedInfo.tree;
+            const expected = changedInfo.expected;
+
+            const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
+
+            //Run test case for each diff algorithm
+            const results = [];
+            for (const adapter of this.adapters) {
+                Logger.info("Running case " + testId + " for adapter " + adapter.displayName, this);
+                const result = adapter.evalCase(testCase);
+                results.push(result);
+            }
+
+            //Add expected values to table
+            const table = [DiffTestResult.header(), expected.values(), ...results.map(r => r.values())];
+            Logger.result(markdownTable(table));
+        }
+    }
+
+    flatSingle() {
+        Logger.info("Standard evaluation of diff algorithms with constant changes", this);
+        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
+            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+
+            //choose sensible generator and change parameters
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
+            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES);
+
+            const testId = [size, changeParams.totalChanges].join("_");
+
+            const treeGen = new TreeGenerator(genParams);
+
+            const oldTree = treeGen.randomTree();
+            const changedInfo = treeGen.changeTree(oldTree, changeParams);
+            const newTree = changedInfo.tree;
+            const expected = changedInfo.expected;
+
+            const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
+
+            //Run test case for each diff algorithm
+            const results = [];
+            for (const adapter of this.adapters) {
+                Logger.info("Running case " + testId + " for adapter " + adapter.displayName, this);
+                const result = adapter.evalCase(testCase);
+                results.push(result);
+            }
+
+            //Add expected values to table
+            const table = [DiffTestResult.header(), expected.values(), ...results.map(r => r.values())];
+            Logger.result(markdownTable(table));
+        }
+    }
+
+    standardAggregate() {
+        Logger.info("Aggregate evaluation of diff algorithms", this);
         for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
             const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
-            const genParams = new GeneratorParameters(size, size, Math.log2(size), 3 * Math.log10(size));
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
@@ -85,25 +157,20 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
                 const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
 
-                for(const adapter of this.adapters) {
+                for (const adapter of this.adapters) {
                     Logger.info("Running rep " + j + " for adapter " + adapter.displayName, this);
                     const result = adapter.evalCase(testCase);
-                    if(result.actual != null) {
+                    if (result.isOk()) {
                         result.actual.cost /= expected.editScript.cost;
+                        result.actual.changes /= expected.editScript.totalChanges();
                     }
                     resultsPerAdapter.get(adapter).push(result);
                 }
             }
-
-            //TODO AggregateDiffResult.of()
-
-
-            for(const adapter of this.adapters) {
-                Logger.info("Results for " + adapter.displayName + " for cases " + testId, this);
-
-                const resultsArr = [DiffTestResult.header(), ...(resultsPerAdapter.get(adapter).map(r => r.values()))];
-                Logger.result(markdownTable(resultsArr), this);
-            }
+            const aggregateResults = [...resultsPerAdapter.entries()].map(e => AggregateDiffResult.of(e[1]));
+            const table = [new Array(10).fill("A"), ...(aggregateResults.map(r => r.values()))];
+            Logger.result("Results for cases " + testId);
+            Logger.result(markdownTable(table));
         }
 
     }

@@ -38,6 +38,12 @@ export class ExpectedDiff extends AbstractExpected{
             "Updates: " + this.editScript?.updates() + "\n" +
             "Deletions: " + this.editScript?.deletions();
     }
+
+    values() {
+        return ["Expected", "-", this.editScript.cost, XmlFactory.serialize(this.editScript).length, this.editScript.totalChanges(),
+            this.editScript.insertions(), this.editScript.moves(), this.editScript.updates(), this.editScript.deletions()];
+    }
+
 }
 
 

@@ -18,9 +18,6 @@ import {AbstractActual} from "./AbstractActual.js";
 
 export class ActualDiff extends AbstractActual {
 
-
-    runtime;
-
     changes;
     insertions;
     moves;
@@ -30,9 +27,8 @@ export class ActualDiff extends AbstractActual {
     cost;
 
 
-    constructor(raw, runtime, insertions, moves, updates, deletions, cost = 0) {
+    constructor(raw, insertions, moves, updates, deletions, cost = 0) {
         super(raw);
-        this.runtime = runtime;
         this.changes = insertions + moves + updates + deletions;
         this.insertions = insertions;
         this.moves = moves;

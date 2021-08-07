@@ -93,15 +93,15 @@ export class DiffAdapter {
             //check if timeout or runtime error
             if (e.code === "ETIMEDOUT") {
                 Logger.info(this.displayName + " timed out for " + testCase.name, this);
-                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.TIMEOUT);
+                return testCase.complete(this.displayName, null, null, TestConfig.VERDICTS.TIMEOUT);
             } else {
                 Logger.info(this.displayName + " crashed for " + testCase.name + ": " + e.toString(), this);
-                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR)
+                return testCase.complete(this.displayName, null, null, TestConfig.VERDICTS.RUNTIME_ERROR)
             }
         }
         const counters = this._parseOutput(exec.output);
         //An OK verdict is emitted because the diff algorithm didnt fail
-        return testCase.complete(this.displayName,  new ActualDiff(exec.output, exec.runtime, ...counters), TestConfig.VERDICTS.OK);
+        return testCase.complete(this.displayName, exec.runtime,  new ActualDiff(exec.output, ...counters), TestConfig.VERDICTS.OK);
     }
 }
 

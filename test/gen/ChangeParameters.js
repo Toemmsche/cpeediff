@@ -30,4 +30,8 @@ export class ChangeParameters {
         this.deletionWeight = deletionWeight;
     }
 
+    toString() {
+       return JSON.stringify(this);
+    }
+
 }

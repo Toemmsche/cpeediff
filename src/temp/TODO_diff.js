@@ -1,7 +1,5 @@
 //TODO features
-//      compare path with weights depending on closeness
 //      command line visualization including "live" patching and filtered changes
-//      data passes in parallel branches
 //      use _assign() to make copies
 //      critical after parallel? -> ask Juergen
 //      option to output matching
@@ -16,7 +14,7 @@
 //      trees are still too small because of preprocessor, check that out
 
 //TODO semi-features
-//      comparison default values
+//      delta tree with old update value
 //      maybe collapse call comparison values ionto single equation
 //      annotated merged tree output (with conrfidence)
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case

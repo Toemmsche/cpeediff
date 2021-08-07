@@ -139,12 +139,13 @@ export class DiffTestCase extends AbstractTestCase {
     /**
      * Complete this test case.
      * @param {String} algorithm The algorithm that ran this case
+     * @param {Number} runtime The time (in ms) the algorithm took to complete the case.
      * @param {ActualDiff|null} actual The diff produced by the algorithm, null indicates failure
      * @param {String} verdict The verdict for this test case and algorithm
      * @return DiffTestResult The corresponding result
      */
-    complete(algorithm, actual = null, verdict) {
-        return new DiffTestResult(this.name, algorithm, actual, verdict);
+    complete(algorithm,runtime,  actual = null, verdict) {
+        return new DiffTestResult(this.name, algorithm, runtime, actual, verdict);
     }
 
 }

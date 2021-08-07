@@ -240,13 +240,11 @@ export class TreeGenerator {
      * @private
      */
     _randomLeaf() {
-        const rand = this._randInt(100);
-
         let node;
         //about two-third chance to add a call
         if (this._withProbability(0.7)) {
             node = this._randomCall();
-        } else if (this._withProbability(0.8)) {
+        } else if (this._withProbability(0.9)) {
             node = this._randomManipulate();
         } else if (this._withProbability(0.3)) {
             node = this._randomStop();
@@ -560,7 +558,7 @@ export class TreeGenerator {
      * and information about relevant for testing with this tree.
      */
     changeTree(tree, changeParams) {
-        Logger.info("Changing process tree with parameters " + changeParams + "...", this);
+        Logger.info("Changing process tree with parameters " + changeParams.toString() + "...", this);
         Logger.startTimed();
         const oldSize = tree.size();
         //do not modify original tree

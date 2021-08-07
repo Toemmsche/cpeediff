@@ -38,14 +38,14 @@ export class DiffAlgorithmEvaluation {
     }
 
     static all() {
-        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
     }
 
     static fast() {
-        let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter(), new UnixDiffAdapter()];
+        let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
         adapters.unshift(new CpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);

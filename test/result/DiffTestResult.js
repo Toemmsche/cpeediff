@@ -19,8 +19,15 @@ import {TestConfig} from "../TestConfig.js";
 
 export class DiffTestResult extends AbstractTestResult{
 
-    constructor(caseName, algorithm, actual, verdict) {
-        super(caseName, algorithm, actual, verdict);
+    runtime;
+
+    constructor(caseName, algorithm, runtime,  actual, verdict) {
+        super(caseName, algorithm, actual,  verdict);
+        this.runtime = runtime;
+    }
+
+    isOk() {
+        return this.actual != null;
     }
 
     /**
@@ -28,10 +35,10 @@ export class DiffTestResult extends AbstractTestResult{
      */
     values() {
         //A non-OK verdict indicates failure, fill array with it
-        if(this.verdict === TestConfig.VERDICTS.TIMEOUT || this.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
+        if(!this.isOk()) {
             return [this.algorithm, ...(new Array(8).fill(this.verdict))];
         }
-        return [this.algorithm, this.actual.runtime, this.actual.cost, this.actual.diffSize, this.actual.changes,
+        return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.changes,
             this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
     }
 
