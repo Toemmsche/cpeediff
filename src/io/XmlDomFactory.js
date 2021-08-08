@@ -122,6 +122,7 @@ export class XmlDomFactory {
             if (node.text != null) {
                 xmlNode.appendChild(doc.createTextNode(node.text))
             }
+
             return xmlNode;
         }
     }

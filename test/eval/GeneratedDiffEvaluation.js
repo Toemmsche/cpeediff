@@ -34,6 +34,7 @@ import {UnixDiffAdapter} from "../diff_adapters/UnixDiffAdapter.js";
 import fs from "fs";
 import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
 import {AggregateDiffResult} from "../result/AggregateDiffResult.js";
+import {ExpectedDiff} from "../expected/ExpectedDiff.js";
 
 export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
@@ -60,9 +61,6 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     evalAll() {
         Logger.info("Evaluating diff algorithms with generated process trees", this);
-
-        //turn off pretty print for efficiency and fairness reasons
-        Config.PRETTY_XML = false;
 
         //Simply run all functions...
         this.standardSingle();
@@ -116,10 +114,17 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
             const treeGen = new TreeGenerator(genParams);
 
+            /*
             const oldTree = treeGen.randomTree();
             const changedInfo = treeGen.changeTree(oldTree, changeParams);
             const newTree = changedInfo.tree;
             const expected = changedInfo.expected;
+
+             */
+
+            const oldTree = treeGen.oldDeepAndWide();
+            const newTree = treeGen.newDeepAndWide();
+            const expected = new ExpectedDiff();
 
             const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
 

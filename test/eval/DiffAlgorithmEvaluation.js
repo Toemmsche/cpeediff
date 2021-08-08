@@ -54,9 +54,6 @@ export class DiffAlgorithmEvaluation {
     evalAll(rootDir = TestConfig.DIFF_CASES_DIR) {
         Logger.info("Using " + rootDir + " to evaluate diff algorithms", this);
 
-        //turn off pretty print for efficiency and fairness reasons
-        Config.PRETTY_XML = false;
-
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
         for (const adapter of this.adapters) {

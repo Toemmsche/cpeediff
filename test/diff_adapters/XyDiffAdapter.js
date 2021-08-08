@@ -44,21 +44,35 @@ export class XyDiffAdapter extends DiffAdapter {
             //edit operations are shortened to a single letter
             switch (xmlOperation.localName) {
                 case "i":
+                    //Check if an entire XML element was inserted, or if text content was updated
                     if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
                         moves++;
                     } else {
-                        insertions++;
-                        //adjust cost
-                        cost += NodeFactory.getNode(DomHelper.firstChildElement(xmlOperation)).size();
+                        const xmlElement = DomHelper.firstChildElement(xmlOperation);
+                        if(xmlElement != null) {
+                            insertions++;
+                            //adjust cost
+                            cost += NodeFactory.getNode(xmlElement).size();
+                        } else {
+                            //text content insertions are mapped to updates
+                            updates++;
+                        }
                     }
                     break;
                 case "d":
                     if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
                         moves++;
                     } else {
-                        deletions++;
-                        //adjust cost
-                        cost += NodeFactory.getNode(DomHelper.firstChildElement(xmlOperation)).size();
+                        //Check if an entire element was deleted, or if text content was updated
+                        const xmlElement = DomHelper.firstChildElement(xmlOperation);
+                        if(xmlElement != null) {
+                            deletions++;
+                            //adjust cost
+                            cost += NodeFactory.getNode(xmlElement).size();
+                        } else {
+                            //text content deletions are mapped to updates
+                            updates++;
+                        }
                     }
                     break;
                 default:

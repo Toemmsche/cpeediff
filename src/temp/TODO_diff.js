@@ -9,6 +9,7 @@
 //      time map in Logger
 //      print diff info option
 //      option to output no diff
+//      pretty xml option
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -24,6 +25,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      use setAttributeNS of xmldom
 //      new node as in inserted vs new node as in from new tree
 //      decide which properties are read only (e.g. placeholders) use with get() function
 //      bne consistenwit .... or array

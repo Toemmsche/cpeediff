@@ -45,8 +45,6 @@ export class MergeAlgorithmEvaluation {
     evalAll(rootDir = TestConfig.MERGE_CASES_DIR) {
         Logger.info("Using " + rootDir + " to evaluate merge algorithms", this);
 
-        //turn off pretty print for efficiency and fairness reasons
-        Config.PRETTY_XML = false;
 
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();

@@ -176,7 +176,8 @@ export class TreeGenerator {
 
         //Make O(n) wide
         for (let i = 0; i < this._genParams.maxSize / 2; i++) {
-            const nextChild = new Node(Dsl.ELEMENTS.TERMINATE.label);
+            const nextChild = new Node(Dsl.ELEMENTS.MANIPULATE.label);
+            nextChild.text = "data.var" + i + "++;";
             currNode.appendChild(nextChild);
         }
 

@@ -25,7 +25,7 @@ export class XmlFactory {
     static serialize(object) {
         const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
         const root = XmlDomFactory.convert(object);
-        doc.insertBefore(root, null);
+        doc.appendChild(root);
         let xmlString = new xmldom.XMLSerializer().serializeToString(doc);
         if(Config.PRETTY_XML) {
             xmlString = vkbeautify.xml(xmlString);

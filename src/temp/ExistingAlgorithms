@@ -7,3 +7,16 @@ node-delta: https://github.com/znerol/node-delta described by ???
 X-diff: https://github.com/albfan/x-diff-c described by http://resources.mpi-inf.mpg.de/d5/teaching/ss03/xml-seminar/Material/wang_icde2003.pdf
 
 many more found in XyDiff doc and RWSdiff
+
+
+Caveats:
+
+XCC Diff:
+- Updates only on nodes with matching attributes, otherwise insertion and deletion => look at paper (how is hash computed?)
+
+XyDiff:
+- updates disguised as insertions/deletions if text content was empty
+
+Delta.js:
+- updates disguised as insertions/deletions if text content was empty
+- moves are not marked, just use XCC for evaluation

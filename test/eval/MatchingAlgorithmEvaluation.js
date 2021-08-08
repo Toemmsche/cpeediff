@@ -44,9 +44,6 @@ export class MatchingAlgorithmEvaluation {
     evalAll(rootDir = TestConfig.MATCH_CASES_DIR) {
        Logger.info("Using " + rootDir + " to evaluate matching algorithms", this);
 
-        //turn off pretty print for efficiency and fairness reasons
-        Config.PRETTY_XML = false;
-
         const resultsPerAdapter = new Map();
         const resultsPerTest = new Map();
         for (const adapter of this.adapters) {
