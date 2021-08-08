@@ -320,23 +320,18 @@ export class TreeGenerator {
 
         //random written variables
         const code = new Node(Dsl.CALL_PROPERTIES.CODE.label);
-        const codeUpdate = new Node(Dsl.CALL_PROPERTIES.FINALIZE.label);
-        codeUpdate.text = "";
+        const finalizeCode = new Node(Dsl.CALL_PROPERTIES.FINALIZE.label);
+        finalizeCode.text = "";
         for (const writtenVariable of this._randomSubSet(this._variables, this._randInt(this._genParams.maxVars))) {
-            codeUpdate.text += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
+            finalizeCode.text += Config.VARIABLE_PREFIX + writtenVariable + " = 420;"
         }
 
         //random read variables in code
-        const codePrepare = new Node(Dsl.CALL_PROPERTIES.PREPARE.label);
-        codePrepare.text = "";
         for (const readVariable of this._randomSubSet(this._variables, this._randInt(this._genParams.maxVars))) {
-            codePrepare.text += "fun(data." + readVariable + ");";
+            finalizeCode.text += "fun(data." + readVariable + ");";
         }
-        if (codeUpdate.text !== "") {
-            code.appendChild(codeUpdate);
-        }
-        if (codePrepare.text !== "") {
-            code.appendChild(codePrepare);
+        if (finalizeCode.text !== "") {
+            code.appendChild(finalizeCode);
         }
         node.appendChild(code);
 

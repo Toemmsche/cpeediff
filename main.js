@@ -109,7 +109,6 @@ const argv = yargs(hideBin(process.argv))
         const newTree = parser.parseFromFile(argv.new);
 
         const editScript = new CpeeDiff().diff(oldTree, newTree);
-        fs.writeFileSync("newMAIN.xml", XmlFactory.serialize(newTree));
 
         switch (argv.format) {
             case "editScript": {
