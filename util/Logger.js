@@ -119,9 +119,12 @@ export class Logger {
 
     /**
      * Disable logging. Result logs are not affected.
+     * @return boolean If logging was previously enabled
      */
     static disableLogging() {
+        const wasEnabled = this._enabled;
         this._enabled = false;
+        return wasEnabled;
     }
 
     /**

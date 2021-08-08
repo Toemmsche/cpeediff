@@ -11,6 +11,7 @@
 //      rename info.json
 //      add tree size in bytes
 //      Find out how deltajs indicates moves and updates on nod eattributes,way to difficulat to decode yourself
+//      comparison of different versions of cpeediff (ultra-fast (hash only), fast(no commonality matching), slow (commonality mastching))
 
 
 /*

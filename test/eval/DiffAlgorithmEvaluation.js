@@ -83,6 +83,7 @@ export class DiffAlgorithmEvaluation {
                 resultsPerAdapter.get(adapter).push(result);
                 resultsPerTest.get(testCase).push(result);
             }
+            //TODO add expected
             Logger.result("expected: \n" + testCase.expected.toString(), this);
             Logger.result(MarkDownFactory.tabularize(resultsPerTest.get(testCase)), this);
         }

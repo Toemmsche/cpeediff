@@ -24,6 +24,7 @@ import {Logger} from "../../util/Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
 import {Matching} from "../../src/match/Matching.js";
 import {EditScriptGenerator} from "../../src/diff/EditScriptGenerator.js";
+import {log} from "util";
 
 /**
  * A generator class for random (but well-formed) CPEE process trees.
@@ -616,8 +617,10 @@ export class TreeGenerator {
             }
         }
 
+        const loggingEnabled = Logger.disableLogging();
         //generate an edit script from the matching
         const proposedEditScript = new EditScriptGenerator().generateEditScript(oldTree, preparedTree, matching);
+        if(loggingEnabled) Logger.enableLogging();
 
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
@@ -647,10 +650,10 @@ export class TreeGenerator {
         generator._endpoints = this._endpoints;
         generator._labels = this._labels;
 
-        Logger.disableLogging();
+        const loggingEnabled = Logger.disableLogging();
         //construct random subtree around the new inner node
         generator.randomTree(insertedTree);
-        Logger.enableLogging();
+        if(loggingEnabled) Logger.enableLogging();
     }
 
     /**
@@ -710,7 +713,6 @@ export class TreeGenerator {
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
         movedNode.removeFromParent();
-        const oldPath = movedNode.toXPathString();
 
         let parent = this._pickValidParent(movedNode, tree.innerNodes());
 
