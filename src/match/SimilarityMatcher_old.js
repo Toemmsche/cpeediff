@@ -77,8 +77,8 @@ export class SimilarityMatcher_old extends AbstractMatchingAlgorithm {
 
     commonality(newNode, oldNode, matching) {
         let common = 0;
-        const newSet = new Set(...newNode.leaves());
-        const oldSet = new Set(...oldNode.leaves());
+        const newSet = new Set(newNode.leaves());
+        const oldSet = new Set(oldNode.leaves());
 
         for(const newCand of newSet) {
             if(matching.hasNew(newCand) && oldSet.has(matching.getNew(newCand))) {

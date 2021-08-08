@@ -71,8 +71,10 @@ export class AggregateDiffResult {
         let stdDevChanges = Math.sqrt(changes.map(c => Math.pow(c - avgChanges, 2)).reduce((a, b) => a + b, 0) / changes.length);
 
 
-        return new AggregateDiffResult(algorithm, caseName, avgRuntime, maxRuntime, stdDevRuntime,
-            avgCost, maxCost, stdDevCost, avgChanges, maxChanges, stdDevChanges);
+        return new AggregateDiffResult(algorithm, caseName, avgRuntime.toFixed(2),
+            maxRuntime.toFixed(2), stdDevRuntime.toFixed(2), avgCost.toFixed(2),
+            maxCost.toFixed(2), stdDevCost.toFixed(2), avgChanges.toFixed(2),
+            maxChanges.toFixed(2), stdDevChanges.toFixed(2));
     }
 }
 

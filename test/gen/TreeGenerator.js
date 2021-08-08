@@ -22,7 +22,8 @@ import {NodeFactory} from "../../src/tree/NodeFactory.js";
 import {Config} from "../../src/Config.js";
 import {Logger} from "../../util/Logger.js";
 import {GeneratorParameters} from "./GeneratorParameters.js";
-import {EditScript} from "../../src/diff/EditScript.js";
+import {Matching} from "../../src/match/Matching.js";
+import {EditScriptGenerator} from "../../src/diff/EditScriptGenerator.js";
 
 /**
  * A generator class for random (but well-formed) CPEE process trees.
@@ -57,14 +58,6 @@ export class TreeGenerator {
      * @private
      */
     _variables;
-
-    /**
-     * A possible edit script for representing the changes performed by {@see changeTree}.
-     * This edit script does not have to be of minimum cost, it rather acts as a cost ceiling.
-     * @type EditScript
-     * @private
-     */
-    _possibleEditScript;
 
     /**
      * Construct a new generator with the given parameters.
@@ -188,7 +181,6 @@ export class TreeGenerator {
 
         return root;
     }
-
 
 
     /**
@@ -557,7 +549,7 @@ export class TreeGenerator {
         Logger.startTimed();
         const oldSize = tree.size();
         //do not modify original tree
-        const oldTree = tree;
+        const oldTree = NodeFactory.getNode(tree);
         tree = NodeFactory.getNode(tree);
 
         //set up random distribution of changes according to parameters
@@ -566,9 +558,14 @@ export class TreeGenerator {
             + "u".repeat(changeParams.updateWeight)
             + "d".repeat(changeParams.deletionWeight);
 
-        //Construct a possible edit script to describe the changes between the two trees
-        //This edit script is not necessarily of minimum cost, but rather acts as a cost ceiling.
-        this._possibleEditScript = new EditScript();
+        //A mapping between the original and changed tree
+        const oldToNewMap = new Map();
+        let oldPreOrderArray = oldTree.toPreOrderArray();
+        let newPreOrderArray = tree.toPreOrderArray();
+        //initially all nodes are mapped
+        for (let i = 0; i < newPreOrderArray.length; i++) {
+           oldToNewMap.set(oldPreOrderArray[i], newPreOrderArray[i]);
+        }
         for (let i = 0; i < changeParams.totalChanges; i++) {
             const opChar = this._randomFrom(distributionString.split(""));
             try {
@@ -607,15 +604,25 @@ export class TreeGenerator {
             }
         }
         //Record all changes applied during tree preparation
-        const preparedTree = new Preprocessor().prepareTree(tree, new Map(), new Map(),  this._possibleEditScript);
-        //Verify correctness of the edit script
-        if(!this._possibleEditScript.verify(oldTree, preparedTree)) {
-            Logger.error("Edit script not valid for changed tree", this);
+        const preparedTree = new Preprocessor().prepareTree(tree);
+
+        //construct the matching
+        const newNodeSet = new Set(preparedTree.toPreOrderArray());
+        const matching = new Matching();
+        for(const oldNode of oldTree.toPreOrderArray()) {
+            const match = oldToNewMap.get(oldNode);
+            if(newNodeSet.has(match)) {
+                matching.matchNew(match, oldNode);
+            }
         }
+
+        //generate an edit script from the matching
+        const proposedEditScript = new EditScriptGenerator().generateEditScript(oldTree, preparedTree, matching);
+
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             tree: preparedTree,
-            expected: new ExpectedDiff(Math.max(oldSize, tree.size()), this._possibleEditScript)
+            expected: new ExpectedDiff(Math.max(oldSize, tree.size()), proposedEditScript)
         };
 
     }
@@ -629,7 +636,7 @@ export class TreeGenerator {
     _insertSubtreeRandomly(tree) {
         const insertedTree = this._randomInner();
         const parent = this._pickValidParent(insertedTree, tree.innerNodes());
-        this._appendRandomly(parent,insertedTree);
+        this._appendRandomly(parent, insertedTree);
 
         //inserted tree is much smaller
         const generator = new TreeGenerator(Object.assign(new GeneratorParameters(), this._genParams));
@@ -644,9 +651,6 @@ export class TreeGenerator {
         //construct random subtree around the new inner node
         generator.randomTree(insertedTree);
         Logger.enableLogging();
-
-        //append insert operation to edit script
-        this._possibleEditScript.insert(insertedTree);
     }
 
     /**
@@ -658,9 +662,6 @@ export class TreeGenerator {
         const insertedNode = this._randomLeaf();
         let parent = this._pickValidParent(insertedNode, tree.innerNodes());
         this._appendRandomly(parent, insertedNode);
-
-        //append insert operation to edit script
-        this._possibleEditScript.insert(insertedNode);
     }
 
     /**
@@ -673,9 +674,6 @@ export class TreeGenerator {
         let insertedArg = this._randomFrom(this._variables);
         insertedArg = new Node(insertedArg, Config.VARIABLE_PREFIX + insertedArg);
         this._appendRandomly(parent, insertedArg);
-
-        //append insert operation to edit script
-        this._possibleEditScript.insert(insertedArg)
     }
 
     /**
@@ -688,9 +686,6 @@ export class TreeGenerator {
         const oldMaxSize = this._genParams.maxSize;
         const node = this._randomFrom(tree.innerNodes().filter(n => !n.isRoot() && n.size() <= Math.sqrt(oldMaxSize)));
         node.removeFromParent();
-
-        //append delete  operation to edit script
-        this._possibleEditScript.delete(node);
     }
 
     /**
@@ -701,9 +696,6 @@ export class TreeGenerator {
     _deleteLeafRandomly(tree) {
         const node = this._randomFrom(tree.leaves());
         node.removeFromParent();
-
-        //append delete  operation to edit script
-        this._possibleEditScript.delete(node);
     }
 
     /**
@@ -723,9 +715,6 @@ export class TreeGenerator {
         let parent = this._pickValidParent(movedNode, tree.innerNodes());
 
         this._appendRandomly(parent, movedNode);
-
-        //append move operation to edit script
-        this._possibleEditScript.move(oldPath, movedNode.toXPathString());
     }
 
     /**
@@ -802,9 +791,6 @@ export class TreeGenerator {
                 node.attributes.set(this._randomString(10), this._randomString(10));
             }
         }
-
-        //append update operation to edit script
-        this._possibleEditScript.update(node);
     }
 }
 

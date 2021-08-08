@@ -25,6 +25,7 @@ import {DiffTestResult} from "../result/DiffTestResult.js";
 import fs from "fs";
 import {Logger} from "../../util/Logger.js";
 import {ActualDiff} from "../actual/ActualDiff.js";
+import {MatchPipeline} from "../../src/match/MatchPipeline.js";
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {
 
@@ -34,7 +35,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
 
     _run(oldTree, newTree) {
         let time = new Date().getTime();
-        const delta = new CpeeDiff().diff(oldTree, newTree);
+        const delta = new CpeeDiff(MatchPipeline.local()).diff(oldTree, newTree);
         time = new Date().getTime() - time;
         return {
             output: delta,

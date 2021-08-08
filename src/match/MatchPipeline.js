@@ -61,5 +61,10 @@ export class MatchPipeline {
         return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
+    static local() {
+        //PathMatcher is executed twice to capture missed matches
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher_old(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+    }
+
 }
 

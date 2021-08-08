@@ -75,7 +75,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
 
             //choose sensible generator and change parameters
-            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
@@ -109,7 +109,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
 
             //choose sensible generator and change parameters
-            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil( Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES);
 
             const testId = [size, changeParams.totalChanges].join("_");
@@ -143,7 +143,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
             const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
-            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(3 * Math.log10(size)));
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil( Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
