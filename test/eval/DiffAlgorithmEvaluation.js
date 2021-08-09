@@ -16,18 +16,17 @@
 
 import {TestConfig} from "../TestConfig.js";
 import * as fs from "fs";
-import {MarkDownFactory} from "../../util/MarkDownFactory.js";
 import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
 import {XmlDiffAdapter} from "../diff_adapters/XmlDiffAdapter.js";
 import {DiffXmlAdapter} from "../diff_adapters/DiffXmlAdapter.js";
 import {DeltaJsAdapter} from "../diff_adapters/DeltaJsAdapter.js";
 import {XccAdapter} from "../diff_adapters/XccAdapter.js";
-import {UnixDiffAdapter} from "../diff_adapters/UnixDiffAdapter.js";
 import {XyDiffAdapter} from "../diff_adapters/XyDiffAdapter.js";
 import {Logger} from "../../util/Logger.js";
 import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {DiffTestCase} from "../case/DiffTestCase.js";
-import {Config} from "../../src/Config.js";
+import {DiffTestResult} from "../result/DiffTestResult.js";
+import {markdownTable} from "markdown-table";
 
 export class DiffAlgorithmEvaluation {
 
@@ -54,35 +53,25 @@ export class DiffAlgorithmEvaluation {
     evalAll(rootDir = TestConfig.DIFF_CASES_DIR) {
         Logger.info("Using " + rootDir + " to evaluate diff algorithms", this);
 
-        const resultsPerAdapter = new Map();
-        const resultsPerTest = new Map();
-        for (const adapter of this.adapters) {
-            resultsPerAdapter.set(adapter, []);
-        }
-
         //collect all directories representing testCases
         const caseDirs = DirectoryScraper.scrape(rootDir);
         for (const testCaseDir of caseDirs) {
             const testCase = DiffTestCase.from(testCaseDir);
-
 
             if (testCase == null) {
                 Logger.warn("Skipping diff case directory " + testCaseDir, this);
                 continue;
             }
 
+            const results = [];
             Logger.info("============DIFF TEST CASE " + testCase.name + "=============", this);
-            resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
                 Logger.info("Running diff case " + testCase.name + " for " + adapter.displayName + "...", this);
-
-                const result = adapter.evalCase(testCase);
-                resultsPerAdapter.get(adapter).push(result);
-                resultsPerTest.get(testCase).push(result);
+                results.push(adapter.evalCase(testCase));
             }
             //TODO add expected
-            Logger.result("expected: \n" + testCase.expected.toString(), this);
-            Logger.result(MarkDownFactory.tabularize(resultsPerTest.get(testCase)), this);
+            const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
+            Logger.result("Results for case " + testCase.name + ":\n" + markdownTable(table));
         }
     }
 }

@@ -10,6 +10,7 @@
 //      print diff info option
 //      option to output no diff
 //      pretty xml option
+//      use compare radius in comparePosition (like XCC)
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out
@@ -25,7 +26,9 @@
 //      colors in delta output
 
 //TODO tidy
-//      use setAttributeNS of xmldom
+//      reintroduce copy() and static from().
+//      use lowercase and Array<Node> in documentation
+//      use setAttributeNS of xmldom (doesnt work as intended)
 //      new node as in inserted vs new node as in from new tree
 //      decide which properties are read only (e.g. placeholders) use with get() function
 //      bne consistenwit .... or array

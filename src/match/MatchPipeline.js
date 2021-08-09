@@ -63,6 +63,7 @@ export class MatchPipeline {
 
     static local() {
         //PathMatcher is executed twice to capture missed matches
+        //| CpeeDiff  | 5076    | 6766    | 63183     | 443           | 76         | 113     | 84      | 170       | for benchmark
         return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher_old(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
