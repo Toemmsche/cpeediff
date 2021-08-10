@@ -27,29 +27,26 @@ export class SimilarityMatcher extends AbstractMatchingAlgorithm {
         //Only matchings of nodes with the same label are allowed
         const oldLabelMap = new Map();
         for (const oldNode of oldNodes) {
-            if (!oldLabelMap.has(oldNode.label)) {
-                oldLabelMap.set(oldNode.label, []);
+            //Comparisons for call nodes are restricted to equal endpoints in fast match mode
+            const oldLabel = oldNode.label;
+            if (!oldLabelMap.has(oldLabel)) {
+                oldLabelMap.set(oldLabel, []);
             }
-            oldLabelMap.get(oldNode.label).push(oldNode);
+            oldLabelMap.get(oldLabel).push(oldNode);
         }
 
         //use a temporary map until the best matches are found
         const oldToNewMap = new Map();
-        newNodeLoop: for (const newNode of newNodes) {
-            if (oldLabelMap.has(newNode.label)) {
+        for (const newNode of newNodes) {
+            //Comparisons for call nodes are restricted to equal endpoints in fast match mode
+            const newLabel = newNode.label;
+            if (oldLabelMap.has(newLabel)) {
                 //the minimum compare value
                 let minCompareValue = 1;
                 let minCompareNode = null;
                 //skip perfect matches
-                for (const oldNode of oldLabelMap.get(newNode.label).filter(n => !matching.hasOld(n))) {
+                for (const oldNode of oldLabelMap.get(newLabel)) {
                     const compareValue = comparator.compare(newNode, oldNode);
-
-                    //Perfect match? => add to M and resume with different node
-                    if(compareValue === 0) {
-                        matching.matchNew(newNode, oldNode);
-                        oldToNewMap.delete(oldNode);
-                        continue newNodeLoop;
-                    }
 
                     if (compareValue < minCompareValue) {
                         minCompareValue = compareValue;
