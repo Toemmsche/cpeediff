@@ -26,7 +26,7 @@ export class CpeeDiff {
     _matchPipeline;
     _editScriptGenerator;
     
-    constructor(matchPipeline = MatchPipeline.standard()) {
+    constructor(matchPipeline = MatchPipeline.fromMode()) {
         this._matchPipeline = matchPipeline;
         this._editScriptGenerator = new EditScriptGenerator();
     }

@@ -37,21 +37,21 @@ export class Preprocessor {
             "text/xml"));
 
         let tree;
-        if (root.localName === Dsl.PROPERTIES_ROOT) {
+        if (root.localName === Dsl.XML_DOC.PROPERTIES_ROOT) {
 
             //Parse process tree
-            const xmlDslx = DomHelper.firstChildElement(root, Dsl.DSLX);
+            const xmlDslx = DomHelper.firstChildElement(root, Dsl.XML_DOC.DSLX);
             const xmlDescription = DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.ROOT.label);
             tree = NodeFactory.getNode(xmlDescription, true);
 
             //Parse endpoints
-            const xmlEndpoints = DomHelper.firstChildElement(root, Dsl.CALL_PROPERTIES.ENDPOINT.label + "s");
+            const xmlEndpoints = DomHelper.firstChildElement(root, Dsl.XML_DOC.ENDPOINTS);
             DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
                 endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
             });
 
             //Parse initial values for data elements
-            const xmlDataElements = DomHelper.firstChildElement(root, Dsl.DATA_ELEMENTS);
+            const xmlDataElements = DomHelper.firstChildElement(root, Dsl.XML_DOC.DATA_ELEMENTS);
             DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
                 dataElements.set(xmlDataElement.localName, xmlDataElement.firstChild.data);
             });

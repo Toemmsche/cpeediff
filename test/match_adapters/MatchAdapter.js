@@ -98,9 +98,9 @@ export class MatchAdapter {
             this._verifyResult(matching, testCase.expected);
         } catch (e) {
             Logger.info(this.displayName + " gave wrong answer for " + testCase.name + ": " + e.toString(), this);
-            return testCase.complete(this.displayName, new ActualMatching(matching), TestConfig.VERDICTS.WRONG_ANSWER)
+            return testCase.complete(this.displayName, new ActualMatching(null, matching), TestConfig.VERDICTS.WRONG_ANSWER)
         }
-        return testCase.complete(this.displayName, new ActualMatching(matching), TestConfig.VERDICTS.OK)
+        return testCase.complete(this.displayName, new ActualMatching(null, matching), TestConfig.VERDICTS.OK)
     }
 }
 

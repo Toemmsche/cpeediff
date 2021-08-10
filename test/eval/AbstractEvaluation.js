@@ -14,6 +14,17 @@
    limitations under the License.
 */
 
+import {XyDiffAdapter} from "../diff_adapters/XyDiffAdapter.js";
+import {XmlDiffAdapter} from "../diff_adapters/XmlDiffAdapter.js";
+import {DiffXmlAdapter} from "../diff_adapters/DiffXmlAdapter.js";
+import {DeltaJsAdapter} from "../diff_adapters/DeltaJsAdapter.js";
+import {XccAdapter} from "../diff_adapters/XccAdapter.js";
+import fs from "fs";
+import {TestConfig} from "../TestConfig.js";
+import {QualityCpeeDiffAdapter} from "../diff_adapters/QualityCpeeDiffAdapter.js";
+import {BalancedCpeeDiffAdapter} from "../diff_adapters/BalancedCpeeDiffAdapter.js";
+import {FastCpeeDiffAdapter} from "../diff_adapters/FastCpeeDiffAdapter.js";
+
 export class AbstractEvaluation {
 
     adapters;
@@ -22,10 +33,18 @@ export class AbstractEvaluation {
         this.adapters = adapters;
     }
 
+    static _diffAdapters() {
+        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
+        adapters.unshift( new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter(), new FastCpeeDiffAdapter());
+        return adapters;
+    }
+
     static all() {
 
     }
-    evalAll(rootDir) {
+
+    evalAll() {
 
     }
 

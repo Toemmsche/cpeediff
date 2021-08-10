@@ -104,10 +104,7 @@ export class DiffTestCase extends AbstractTestCase {
                     if (testCaseName === "gen_leaves_only_shuffled") {
                         oldTree = treeGen.leavesOnly();
                     }
-                    const changedInfo = treeGen.changeTree(oldTree, changeParams);
-                    newTree = changedInfo.tree;
-                    expected = changedInfo.expected;
-                    break;
+                    return treeGen.changeTree(oldTree, changeParams).testCase;
                 }
             }
         } else {
@@ -132,7 +129,6 @@ export class DiffTestCase extends AbstractTestCase {
         if (expected == null) {
             expected = new ExpectedDiff();
         }
-        expected.maxSize = Math.max(oldTree.size(), newTree.size());
         return new DiffTestCase(testCaseName, oldTree, newTree, expected);
     }
 

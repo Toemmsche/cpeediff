@@ -19,18 +19,15 @@ import {XmlFactory} from "../../src/io/XmlFactory.js";
 
 export class ExpectedDiff extends AbstractExpected{
 
-    maxSize;
     editScript;
 
-    constructor( maxSize, editScript = null) {
+    constructor( editScript = null) {
         super();
-        this.maxSize = maxSize;
         this.editScript = editScript;
     }
 
     toString() {
-        return "Max Size of process trees: " + this.maxSize + "\n" +
-            "Cost: " + this.editScript?.cost + "\n" +
+        return "Cost: " + this.editScript?.cost + "\n" +
             "Diff Size: " + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + "\n" +
             "Total changes: " +  + this.editScript?.totalChanges() + "\n" +
             "Insertions: " + this.editScript?.insertions() + "\n" +

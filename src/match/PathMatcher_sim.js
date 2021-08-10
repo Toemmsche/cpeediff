@@ -18,7 +18,7 @@ import {Config} from "../Config.js";
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
 import {Logger} from "../../util/Logger.js";
 
-export class PathMatcher extends AbstractMatchingAlgorithm {
+export class PathMatcher_sim extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
         //use a temporary map until the best matches are found
@@ -71,7 +71,7 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
             for (const oldNode of oldNodeSet) {
                 //perfect matches
                 if(matching.hasOld(oldNode)) continue;
-                const compareValue = comparator.compare(newNode, oldNode);
+                const compareValue = (comparator.compare(newNode, oldNode) + this.commonality(newNode, oldNode, matching)) / 2;
 
                 //Perfect match? => add to M and resume with different node
                 if(compareValue === 0) {
@@ -101,5 +101,19 @@ export class PathMatcher extends AbstractMatchingAlgorithm {
         for (const [oldNode, bestMatch] of oldToNewMap) {
             matching.matchNew(bestMatch.newNode, oldNode);
         }
+    }
+
+    commonality(newNode, oldNode, matching) {
+        let common = 0;
+        const newSet = new Set(newNode.leaves());
+        const oldSet = new Set(oldNode.leaves());
+
+        for(const newCand of newSet) {
+            if(matching.hasNew(newCand) && oldSet.has(matching.getNew(newCand))) {
+                common++;
+            }
+        }
+
+        return  1 - (common / (Math.max(newSet.size , oldSet.size)));
     }
 }

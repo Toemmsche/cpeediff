@@ -47,8 +47,10 @@ export class StandardComparator extends AbstractComparator {
         let weightSum = 0;
         for (let i = 0; i < items.length; i++) {
             if (items[i] != null) {
-                itemSum += items[i] * weights[i];
-                weightSum += weights[i];
+                //Perfect matches deserve a boost for their weight.
+                const adjustedWeight = (items[i] === 0 ? Config.COMPARATOR.WEIGHT_BOOST_MULITPLIER : 1) * weights[i];
+                itemSum += items[i] * adjustedWeight;
+                weightSum += adjustedWeight;
             }
         }
         if (weightSum === 0) return 0;
@@ -88,7 +90,6 @@ export class StandardComparator extends AbstractComparator {
         //extract properties
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
-
 
         //extract written variables
         const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
@@ -170,6 +171,83 @@ export class StandardComparator extends AbstractComparator {
         return Math.min(1, contentCV);
     }
 
+    _compareLoop(node, other) {
+        //extract read variables
+        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+        const otherReadVariables = this.variableExtractor.get(other).readVariables;
+
+        const nodeMode = (node.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) : Dsl.INNER_PROPERTIES.LOOP_MODE.default);
+        const otherMode = (other.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) : Dsl.INNER_PROPERTIES.LOOP_MODE.default);
+
+        //all or nothing
+        const modeCV = nodeMode === otherMode ? 0 : 1;
+        const readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
+
+        let contentCV = this._weightedAverage([modeCV, readVariablesCV],
+            [Config.COMPARATOR.MODE_WEIGHT, Config.COMPARATOR.CONDITION_WEIGHT]);
+
+        //small penalty for code string inequality
+        if (node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) !== other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label)) {
+            contentCV += Config.COMPARATOR.EPSILON_PENALTY;
+        }
+
+        return Math.min(1, contentCV);
+    }
+
+    _compareAlternative(node, other) {
+        //extract read variables
+        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+        const otherReadVariables = this.variableExtractor.get(other).readVariables;
+
+        const readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
+
+        //readVariablesCV may be null
+        let contentCV = this._weightedAverage([readVariablesCV],
+            [Config.COMPARATOR.CONDITION_WEIGHT]);
+
+        //small penalty for code string inequality
+        if (node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) !== other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label)) {
+            contentCV += Config.COMPARATOR.EPSILON_PENALTY;
+        }
+
+        return Math.min(1, contentCV);
+    }
+
+    _compareChoose(node, other) {
+        const nodeMode = (node.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) : Dsl.INNER_PROPERTIES.CHOOSE_MODE.default);
+        const otherMode = (other.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) : Dsl.INNER_PROPERTIES.CHOOSE_MODE.default);
+
+        //all or nothing
+        const modeCV = nodeMode === otherMode ? 0 : 1;
+
+        let contentCV = modeCV;
+
+        return contentCV;
+    }
+
+    _compareParallel(node, other) {
+        const nodeWait = (node.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) : Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default);
+        const otherWait = (other.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) : Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default);
+
+        const nodeCancel = (node.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) : Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default);
+        const otherCancel = (other.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) : Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default);
+
+        //all or nothing
+        const modeCV = nodeWait === otherWait && nodeCancel === otherCancel ? 0 : 1;
+
+        let contentCV = modeCV;
+
+        return contentCV;
+    }
+
 
     compareContent(node, other) {
         //different labels cannot be matched
@@ -181,14 +259,19 @@ export class StandardComparator extends AbstractComparator {
             case Dsl.ELEMENTS.MANIPULATE.label: {
                 return this._compareManipulate(node, other);
             }
-            case Dsl.ELEMENTS.ALTERNATIVE.label:
-            case Dsl.ELEMENTS.LOOP.label: {
-                //extract read variables
-                const nodeReadVariables = this.variableExtractor.get(node).readVariables;
-                const otherReadVariables = this.variableExtractor.get(other).readVariables;
-                return this._compareSet(nodeReadVariables, otherReadVariables, 0);
+            case Dsl.ELEMENTS.ALTERNATIVE.label: {
+                return this._compareAlternative(node, other);
             }
-
+            case Dsl.ELEMENTS.LOOP.label: {
+                return this._compareLoop(node, other);
+            }
+            case Dsl.ELEMENTS.PARALLEL.label: {
+                return this._compareParallel(node, other);
+            }
+            case Dsl.ELEMENTS.CHOOSE.label: {
+                return this._compareChoose(node, other);
+            }
+            //label equality is sufficient for parallel_branch, critical, otherwise, and root...
             default: {
                 return 0;
             }
@@ -196,19 +279,29 @@ export class StandardComparator extends AbstractComparator {
     }
 
     comparePosition(node, other) {
-        //TODO maybe use contentEquals()
-        let compareLength = Config.COMPARATOR.PATH_COMPARE_RANGE;
-        const nodePathSlice = node.path.reverse().slice(0, compareLength).map(n => n.label);
-        const otherPathSlice = other.path.reverse().slice(0, compareLength).map(n => n.label);
+        let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
-        const posCV = this._compareLcs(nodePathSlice, otherPathSlice);
-        return posCV;
+        const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => n.label);
+        const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => n.label);
+        const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+
+        const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n => n.label);
+        const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n => n.label);
+        const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
+
+        //exclude the label of the compared nodes, it is always equal
+        const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => n.label);
+        const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n => n.label);
+        const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
+
+        //TODO weight differently
+        return this._weightedAverage([leftCV, rightCV, pathCV], [1, 1, 1]);
     }
 
 
     compare(node, other) {
         const compareValue = this._weightedAverage([this.compareContent(node, other), this.comparePosition(node, other)],
-            [Config.COMPARATOR.CONTENT_WEIGHT, Config.COMPARATOR.STRUCTURE_WEIGHT]);
+            [Config.COMPARATOR.CONTENT_WEIGHT, Config.COMPARATOR.POSITION_WEIGHT]);
         return compareValue;
     }
 

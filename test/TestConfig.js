@@ -22,9 +22,9 @@ export const TestConfig = {
         EXP_LIMIT: 8,
         FACTOR: 10,
         INITIAL_SIZE: 100,
-        REPS: 5,
+        REPS: 10,
 
-        INITIAL_CHANGES: 10
+        INITIAL_CHANGES: 5
     },
 
     //TODO option to store genearted models in test case folder

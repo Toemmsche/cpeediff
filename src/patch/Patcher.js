@@ -72,26 +72,26 @@ export class Patcher {
 
         //Extract new child index
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const childIndex = indexArr.pop();
+        const index = indexArr.pop();
 
         //Find parent node
         const targetParent = this._findNode(indexArr.join("/"));
 
-       targetParent.insertChild(childIndex, movedNode);
+       targetParent.insertChild(index, movedNode);
     }
 
 
     _handleInsert(change) {
         //Extract new child index
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const childIndex = indexArr.pop();
+        const index = indexArr.pop();
 
         //Find parent node
         const parent = this._findNode(indexArr.join("/"));
 
         //Insert
         const newNode = NodeFactory.getNode(change.newContent, true);
-        parent.insertChild(childIndex, newNode);
+        parent.insertChild(index, newNode);
     }
 
     _handleUpdate(change) {

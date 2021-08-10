@@ -16,9 +16,18 @@
 
 export const Config = {
 
+    MATCH_MODE: "quality",
+    MATCH_MODES: {
+        FAST: "fast",
+        BALANCED: "balanced",
+        QUALITY: "quality"
+    },
 
     COMPARATOR: {
-        PATH_COMPARE_RANGE: 3,
+        PATH_COMPARE_RANGE: 5,
+
+        //TODO
+        WEIGHT_BOOST_MULITPLIER: 1,
 
         //General weights
         WRITTEN_VAR_WEIGHT: 2,
@@ -29,13 +38,16 @@ export const Config = {
         CALL_METHOD_WEIGHT: 1,
         CALL_LABEL_WEIGHT: 0.5,
         CALL_ARGS_WEIGHT: 2,
-        CALL_SERVICE_WEIGHT: 1.5,
+        CALL_SERVICE_WEIGHT: 1,
         CALL_CODE_WEIGHT: 1,
 
         EPSILON_PENALTY: 0.01,
 
+        CONDITION_WEIGHT: 2,
+        MODE_WEIGHT: 1,
+
         CONTENT_WEIGHT: 5,
-        STRUCTURE_WEIGHT: 1
+        POSITION_WEIGHT: 1
     },
 
     COMPARISON_THRESHOLD: 0.4,

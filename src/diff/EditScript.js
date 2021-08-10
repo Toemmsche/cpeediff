@@ -40,13 +40,13 @@ export class EditScript {
 
     insert(insertedNode) {
         this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
-            insertedNode.toXPathString(), NodeFactory.getNode(insertedNode)));
+            insertedNode.xPath(), NodeFactory.getNode(insertedNode)));
         //TODO speed up
         this.cost += insertedNode.size();
     }
 
     delete(deletedNode) {
-        this._changes.push(new EditOperation( Dsl.CHANGE_MODEL.DELETION.label, deletedNode.toXPathString(), null,  null));
+        this._changes.push(new EditOperation( Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null,  null));
         this.cost += deletedNode.size();
     }
 
@@ -56,9 +56,9 @@ export class EditScript {
     }
 
     update(updatedNode) {
-        this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.toXPathString(),
+        this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
             null, NodeFactory.getNode(updatedNode, false)));
-        const path = updatedNode.toXPathString();
+        const path = updatedNode.xPath();
         this.cost++;
     }
 

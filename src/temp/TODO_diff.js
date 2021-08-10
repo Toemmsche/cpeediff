@@ -1,7 +1,5 @@
 //TODO features
 //      command line visualization including "live" patching and filtered changes
-//      use _assign() to make copies
-//      critical after parallel? -> ask Juergen
 //      option to output matching
 //      unmatched matcher (focus on replacement nodes) IMPORTANT
 //      turn single function classes in to functions
@@ -26,6 +24,7 @@
 //      colors in delta output
 
 //TODO tidy
+//      change model labels
 //      reintroduce copy() and static from().
 //      use lowercase and Array<Node> in documentation
 //      use setAttributeNS of xmldom (doesnt work as intended)
@@ -69,8 +68,6 @@
 //      use the change types and keywords objects instead of strings
 //      delete includes deleted tree
 
-//TODO advanced semantics
-//     if parallel_branch matched, match paralell (same for choose and otherwise/alternative)
 
 /*
 Problems with examined matching algorithms:

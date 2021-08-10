@@ -5,7 +5,7 @@
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at
 
-       http=//www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
    Unless required by applicable law or agreed to in writing, software
    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,22 +14,14 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
+import {Config} from "../../src/Config.js";
+import {CpeeDiffAdapter} from "./CpeeDiffAdapter.js";
 
-export class IdExtractor extends AbstractExtractor {
+export class BalancedCpeeDiffAdapter extends CpeeDiffAdapter {
 
-    _extract(node) {
-        //compute all ids on first use
-        let root;
-        if(node.parent == null) {
-            root = node;
-        } else {
-            root = node.path()[0].parent;
-        }
-        const preOrder = root.toPreOrderArray();
-        for (let i = 0; i < preOrder.length; i++) {
-            this._memo.set(preOrder[i], i);
-        }
+    constructor() {
+        super(Config.MATCH_MODES.BALANCED);
     }
-
 }
+
+

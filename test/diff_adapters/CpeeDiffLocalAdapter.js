@@ -35,7 +35,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
 
     _run(oldTree, newTree) {
         let time = new Date().getTime();
-        const delta = new CpeeDiff(MatchPipeline.local()).diff(oldTree, newTree);
+        const delta = new CpeeDiff(MatchPipeline.best()).diff(oldTree, newTree);
         time = new Date().getTime() - time;
         return {
             output: delta,

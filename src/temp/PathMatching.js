@@ -73,7 +73,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
                         let longestLCS = -1;
                         if (compareValue < minCompareValue) {
                             minCompareValue = compareValue;
-                            // longestLCS = getLcs(oldLeaf.path, newLeaf.path, (a,b) => a.label === b.label);
+                            // longestLCS = getLcs(oldLeaf.path(), newLeaf.path(), (a,b) => a.label === b.label);
                             //Discard all matching with a higher comparison value
                             minCompareNode = oldLeaf;
                         }
@@ -122,8 +122,8 @@ export class PathMatching extends AbstractMatchingAlgorithm {
         //running time hypothesis: O(n)
         function matchPath(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
-            const newPath = newLeaf.path.slice().reverse().slice(1);
-            const oldPath = oldLeaf.path.slice().reverse().slice(1);
+            const newPath = newLeaf.path().slice().reverse().slice(1);
+            const oldPath = oldLeaf.path().slice().reverse().slice(1);
 
             //index in newPath where last matching occurred
             let j = 0;
@@ -165,8 +165,8 @@ export class PathMatching extends AbstractMatchingAlgorithm {
         //hypothesis: O(n²)
         function matchPathExperimental(oldLeaf, newLeaf) {
             //copy paths, reverse them and remove first element
-            const newPath = newLeaf.path.slice().reverse().slice(1);
-            const oldPath = oldLeaf.path.slice().reverse().slice(1);
+            const newPath = newLeaf.path().slice().reverse().slice(1);
+            const oldPath = oldLeaf.path().slice().reverse().slice(1);
 
             const lcs = getLcs(newPath, oldPath, (a, b) => a.label === b.label, true);
 

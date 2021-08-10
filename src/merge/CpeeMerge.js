@@ -57,7 +57,7 @@ export class CpeeMerge {
         const newParent = matching.getOther(referenceNode.parent);
         nodeToInsert.changeOrigin = referenceNode.changeOrigin;
         nodeToInsert.type = referenceNode.type;
-        let i = referenceNode.childIndex - 1;
+        let i = referenceNode.index - 1;
         while (i >= 0 && (!matching.hasAny(referenceNode.parent.getChild(i)) || matching.getOther(referenceNode.parent.getChild(i)).parent !== newParent)) {
             i--;
         }
@@ -66,7 +66,7 @@ export class CpeeMerge {
         } else {
             const pre = referenceNode.parent.getChild(i);
             const match = matching.getOther(pre);
-            newParent.insertChild(match.childIndex + 1, nodeToInsert);
+            newParent.insertChild(match.index + 1, nodeToInsert);
         }
     }
 
@@ -289,8 +289,8 @@ export class CpeeMerge {
     _findOrderConflicts(mergeTree) {
         for (const node of mergeTree.toPreOrderArray()) {
             if (node.parent != null && node.parent.hasInternalOrdering() && (node.isInsertion() || node.isMove())) {
-                const leftSibling = node.getSiblings()[node.childIndex - 1];
-                const rightSibling = node.getSiblings()[node.childIndex + 1];
+                const leftSibling = node.getSiblings()[node.index - 1];
+                const rightSibling = node.getSiblings()[node.index + 1];
                 if (leftSibling != null && (leftSibling.isMove() || leftSibling.isInsertion()) && leftSibling.changeOrigin !== node.changeOrigin) {
                     node.confidence.positionConfident = false;
                     leftSibling.confidence.positionConfident = false;

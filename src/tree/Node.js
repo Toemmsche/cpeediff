@@ -22,7 +22,7 @@ import {Logger} from "../../util/Logger.js";
  * Process trees are rooted trees that are ordered and labeled.
  * Additionally, each node can have optinal attributes and text content.
  *
- * A node is either a leaf node if it corresponds to a leaf element in the CPEE DSL {@see Dsl},
+ * A node is considered a leaf node if it corresponds to a leaf element in the CPEE DSL {@see Dsl},
  * an inner node if it corresponds to an inner element in the CPEE DSL {@see Dsl}
  * or a property node otherwise. Property nodes describe the content of their closes non-property node ancestor
  * in more detail, although their content does NOT contribute to the text content of their logical parent.
@@ -52,7 +52,7 @@ export class Node {
         this.attributes = new Map();
         this._children = [];
         this._parent = null;
-        this._childIndex = null;
+        this._index = null;
     }
 
     /*
@@ -78,13 +78,13 @@ export class Node {
      * @type Number|null
      * @private
      */
-    _childIndex;
+    _index;
 
     /**
      * @returns {Number|null} The index of this node within the parent's ordered child list.
      */
-    get childIndex() {
-        return this._childIndex;
+    get index() {
+        return this._index;
     }
 
     /**
@@ -102,17 +102,18 @@ export class Node {
     }
 
     /**
-     * Returns all nodes that lie on the path from the root (exclusive) to this node (inclusive)
+     * Returns a subsequence of all nodes that lie on the path from the root (exclusive) to this node (inclusive)
+     * @param {number|null} limit The maximum length of the path, unlimited if null.
      * @returns {Node[]} The array of all nodes on this node's path.
      */
-    get path() {
+    path(limit = null) {
         const pathArr = [];
         let node = this;
-        while (node != null) {
+        while (node != null && (limit == null  || pathArr.length < limit)) {
             pathArr.push(node);
             node = node._parent;
         }
-        //exclude root
+        //this node is always last in path
         return pathArr.reverse().slice(1);
     }
 
@@ -149,8 +150,8 @@ export class Node {
      * @returns {Node|null} The sibling node with the next lower index, if it exists.
      */
     getLeftSibling() {
-        if (this._childIndex > 0) {
-            return this.getSiblings()[this._childIndex - 1];
+        if (this._index > 0) {
+            return this.getSiblings()[this._index - 1];
         }
         return null;
     }
@@ -159,8 +160,8 @@ export class Node {
      * @returns {Node|null} The sibling node with the next higher index, if it exists.
      */
     getRightSibling() {
-        if (this._childIndex < this.getSiblings().length - 1) {
-            return this.getSiblings()[this._childIndex + 1];
+        if (this._index < this.getSiblings().length - 1) {
+            return this.getSiblings()[this._index + 1];
         }
         return null;
     }
@@ -246,7 +247,7 @@ export class Node {
      * @param {Node} node The node to append.
      */
     appendChild(node) {
-        node._childIndex = this._children.push(node) - 1;
+        node._index = this._children.push(node) - 1;
         node._parent = this;
     }
 
@@ -268,7 +269,7 @@ export class Node {
      */
     changeIndex(newIndex) {
         //delete
-        this._parent._children.splice(this._childIndex, 1);
+        this._parent._children.splice(this._index, 1);
         //insert
         this._parent._children.splice(newIndex, 0, this);
         //adjust indices of all children
@@ -281,7 +282,7 @@ export class Node {
      */
     removeFromParent() {
         if (this._parent != null) {
-            this._parent.children.splice(this._childIndex, 1);
+            this._parent.children.splice(this._index, 1);
             this._parent._fixChildIndices();
         } else {
             Logger.warn("Removing node " + this.toString() + " that has no parent", this);
@@ -295,7 +296,7 @@ export class Node {
      */
     _fixChildIndices() {
         for (let i = 0; i < this._children.length; i++) {
-            this._children[i]._childIndex = i;
+            this._children[i]._index = i;
         }
     }
 
@@ -303,9 +304,9 @@ export class Node {
      * Returns the index of each node in the path from the root (exclusive) to this node (inclusive).
      * @returns {string} The array of indices of all nodes on the path.
      */
-    toXPathString() {
+    xPath() {
         //discard root node
-        return this.path.map(n => n.childIndex).join("/");
+        return this.path().map(n => n.index).join("/");
     }
 
     //TODO

@@ -51,6 +51,11 @@ export class AggregateDiffResult {
             this.stdDevCost, this.avgChanges, this.maxChanges, this.stdDevChanges];
     }
 
+    static header() {
+        return ["algorithm", "avg runtime", "max runtime", "runtime std dev", "avg rel cost", "max rel cost",
+           "rel cost std dev", "avg rel changes", "max rel changes", "rel changes std dev"];
+    }
+
     static of(diffResults) {
         //only consider test case executions that didnt result in an error or timeout
         diffResults = diffResults.filter(r => r.isOk());

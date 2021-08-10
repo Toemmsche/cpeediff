@@ -26,8 +26,8 @@ export class PathMatcher_old extends AbstractMatchingAlgorithm {
 
         for (const [newNode, oldNode] of matching.newToOldMap) {
             //copy paths, reverse them and remove first element, discard already matched nodes
-            const newPath = newNode.path.slice().reverse().slice(1).filter(n => !matching.hasNew(n));
-            const oldPath = oldNode.path.slice().reverse().slice(1).filter(n => !matching.hasOld(n));
+            const newPath = newNode.path().slice().reverse().slice(1).filter(n => !matching.hasNew(n));
+            const oldPath = oldNode.path().slice().reverse().slice(1).filter(n => !matching.hasOld(n));
 
             /*
             Only nodes with the same label can be matched.

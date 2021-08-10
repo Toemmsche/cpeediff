@@ -29,9 +29,11 @@ import {execFileSync} from "child_process";
 import {Logger} from "../../util/Logger.js";
 
 export class CpeeDiffAdapter extends DiffAdapter {
+    mode;
 
-    constructor() {
-        super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName);
+    constructor(mode = Config.MATCH_MODES.BALANCED) {
+        super(TestConfig.DIFFS.CPEEDIFF.path, TestConfig.DIFFS.CPEEDIFF.displayName + "_" + mode);
+        this.mode = mode;
     }
 
     _run(oldTree, newTree) {
@@ -46,7 +48,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
 
         let time = new Date().getTime();
         return {
-            output: execFileSync("./main.js", ["diff", oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            output: execFileSync("./main.js", ["diff", "--mode", this.mode, oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
             runtime: new Date().getTime() - time
         }
     }

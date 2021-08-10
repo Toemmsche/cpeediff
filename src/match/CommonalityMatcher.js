@@ -49,8 +49,8 @@ export class CommonalityMatcher extends AbstractMatchingAlgorithm {
         for (const matchedNewLeaf of matchedNewLeaves) {
             const oldLeaf = matching.getNew(matchedNewLeaf);
             //increase commonality for all unmatched nodes along the paths
-            const newPath = matchedNewLeaf.path.filter(n => !matching.hasNew(n));
-            const oldPath = oldLeaf.path.filter(n => !matching.hasOld(n));
+            const newPath = matchedNewLeaf.path().filter(n => !matching.hasNew(n));
+            const oldPath = oldLeaf.path().filter(n => !matching.hasOld(n));
 
             for (const newNode of newPath) {
                 const comVals = comMap.get(newNode);
@@ -88,8 +88,8 @@ export class CommonalityMatcher extends AbstractMatchingAlgorithm {
                 matching.matchNew(newInner, bestMatch);
 
                 //increase commonality for all unmatched nodes along the paths
-                const newPath = newInner.path.filter(n => !matching.hasNew(n));
-                const oldPath = bestMatch.path.filter(n => !matching.hasOld(n));
+                const newPath = newInner.path().filter(n => !matching.hasNew(n));
+                const oldPath = bestMatch.path().filter(n => !matching.hasOld(n));
 
                 for (const newNode of newPath) {
                     const comVals = comMap.get(newNode);

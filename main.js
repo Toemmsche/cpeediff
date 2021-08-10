@@ -32,6 +32,7 @@ import * as fs from "fs";
 import {Logger} from "./util/Logger.js";
 import {CpeeMerge} from "./src/merge/CpeeMerge.js";
 import {NodeFactory} from "./src/tree/NodeFactory.js";
+import {MatchPipeline} from "./src/match/MatchPipeline.js";
 
 const argv = yargs(hideBin(process.argv))
     .command("diff <old> <new>", "Calculcate and show the difference between two CPEE process trees", (yargs) => {
@@ -43,6 +44,13 @@ const argv = yargs(hideBin(process.argv))
             .positional("new", {
                 description: "The changed CPEE process tree as an XML document",
                 type: "string"
+            })
+            .option("mode", {
+                description: "The matching mode to be used. This affects the performance and quality of the diff algorithm.",
+                alias: "m",
+                type: "string",
+                choices: Object.values(Config.MATCH_MODES),
+                default: Config.MATCH_MODES.QUALITY
             })
             .option("threshold", {
                 description: "Similarity threshold for matching nodes",
@@ -100,15 +108,17 @@ const argv = yargs(hideBin(process.argv))
             //Disabling logging does not affect the output of results
             Logger.disableLogging();
         }
+        //configure instance
         Config.ADD_INIT_SCRIPT = argv.addInitScript;
         Config.VARIABLE_PREFIX = argv.variablePrefix;
         Config.COMPARISON_THRESHOLD = argv.threshold;
+        Config.MATCH_MODE = argv.mode;
 
         const parser = new Preprocessor();
         const oldTree = parser.parseFromFile(argv.old);
         const newTree = parser.parseFromFile(argv.new);
 
-        const editScript = new CpeeDiff().diff(oldTree, newTree);
+        const editScript = new CpeeDiff(MatchPipeline.fromMode()).diff(oldTree, newTree);
 
         switch (argv.format) {
             case "editScript": {

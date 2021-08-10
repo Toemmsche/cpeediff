@@ -100,7 +100,7 @@ export class EditScriptGenerator {
          Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
          */
         const nodes = oldParent.children;
-        const arr = nodes.map(n => this._matching.getOld(n).childIndex);
+        const arr = nodes.map(n => this._matching.getOld(n).index);
         let lis = getLis(arr);
 
 
@@ -117,14 +117,14 @@ export class EditScriptGenerator {
                  In order to also consider the following node, we must move the iteration index back.
                 */
                 i--;
-                const oldPath = node.toXPathString();
-                const thisMatchIndex = this._matching.getOld(node).childIndex;
+                const oldPath = node.xPath();
+                const thisMatchIndex = this._matching.getOld(node).index;
                 for (let j = 0; j < nodes.length; j++) {
-                    const lisMatchIndex = this._matching.getOld(nodes[j]).childIndex;
+                    const lisMatchIndex = this._matching.getOld(nodes[j]).index;
                     if(inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
                         //move within node list, adjust index for move further back
-                        node.changeIndex(j > node.childIndex ? j - 1 : j);
-                        const newPath = node.toXPathString();
+                        node.changeIndex(j > node.index ? j - 1 : j);
+                        const newPath = node.xPath();
                         this._editScript.move(oldPath, newPath);
                         inLis.add(node);
                         continue outer;
@@ -134,14 +134,14 @@ export class EditScriptGenerator {
 
                 //move to end of node list
                 node.changeIndex(nodes.length - 1);
-                const newPath = node.toXPathString();
+                const newPath = node.xPath();
                 this._editScript.move(oldPath, newPath);
             }
         }
     }
 
     _delete(oldNode) {
-        const oldPath = oldNode.toXPathString();
+        const oldPath = oldNode.xPath();
         //TODO document that removeFromParent() does not change the parent attribute
         oldNode.removeFromParent();
         this._editScript.delete(oldNode);
@@ -150,7 +150,7 @@ export class EditScriptGenerator {
 
     _move(oldNode) {
         const newNode = this._matching.getOld(oldNode);
-        const oldPath = oldNode.toXPathString();
+        const oldPath = oldNode.xPath();
 
         //move oldNode to newParent
         oldNode.removeFromParent();
@@ -160,7 +160,7 @@ export class EditScriptGenerator {
 
         const newParent = this._matching.getNew(newNode.parent);
         newParent.insertChild(insertionIndex, oldNode);
-        const newPath = oldNode.toXPathString();
+        const newPath = oldNode.xPath();
         this._editScript.move(oldPath, newPath);
     }
 
@@ -190,17 +190,17 @@ export class EditScriptGenerator {
         //perform insert operation at match of the parent node
         const newParent = this._matching.getNew(newNode.parent);
         newParent.insertChild(insertionIndex, copy);
-        const newPath = copy.toXPathString();
+        const newPath = copy.xPath();
 
         this._editScript.insert(copy);
     }
 
     _findInsertionIndex(newNode) {
         let insertionIndex;
-        if (newNode.childIndex > 0) {
-            const leftSibling = newNode.getSiblings()[newNode.childIndex - 1];
+        if (newNode.index > 0) {
+            const leftSibling = newNode.getSiblings()[newNode.index - 1];
             //left sibling has a match
-            insertionIndex = this._matching.getNew(leftSibling).childIndex + 1;
+            insertionIndex = this._matching.getNew(leftSibling).index + 1;
         } else {
             insertionIndex = 0;
         }

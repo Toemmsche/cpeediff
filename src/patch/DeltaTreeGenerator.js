@@ -26,19 +26,19 @@ export class DeltaTreeGenerator {
 
     _handleInsert(change) {
         const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const childIndex = indexArr.pop();
+        const index = indexArr.pop();
         const [parent, movfrParent] = this._findNode(indexArr.join("/"));
         const newNode = DeltaNodeFactory.getNode(change.newContent);
 
-        this._applyInsert(parent, newNode, childIndex);
+        this._applyInsert(parent, newNode, index);
         if (movfrParent != null) {
-            this._applyInsert(movfrParent, newNode, childIndex);
+            this._applyInsert(movfrParent, newNode, index);
         }
     }
 
-    _applyInsert(parent, node, childIndex) {
+    _applyInsert(parent, node, index) {
         const child = DeltaNodeFactory.getNode(node, true);
-        parent.insertChild(childIndex, child);
+        parent.insertChild(index, child);
         for (const descendant of child.toPreOrderArray()) {
             descendant.type = Dsl.CHANGE_MODEL.INSERTION.label
         }
@@ -53,7 +53,7 @@ export class DeltaTreeGenerator {
         const noMovfrNode = movfrNode == null;
         if (movfrNode == null) {
             movfrNode = DeltaNodeFactory.getNode(node, true);
-            movfrNode._childIndex = node.childIndex;
+            movfrNode._index = node.index;
             movfrParent = node.parent;
         } else {
             movfrParent = movfrNode.parent;
@@ -208,7 +208,7 @@ export class DeltaTreeGenerator {
         while (node.placeholders.length > 0) {
             const placeholder = node.placeholders.pop();
             if (!isMoveTo || !placeholder.type === Dsl.CHANGE_MODEL.MOVE_FROM) {
-                node.insertChild(placeholder.childIndex, placeholder);
+                node.insertChild(placeholder.index, placeholder);
             }
         }
     }

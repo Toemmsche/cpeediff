@@ -45,10 +45,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     }
 
     static all() {
-        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
-        adapters.unshift(new CpeeDiffAdapter());
-        return new GeneratedDiffEvaluation(adapters);
+        return new GeneratedDiffEvaluation(this._diffAdapters());
     }
 
     static fast() {
@@ -63,12 +60,13 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
         Logger.info("Evaluating diff algorithms with generated process trees", this);
 
         //Simply run all functions...
+        this.flatSingle();
         this.standardSingle();
         this.standardAggregate();
     }
 
     standardSingle() {
-        Logger.info("Standard evaluation of diff algorithms", this);
+        Logger.info("Evaluation of diff algorithms with standard progression", this);
         for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
 
@@ -81,11 +79,8 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const treeGen = new TreeGenerator(genParams);
 
             const oldTree = treeGen.randomTree();
-            const changedInfo = treeGen.changeTree(oldTree, changeParams);
-            const newTree = changedInfo.tree;
-            const expected = changedInfo.expected;
 
-            const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
+            const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
 
             //Run test case for each diff algorithm
             const results = [];
@@ -102,7 +97,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     }
 
     flatSingle() {
-        Logger.info("Standard evaluation of diff algorithms with constant changes", this);
+        Logger.info("Evaluation of matching algorithms with no change progression", this);
         for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
 
@@ -114,19 +109,9 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
             const treeGen = new TreeGenerator(genParams);
 
-            /*
             const oldTree = treeGen.randomTree();
-            const changedInfo = treeGen.changeTree(oldTree, changeParams);
-            const newTree = changedInfo.tree;
-            const expected = changedInfo.expected;
 
-             */
-
-            const oldTree = treeGen.oldDeepAndWide();
-            const newTree = treeGen.newDeepAndWide();
-            const expected = new ExpectedDiff();
-
-            const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
+            const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
 
             //Run test case for each diff algorithm
             const results = [];
@@ -148,7 +133,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
             const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
-            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil( Math.log10(size)));
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
@@ -156,24 +141,21 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             const treeGen = new TreeGenerator(genParams);
             for (let j = 0; j < TestConfig.GEN.REPS; j++) {
                 const oldTree = treeGen.randomTree();
-                const changedInfo = treeGen.changeTree(oldTree, changeParams);
-                const newTree = changedInfo.tree;
-                const expected = changedInfo.expected;
 
-                const testCase = new DiffTestCase(testId, oldTree, newTree, expected);
+                const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
 
                 for (const adapter of this.adapters) {
                     Logger.info("Running rep " + j + " for adapter " + adapter.displayName, this);
                     const result = adapter.evalCase(testCase);
                     if (result.isOk()) {
-                        result.actual.cost /= expected.editScript.cost;
-                        result.actual.changes /= expected.editScript.totalChanges();
+                        result.actual.cost /= testCase.expected.editScript.cost;
+                        result.actual.changes /= testCase.expected.editScript.totalChanges();
                     }
                     resultsPerAdapter.get(adapter).push(result);
                 }
             }
             const aggregateResults = [...resultsPerAdapter.entries()].map(e => AggregateDiffResult.of(e[1]));
-            const table = [new Array(10).fill("A"), ...(aggregateResults.map(r => r.values()))];
+            const table = [AggregateDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
             Logger.result("Results for cases " + testId);
             Logger.result(markdownTable(table));
         }

@@ -90,7 +90,7 @@ describe("Node", () => {
             assert.notStrictEqual(tree.getChild(0), bookAirCall);
 
             //child indices should be adjust accordingly
-            assert.strictEqual(tree.getChild(1).childIndex, 1);
+            assert.strictEqual(tree.getChild(1).index, 1);
         });
     });
 
@@ -100,7 +100,7 @@ describe("Node", () => {
 
             bookAirCall.changeIndex(newIndex);
 
-            assert.strictEqual(bookAirCall.childIndex, newIndex);
+            assert.strictEqual(bookAirCall.index, newIndex);
             //parent should not change
             assert.strictEqual(bookAirCall.parent , tree);
         });
@@ -132,14 +132,14 @@ describe("Node", () => {
             const parameters = bookAirCall.getChild(0);
             const args = parameters.getChild(2);
 
-            const path = toArgument.path;
+            const path = toArgument.path();
             strictArrayEqual(path, [bookAirCall, parameters, args, toArgument])
         });
     });
 
-    describe("#toXPathString()", () => {
+    describe("#xPath()", () => {
         it('should return the path from root to the node using child indices', () => {
-            assert.strictEqual(toArgument.toXPathString(), "0/0/2/1");
+            assert.strictEqual(toArgument.xPath(), "0/0/2/1");
         });
     });
 

@@ -17,9 +17,12 @@
 
 export const Dsl = {
 
-    PROPERTIES_ROOT: "properties",
-    DSLX: "dslx",
-    DATA_ELEMENTS: "dataelements",
+    XML_DOC: {
+        PROPERTIES_ROOT: "properties",
+        DSLX: "dslx",
+        DATA_ELEMENTS: "dataelements",
+        ENDPOINTS: "endpoints"
+    },
 
     ELEMENTS: {
         ROOT: {
@@ -133,16 +136,30 @@ export const Dsl = {
 
     INNER_PROPERTIES: {
         CONDITION: {
-            label: "condition",
-            isOrdered: false
+            label:"condition"
         },
-        MODE: {
+        LOOP_MODE: {
             label: "mode",
-            isOrdered: false
+            options: ["pre_test", "post_test"],
+            default: "pre_test"
+        },
+        CHOOSE_MODE: {
+            label: "mode",
+            options: ["exclusive" ,"inclusive"],
+            default: "exclusive"
+        },
+        PARALLEL_WAIT: {
+            label: "wait",
+            default: "-1"
+        },
+        PARALLEL_CANCEL: {
+            label: "cancel",
+            options: ["last", "first"],
+            default: "last"
         }
     },
+
     ENDPOINT_METHODS: [":get", ":post", ":put", ":patch", ":delete"],
-    CHOOSE_MODES: ["inclusive", "exclusive"],
 
     DEFAULT_NAMESPACE: "http://cpee.org/ns/description/1.0",
     CHANGE_MODEL: {
@@ -181,24 +198,24 @@ export const Dsl = {
 
 Dsl.ELEMENT_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-    .map(k => k.label));
+        .map(k => k.label));
 
 Dsl.LEAF_NODE_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-    .filter(k => k.isLeaf)
-    .map(k => k.label));
+        .filter(k => k.isLeaf)
+        .map(k => k.label));
 
 Dsl.INNER_NODE_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-    .filter(k => !k.isLeaf)
-    .map(k => k.label));
+        .filter(k => !k.isLeaf)
+        .map(k => k.label));
 
 Dsl.INTERNAL_ORDERING_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-    .concat(Object.values(Dsl.CALL_PROPERTIES))
-    .concat(Object.values(Dsl.INNER_PROPERTIES))
-    .filter(k => k.isOrdered)
-    .map(k => k.label));
+        .concat(Object.values(Dsl.CALL_PROPERTIES))
+        .concat(Object.values(Dsl.INNER_PROPERTIES))
+        .filter(k => k.isOrdered)
+        .map(k => k.label));
 
 Dsl.CHANGE_MODEL_SET = new Set(
     Object.values(Dsl.CHANGE_MODEL));

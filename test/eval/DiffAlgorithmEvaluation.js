@@ -27,26 +27,25 @@ import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {DiffTestCase} from "../case/DiffTestCase.js";
 import {DiffTestResult} from "../result/DiffTestResult.js";
 import {markdownTable} from "markdown-table";
+import {QualityCpeeDiffAdapter} from "../diff_adapters/QualityCpeeDiffAdapter.js";
+import {BalancedCpeeDiffAdapter} from "../diff_adapters/BalancedCpeeDiffAdapter.js";
+import {FastCpeeDiffAdapter} from "../diff_adapters/FastCpeeDiffAdapter.js";
+import {AbstractEvaluation} from "./AbstractEvaluation.js";
 
-export class DiffAlgorithmEvaluation {
-
-    adapters;
+export class DiffAlgorithmEvaluation extends AbstractEvaluation {
 
     constructor(adapters = []) {
-        this.adapters = adapters;
+        super(adapters);
     }
 
     static all() {
-        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
-        adapters.unshift(new CpeeDiffAdapter());
-        return new DiffAlgorithmEvaluation(adapters);
+        return new DiffAlgorithmEvaluation(this._diffAdapters());
     }
 
     static fast() {
         let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
-        adapters.unshift(new CpeeDiffAdapter());
+        adapters.unshift(new FastCpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
     }
 

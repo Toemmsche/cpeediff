@@ -26,6 +26,8 @@ import {PathMatcher} from "./PathMatcher.js";
 import {Logger} from "../../util/Logger.js";
 import {PathMatcher_old} from "./PathMatcher_old.js";
 import {SimilarityMatcher_old} from "./SimilarityMatcher_old.js";
+import {PathMatcher_sim} from "./PathMatcher_sim.js";
+import {Config} from "../Config.js";
 
 export class MatchPipeline {
 
@@ -56,15 +58,36 @@ export class MatchPipeline {
         return matching;
     }
 
+    static fromMode() {
+        switch(Config.MATCH_MODE) {
+            case Config.MATCH_MODES.FAST:
+            case Config.MATCH_MODES.BALANCED:
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+            case Config.MATCH_MODES.QUALITY:
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher_sim(), new PathMatcher_old(), new UnmatchedMatcher(), new PropertyMatcher()]);
+        }
+    }
+    /*
+    TO BEAT for benchmark
+    | CpeeDiff_quality  | 4840    | 6786    | 61352     | 393           | 72         | 98      | 79      | 144       |
+| CpeeDiff_balanced | 4703    | 6805    | 62975     | 425           | 73         | 114     | 78      | 160       |
+| CpeeDiff_fast     | 4769    | 6805    | 62975     | 425           | 73         | 114     | 78      | 160       |
+
+     */
+
     static standard() {
         //PathMatcher is executed twice to capture missed matches
         return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
-    static local() {
+    static quality() {
         //PathMatcher is executed twice to capture missed matches
         //| CpeeDiff  | 5076    | 6766    | 63183     | 443           | 76         | 113     | 84      | 170       | for benchmark
         return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher_old(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+    }
+
+    static best() {
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher_sim(), new PathMatcher_old(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
 }
