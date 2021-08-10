@@ -8,7 +8,7 @@
 //      print diff info option
 //      option to output no diff
 //      pretty xml option
-//      use compare radius in comparePosition (like XCC)
+//      perfect match shortcut in matchers
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out

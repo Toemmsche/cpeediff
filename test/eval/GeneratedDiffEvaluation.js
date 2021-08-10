@@ -91,7 +91,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             }
 
             //Add expected values to table
-            const table = [DiffTestResult.header(), expected.values(), ...results.map(r => r.values())];
+            const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
             Logger.result(markdownTable(table));
         }
     }
