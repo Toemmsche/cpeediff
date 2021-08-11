@@ -20,38 +20,27 @@ import {Logger} from "../../util/Logger.js";
 import {GeneratorParameters} from "../gen/GeneratorParameters.js";
 import {TreeGenerator} from "../gen/TreeGenerator.js";
 import {ChangeParameters} from "../gen/ChangeParameters.js";
-import {AbstractEvaluation} from "./AbstractEvaluation.js";
 import {MatchPipeline} from "../../src/match/MatchPipeline.js";
+import {Config} from "../../src/Config.js";
+import {markdownTable} from "markdown-table";
 
-export class GeneratedMatchEvaluation extends AbstractEvaluation {
-
-
-    //TODO init with default value
-    constructor(adapters = []) {
-        super(adapters);
-    }
-
-    static all() {
-        let adapters = [MatchPipeline.standard(), MatchPipeline.quality(), MatchPipeline.best()];
-        return new GeneratedMatchEvaluation(adapters);
-    }
+export class GeneratedMatchEvaluation {
 
     evalAll() {
         Logger.info("Evaluating matching algorithms with generated process trees", this);
 
         //Simply run all functions...
         this.standardSingle();
-        this.standardAggregate();
     }
 
     standardSingle() {
         Logger.info("Evaluation of matching algorithms with standard size progression", this);
-        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
-            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+        for (let i = 0; i <= TestConfig.PROGRESSION.EXP_LIMIT; i++) {
+            const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
 
             //choose sensible generator and change parameters
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
 
@@ -63,20 +52,36 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
             const expectedMatching = changedInfo.matching;
 
             //Run test case for each matching pipeline and compute number of mismatched nodes
-            for (const adapter of this.adapters) {
-                Logger.info("Running case " + testId + " for ṕipeline", this);
+            const results = [];
+            for (const matchMode of Object.values(Config.MATCH_MODES)) {
+                Config.MATCH_MODE = matchMode;
+                Logger.info("Running case " + testId + " for match mode " + matchMode, this);
                 const time = new Date().getTime();
-                const actualMatching = adapter.execute(oldTree, newTree);
-                Logger.debug("elapsed " + (new Date().getTime() - time) + "ms", this);
-                const misMatches = this._getMismatchedNodes(expectedMatching, actualMatching);
-                Logger.result(  misMatches[0] + " " + (misMatches[0] / newTree.leaves().length).toFixed(2) + " " + misMatches[1] + " " + (misMatches[1] / newTree.innerNodes().length).toFixed(2) + " total: " + actualMatching.size(), this);
+                const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
+                const elapsedTime = new Date().getTime() - time;
+                const matchingCommonality = this._matchingCommonality(expectedMatching, actualMatching);
+                results.push([matchMode, elapsedTime,  matchingCommonality.toFixed(4) * 100]);
+                //Logger.result(misMatches[0] + " " + (misMatches[0] / newTree.leaves().length).toFixed(2) + " " + misMatches[1] + " " + (misMatches[1] / newTree.innerNodes().length).toFixed(2) + " total: " + actualMatching.size(), this);
             }
-            Logger.result("-----------------------------")
+            Logger.result("Results for case " + testId, this);
+            Logger.result(markdownTable([["match mode", "runtime", "overlap % with expected"],...results]));
         }
     }
 
+    _matchingCommonality(expected, actual) {
+        let common = 0;
+        for (const [newNode, oldNode] of expected.newToOldMap) {
+            if (actual.hasNew(newNode) && actual.getNew(newNode) === oldNode) {
+                common++;
+            }
+        }
+
+        return common / (Math.max(expected.size(), actual.size()));
+    }
+
+
     _getMismatchedNodes(expected, actual) {
-        let [mismatchedInners, mismatchedLeaves] = [0, 0];
+        let [mismatchedLeaves, mismatchedInners, unmatchedLeaves, unmatchedInners] = [0, 0, 0, 0];
 
         for (const [newNode, oldNode] of expected.newToOldMap) {
             if (actual.hasNew(newNode) && actual.getNew(newNode) !== oldNode) {
@@ -93,7 +98,6 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
         }
 
         return [mismatchedLeaves, mismatchedInners];
-
     }
 }
 

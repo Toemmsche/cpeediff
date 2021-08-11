@@ -67,12 +67,12 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     standardSingle() {
         Logger.info("Evaluation of diff algorithms with standard progression", this);
-        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
-            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+        for (let i = 0; i <= TestConfig.PROGRESSION.EXP_LIMIT; i++) {
+            const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
 
             //choose sensible generator and change parameters
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
 
@@ -98,12 +98,12 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     flatSingle() {
         Logger.info("Evaluation of matching algorithms with no change progression", this);
-        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
-            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+        for (let i = 0; i <= TestConfig.PROGRESSION.EXP_LIMIT; i++) {
+            const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
 
             //choose sensible generator and change parameters
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil( Math.log10(size)));
-            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES);
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES);
 
             const testId = [size, changeParams.totalChanges].join("_");
 
@@ -129,17 +129,17 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     standardAggregate() {
         Logger.info("Aggregate evaluation of diff algorithms", this);
-        for (let i = 0; i <= TestConfig.GEN.EXP_LIMIT; i++) {
-            const size = TestConfig.GEN.INITIAL_SIZE * Math.pow(TestConfig.GEN.FACTOR, i);
+        for (let i = 0; i <= TestConfig.PROGRESSION.EXP_LIMIT; i++) {
+            const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
             const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-            const changeParams = new ChangeParameters(TestConfig.GEN.INITIAL_CHANGES * Math.pow(TestConfig.GEN.FACTOR, i));
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
 
             const testId = [size, changeParams.totalChanges].join("_");
 
             const treeGen = new TreeGenerator(genParams);
-            for (let j = 0; j < TestConfig.GEN.REPS; j++) {
+            for (let j = 0; j < TestConfig.PROGRESSION.REPS; j++) {
                 const oldTree = treeGen.randomTree();
 
                 const testCase = treeGen.changeTree(oldTree, changeParams).testCase;

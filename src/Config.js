@@ -23,6 +23,13 @@ export const Config = {
         QUALITY: "quality"
     },
 
+    LOG_LEVEL: "error",
+    LOG_LEVELS: {
+        ERROR: "error",
+        WARN: "warn",
+        ALL: "all"
+    },
+
     COMPARATOR: {
         PATH_COMPARE_RANGE: 5,
 

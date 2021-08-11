@@ -39,12 +39,11 @@ export class EditScriptGenerator {
 
         //iterate in pre order through new tree
         for (const newNode of newPreOrderArray) {
-            //We can safely skip the root node, as it will always be mapped between two cpee trees
-            if (newNode.parent == null) continue;
             if (matching.hasNew(newNode)) {
                 //new Node has a match in the old tree
                 const match = matching.getNew(newNode);
-                if (matching.getNew(newNode.parent) !== match.parent) {
+                //skip the root
+                if (!newNode.isRoot() && matching.getNew(newNode.parent) !== match.parent) {
                     this._move(match);
                 }
                 if (!newNode.contentEquals(match)) {

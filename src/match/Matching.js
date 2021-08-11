@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+import {Logger} from "../../util/Logger.js";
+
 export class Matching {
 
     /**
@@ -30,10 +32,10 @@ export class Matching {
 
     matchNew(newNode, oldNode) {
         if(this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
-            throw new Error("matching of already matched node");
+            Logger.error("matching of already matched node", new Error("matching of already matched node"), this);
         }
         if(newNode == null || oldNode == null) {
-            throw new Error();
+            Logger.error("matching of undefined or null", new Error("matching of undefined or null"), this);
         }
         this.newToOldMap.set(newNode, oldNode);
         this.oldToNewMap.set(oldNode, newNode);

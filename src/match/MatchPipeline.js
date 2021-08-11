@@ -63,7 +63,7 @@ export class MatchPipeline {
             case Config.MATCH_MODES.FAST:
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new FastSimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.BALANCED:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(),  new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(),  new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.QUALITY:
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(),  new UnmatchedMatcher(), new PropertyMatcher()]);
         }
