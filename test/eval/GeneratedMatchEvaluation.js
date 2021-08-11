@@ -23,6 +23,7 @@ import {ChangeParameters} from "../gen/ChangeParameters.js";
 import {MatchPipeline} from "../../src/match/MatchPipeline.js";
 import {Config} from "../../src/Config.js";
 import {markdownTable} from "markdown-table";
+import {match} from "assert";
 
 export class GeneratedMatchEvaluation {
 
@@ -45,27 +46,39 @@ export class GeneratedMatchEvaluation {
             const testId = [size, changeParams.totalChanges].join("_");
 
             const treeGen = new TreeGenerator(genParams);
-            const oldTree = treeGen.randomTree();
-            const changedInfo = treeGen.changeTree(oldTree, changeParams);
+            let results = new Map();
+            for (let j = 0; j < 20; j++) {
 
-            const newTree = changedInfo.testCase.newTree;
-            const expectedMatching = changedInfo.matching;
+                const oldTree = treeGen.randomTree();
+                const changedInfo = treeGen.changeTree(oldTree, changeParams);
 
-            //Run test case for each matching pipeline and compute number of mismatched nodes
-            const results = [];
-            for (const matchMode of Object.values(Config.MATCH_MODES)) {
-                Config.MATCH_MODE = matchMode;
-                Logger.info("Running case " + testId + " for match mode " + matchMode, this);
-                const time = new Date().getTime();
-                const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
-                const elapsedTime = new Date().getTime() - time;
-                const matchingCommonality = this._matchingCommonality(expectedMatching, actualMatching);
-                results.push([matchMode, elapsedTime,  matchingCommonality.toFixed(4) * 100]);
-                //Logger.result(misMatches[0] + " " + (misMatches[0] / newTree.leaves().length).toFixed(2) + " " + misMatches[1] + " " + (misMatches[1] / newTree.innerNodes().length).toFixed(2) + " total: " + actualMatching.size(), this);
+                const newTree = changedInfo.testCase.newTree;
+                const expectedMatching = changedInfo.matching;
+
+                //Run test case for each matching pipeline and compute number of mismatched nodes
+                for (const matchMode of Object.values(Config.MATCH_MODES)) {
+                    Config.MATCH_MODE = matchMode;
+                    if(!results.has(matchMode)) {
+                        results.set(matchMode, []);
+                    }
+                    Logger.info("Running case " + testId + " for match mode " + matchMode, this);
+                    const time = new Date().getTime();
+                    const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
+                    const elapsedTime = new Date().getTime() - time;
+                    const matchingCommonality = this._matchingCommonality(expectedMatching, actualMatching);
+                    results.get(matchMode).push([matchMode, elapsedTime,  matchingCommonality.toFixed(4) * 100]);
+                    //Logger.result(misMatches[0] + " " + (misMatches[0] / newTree.leaves().length).toFixed(2) + " " + misMatches[1] + " " + (misMatches[1] / newTree.innerNodes().length).toFixed(2) + " total: " + actualMatching.size(), this);
+                }
             }
+
+            results = [...results.entries()].map(e => [e[0], this.avg(e[1].map(r => r[1])), this.avg(e[1].map(r => r[2]))]);
             Logger.result("Results for case " + testId, this);
             Logger.result(markdownTable([["match mode", "runtime", "overlap % with expected"],...results]));
         }
+    }
+
+    avg(arr) {
+        return arr.reduce((a, b) => a + b, 0) / arr.length;
     }
 
     _matchingCommonality(expected, actual) {

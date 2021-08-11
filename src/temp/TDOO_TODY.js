@@ -10,6 +10,7 @@
 //      $$$ rework dsl declarations
 //      evaluate variable name change
 //      eval with tons of variables and lots of documentation
+//      evaluate update only, no update, move only etc.
 //      $$ generated match evaluation
 //      $$$ use both for better only during all matching phases (sim and path)
 //      $$$ postion compare perforamnce inprovemenet

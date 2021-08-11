@@ -42,7 +42,7 @@ export class StandardComparator extends AbstractComparator {
         return this.elementSizeExtractor.get(node);
     }
 
-    _weightedAverage(items, weights) {
+    _weightedAverage(items, weights, defaultValue = null) {
         let itemSum = 0;
         let weightSum = 0;
         for (let i = 0; i < items.length; i++) {
@@ -53,7 +53,7 @@ export class StandardComparator extends AbstractComparator {
                 weightSum += adjustedWeight;
             }
         }
-        if (weightSum === 0) return 0;
+        if (weightSum === 0) return defaultValue;
         return itemSum / weightSum;
     }
 
@@ -91,15 +91,6 @@ export class StandardComparator extends AbstractComparator {
         const nodeProps = this.callPropertyExtractor.get(node);
         const otherProps = this.callPropertyExtractor.get(other);
 
-        //extract written variables
-        const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
-        const otherWrittenVariables = this.variableExtractor.get(other).writtenVariables;
-
-        //extract read variables
-        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
-        const otherReadVariables = this.variableExtractor.get(other).readVariables;
-
-
         //CV = Compare Value
         /*
          The endpoint URL has to match exactly for a perfect comparison value.
@@ -122,28 +113,40 @@ export class StandardComparator extends AbstractComparator {
             return serviceCallCV;
         }
 
+        //extract written variables
+        const nodeWrittenVariables = this.variableExtractor.get(node).writtenVariables;
+        const otherWrittenVariables = this.variableExtractor.get(other).writtenVariables;
+
+        //extract read variables
+        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+        const otherReadVariables = this.variableExtractor.get(other).readVariables;
+
         let codeCV = null;
-        if (nodeProps.hasCode() || otherProps.hasCode()) {
+        //need to ensure a code comparison based on variables is possible
 
-            //compare written and read variables
-            let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables);
-            let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
-            //weigh comparison values
-            codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT])
+        //compare written and read variables
+        let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables);
+        let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
+        //weigh comparison values
+        codeCV = this._weightedAverage([writtenVariablesCV, readVariablesCV], [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT])
+
+        if (codeCV !== null && nodeProps.code !== otherProps.code) {
             //small penalty for code string inequality
-            //TODO
-            if (nodeProps.code !== otherProps.code) {
-                codeCV += Config.COMPARATOR.EPSILON_PENALTY;
-            }
+            codeCV += Config.COMPARATOR.EPSILON_PENALTY;
+        } else if (nodeProps.hasCode() || otherProps.hasCode()) {
+            /*
+            Either the code didnt access any data elements or it was equal between the calls.
+            Perform an all-or-nothing comparison, this might detect cases where result processing or handling
+            is performed inside a single function.
+             */
+            codeCV = nodeProps.code === otherProps.code ? 0 : 1;
         }
-        //TODO
         const contentCV = this._weightedAverage([serviceCallCV, codeCV],
             [Config.COMPARATOR.CALL_SERVICE_WEIGHT,
-                Config.COMPARATOR.CALL_CODE_WEIGHT])
-        //TODO
-        return Math.min(1, contentCV)
+                Config.COMPARATOR.CALL_CODE_WEIGHT]);
+        return contentCV;
     }
 
     _compareManipulate(node, other) {
@@ -161,21 +164,21 @@ export class StandardComparator extends AbstractComparator {
         let contentCV = this._weightedAverage([writtenVariablesCV, readVariablesCV],
             [Config.COMPARATOR.WRITTEN_VAR_WEIGHT, Config.COMPARATOR.READ_VAR_WEIGHT]);
 
-        //small penalty for code string inequality
-        //TODO
-        if (node.text !== other.text) {
+        if (contentCV != null && node.text !== other.text) {
+            //small penalty for code string inequality
             contentCV += Config.COMPARATOR.EPSILON_PENALTY;
+        } else if (node.text != null || other.text != null) {
+            /*
+           Either the code didnt access any data elements or it was equal between the scripts.
+           Perform an all-or-nothing comparison, this might detect cases where state manipulation
+           is performed inside a single function.
+            */
+            contentCV = node.text === other.text ? 0 : 1;
         }
-
-        //TODO
-        return Math.min(1, contentCV);
+        return contentCV;
     }
 
     _compareLoop(node, other) {
-        //extract read variables
-        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
-        const otherReadVariables = this.variableExtractor.get(other).readVariables;
-
         const nodeMode = (node.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
             node.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) : Dsl.INNER_PROPERTIES.LOOP_MODE.default);
         const otherMode = (other.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
@@ -183,17 +186,30 @@ export class StandardComparator extends AbstractComparator {
 
         //all or nothing
         const modeCV = nodeMode === otherMode ? 0 : 1;
-        const readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
+
+        //extract read variables
+        const nodeReadVariables = this.variableExtractor.get(node).readVariables;
+        const otherReadVariables = this.variableExtractor.get(other).readVariables;
+        let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
+
+        const nodeCondition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        const otherCondition = other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        if (readVariablesCV != null && nodeCondition !== otherCondition) {
+            //small penalty for code string inequality
+            readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
+        } else if (nodeCondition != null || otherCondition != null) {
+            /*
+          Either the expression didnt access any data elements or it was equal between the scripts.
+          Perform an all-or-nothing comparison, this might detect cases where the condition is solely evaluated
+          inside a function
+           */
+            readVariablesCV = nodeCondition === otherCondition ? 0 : 1;
+        }
 
         let contentCV = this._weightedAverage([modeCV, readVariablesCV],
             [Config.COMPARATOR.MODE_WEIGHT, Config.COMPARATOR.CONDITION_WEIGHT]);
 
-        //small penalty for code string inequality
-        if (node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) !== other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label)) {
-            contentCV += Config.COMPARATOR.EPSILON_PENALTY;
-        }
-
-        return Math.min(1, contentCV);
+        return contentCV;
     }
 
     _compareAlternative(node, other) {
@@ -201,18 +217,28 @@ export class StandardComparator extends AbstractComparator {
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
 
-        const readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
+        let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
+
+        const nodeCondition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        const otherCondition = other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        if (readVariablesCV != null && nodeCondition !== otherCondition) {
+            //small penalty for code string inequality
+            readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
+        } else if (nodeCondition != null || otherCondition != null) {
+            /*
+          Either the expression didnt access any data elements or it was equal between the scripts.
+          Perform an all-or-nothing comparison, this might detect cases where the condition is solely evaluated
+          inside a function
+           */
+            readVariablesCV = nodeCondition === otherCondition ? 0 : 1;
+        }
         //readVariablesCV may be null
         let contentCV = this._weightedAverage([readVariablesCV],
             [Config.COMPARATOR.CONDITION_WEIGHT]);
 
-        //small penalty for code string inequality
-        if (node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) !== other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label)) {
-            contentCV += Config.COMPARATOR.EPSILON_PENALTY;
-        }
 
-        return Math.min(1, contentCV);
+        return contentCV;
     }
 
     _compareChoose(node, other) {
@@ -273,7 +299,8 @@ export class StandardComparator extends AbstractComparator {
             }
             //label equality is sufficient for parallel_branch, critical, otherwise, and root...
             default: {
-                return 0;
+                //TODO test
+                return null;
             }
         }
     }

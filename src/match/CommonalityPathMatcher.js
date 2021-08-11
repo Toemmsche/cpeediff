@@ -16,10 +16,15 @@
 
 import {Config} from "../Config.js";
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
+import {LeafSetExtractor} from "../extract/LeafSetExtractor.js";
 
 export class CommonalityPathMatcher extends AbstractMatchingAlgorithm {
 
+    _leafSetExtractor;
+
     match(oldTree, newTree, matching, comparator) {
+        this._leafSetExtractor = new LeafSetExtractor();
+
         //use a temporary map until the best matches are found
         const oldToNewMap = new Map();
         const newToOldMap = new Map();
@@ -88,8 +93,8 @@ export class CommonalityPathMatcher extends AbstractMatchingAlgorithm {
 
     commonality(newNode, oldNode, matching) {
         let common = 0;
-        const newSet = new Set(newNode.leaves());
-        const oldSet = new Set(oldNode.leaves());
+        const newSet = this._leafSetExtractor.get(newNode);
+        const oldSet = this._leafSetExtractor.get(oldNode);
 
         for (const newCand of newSet) {
             if (matching.hasNew(newCand) && oldSet.has(matching.getNew(newCand))) {
