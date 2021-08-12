@@ -88,6 +88,11 @@ export class GeneratedMatchEvaluation {
                 common++;
             }
         }
+        for (const [newNode, oldNode] of actual.newToOldMap) {
+            if (!expected.hasNew(newNode)) {
+                //common--;
+            }
+        }
 
         return common / (Math.max(expected.size(), actual.size()));
     }

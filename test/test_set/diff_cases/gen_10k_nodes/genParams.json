@@ -1,5 +1,5 @@
 {
   "maxSize": 10000,
-  "maxVars": 8,
-  "maxDegree": 20
+  "maxVars": 4,
+  "maxDegree": 15
 }

@@ -32,40 +32,28 @@ import {FastSimilarityMatcher} from "./FastSimilarityMatcher.js";
 export class MatchPipeline {
 
     matchers;
-    
+
     constructor(matchers) {
         const len = matchers.length;
         //FixedMatcher is always the first matching algorithm in the pipeline
-        if(len === 0 || matchers[0].constructor !== FixedMatcher) {
+        if (len === 0 || matchers[0].constructor !== FixedMatcher) {
             matchers.unshift(new FixedMatcher());
         }
         //PropertyMatcher is always the last matching algorithm in the pipeline
-        if(len === 0 || matchers[len - 1].constructor !== PropertyMatcher) {
+        if (len === 0 || matchers[len - 1].constructor !== PropertyMatcher) {
             matchers.push(new PropertyMatcher());
         }
         this.matchers = matchers;
     }
-    
-    execute(oldTree, newTree, comparator = new StandardComparator(), matching = new Matching()) {
-        for(const matcher of this.matchers) {
-            Logger.info("Running matching module " + matcher.constructor.name + "...", this);
-            Logger.startTimed();
-            const prevMatches = matching.size();
-            matcher.match(oldTree, newTree, matching, comparator);
-            Logger.stat("Matching module " + matcher.constructor.name + " took " + Logger.endTimed()
-                + "ms and found " + (matching.size() - prevMatches) + " matches", this);
-        }
-        return matching;
-    }
 
     static fromMode() {
-        switch(Config.MATCH_MODE) {
+        switch (Config.MATCH_MODE) {
             case Config.MATCH_MODES.FAST:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new FastSimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new FastSimilarityMatcher(), new  PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.BALANCED:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(),  new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.QUALITY:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(),  new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
         }
         /*
         switch(Config.MATCH_MODE) {
@@ -78,18 +66,20 @@ export class MatchPipeline {
         }
          */
     }
+
+    static forMerge() {
+        //no unmatched matcher
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new PropertyMatcher()]);
+    }
+
     /*
     TO BEAT for benchmark
+    6781 376 >-----
     | CpeeDiff_quality  | 4840    | 6786    | 61352     | 393           | 72         | 98      | 79      | 144       |
 | CpeeDiff_balanced | 4703    | 6805    | 62975     | 425           | 73         | 114     | 78      | 160       |
 | CpeeDiff_fast     | 4769    | 6805    | 62975     | 425           | 73         | 114     | 78      | 160       |
 
      */
-
-    static standard() {
-        //PathMatcher is executed twice to capture missed matches
-        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
-    }
 
     static quality() {
         //PathMatcher is executed twice to capture missed matches
@@ -99,6 +89,18 @@ export class MatchPipeline {
 
     static best() {
         return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher_sim(), new PathMatcher_old(), new UnmatchedMatcher(), new PropertyMatcher()]);
+    }
+
+    execute(oldTree, newTree, comparator = new StandardComparator(), matching = new Matching()) {
+        for (const matcher of this.matchers) {
+            Logger.info("Running matching module " + matcher.constructor.name + "...", this);
+            Logger.startTimed();
+            const prevMatches = matching.size();
+            matcher.match(oldTree, newTree, matching, comparator);
+            Logger.stat("Matching module " + matcher.constructor.name + " took " + Logger.endTimed()
+                + "ms and found " + (matching.size() - prevMatches) + " matches", this);
+        }
+        return matching;
     }
 
 }

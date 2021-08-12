@@ -17,18 +17,20 @@
 import {TestConfig} from "../TestConfig.js";
 import {MatchPipeline} from "../../src/match/MatchPipeline.js";
 import {MatchAdapter} from "./MatchAdapter.js";
+import {Config} from "../../src/Config.js";
 
 export class CpeeMatchAdapter extends MatchAdapter{
 
-    matchPipeline;
+    matchMode;
 
-    constructor() {
-        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName);
-        this.matchPipeline = MatchPipeline.standard();
+    constructor(matchMode = Config.MATCH_MODES.QUALITY) {
+        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName + "_" + matchMode);
+        this.matchMode = matchMode;
     }
 
     _run(oldTree, newTree) {
-        return this.matchPipeline.execute(oldTree, newTree);
+        Config.MATCH_MODE = this.matchMode;
+        return MatchPipeline.fromMode().execute(oldTree, newTree);
     }
 }
 

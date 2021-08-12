@@ -625,7 +625,12 @@ export class TreeGenerator {
                         break;
                     }
                     case "m": {
-                        this._moveRandomly(tree);
+                        if(this._withProbability(0.8)) {
+                            this._moveLeafRandomly(tree);
+                        } else {
+                            this._moveSubtreeRandomly(tree);
+                        }
+
                         break;
                     }
                     case "u": {
@@ -634,10 +639,10 @@ export class TreeGenerator {
                     }
                 }
             } catch (e) {
-              skippedOpCounter++;
+                skippedOpCounter++;
             }
         }
-        if(skippedOpCounter > 0) {
+        if (skippedOpCounter > 0) {
             Logger.warn(skippedOpCounter + " edit operation(s) could not be applied", this)
         }
         //Record all changes applied during tree preparation
@@ -753,13 +758,39 @@ export class TreeGenerator {
     }
 
     /**
-     * Change a tree by moving a random subtree (can also be a leaf) within it.
+     * Change a tree by moving a random leaf node within it.
      * @param {Node} tree The tree to be changed.
      * @private
      */
-    _moveRandomly(tree) {
-        let movedNode = this._randomFrom(tree.nonPropertyNodes()
-            .filter(n => !n.isRoot()
+    _moveLeafRandomly(tree) {
+        //It does not make sense to move a termination node
+        const movedNode = this._randomFrom(tree.leaves().filter(n =>
+            n.label !== Dsl.ELEMENTS.STOP.label &&
+            n.label !== Dsl.ELEMENTS.ESCAPE.label &&
+            n.label !== Dsl.ELEMENTS.TERMINATE.label));
+        movedNode.removeFromParent();
+
+        let parent;
+        //chance for an interparent move
+        if (this._withProbability(0.8)) {
+            parent = this._pickValidParent(movedNode, tree.innerNodes());
+        } else {
+            parent = movedNode.parent;
+        }
+
+        this._appendRandomly(parent, movedNode);
+    }
+
+    /**
+     * Change a tree by moving a random subtree within it.
+     * @param {Node} tree The tree to be changed.
+     * @private
+     */
+    _moveSubtreeRandomly(tree) {
+        //It does not make sense to move parallel branch, alternative or otherwise nodes
+        const movedNode = this._randomFrom(tree.innerNodes()
+            .filter(n =>
+                !n.isRoot()
                 && n.label !== Dsl.ELEMENTS.PARALLEL_BRANCH.label
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));

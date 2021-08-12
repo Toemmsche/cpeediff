@@ -22,6 +22,7 @@ import {AbstractComparator} from "./AbstractComparator.js";
 import {Config} from "../Config.js";
 import {ElementSizeExtractor} from "../extract/ElementSizeExtractor.js";
 import {getLcs} from "../lib/Lcs.js";
+import {HashExtractor} from "../extract/HashExtractor.js";
 
 export class StandardComparator extends AbstractComparator {
 
@@ -29,6 +30,7 @@ export class StandardComparator extends AbstractComparator {
     variableExtractor;
     sizeExtractor;
     elementSizeExtractor;
+    hashExtractor;
 
     constructor() {
         super();
@@ -36,6 +38,7 @@ export class StandardComparator extends AbstractComparator {
         this.variableExtractor = new VariableExtractor(this.callPropertyExtractor);
         this.sizeExtractor = new SizeExtractor();
         this.elementSizeExtractor = new ElementSizeExtractor();
+        this.hashExtractor = new HashExtractor();
     }
 
     fastElementSize(node) {
@@ -306,23 +309,48 @@ export class StandardComparator extends AbstractComparator {
     }
 
     comparePosition(node, other) {
-        let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
+        if(!Config.EXP) {
+            let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
-        const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => n.label);
-        const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => n.label);
-        const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+            /*
+            const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => this.hashExtractor.get(n));
+            const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => this.hashExtractor.get(n));
+            const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
 
-        const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n => n.label);
-        const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n => n.label);
-        const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
+            const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n => this.hashExtractor.get(n));
+            const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n => this.hashExtractor.get(n));
+            const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
 
-        //exclude the label of the compared nodes, it is always equal
-        const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => n.label);
-        const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n => n.label);
-        const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
+             */
 
-        //TODO weight differently
-        return this._weightedAverage([leftCV, rightCV, pathCV], [1, 1, 1]);
+            //exclude the label of the compared nodes, it is always equal
+            const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
+            const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
+            const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
+
+            //TODO weight differently
+            return this._weightedAverage([ pathCV], [ 1]);
+        } else {
+            let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
+
+
+            const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => this.hashExtractor.get(n));
+            const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => this.hashExtractor.get(n));
+            const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+
+            const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n => this.hashExtractor.get(n));
+            const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n => this.hashExtractor.get(n));
+            const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
+
+
+            //exclude the label of the compared nodes, it is always equal
+            const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
+            const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
+            const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
+
+            //TODO weight differently
+            return this._weightedAverage([leftCV, rightCV,  pathCV], [ 1,1,1]);
+        }
     }
 
 

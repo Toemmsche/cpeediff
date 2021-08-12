@@ -72,7 +72,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
             //choose sensible generator and change parameters
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i), 1,3,2,1);
 
             const testId = [size, changeParams.totalChanges].join("_");
 
@@ -122,7 +122,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             }
 
             //Add expected values to table
-            const table = [DiffTestResult.header(), expected.values(), ...results.map(r => r.values())];
+            const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
             Logger.result(markdownTable(table));
         }
     }

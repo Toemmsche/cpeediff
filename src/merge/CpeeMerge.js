@@ -39,7 +39,7 @@ export class CpeeMerge {
             }
         }
         //find duplicate insertions
-        return MatchPipeline.standard().execute(deltaTree1, deltaTree2, new StandardComparator(), matching);
+        return MatchPipeline.forMerge().execute(deltaTree1, deltaTree2, new StandardComparator(), matching);
     }
 
     _setChangeOrigin(deltaTree, origin) {
@@ -246,7 +246,7 @@ export class CpeeMerge {
     }
 
     merge(base, tree1, tree2) {
-        const differ = new CpeeDiff(MatchPipeline.standard());
+        const differ = new CpeeDiff();
 
         const delta1 = differ.diff(base, tree1, new StandardComparator());
         const delta2 = differ.diff(base, tree2, new StandardComparator());

@@ -20,8 +20,23 @@ import {PrimeGenerator} from "../lib/PrimeGenerator.js";
 
 export class HashExtractor extends AbstractExtractor {
 
+    _contentHashMemo;
+
+
+    constructor() {
+        super();
+        this._contentHashMemo = new Map();
+    }
+
     _extract(node) {
-        this._memo.set(node, this._contentHash(node) + this._childHash(node));
+        this._memo.set(node, this.getContentHash(node) + this._childHash(node));
+    }
+
+    getContentHash(node) {
+        if(!this._contentHashMemo.has(node)) {
+          this._contentHashMemo.set(node, this._contentHash(node));
+        }
+        return this._contentHashMemo.get(node);
     }
 
     _contentHash(node) {
@@ -41,7 +56,6 @@ export class HashExtractor extends AbstractExtractor {
         if (node.hasInternalOrdering()) {
             //preserve order by multiplying child hashes with distinct prime number based on index
             const primes = PrimeGenerator.primes(node.degree());
-            //todo built in map function
             childHash += node
                 .children
                 .map((n, i) => this.get(n) * primes[i])
@@ -55,6 +69,7 @@ export class HashExtractor extends AbstractExtractor {
         }
         return childHash;
     }
+
 
 
 }

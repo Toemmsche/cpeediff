@@ -1,13 +1,10 @@
 //TODO features
 //      command line visualization including "live" patching and filtered changes
 //      option to output matching
-//      unmatched matcher (focus on replacement nodes) IMPORTANT
 //      turn single function classes in to functions
 //      add timings to merger
-//      time map in Logger
 //      print diff info option
 //      option to output no diff
-//      pretty xml option
 //      perfect match shortcut in matchers
 
 //TODO gen

@@ -1,3 +1,7 @@
 {
-  "totalChanges": 1000
+  "totalChanges": 1000,
+  "moveWeight": 5,
+  "insertionWeight": 5,
+  "deletionWeight": 5,
+  "updateWeight": 5
 }

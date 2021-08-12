@@ -18,12 +18,10 @@ import {execFileSync} from "child_process";
 import {XmlFactory} from "../../src/io/XmlFactory.js";
 import {TestConfig as Testconfig, TestConfig} from "../TestConfig.js";
 import fs from "fs";
-import {MergeTestResult} from "../result/MergeTestResult.js";
 import {Preprocessor} from "../../src/io/Preprocessor.js";
 import {HashExtractor} from "../../src/extract/HashExtractor.js";
 import {Logger} from "../../util/Logger.js";
 import {ActualMerge} from "../actual/ActualMerge.js";
-import {NodeFactory} from "../../src/tree/NodeFactory.js";
 
 export class MergeAdapter {
 
@@ -61,23 +59,25 @@ export class MergeAdapter {
                 Logger.info(this.displayName + " timed out for " + testCase.name, this);
                 return testCase.complete(this.displayName, null, Testconfig.VERDICTS.TIMEOUT);
             } else {
-               Logger.info(this.displayName + " crashed on " + testCase.name + ": " + e.toString(), this);
+                Logger.info(this.displayName + " crashed on " + testCase.name + ": " + e.toString(), this);
                 return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
             }
         }
-        const actual = new Preprocessor().parseWithMetadata(exec);
+        const actual = new ActualMerge(exec, new Preprocessor().parseWithMetadata(exec));
         const verdict = this._verifyResult(actual, testCase.expected);
-        if(verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
+
+        if (verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
             Logger.info(this.displayName + " gave wrong answer for " + testCase.name, this);
         }
-        return testCase.complete(this.displayName, new ActualMerge(exec, actual), verdict);
+        return testCase.complete(this.displayName, actual, verdict);
     }
 
-    _verifyResult(actual, expectedMerge) {
+    _verifyResult(actualMerge, expectedMerge) {
+        const actualTree = actualMerge.tree;
         const hashExtractor = new HashExtractor();
-        if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
+        if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
             return TestConfig.VERDICTS.OK;
-        } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actual))) {
+        } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
             return TestConfig.VERDICTS.ACCEPTABLE;
         } else {
             return TestConfig.VERDICTS.WRONG_ANSWER;
