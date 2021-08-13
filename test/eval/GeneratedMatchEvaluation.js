@@ -34,9 +34,9 @@ export class GeneratedMatchEvaluation {
         this.standardSingle();
     }
 
-    standardSingle() {
+    standardAggregate() {
         Logger.info("Evaluation of matching algorithms with standard size progression", this);
-        for (let i = 0; i <= TestConfig.PROGRESSION.EXP_LIMIT; i++) {
+        for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
             const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
 
             //choose sensible generator and change parameters
@@ -66,14 +66,13 @@ export class GeneratedMatchEvaluation {
                     const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
                     const elapsedTime = new Date().getTime() - time;
                     const matchingCommonality = this._matchingCommonality(expectedMatching, actualMatching);
-                    results.get(matchMode).push([matchMode, elapsedTime,  matchingCommonality.toFixed(4) * 100]);
-                    //Logger.result(misMatches[0] + " " + (misMatches[0] / newTree.leaves().length).toFixed(2) + " " + misMatches[1] + " " + (misMatches[1] / newTree.innerNodes().length).toFixed(2) + " total: " + actualMatching.size(), this);
-                }
+                    const mismatches = this._getMismatchedNodes(expectedMatching, actualMatching);
+                    results.get(matchMode).push([matchMode, elapsedTime, matchingCommonality.toFixed(4) * 100, ...mismatches]);}
             }
 
-            results = [...results.entries()].map(e => [e[0], this.avg(e[1].map(r => r[1])), this.avg(e[1].map(r => r[2]))]);
+            results = [...results.entries()].map(e => [e[0], ...(e[1][0].slice(1).map((r, i) => this.avg(e[1].map(r => r[i + 1]))))]);
             Logger.result("Results for case " + testId, this);
-            Logger.result(markdownTable([["match mode", "runtime", "overlap % with expected"],...results]));
+            Logger.result(markdownTable([["match mode", "runtime", "overlap % with expected", "avg mismatched leaves", "avg mismatched inners", "avg unmatched leaves", "avg unmatched inners"],...results]));
         }
     }
 
@@ -88,11 +87,6 @@ export class GeneratedMatchEvaluation {
                 common++;
             }
         }
-        for (const [newNode, oldNode] of actual.newToOldMap) {
-            if (!expected.hasNew(newNode)) {
-                //common--;
-            }
-        }
 
         return common / (Math.max(expected.size(), actual.size()));
     }
@@ -103,8 +97,6 @@ export class GeneratedMatchEvaluation {
 
         for (const [newNode, oldNode] of expected.newToOldMap) {
             if (actual.hasNew(newNode) && actual.getNew(newNode) !== oldNode) {
-                const actualMatch = actual.getNew(newNode);
-                const actualNewMatch = actual.getOld(oldNode);
                 if (newNode.isInnerNode()) {
                     //Logger.debug("Mismatched " + newNode.label, this)
                     mismatchedInners++;
@@ -113,9 +105,18 @@ export class GeneratedMatchEvaluation {
                     mismatchedLeaves++;
                 }
             }
+            if (!actual.hasNew(newNode)) {
+                if (newNode.isInnerNode()) {
+                    //Logger.debug("Mismatched " + newNode.label, this)
+                    unmatchedInners++;
+                } else if (newNode.isLeaf()) {
+                    //Logger.debug("Mismatched " + newNode.label, this)
+                    unmatchedLeaves++;
+                }
+            }
         }
 
-        return [mismatchedLeaves, mismatchedInners];
+        return [mismatchedLeaves, mismatchedInners, unmatchedLeaves, unmatchedInners];
     }
 }
 

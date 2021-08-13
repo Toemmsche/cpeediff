@@ -21,8 +21,8 @@ export class DiffTestResult extends AbstractTestResult{
 
     runtime;
 
-    constructor(caseName, algorithm, runtime,  actual, verdict) {
-        super(caseName, algorithm, actual,  verdict);
+    constructor(caseName, algorithm, runtime, actual, verdict) {
+        super(caseName, algorithm, actual, verdict);
         this.runtime = runtime;
     }
 
@@ -38,7 +38,7 @@ export class DiffTestResult extends AbstractTestResult{
         if(!this.isOk()) {
             return [this.algorithm, ...(new Array(8).fill(this.verdict))];
         }
-        return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.changes,
+        return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.editOperations,
             this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
     }
 
@@ -46,7 +46,7 @@ export class DiffTestResult extends AbstractTestResult{
      * @return String[] An array containing the descriptors of all values that should appear in the evaluation table.
      */
     static header() {
-        return ["Algorithm", "Runtime", "Cost","Diff Size", "Total Changes", "Insertions", "Moves", "Updates", "Deletions" ];
+        return ["Algorithm", "Runtime", "Cost","Diff Size", "Edit Operations", "Insertions", "Moves", "Updates", "Deletions" ];
     }
 }
 

@@ -676,7 +676,7 @@ export class TreeGenerator {
             returnMatching.matchNew(newPreOrder[match[0]], originalPreOrder[match[1]]);
         }
 
-        const testCase = new DiffTestCase(this._genParams.maxSize + "_" + changeParams.totalChanges, original, preparedTree, new ExpectedDiff(proposedEditScript));
+        const testCase = new DiffTestCase(Math.max(original.size(), preparedTree.size())+ "_" + proposedEditScript.totalEditOperations(), original, preparedTree, new ExpectedDiff(proposedEditScript));
 
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {

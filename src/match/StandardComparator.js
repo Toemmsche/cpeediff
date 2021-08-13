@@ -302,14 +302,13 @@ export class StandardComparator extends AbstractComparator {
             }
             //label equality is sufficient for parallel_branch, critical, otherwise, and root...
             default: {
-                //TODO test
-                return null;
+
+                return Config.EXP ? 0 : null;
             }
         }
     }
 
     comparePosition(node, other) {
-        if(!Config.EXP) {
             let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
             /*
@@ -330,27 +329,7 @@ export class StandardComparator extends AbstractComparator {
 
             //TODO weight differently
             return this._weightedAverage([ pathCV], [ 1]);
-        } else {
-            let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
-
-            const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => this.hashExtractor.get(n));
-            const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => this.hashExtractor.get(n));
-            const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
-
-            const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n => this.hashExtractor.get(n));
-            const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n => this.hashExtractor.get(n));
-            const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
-
-
-            //exclude the label of the compared nodes, it is always equal
-            const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
-            const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n => this.hashExtractor.getContentHash(n));
-            const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
-
-            //TODO weight differently
-            return this._weightedAverage([leftCV, rightCV,  pathCV], [ 1,1,1]);
-        }
     }
 
 

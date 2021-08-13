@@ -22,64 +22,64 @@ import {Patcher} from "../patch/Patcher.js";
 
 export class EditScript {
 
-    _changes;
+    _editOperations;
     cost;
 
     constructor() {
-        this._changes = [];
+        this._editOperations = [];
         this.cost = 0;
     }
 
     toString() {
-        return this._changes.map(c => c.toString()).join("\n");
+        return this._editOperations.map(c => c.toString()).join("\n");
     }
     
     addOperation(editOperation) {
-        this._changes.push(editOperation);
+        this._editOperations.push(editOperation);
     }
 
     insert(insertedNode) {
-        this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
+        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
             insertedNode.xPath(), NodeFactory.getNode(insertedNode)));
         //TODO speed up
         this.cost += insertedNode.size();
     }
 
     delete(deletedNode) {
-        this._changes.push(new EditOperation( Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null,  null));
+        this._editOperations.push(new EditOperation( Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null,  null));
         this.cost += deletedNode.size();
     }
 
     move(oldPath, newPath) {
-        this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.MOVE_TO.label, oldPath,  newPath));
+        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.MOVE_TO.label, oldPath,  newPath));
         this.cost++;
     }
 
     update(updatedNode) {
-        this._changes.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
+        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
             null, NodeFactory.getNode(updatedNode, false)));
         const path = updatedNode.xPath();
         this.cost++;
     }
 
-    totalChanges() {
-        return this._changes.length;
+    totalEditOperations() {
+        return this._editOperations.length;
     }
 
     insertions() {
-        return this._changes.filter(c => c.type === Dsl.CHANGE_MODEL.INSERTION.label).length;
+        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.INSERTION.label).length;
     }
 
     moves() {
-        return this._changes.filter(c => c.type === Dsl.CHANGE_MODEL.MOVE_TO.label).length;
+        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.MOVE_TO.label).length;
     }
 
     updates() {
-        return this._changes.filter(c => c.type === Dsl.CHANGE_MODEL.UPDATE.label).length;
+        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.UPDATE.label).length;
     }
 
     deletions() {
-        return this._changes.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
+        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
     }
 
     verify(oldTree, newTree) {
@@ -93,7 +93,7 @@ export class EditScript {
      * @return {IterableIterator<EditOperation>} An iterator for the changes contained in this edit script.
      */
     [Symbol.iterator]() {
-        return this._changes[Symbol.iterator]();
+        return this._editOperations[Symbol.iterator]();
     }
 
 }
