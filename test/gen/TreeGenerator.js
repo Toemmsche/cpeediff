@@ -26,6 +26,7 @@ import {Matching} from "../../src/match/Matching.js";
 import {EditScriptGenerator} from "../../src/diff/EditScriptGenerator.js";
 import {DiffTestCase} from "../case/DiffTestCase.js";
 import {IdExtractor} from "../../src/extract/IdExtractor.js";
+import {ElementSizeExtractor} from "../../src/extract/ElementSizeExtractor.js";
 
 /**
  * A generator class for random (but well-formed) CPEE process trees.
@@ -71,6 +72,7 @@ export class TreeGenerator {
         this._labels = [];
         this._variables = [];
 
+        //TODO refine label construction
         //about 2*log_2(n) (at least 5)_variables, labels, and endpoints to choose from
         for (let i = 0; i < Math.max(2 * Math.log2(this._genParams.maxSize), 5); i++) {
             this._endpoints.push(this._randomString(this._randInt(20) + 10));
@@ -100,20 +102,20 @@ export class TreeGenerator {
             } else {
                 newNode = this._randomInner();
             }
-            //Find a valid parent node from the current inner node set
-            const parent = this._pickValidParent(newNode, inners);
 
-            //No valid parent is available (yet), continue
-            if (parent == null) {
-                continue;
+            try {
+                //Find a valid parent node from the current inner node set
+                const parent = this._pickValidParent(newNode, inners);
+
+                if (newNode.isInnerNode()) {
+                    inners.push(newNode);
+                }
+
+                this._appendRandomly(parent, newNode);
+                currSize += newNode.size();
+            } catch (error) {
+
             }
-
-            if (newNode.isInnerNode()) {
-                inners.push(newNode);
-            }
-
-            this._appendRandomly(parent, newNode);
-            currSize += newNode.size();
         }
 
         //preprocess and prune empty nodes
@@ -232,7 +234,12 @@ export class TreeGenerator {
         }
 
         //pick parent according to filter function
-        return this._randomFrom(inners.filter(filterFun));
+        const parent = this._randomFrom(inners.filter(filterFun));
+        if(parent == null) {
+            //error is handled by caller
+            throw new Error("No valid parent left");
+        }
+        return parent;
     }
 
     /**
@@ -578,7 +585,6 @@ export class TreeGenerator {
     changeTree(tree, changeParams) {
         Logger.info("Changing process tree with parameters " + changeParams.toString() + "...", this);
         Logger.startTimed();
-        const oldSize = tree.size();
 
         //do not modify original tree
         const original = tree;
@@ -599,6 +605,18 @@ export class TreeGenerator {
         for (let i = 0; i < newPreOrderArray.length; i++) {
             oldToNewMap.set(oldPreOrderArray[i], newPreOrderArray[i]);
         }
+
+        const temp = tree;
+        //Should changes be randomly distributed or local?
+        if(changeParams.local) {
+            const elementSizeExtractor = new ElementSizeExtractor();
+            //Changes should be local => only change a subtree containing at least max(10, treeSize/50) nodes
+            tree = tree
+                .innerNodes()
+                .filter(n => elementSizeExtractor.get(n) >= 20)//Math.max(elementSizeExtractor.get(tree) / 50, 10))
+                .sort((a,b) => elementSizeExtractor.get(a) - elementSizeExtractor.get(b))
+                [0];
+        }
         let skippedOpCounter = 0;
         for (let i = 0; i < changeParams.totalChanges; i++) {
             const opChar = this._randomFrom(distributionString.split(""));
@@ -616,7 +634,6 @@ export class TreeGenerator {
                         break;
                     }
                     case "d": {
-                        //we can delete a subtree or a leaf node
                         if (this._withProbability(0.2)) {
                             this._deleteSubtreeRandomly(tree);
                         } else {
@@ -630,7 +647,6 @@ export class TreeGenerator {
                         } else {
                             this._moveSubtreeRandomly(tree);
                         }
-
                         break;
                     }
                     case "u": {
@@ -645,6 +661,11 @@ export class TreeGenerator {
         if (skippedOpCounter > 0) {
             Logger.warn(skippedOpCounter + " edit operation(s) could not be applied", this)
         }
+        if(changeParams.local) {
+            //reset tree
+            tree = temp;
+        }
+
         //Record all changes applied during tree preparation
         const preparedTree = new Preprocessor().prepareTree(tree);
 
@@ -667,7 +688,6 @@ export class TreeGenerator {
         const proposedEditScript = new EditScriptGenerator().generateEditScript(oldTree, preparedTree, matching);
         if (loggingEnabled) Logger.enableLogging();
 
-
         //Make returned matching conform to generated test case
         const originalPreOrder = original.toPreOrderArray();
         const newPreOrder = preparedTree.toPreOrderArray();
@@ -676,15 +696,20 @@ export class TreeGenerator {
             returnMatching.matchNew(newPreOrder[match[0]], originalPreOrder[match[1]]);
         }
 
-        const testCase = new DiffTestCase(Math.max(original.size(), preparedTree.size())+ "_" + proposedEditScript.totalEditOperations(), original, preparedTree, new ExpectedDiff(proposedEditScript));
+        const testCase = new DiffTestCase(
+            Math.max(original.size(),
+            preparedTree.size())+ "_" + proposedEditScript.totalEditOperations() + (changeParams.local ? "_local": ""),
+            original, preparedTree,
+            new ExpectedDiff(proposedEditScript));
 
         Logger.stat("Changing tree took " + Logger.endTimed() + "ms", this);
         return {
             testCase: testCase,
             matching: returnMatching
         };
-
     }
+
+
 
     /**
      * Change a tree by adding a random subtree at a random position.
@@ -763,20 +788,25 @@ export class TreeGenerator {
      * @private
      */
     _moveLeafRandomly(tree) {
+
+        const oldSize = tree.size();
         //It does not make sense to move a termination node
         const movedNode = this._randomFrom(tree.leaves().filter(n =>
             n.label !== Dsl.ELEMENTS.STOP.label &&
             n.label !== Dsl.ELEMENTS.ESCAPE.label &&
             n.label !== Dsl.ELEMENTS.TERMINATE.label));
-        movedNode.removeFromParent();
 
         let parent;
         //chance for an interparent move
         if (this._withProbability(0.8)) {
-            parent = this._pickValidParent(movedNode, tree.innerNodes());
+            //prevent move to self
+            parent = this._pickValidParent(movedNode, tree.innerNodes().filter(n => !movedNode.toPreOrderArray().includes(n)));
         } else {
             parent = movedNode.parent;
         }
+
+        //only remove node if we found a valid parent
+        movedNode.removeFromParent();
 
         this._appendRandomly(parent, movedNode);
     }
@@ -794,16 +824,18 @@ export class TreeGenerator {
                 && n.label !== Dsl.ELEMENTS.PARALLEL_BRANCH.label
                 && n.label !== Dsl.ELEMENTS.ALTERNATIVE.label
                 && n.label !== Dsl.ELEMENTS.OTHERWISE.label));
-        movedNode.removeFromParent();
 
         let parent;
         //chance for an interparent move
         if (this._withProbability(0.8)) {
-            parent = this._pickValidParent(movedNode, tree.innerNodes());
+            //prevent move to self
+            parent = this._pickValidParent(movedNode, tree.innerNodes().filter(n => !movedNode.toPreOrderArray().includes(n)));
         } else {
             parent = movedNode.parent;
         }
 
+        //only remove node if we found a valid parent
+        movedNode.removeFromParent();
 
         this._appendRandomly(parent, movedNode);
     }
@@ -820,7 +852,14 @@ export class TreeGenerator {
             //Change node data depending on type
             switch (node.label) {
                 case Dsl.CALL_PROPERTIES.LABEL.label: {
-                    node.text += this._randomString(10);
+                    if(this._withProbability(0.5)) {
+                        //shrink label
+                        node.text = node.text.substring(this._randInt(node.text.length));
+                    }
+                    if(this._withProbability(0.5)) {
+                        //extend label
+                        node.text += this._randomString(10);
+                    }
                     break;
                 }
                 case Dsl.CALL_PROPERTIES.METHOD.label: {

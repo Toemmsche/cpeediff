@@ -47,7 +47,7 @@ export class GeneratedMatchEvaluation {
 
             const treeGen = new TreeGenerator(genParams);
             let results = new Map();
-            for (let j = 0; j < 20; j++) {
+            for (let j = 0; j < TestConfig.PROGRESSION.REPS; j++) {
 
                 const oldTree = treeGen.randomTree();
                 const changedInfo = treeGen.changeTree(oldTree, changeParams);
@@ -61,7 +61,7 @@ export class GeneratedMatchEvaluation {
                     if(!results.has(matchMode)) {
                         results.set(matchMode, []);
                     }
-                    Logger.info("Running case " + testId + " for match mode " + matchMode, this);
+                    Logger.info("Running rep " + j + " for match mode " + matchMode, this);
                     const time = new Date().getTime();
                     const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
                     const elapsedTime = new Date().getTime() - time;

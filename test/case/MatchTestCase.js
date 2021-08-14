@@ -60,11 +60,11 @@ export class MatchTestCase extends AbstractTestCase {
         let oldTree, newTree, expected;
         fs.readdirSync(testCaseDir).forEach((file) => {
                 const content = fs.readFileSync(testCaseDir + "/" + file).toString();
-                if (file === TestConfig.NEW_TREE_FILENAME) {
+                if (file === TestConfig.FILENAMES.NEW_TREE) {
                     newTree = parser.parseWithMetadata(content);
-                } else if (file === TestConfig.OLD_TREE_FILENAME) {
+                } else if (file === TestConfig.FILENAMES.OLD_TREE) {
                     oldTree = parser.parseWithMetadata(content);
-                } else if (file === TestConfig.EXPECTED_MATCHES_FILE_NAME) {
+                } else if (file === TestConfig.FILENAMES.EXPECTED_MATCHES) {
                     expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
                 }
             }

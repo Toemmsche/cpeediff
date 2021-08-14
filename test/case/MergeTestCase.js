@@ -68,15 +68,15 @@ export class MergeTestCase extends AbstractTestCase {
 
         fs.readdirSync(testCaseDir).forEach((file) => {
                 const content = fs.readFileSync(testCaseDir + "/" + file).toString();
-                if (file === TestConfig.BASE_FILE_NAME) {
+                if (file === TestConfig.FILENAMES.BASE) {
                     base = parser.parseWithMetadata(content);
-                } else if (file === TestConfig.BRANCH_1_FILE_NAME) {
+                } else if (file === TestConfig.FILENAMES.BRANCH_1) {
                     branch1 = parser.parseWithMetadata(content);
-                } else if (file === TestConfig.BRANCH_2_FILE_NAME) {
+                } else if (file === TestConfig.FILENAMES.BRANCH_2) {
                     branch2 = parser.parseWithMetadata(content);
-                } else if (file.startsWith(TestConfig.EXPECTED_MERGE_PREFIX)) {
+                } else if (file.startsWith(TestConfig.FILENAMES.EXPECTED_MERGE_PREFIX)) {
                     expected.push(parser.parseWithMetadata(content));
-                } else if (file.startsWith(TestConfig.ACCEPTED_MERGE_PREFIX)) {
+                } else if (file.startsWith(TestConfig.FILENAMES.ACCEPTED_MERGE_PREFIX)) {
                     accepted.push(parser.parseWithMetadata(content));
                 }
             }

@@ -34,8 +34,8 @@ export class AbstractEvaluation {
     }
 
     static _diffAdapters() {
-        let adapters = [new XyDiffAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
+        let adapters = [new XyDiffAdapter(),  new XccAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter()];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
         adapters.unshift( new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter(), new FastCpeeDiffAdapter());
         return adapters;
     }

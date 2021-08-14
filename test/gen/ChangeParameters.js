@@ -16,14 +16,17 @@
 
 export class ChangeParameters {
 
+    local;
     totalChanges;
     insertionWeight;
     moveWeight;
     updateWeight;
     deletionWeight;
 
-    constructor(totalChanges = 0, insertionWeight = 1, moveWeight = 1, updateWeight = 1, deletionWeight = 1) {
+
+    constructor( totalChanges = 0, local = false, insertionWeight = 1, moveWeight = 1, updateWeight = 1, deletionWeight = 1) {
         this.totalChanges = totalChanges;
+        this.local = local;
         this.insertionWeight = insertionWeight;
         this.moveWeight = moveWeight;
         this.updateWeight = updateWeight;

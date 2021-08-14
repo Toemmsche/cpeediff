@@ -21,8 +21,8 @@ export const TestConfig = {
     PROGRESSION : {
         EXPONENTIAL: true,
         INTERVAL: 100,
-        FACTOR: 10,
-        LIMIT: 5,
+        FACTOR: 2,
+        LIMIT: 9,
         INITIAL_SIZE: 100,
         REPS: 10,
 
@@ -34,22 +34,20 @@ export const TestConfig = {
 
     //TODO filename objec t
 
-    GEN_PARAMS_FILENAME: "genParams.json",
-    CHANGE_PARAMS_FILENAME: "changeParams.json",
-    RUN_SCRIPT_FILENAME: "run.sh",
-
-    OLD_TREE_FILENAME: "old.xml",
-    NEW_TREE_FILENAME: "new.xml",
-
-    DIFF_EXPECTED_FILENAME: "info.json",
-
-    EXPECTED_MATCHES_FILE_NAME: "expected.json",
-
-    BASE_FILE_NAME: "base.xml",
-    BRANCH_1_FILE_NAME: "1.xml",
-    BRANCH_2_FILE_NAME: "2.xml",
-    EXPECTED_MERGE_PREFIX: "expected",
-    ACCEPTED_MERGE_PREFIX: "accepted",
+    FILENAMES: {
+        GEN_PARAMS: "genParams.json",
+        CHANGE_PARAMS: "changeParams.json",
+        RUN_SCRIPT: "run.sh",
+        OLD_TREE: "old.xml",
+        NEW_TREE: "new.xml",
+        EXPECTED_DIFF: "info.json",
+        EXPECTED_MATCHES: "expected.json",
+        BASE: "base.xml",
+        BRANCH_1: "1.xml",
+        BRANCH_2: "2.xml",
+        EXPECTED_MERGE_PREFIX: "expected",
+       ACCEPTED_MERGE_PREFIX: "accepted"
+    },
 
     MATCH_CASES_DIR: "test/test_set/match_cases",
     DIFF_CASES_DIR: "test/test_set/diff_cases",
@@ -74,7 +72,6 @@ export const TestConfig = {
             path: ""
         }
     },
-
     DIFFS: {
         CPEEDIFF: {
             displayName: "CpeeDiff",
@@ -95,10 +92,6 @@ export const TestConfig = {
         XCC: {
             displayName: "XCC Diff",
             path: "../xml_diff_algos/xcc"
-        },
-        UNIXDIFF: {
-            displayName: "UNIX diff",
-            path: "../xml_diff_algos/unixdiff"
         },
         XYDIFF: {
             displayName: "XyDiff",

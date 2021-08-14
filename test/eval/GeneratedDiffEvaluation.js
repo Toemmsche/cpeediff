@@ -44,7 +44,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     static fast() {
         let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
         adapters.unshift(new CpeeDiffAdapter());
         return new GeneratedDiffEvaluation(adapters);
     }
@@ -61,12 +61,18 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
     standardSingle() {
         Logger.info("Evaluation of diff algorithms with standard progression", this);
+        const resultsPerAdapter = new Map();
         for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-            const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
-
+            let size;
+            if(TestConfig.PROGRESSION.EXPONENTIAL) {
+                size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+            } else {
+                size = TestConfig.PROGRESSION.INITIAL_SIZE  += i * TestConfig.PROGRESSION.INTERVAL;
+            }
             //choose sensible generator and change parameters
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
+
 
             const treeGen = new TreeGenerator(genParams);
 
@@ -80,6 +86,20 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
                 Logger.info("Running case " + testCase.name + " for adapter " + adapter.displayName, this);
                 const result = adapter.evalCase(testCase);
                 results.push(result);
+
+                //make relative
+                if(result.isOk()) {
+                    result.actual.cost /= testCase.expected.editScript.cost;
+                    result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+
+                    if (!resultsPerAdapter.has(adapter)) {
+                        resultsPerAdapter.set(adapter, []);
+                    }
+                    resultsPerAdapter.get(adapter).push({
+                        size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
+                        result: result
+                    });
+                }
             }
 
             //Add expected values to table
@@ -87,6 +107,149 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             Logger.result("Results for case " + testCase.name);
             Logger.result(markdownTable(table));
         }
+
+        //Produce runtime plots
+
+        const colors = "black, blue, green, magenta, orange, red, yellow, teal, violet, white".split(", ");
+        let i = 0;
+        Logger.section("RUNTIME LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.runtime + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("COST LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.cost + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("EDIT OPS LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.editOperations + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+    }
+
+    flatLocal() {
+        Logger.info("Evaluation of diff algorithms with no change progression and local changes", this);
+
+        const resultsPerAdapter = new Map();
+        for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
+            let size;
+            if(TestConfig.PROGRESSION.EXPONENTIAL) {
+                size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+            } else {
+                size = TestConfig.PROGRESSION.INITIAL_SIZE  += i * TestConfig.PROGRESSION.INTERVAL;
+            }
+            //choose sensible generator and change parameters
+            const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
+            const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES, true, 4,2,3,1);
+
+
+            const treeGen = new TreeGenerator(genParams);
+
+            const oldTree = treeGen.randomTree();
+
+            const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
+
+            //Run test case for each diff algorithm
+            const results = [];
+            for (const adapter of this.adapters) {
+                Logger.info("Running case " + testCase.name + " for adapter " + adapter.displayName, this);
+                const result = adapter.evalCase(testCase);
+                results.push(result);
+
+                //make relative
+                if(result.isOk()) {
+                    result.actual.cost /= testCase.expected.editScript.cost;
+                    result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+
+                    if (!resultsPerAdapter.has(adapter)) {
+                        resultsPerAdapter.set(adapter, []);
+                    }
+                    resultsPerAdapter.get(adapter).push({
+                        size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
+                        result: result
+                    });
+                }
+            }
+
+            //Add expected values to table
+            const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
+            Logger.result("Results for case " + testCase.name);
+            Logger.result(markdownTable(table));
+        }
+
+        //Produce runtime plots
+
+        const colors = "black, blue, green, magenta, orange, red, yellow, teal, violet, white".split(", ");
+        let i = 0;
+        Logger.section("RUNTIME LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.runtime + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("COST LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.cost + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("EDIT OPS LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.editOperations + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
     }
 
     flatSingle() {
@@ -119,16 +282,18 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
                 results.push(result);
 
                 //make relative
-                result.actual.cost /= testCase.expected.editScript.cost;
-                result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+                if(result.isOk()) {
+                    result.actual.cost /= testCase.expected.editScript.cost;
+                    result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
 
-                if (!resultsPerAdapter.has(adapter)) {
-                    resultsPerAdapter.set(adapter, []);
+                    if (!resultsPerAdapter.has(adapter)) {
+                        resultsPerAdapter.set(adapter, []);
+                    }
+                    resultsPerAdapter.get(adapter).push({
+                        size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
+                        result: result
+                    });
                 }
-                resultsPerAdapter.get(adapter).push({
-                    size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
-                    result: result
-                });
             }
 
             //Add expected values to table
@@ -136,15 +301,51 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
             Logger.result("Results for case " + testCase.name);
             Logger.result(markdownTable(table));
         }
+
+        //Produce runtime plots
+
+        const colors = "black, blue, green, magenta, orange, red, yellow, teal, violet, white".split(", ");
+        let i = 0;
+        Logger.section("RUNTIME LATEX", this);
         for (const [adapter, tests] of resultsPerAdapter) {
-            Logger.result("For adapter " + adapter.displayName, this);
-            Logger.result("For latex runtime:", this);
-            Logger.result(tests.map(t => "(" + t.size + "," + t.result.runtime + ")").join(""));
-            Logger.result("For latex cost:", this);
-            Logger.result(tests.map(t => "(" + t.size + "," + t.result.actual.cost + ")").join(""));
-            Logger.result("For latex changes:", this);
-            Logger.result(tests.map(t => "(" + t.size + "," + t.result.actual.editOperations + ")").join(""));
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+            "    color={0},\n" +
+            "    mark=square,\n" +
+            "    ]\n" +
+            "    coordinates {\n" +
+            "    {1}\n" +
+            "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.runtime + ")").join("")), this);
         }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("COST LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.cost + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
+
+        i = 0;
+        Logger.section("EDIT OPS LATEX", this);
+        for (const [adapter, tests] of resultsPerAdapter) {
+            const nextColor = colors[i++];
+            Logger.result(("\\addplot[\n" +
+                "    color={0},\n" +
+                "    mark=square,\n" +
+                "    ]\n" +
+                "    coordinates {\n" +
+                "    {1}\n" +
+                "    };").replace("{0}", nextColor).replace("{1}", tests.map(t => "(" + t.size + "," + t.result.actual.editOperations + ")").join("")), this);
+        }
+        Logger.result("\\legend{" + this.adapters.map(a => a.displayName).join(", ").replaceAll("_", "\\_") + "}");
     }
 
     standardAggregate() {

@@ -31,8 +31,8 @@ export class UnixDiffAdapter extends DiffAdapter {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = this.pathPrefix + "/" + TestConfig.OLD_TREE_FILENAME;
-        const newFilePath = this.pathPrefix + "/" + TestConfig.NEW_TREE_FILENAME;
+        const oldFilePath = this.pathPrefix + "/" + TestConfig.FILENAMES.OLD_TREE;
+        const newFilePath = this.pathPrefix + "/" + TestConfig.FILENAMES.NEW_TREE;
 
         //always beautify XML for unix diff, otherwise the entire XML document is contained in a single line...
         fs.writeFileSync(oldFilePath, vkbeautify.xml(oldTreeString));
@@ -40,7 +40,7 @@ export class UnixDiffAdapter extends DiffAdapter {
 
         let time = new Date().getTime();
         return {
-            output: execFileSync(this.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME, [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            output: execFileSync(this.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT, [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
             runtime: new Date().getTime() - time
         }
     }

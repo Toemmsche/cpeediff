@@ -37,7 +37,7 @@ Config.LOG_LEVEL = "all";
 //new MatchingAlgorithmEvaluation([new CpeeMatchAdapter()]).evalAll();
 //new GeneratedMatchEvaluation().standardAggregate();
 //new DiffAlgorithmEvaluation([new FastCpeeDiffAdapter(), new BalancedCpeeDiffAdapter(), new QualityCpeeDiffAdapter, new XyDiffAdapter(), new XccAdapter()]).evalAll();
-GeneratedDiffEvaluation.all().standardAggregate();
+GeneratedDiffEvaluation.all().standardSingle();
 
 //DiffAlgorithmEvaluation.all().evalAll();
 

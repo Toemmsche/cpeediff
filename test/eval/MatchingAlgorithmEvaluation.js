@@ -36,7 +36,7 @@ export class MatchingAlgorithmEvaluation {
 
     static all() {
         let adapters = [];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
         adapters.unshift(new CpeeMatchAdapter());
         return new MatchingAlgorithmEvaluation(adapters);
     }

@@ -86,7 +86,8 @@ export class StandardComparator extends AbstractComparator {
     _comparePqGrams(strA, strB, defaultValue = null) {
         if (strA == null || strB == null) return defaultValue;
         //TODO
-        return this._compareLcs(Array.of(...strA), Array.of(...strB));
+        return strA === strB ? 0 : 1;
+
     }
 
     _compareCall(node, other) {
@@ -126,7 +127,6 @@ export class StandardComparator extends AbstractComparator {
 
         let codeCV = null;
         //need to ensure a code comparison based on variables is possible
-
 
         //compare written and read variables
         let writtenVariablesCV = this._compareSet(nodeWrittenVariables, otherWrittenVariables);
@@ -195,6 +195,8 @@ export class StandardComparator extends AbstractComparator {
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
         let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
+
+        //TODO default to true
         const nodeCondition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
         const otherCondition = other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
         if (readVariablesCV != null && nodeCondition !== otherCondition) {
@@ -210,7 +212,7 @@ export class StandardComparator extends AbstractComparator {
         }
 
         let contentCV = this._weightedAverage([modeCV, readVariablesCV],
-            [Config.COMPARATOR.MODE_WEIGHT, Config.COMPARATOR.CONDITION_WEIGHT]);
+            [Config.COMPARATOR.MODE_WEIGHT, Config.COMPARATOR.CONDITION_WEIGHT], 0);
 
         return contentCV;
     }
@@ -238,7 +240,7 @@ export class StandardComparator extends AbstractComparator {
         }
         //readVariablesCV may be null
         let contentCV = this._weightedAverage([readVariablesCV],
-            [Config.COMPARATOR.CONDITION_WEIGHT]);
+            [Config.COMPARATOR.CONDITION_WEIGHT], 0);
 
 
         return contentCV;
@@ -302,8 +304,7 @@ export class StandardComparator extends AbstractComparator {
             }
             //label equality is sufficient for parallel_branch, critical, otherwise, and root...
             default: {
-
-                return Config.EXP ? 0 : null;
+                return 0;
             }
         }
     }

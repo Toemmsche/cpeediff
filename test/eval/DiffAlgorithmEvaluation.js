@@ -44,7 +44,7 @@ export class DiffAlgorithmEvaluation extends AbstractEvaluation {
 
     static fast() {
         let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.RUN_SCRIPT_FILENAME));
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
         adapters.unshift(new FastCpeeDiffAdapter());
         return new DiffAlgorithmEvaluation(adapters);
     }
@@ -63,7 +63,7 @@ export class DiffAlgorithmEvaluation extends AbstractEvaluation {
             }
 
             const results = [];
-            Logger.info("============DIFF TEST CASE " + testCase.name + "=============", this);
+            Logger.section("DIFF TEST CASE " + testCase.name, this);
             for (const adapter of this.adapters) {
                 Logger.info("Running diff case " + testCase.name + " for " + adapter.displayName + "...", this);
                 results.push(adapter.evalCase(testCase));

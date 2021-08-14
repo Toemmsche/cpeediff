@@ -19,76 +19,88 @@ import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
 export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
 
     match(oldTree, newTree, matching, comparator) {
-        /*
-        Match unmatched nodes whose parents, left siblings, and right siblings are matched and whose labels are equal.
-        If one node does not have a left/right sibling, the other one cannot have one either.
 
-        Only non-property nodes (excluding the root) are considered.
-         */
-        for (const newNode of newTree.nonPropertyNodes().filter(n => !matching.hasNew(n))) {
+        //Pre-order traversal to detect up-down sandwiched inner nodes
+        for (const newNode of newTree.innerNodes().filter(n => !matching.hasNew(n))) {
+            const parentMatch = matching.getNew(newNode.parent);
+            let minCompareValue = 1;
+            let minCompareNode = null;
 
-            const leftSibling = newNode.getLeftSibling();
-            const rightSibling = newNode.getRightSibling();
-            const parent = newNode.parent;
-
-            //Left or right sibling must either not exist, or be matched
-            if (!this._nullOrTrue(leftSibling, (n) => matching.hasNew(n))
-                || !this._nullOrTrue(rightSibling, (n) => matching.hasNew(n))
-                || !this._nullOrTrue(parent, (n) => matching.hasNew(n))) {
-                continue;
-            }
-
-            const rightSiblingMatch = matching.getNew(rightSibling);
-            const leftSiblingMatch = matching.getNew(leftSibling);
-            const parentMatch = matching.getNew(parent);
-
-            //If they are matched, their parent must be matched to the parent of the node
-            if (!this._nullOrTrue(leftSiblingMatch, (n) => n.parent === parentMatch)
-                || !this._nullOrTrue(rightSiblingMatch, (n) => n.parent === parentMatch)) {
-                continue;
-            }
-
-            let potentialMatch;
-
-            //Case 1: Node has both a right and a left sibling
-            if (leftSibling != null && rightSibling != null) {
-                if (rightSiblingMatch.getLeftSibling() == null || rightSiblingMatch.getLeftSibling() !== leftSiblingMatch.getRightSibling()) {
-                    continue;
+            newNode.children.forEach(n => {
+                if (matching.hasNew(n)) {
+                    const match = matching.getNew(n);
+                    if (match.parent.label === newNode.label && !matching.hasOld(match.parent) && match.parent.parent === parentMatch) {
+                        const CV = comparator.compare(newNode, match.parent);
+                        if( CV < minCompareValue) {
+                            minCompareNode = match.parent;
+                            minCompareValue = CV;
+                        }
+                    }
                 }
-                potentialMatch = rightSiblingMatch.getLeftSibling();
+            });
 
-                //Case 2: Node has a left, but no right sibling
-            } else if (rightSibling == null && leftSibling != null) {
-                if (leftSiblingMatch.getRightSibling() == null) {
-                    continue;
-                }
-                potentialMatch = leftSiblingMatch.getRightSibling();
-                //potential match cannot have a right sibling
-                if(potentialMatch.getRightSibling() != null) {
-                    continue;
-                }
-
-                //Case 3: Node has a right, but no left sibling
-            } else if (rightSibling != null && leftSibling == null) {
-                if (rightSiblingMatch.getLeftSibling() == null) {
-                    continue;
-                }
-                potentialMatch = rightSiblingMatch.getLeftSibling();
-                //potential match cannot have a left sibling
-                if(potentialMatch.getLeftSibling() != null) {
-                    continue;
-                }
-                //Case 4: Node has neither a left nor a right sibling
+            //up-down sandwich has priority
+            if(minCompareNode != null) {
+                matching.matchNew(newNode, minCompareNode);
             } else {
-                potentialMatch = parentMatch.getChild(0);
-            }
+                const leftSibling = newNode.getLeftSibling();
+                const rightSibling = newNode.getRightSibling();
 
-            if(potentialMatch == null) {
-                console.log("sdf29");
-            }
-            //Potential match must be unmatched and have the same label
-            if (potentialMatch.label === newNode.label && !matching.hasOld(potentialMatch)) {
-                matching.matchNew(newNode, potentialMatch);
+                //Left or right sibling must either not exist, or be matched
+                if (!this._nullOrTrue(leftSibling, (n) => matching.hasNew(n))
+                    || !this._nullOrTrue(rightSibling, (n) => matching.hasNew(n))) {
+                    continue;
+                }
+
+                const rightSiblingMatch = matching.getNew(rightSibling);
+                const leftSiblingMatch = matching.getNew(leftSibling);
+
+                let potentialMatch;
+
+                //Case 1: Node has both a right and a left sibling
+                if (leftSibling != null && rightSibling != null) {
+                    if (rightSiblingMatch.getLeftSibling() == null || rightSiblingMatch.getLeftSibling() !== leftSiblingMatch.getRightSibling()) {
+                        continue;
+                    }
+                    potentialMatch = rightSiblingMatch.getLeftSibling();
+
+                    //Case 2: Node has a left, but no right sibling
+                } else if (rightSibling == null && leftSibling != null) {
+                    if (leftSiblingMatch.getRightSibling() == null) {
+                        continue;
+                    }
+                    potentialMatch = leftSiblingMatch.getRightSibling();
+                    //potential match cannot have a right sibling
+                    if(potentialMatch.getRightSibling() != null) {
+                        continue;
+                    }
+
+                    //Case 3: Node has a right, but no left sibling
+                } else if (rightSibling != null && leftSibling == null) {
+                    if (rightSiblingMatch.getLeftSibling() == null) {
+                        continue;
+                    }
+                    potentialMatch = rightSiblingMatch.getLeftSibling();
+                    //potential match cannot have a left sibling
+                    if(potentialMatch.getLeftSibling() != null) {
+                        continue;
+                    }
+                    //Case 4: Node has neither a left nor a right sibling, but the parent is matched
+                } else if(matching.hasNew(newNode.parent)) {
+                    const parentMatch = matching.getNew(newNode.parent);
+                    if(parentMatch.degree() === 1) {
+                        potentialMatch = parentMatch.getChild(0);
+                    } else {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+
+                //Potential match must be unmatched and have the same label
+                if (potentialMatch.label === newNode.label && !matching.hasOld(potentialMatch)) {
+                    matching.matchNew(newNode, potentialMatch);
+                }
             }
         }
     }

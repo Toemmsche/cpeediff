@@ -71,10 +71,10 @@ export class DiffTestCase extends AbstractTestCase {
             fs.readdirSync(testCaseDir).forEach((file) => {
                     const content = fs.readFileSync(testCaseDir + "/" + file).toString();
                     switch (file) {
-                        case TestConfig.GEN_PARAMS_FILENAME:
+                        case TestConfig.FILENAMES.GEN_PARAMS:
                             genParams = Object.assign(new GeneratorParameters(), JSON.parse(content));
                             break;
-                        case TestConfig.CHANGE_PARAMS_FILENAME:
+                        case TestConfig.FILENAMES.CHANGE_PARAMS:
                             changeParams = Object.assign(changeParams, JSON.parse(content));
                             break;
                     }
@@ -112,11 +112,11 @@ export class DiffTestCase extends AbstractTestCase {
             const parser = new Preprocessor();
             fs.readdirSync(testCaseDir).forEach((file) => {
                     const content = fs.readFileSync(testCaseDir + "/" + file).toString();
-                    if (file === TestConfig.NEW_TREE_FILENAME) {
+                    if (file === TestConfig.FILENAMES.NEW_TREE) {
                         newTree = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.OLD_TREE_FILENAME) {
+                    } else if (file === TestConfig.FILENAMES.OLD_TREE) {
                         oldTree = parser.parseWithMetadata(content);
-                    } else if (file === TestConfig.DIFF_EXPECTED_FILENAME) {
+                    } else if (file === TestConfig.FILENAMES.EXPECTED_DIFF) {
                         expected = Object.assign(new ExpectedDiff(), JSON.parse(content));
                     }
                 }

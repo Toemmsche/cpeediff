@@ -40,15 +40,15 @@ export class CpeeDiffAdapter extends DiffAdapter {
         const oldTreeString = XmlFactory.serialize(oldTree);
         const newTreeString = XmlFactory.serialize(newTree);
 
-        const oldFilePath = TestConfig.OLD_TREE_FILENAME;
-        const newFilePath = TestConfig.NEW_TREE_FILENAME;
+        const oldFilePath = TestConfig.FILENAMES.OLD_TREE;
+        const newFilePath = TestConfig.FILENAMES.NEW_TREE;
 
         fs.writeFileSync(oldFilePath, oldTreeString);
         fs.writeFileSync(newFilePath, newTreeString);
 
         let time = new Date().getTime();
         return {
-            output: execFileSync("./main.js", ["diff", "--mode", this.mode, oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+            output: execFileSync("./main.js", ["diff", "--mode",  this.mode, oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
             runtime: new Date().getTime() - time
         }
     }

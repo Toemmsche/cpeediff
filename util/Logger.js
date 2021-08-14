@@ -45,6 +45,11 @@ export class Logger {
      */
     static _startTime;
 
+
+    static section(message, source = null) {
+        this.info("============" + message+ "=============", source);
+    }
+
     /**
      * Create a log with log level INFO.
      * Info logs provide information about the state of an application and represent expected behaviour.
