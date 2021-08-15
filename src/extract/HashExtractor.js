@@ -15,8 +15,8 @@
 */
 
 import {AbstractExtractor} from "./AbstractExtractor.js";
-import {StringHash} from "../lib/StringHash.js";
 import {PrimeGenerator} from "../lib/PrimeGenerator.js";
+import {stringHash} from "../lib/StringHash.js";
 
 export class HashExtractor extends AbstractExtractor {
 
@@ -48,7 +48,7 @@ export class HashExtractor extends AbstractExtractor {
         if (node.text != null) {
             content += node.text;
         }
-        return StringHash.hash(content);
+        return stringHash(content);
     }
 
     _childHash(node) {

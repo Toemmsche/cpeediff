@@ -16,13 +16,10 @@
 
 import murmur32 from "murmur-32";
 
-export class StringHash {
-
-    static hash(str) {
-        const m32 = murmur32(str);
-        const dv = new DataView(m32);
-        return dv.getInt32(0);
-    }
-
+export function stringHash(str) {
+    const m32 = murmur32(str);
+    const dv = new DataView(m32);
+    return dv.getInt32(0);
 }
+
 

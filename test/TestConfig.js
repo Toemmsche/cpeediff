@@ -26,7 +26,7 @@ export const TestConfig = {
         INITIAL_SIZE: 100,
         REPS: 10,
 
-        INITIAL_CHANGES: 10
+        INITIAL_CHANGES: 100
     },
 
     //TODO option to store genearted models in test case folder

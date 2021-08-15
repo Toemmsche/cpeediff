@@ -23,9 +23,18 @@ import {ChangeParameters} from "../gen/ChangeParameters.js";
 import {MatchPipeline} from "../../src/match/MatchPipeline.js";
 import {Config} from "../../src/Config.js";
 import {markdownTable} from "markdown-table";
-import {match} from "assert";
+import {AbstractEvaluation} from "./AbstractEvaluation.js";
+import {StandardComparator} from "../../src/match/StandardComparator.js";
 
-export class GeneratedMatchEvaluation {
+export class GeneratedMatchEvaluation extends AbstractEvaluation {
+
+    constructor(adapters = []) {
+        super(adapters);
+    }
+
+    static all() {
+        return new GeneratedMatchEvaluation(this.matchAdapters());
+    }
 
     evalAll() {
         Logger.info("Evaluating matching algorithms with generated process trees", this);
@@ -56,23 +65,22 @@ export class GeneratedMatchEvaluation {
                 const expectedMatching = changedInfo.matching;
 
                 //Run test case for each matching pipeline and compute number of mismatched nodes
-                for (const matchMode of Object.values(Config.MATCH_MODES)) {
-                    Config.MATCH_MODE = matchMode;
-                    if(!results.has(matchMode)) {
-                        results.set(matchMode, []);
+                for (const adapter of this.adapters) {
+                    if(!results.has(adapter)) {
+                        results.set(adapter, []);
                     }
-                    Logger.info("Running rep " + j + " for match mode " + matchMode, this);
+                    Logger.info("Running rep " + j + " for adapter " + adapter.displayName, this);
                     const time = new Date().getTime();
-                    const actualMatching = MatchPipeline.fromMode().execute(oldTree, newTree);
+                    const actualMatching = adapter._run(oldTree, newTree);
                     const elapsedTime = new Date().getTime() - time;
                     const matchingCommonality = this._matchingCommonality(expectedMatching, actualMatching);
                     const mismatches = this._getMismatchedNodes(expectedMatching, actualMatching);
-                    results.get(matchMode).push([matchMode, elapsedTime, matchingCommonality.toFixed(4) * 100, ...mismatches]);}
+                    results.get(adapter).push([adapter.displayName, elapsedTime, matchingCommonality.toFixed(4) * 100, ...mismatches]);}
             }
 
-            results = [...results.entries()].map(e => [e[0], ...(e[1][0].slice(1).map((r, i) => this.avg(e[1].map(r => r[i + 1]))))]);
+            results = [...results.entries()].map(e => [e[0].displayName, ...(e[1][0].slice(1).map((r, i) => this.avg(e[1].map(r => r[i + 1]))))]);
             Logger.result("Results for case " + testId, this);
-            Logger.result(markdownTable([["match mode", "runtime", "overlap % with expected", "avg mismatched leaves", "avg mismatched inners", "avg unmatched leaves", "avg unmatched inners"],...results]));
+            Logger.result(markdownTable([["algorithm", "runtime", "overlap % with expected", "avg mismatched leaves", "avg mismatched inners", "avg unmatched leaves", "avg unmatched inners"],...results]));
         }
     }
 
@@ -97,6 +105,8 @@ export class GeneratedMatchEvaluation {
 
         for (const [newNode, oldNode] of expected.newToOldMap) {
             if (actual.hasNew(newNode) && actual.getNew(newNode) !== oldNode) {
+                const actualOldMatch = actual.getNew(newNode);
+                const actualNewMatch = actual.getOld(oldNode);
                 if (newNode.isInnerNode()) {
                     //Logger.debug("Mismatched " + newNode.label, this)
                     mismatchedInners++;
@@ -107,10 +117,8 @@ export class GeneratedMatchEvaluation {
             }
             if (!actual.hasNew(newNode)) {
                 if (newNode.isInnerNode()) {
-                    //Logger.debug("Mismatched " + newNode.label, this)
                     unmatchedInners++;
                 } else if (newNode.isLeaf()) {
-                    //Logger.debug("Mismatched " + newNode.label, this)
                     unmatchedLeaves++;
                 }
             }

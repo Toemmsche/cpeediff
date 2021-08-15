@@ -57,7 +57,7 @@ export const Config = {
         POSITION_WEIGHT: 1
     },
 
-    COMPARISON_THRESHOLD: 0.4,
+    COMPARISON_THRESHOLD: 0.44,
 
     EXACT_EDIT_SCRIPT: false,
 

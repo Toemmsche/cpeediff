@@ -311,6 +311,7 @@ export class TreeGenerator {
         const parameters = new Node(Dsl.CALL_PROPERTIES.PARAMETERS.label);
 
         //random label
+
         const label = new Node(Dsl.CALL_PROPERTIES.LABEL.label);
         //TODO label shouldnt be random
         label.text = this._randomFrom(this._labels);

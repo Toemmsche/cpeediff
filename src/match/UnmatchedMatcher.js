@@ -15,6 +15,8 @@
 */
 
 import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
+import {Dsl} from "../Dsl.js";
+import {Logger} from "../../util/Logger.js";
 
 export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
 
@@ -22,6 +24,17 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
 
         //Pre-order traversal to detect up-down sandwiched inner nodes
         for (const newNode of newTree.innerNodes().filter(n => !matching.hasNew(n))) {
+            if (newNode.label === Dsl.ELEMENTS.OTHERWISE.label && matching.hasNew(newNode.parent)) {
+                const parentMatch = matching.getNew(newNode.parent);
+                const potentialMatches = parentMatch.children.filter(n => n.label === Dsl.ELEMENTS.OTHERWISE.label);
+                if (potentialMatches.length > 1) {
+                    Logger.warn("Choose node with multiple 'otherwise' branches", this);
+                } else if (potentialMatches.length === 1 && !matching.hasOld(potentialMatches[0])) {
+                    matching.matchNew(newNode, potentialMatches[0]);
+                    continue;
+                }
+            }
+
             const parentMatch = matching.getNew(newNode.parent);
             let minCompareValue = 1;
             let minCompareNode = null;
@@ -31,7 +44,7 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
                     const match = matching.getNew(n);
                     if (match.parent.label === newNode.label && !matching.hasOld(match.parent) && match.parent.parent === parentMatch) {
                         const CV = comparator.compare(newNode, match.parent);
-                        if( CV < minCompareValue) {
+                        if (CV < minCompareValue) {
                             minCompareNode = match.parent;
                             minCompareValue = CV;
                         }
@@ -40,7 +53,7 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
             });
 
             //up-down sandwich has priority
-            if(minCompareNode != null) {
+            if (minCompareNode != null) {
                 matching.matchNew(newNode, minCompareNode);
             } else {
                 const leftSibling = newNode.getLeftSibling();
@@ -71,7 +84,7 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
                     }
                     potentialMatch = leftSiblingMatch.getRightSibling();
                     //potential match cannot have a right sibling
-                    if(potentialMatch.getRightSibling() != null) {
+                    if (potentialMatch.getRightSibling() != null) {
                         continue;
                     }
 
@@ -82,13 +95,13 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
                     }
                     potentialMatch = rightSiblingMatch.getLeftSibling();
                     //potential match cannot have a left sibling
-                    if(potentialMatch.getLeftSibling() != null) {
+                    if (potentialMatch.getLeftSibling() != null) {
                         continue;
                     }
                     //Case 4: Node has neither a left nor a right sibling, but the parent is matched
-                } else if(matching.hasNew(newNode.parent)) {
+                } else if (matching.hasNew(newNode.parent)) {
                     const parentMatch = matching.getNew(newNode.parent);
-                    if(parentMatch.degree() === 1) {
+                    if (parentMatch.degree() === 1) {
                         potentialMatch = parentMatch.getChild(0);
                     } else {
                         continue;

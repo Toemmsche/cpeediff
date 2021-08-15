@@ -23,6 +23,7 @@ import {Config} from "../Config.js";
 import {ElementSizeExtractor} from "../extract/ElementSizeExtractor.js";
 import {getLcs} from "../lib/Lcs.js";
 import {HashExtractor} from "../extract/HashExtractor.js";
+import {getStringCV} from "../lib/StringComparison.js";
 
 export class StandardComparator extends AbstractComparator {
 
@@ -83,11 +84,10 @@ export class StandardComparator extends AbstractComparator {
 
     }
 
-    _comparePqGrams(strA, strB, defaultValue = null) {
+    _compareString(strA, strB, defaultValue = null) {
         if (strA == null || strB == null) return defaultValue;
         //TODO
         return strA === strB ? 0 : 1;
-
     }
 
     _compareCall(node, other) {
@@ -102,7 +102,7 @@ export class StandardComparator extends AbstractComparator {
          E.g. www.example.com/docs and www.example.com/doctors
          */
         const endPointCV = nodeProps.endpoint === otherProps.endpoint ? 0 : 1;
-        const labelCV = this._comparePqGrams(nodeProps.label, otherProps.label);
+        const labelCV = this._compareString(nodeProps.label, otherProps.label);
         const methodCV = nodeProps.method === otherProps.method ? 0 : 1;
         const argCV = this._compareLcs(nodeProps.args, otherProps.args);
 
@@ -174,7 +174,7 @@ export class StandardComparator extends AbstractComparator {
             /*
            Either the code didnt access any data elements or it was equal between the scripts.
            Perform an all-or-nothing comparison, this might detect cases where state manipulation
-           is performed inside a single function.
+           is performed inside a function.
             */
             contentCV = node.text === other.text ? 0 : 1;
         }
@@ -195,18 +195,17 @@ export class StandardComparator extends AbstractComparator {
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
         let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
-
-        //TODO default to true
-        const nodeCondition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
-        const otherCondition = other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        const nodeCondition = node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) : Dsl.INNER_PROPERTIES.CONDITION.default;
+        const otherCondition = other.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) : Dsl.INNER_PROPERTIES.CONDITION.default;
         if (readVariablesCV != null && nodeCondition !== otherCondition) {
             //small penalty for code string inequality
             readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
         } else if (nodeCondition != null || otherCondition != null) {
             /*
           Either the expression didnt access any data elements or it was equal between the scripts.
-          Perform an all-or-nothing comparison, this might detect cases where the condition is solely evaluated
-          inside a function
+          Perform an all-or-nothing comparison, this might detect cases where the condition is a function call.
            */
             readVariablesCV = nodeCondition === otherCondition ? 0 : 1;
         }
@@ -221,27 +220,25 @@ export class StandardComparator extends AbstractComparator {
         //extract read variables
         const nodeReadVariables = this.variableExtractor.get(node).readVariables;
         const otherReadVariables = this.variableExtractor.get(other).readVariables;
-
         let readVariablesCV = this._compareSet(nodeReadVariables, otherReadVariables);
 
-
-        const nodeCondition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
-        const otherCondition = other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+        const nodeCondition = node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
+            node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) : Dsl.INNER_PROPERTIES.CONDITION.default;
+        const otherCondition = other.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
+            other.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) : Dsl.INNER_PROPERTIES.CONDITION.default;
         if (readVariablesCV != null && nodeCondition !== otherCondition) {
             //small penalty for code string inequality
             readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
         } else if (nodeCondition != null || otherCondition != null) {
             /*
           Either the expression didnt access any data elements or it was equal between the scripts.
-          Perform an all-or-nothing comparison, this might detect cases where the condition is solely evaluated
-          inside a function
+          Perform an all-or-nothing comparison, this might detect cases where the condition is a function call.
            */
             readVariablesCV = nodeCondition === otherCondition ? 0 : 1;
         }
         //readVariablesCV may be null
         let contentCV = this._weightedAverage([readVariablesCV],
             [Config.COMPARATOR.CONDITION_WEIGHT], 0);
-
 
         return contentCV;
     }
@@ -312,27 +309,6 @@ export class StandardComparator extends AbstractComparator {
     comparePosition(node, other) {
         let radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
-        if (Config.EXP) {
-
-            /*
-            const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => n.label);
-            const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n =>  n.label);
-            const leftCV = this._compareLcs(nodeLeftSlice, otherLeftSlice, 0);
-
-            const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.index + radius + 1).map(n =>  n.label);
-            const otherRightSlice = other.getSiblings().slice(other.index + 1, other.index + radius + 1).map(n =>  n.label);
-            const rightCV = this._compareLcs(nodeRightSlice, otherRightSlice, 0);
-
-
-             */
-            //exclude the label of the compared nodes, it is always equal
-            const nodePathSlice = node.path(radius + 1).reverse().slice(1).map(n => n.label);
-            const otherPathSlice = other.path(radius + 1).reverse().slice(1).map(n =>  n.label);
-            const pathCV = this._compareLcs(nodePathSlice, otherPathSlice, 0);
-
-            //TODO weight differently
-            return this._weightedAverage([ pathCV], [ 1]);
-        }
         /*
         const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radius, 0), node.index).map(n => this.hashExtractor.get(n));
         const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - radius, 0), other.index).map(n => this.hashExtractor.get(n));

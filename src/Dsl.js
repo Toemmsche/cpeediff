@@ -136,7 +136,8 @@ export const Dsl = {
 
     INNER_PROPERTIES: {
         CONDITION: {
-            label:"condition"
+            label:"condition",
+            default: "true"
         },
         LOOP_MODE: {
             label: "mode",
