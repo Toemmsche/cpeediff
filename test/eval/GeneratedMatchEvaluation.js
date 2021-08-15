@@ -43,7 +43,7 @@ export class GeneratedMatchEvaluation {
             const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
             const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
 
-            const testId = [size, changeParams.totalChanges].join("_");
+            const testId = "~" + [size, changeParams.totalChanges].join("_");
 
             const treeGen = new TreeGenerator(genParams);
             let results = new Map();

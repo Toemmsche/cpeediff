@@ -24,6 +24,9 @@ import {TestConfig} from "../TestConfig.js";
 import {QualityCpeeDiffAdapter} from "../diff_adapters/QualityCpeeDiffAdapter.js";
 import {BalancedCpeeDiffAdapter} from "../diff_adapters/BalancedCpeeDiffAdapter.js";
 import {FastCpeeDiffAdapter} from "../diff_adapters/FastCpeeDiffAdapter.js";
+import {BalancedCpeeMatchAdapter} from "../match_adapters/BalancedCpeeMatchAdapter.js";
+import {QualityCpeeMatchAdapter} from "../match_adapters/QualityCpeeMatchAdapter.js";
+import {FastCpeeMatchAdapter} from "../match_adapters/FastCpeeMatchAdapter.js";
 
 export class AbstractEvaluation {
 
@@ -33,10 +36,17 @@ export class AbstractEvaluation {
         this.adapters = adapters;
     }
 
-    static _diffAdapters() {
+    static diffAdapters() {
         let adapters = [new XyDiffAdapter(),  new XccAdapter(), new XmlDiffAdapter(), new DiffXmlAdapter()];
         adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
         adapters.unshift( new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter(), new FastCpeeDiffAdapter());
+        return adapters;
+    }
+
+    static matchAdapters() {
+        let adapters = [];
+        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
+        adapters.unshift( new QualityCpeeMatchAdapter(), new BalancedCpeeMatchAdapter(), new FastCpeeMatchAdapter());
         return adapters;
     }
 

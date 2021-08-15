@@ -16,10 +16,12 @@
 
 
 /**
- * Uses the built-in comparator ("===")
- * @param seqA
- * @param seqB
- * @param compare
+ * Compute the LCS between two sequences
+ * A simple dynamic programming approach is employed, which yields O(N*D) time complexity and O(n*m) space complexity.
+ * @param {Array<any>} seqA The first sequence
+ * @param {Array<any>} seqB The second sequence
+ * @param {Function} compare The comparator function used to identify equal elements between the sequences.
+ * Defaults to the built-in strict equality operator ("===").
  */
 export function getLcs(seqA, seqB, compare = (a, b) => a === b) {
     //initial 2D array of size (m + 1) * (n + 1)
@@ -74,8 +76,7 @@ export function getLcs(seqA, seqB, compare = (a, b) => a === b) {
                 indexB--;
                 break;
             default:
-                lcs.unshift(seqA[indexA - 1]);
-                indexA--;
+                lcs.unshift(seqA[--indexA]);
                 indexB--;
                 break;
         }

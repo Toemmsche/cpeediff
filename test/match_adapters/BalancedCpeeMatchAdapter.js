@@ -14,13 +14,14 @@
    limitations under the License.
 */
 
-import {AbstractTestResult} from "./AbstractTestResult.js";
+import {Config} from "../../src/Config.js";
+import {CpeeMatchAdapter} from "./CpeeMatchAdapter.js";
 
-export class MatchTestResult extends AbstractTestResult{
+export class BalancedCpeeMatchAdapter extends CpeeMatchAdapter{
 
-    constructor(caseName, algorithm, actual, verdict) {
-        super(caseName, algorithm, actual, verdict);
+
+    constructor() {
+        super(Config.MATCH_MODES.BALANCED);
     }
+
 }
-
-

@@ -19,8 +19,8 @@ import {AbstractTestResult} from "./AbstractTestResult.js";
 export class MergeTestResult extends  AbstractTestResult{
 
 
-    constructor(caseName, algorithm,runtime, actual, verdict) {
-        super(caseName, algorithm,runtime, actual, verdict);
+    constructor(caseName, algorithm, actual, verdict) {
+        super(caseName, algorithm, actual, verdict);
     }
 }
 

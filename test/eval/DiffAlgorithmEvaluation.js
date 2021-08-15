@@ -68,9 +68,8 @@ export class DiffAlgorithmEvaluation extends AbstractEvaluation {
                 Logger.info("Running diff case " + testCase.name + " for " + adapter.displayName + "...", this);
                 results.push(adapter.evalCase(testCase));
             }
-            //TODO add expected
             const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
-            Logger.result("Results for case " + testCase.name + ":\n" + markdownTable(table));
+            Logger.result("Results for case " + testCase.name + ":\n" + markdownTable(table), this);
         }
     }
 }

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-export class AggregateDiffResult {
+export class AverageDiffResult {
 
     algorithm;
     caseName;
@@ -76,7 +76,7 @@ export class AggregateDiffResult {
         let stdDevEditOperations = Math.sqrt(changes.map(c => Math.pow(c - avgEditOperations, 2)).reduce((a, b) => a + b, 0) / changes.length);
 
 
-        return new AggregateDiffResult(caseName, algorithm, avgRuntime.toFixed(2),
+        return new AverageDiffResult(caseName, algorithm, avgRuntime.toFixed(2),
             maxRuntime.toFixed(2), stdDevRuntime.toFixed(2), avgCost.toFixed(2),
             maxCost.toFixed(2), stdDevCost.toFixed(2), avgEditOperations.toFixed(2),
             maxEditOperations.toFixed(2), stdDevEditOperations.toFixed(2));

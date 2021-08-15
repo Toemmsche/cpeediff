@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+import {TestConfig} from "../TestConfig.js";
+
 export class AbstractTestResult {
 
     caseName;
@@ -26,6 +28,10 @@ export class AbstractTestResult {
         this.algorithm = algorithm;
         this.actual = actual;
         this.verdict = verdict;
+    }
+
+    isOk() {
+        return this.verdict === TestConfig.VERDICTS.OK;
     }
 }
 

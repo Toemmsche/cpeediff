@@ -26,9 +26,6 @@ export class DiffTestResult extends AbstractTestResult{
         this.runtime = runtime;
     }
 
-    isOk() {
-        return this.actual != null;
-    }
 
     /**
      * @return any[] An array of all values that should appear in the evaluation table.

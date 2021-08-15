@@ -15,30 +15,21 @@
 */
 
 import {TestConfig} from "../TestConfig.js";
-import {Preprocessor} from "../../src/io/Preprocessor.js";
-import * as fs from "fs";
-import {ExpectedMatch} from "../expected/ExpectedMatch.js";
 import {AggregateMatchResult} from "../result/AggregateMatchResult.js";
-import {MarkDownFactory} from "../../util/MarkDownFactory.js";
-import {CpeeMatchAdapter} from "../match_adapters/CpeeMatchAdapter.js";
 import {Logger} from "../../util/Logger.js";
 import {DirectoryScraper} from "../../util/DirectoryScraper.js";
 import {MatchTestCase} from "../case/MatchTestCase.js";
-import {Config} from "../../src/Config.js";
+import {markdownTable} from "markdown-table";
+import {AbstractEvaluation} from "./AbstractEvaluation.js";
 
-export class MatchingAlgorithmEvaluation {
-
-    adapters;
+export class MatchingAlgorithmEvaluation extends AbstractEvaluation{
 
     constructor(adapters = []) {
-        this.adapters = adapters;
+        super(adapters);
     }
 
     static all() {
-        let adapters = [];
-        adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT));
-        adapters.unshift(new CpeeMatchAdapter());
-        return new MatchingAlgorithmEvaluation(adapters);
+        return new MatchingAlgorithmEvaluation(this.matchAdapters());
     }
 
     evalAll(rootDir = TestConfig.MATCH_CASES_DIR) {
@@ -49,8 +40,6 @@ export class MatchingAlgorithmEvaluation {
         for (const adapter of this.adapters) {
             resultsPerAdapter.set(adapter, []);
         }
-
-        const parser = new Preprocessor();
 
         //collect all directories representing testCases
         const caseDirs = DirectoryScraper.scrape(rootDir);
@@ -63,6 +52,7 @@ export class MatchingAlgorithmEvaluation {
                 continue;
             }
 
+            Logger.section("MATCH TEST CASE " + testCase.name, this)
             resultsPerTest.set(testCase, []);
             for (const adapter of this.adapters) {
                 Logger.info("Running match case " + testCase.name + " for " + adapter.displayName + "...", this);
@@ -75,21 +65,10 @@ export class MatchingAlgorithmEvaluation {
 
         const aggregateResults = [];
         for (const [adapter, resultsList] of resultsPerAdapter) {
-            let okCount = 0;
-            let wrongAnswerCount = 0;
-            let runtimeErrorCount = 0;
-            for (const result of resultsList) {
-                if (result.verdict === TestConfig.VERDICTS.OK) {
-                    okCount++;
-                } else if (result.verdict === TestConfig.VERDICTS.WRONG_ANSWER) {
-                    wrongAnswerCount++;
-                } else if (result.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
-                    runtimeErrorCount++;
-                }
-            }
-            aggregateResults.push(new AggregateMatchResult(adapter.displayName, okCount, wrongAnswerCount, runtimeErrorCount));
+            aggregateResults.push(AggregateMatchResult.of(resultsList));
         }
-        Logger.result(MarkDownFactory.tabularize(aggregateResults));
+        const table = [AggregateMatchResult.header(), ...aggregateResults.map(r => r.values())];
+        Logger.result("Results for matching algorithm evaluation" + ":\n" + markdownTable(table), this);
     }
 
 

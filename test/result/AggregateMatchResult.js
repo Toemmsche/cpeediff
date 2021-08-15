@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+import {TestConfig} from "../TestConfig.js";
+
 export class AggregateMatchResult {
 
     algorithm;
@@ -26,6 +28,30 @@ export class AggregateMatchResult {
         this.ok = ok;
         this.wrongAnswer = wrongAnswer;
         this.runtimeError = runtimeError;
+    }
+
+    static of( results) {
+        let ok = 0;
+        let wrongAnswer= 0;
+        let runtimeError= 0;
+        for (const result of results) {
+            if (result.verdict === TestConfig.VERDICTS.OK) {
+                ok++;
+            } else if (result.verdict === TestConfig.VERDICTS.WRONG_ANSWER) {
+                wrongAnswer++;
+            } else if (result.verdict === TestConfig.VERDICTS.RUNTIME_ERROR) {
+                runtimeError++;
+            }
+        }
+        return new AggregateMatchResult(results[0].algorithm, ok, wrongAnswer, runtimeError);
+    }
+
+    static header() {
+        return ["Algorithm", "#OK", "#Wrong Answer", "#Runtime Error"];
+    }
+
+    values() {
+        return [this.algorithm, this.ok, this.wrongAnswer, this.runtimeError];
     }
 }
 

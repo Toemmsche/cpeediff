@@ -28,7 +28,7 @@ import {DeltaJsAdapter} from "../diff_adapters/DeltaJsAdapter.js";
 import {XccAdapter} from "../diff_adapters/XccAdapter.js";
 import fs from "fs";
 import {CpeeDiffAdapter} from "../diff_adapters/CpeeDiffAdapter.js";
-import {AggregateDiffResult} from "../result/AggregateDiffResult.js";
+import {AverageDiffResult} from "../result/AverageDiffResult.js";
 
 export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
@@ -39,7 +39,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     }
 
     static all() {
-        return new GeneratedDiffEvaluation(this._diffAdapters());
+        return new GeneratedDiffEvaluation(this.diffAdapters());
     }
 
     static fast() {
@@ -375,8 +375,8 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
                     resultsPerAdapter.get(adapter).push(result);
                 }
             }
-            const aggregateResults = [...resultsPerAdapter.entries()].map(e => AggregateDiffResult.of(e[1]));
-            const table = [AggregateDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
+            const aggregateResults = [...resultsPerAdapter.entries()].map(e => AverageDiffResult.of(e[1]));
+            const table = [AverageDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
             Logger.result("Results for cases " + testId);
             Logger.result(markdownTable(table));
         }
@@ -408,8 +408,8 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
                     resultsPerAdapter.get(adapter).push(result);
                 }
             }
-            const aggregateResults = [...resultsPerAdapter.entries()].map(e => AggregateDiffResult.of(e[1]));
-            const table = [AggregateDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
+            const aggregateResults = [...resultsPerAdapter.entries()].map(e => AverageDiffResult.of(e[1]));
+            const table = [AverageDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
             Logger.result("Results for cases " + testId);
             Logger.result(markdownTable(table));
         }

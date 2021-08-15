@@ -22,11 +22,11 @@ import {StandardComparator} from "./StandardComparator.js";
 import {HashMatcher} from "./HashMatcher.js";
 import {SimilarityMatcher} from "./SimilarityMatcher.js";
 import {UnmatchedMatcher} from "./UnmatchedMatcher.js";
-import {PathMatcher} from "./PathMatcher.js";
 import {Logger} from "../../util/Logger.js";
 import {Config} from "../Config.js";
 import {CommonalityPathMatcher} from "./CommonalityPathMatcher.js";
 import {FastSimilarityMatcher} from "./FastSimilarityMatcher.js";
+import {PathMatcher} from "./PathMatcher.js";
 
 
 export class MatchPipeline {
@@ -55,16 +55,6 @@ export class MatchPipeline {
             case Config.MATCH_MODES.QUALITY:
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
         }
-        /*
-        switch(Config.MATCH_MODE) {
-            case Config.MATCH_MODES.FAST:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
-            case Config.MATCH_MODES.BALANCED:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
-            case Config.MATCH_MODES.QUALITY:
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher_sim(), new PathMatcher_old(), new UnmatchedMatcher(), new PropertyMatcher()]);
-        }
-         */
     }
 
     static forMerge() {
@@ -80,16 +70,6 @@ export class MatchPipeline {
 | CpeeDiff_fast     | 4769    | 6805    | 62975     | 425           | 73         | 114     | 78      | 160       |
 
      */
-
-    static quality() {
-        //PathMatcher is executed twice to capture missed matches
-        //| CpeeDiff  | 5076    | 6766    | 63183     | 443           | 76         | 113     | 84      | 170       | for benchmark
-        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher_old(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
-    }
-
-    static best() {
-        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher_sim(), new PathMatcher_old(), new UnmatchedMatcher(), new PropertyMatcher()]);
-    }
 
     execute(oldTree, newTree, comparator = new StandardComparator(), matching = new Matching()) {
         for (const matcher of this.matchers) {
