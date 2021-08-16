@@ -23,7 +23,7 @@ import {Config} from "../Config.js";
 import {ElementSizeExtractor} from "../extract/ElementSizeExtractor.js";
 import {getLcs} from "../lib/Lcs.js";
 import {HashExtractor} from "../extract/HashExtractor.js";
-import {getStringCV} from "../lib/StringComparison.js";
+import {getFastStringCV, getStringCV} from "../lib/StringComparison.js";
 
 export class StandardComparator extends AbstractComparator {
 

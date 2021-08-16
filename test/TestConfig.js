@@ -90,7 +90,7 @@ export const TestConfig = {
             path: "../xml_diff_algos/deltajs"
         },
         XCC: {
-            displayName: "XCC Diff",
+            displayName: "XCC",
             path: "../xml_diff_algos/xcc"
         },
         XYDIFF: {

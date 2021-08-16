@@ -132,10 +132,12 @@ export class XmlDomFactory {
 
         const xmlNode = doc.createElement(change.type);
         if (change.oldPath != null) {
-            xmlNode.setAttribute("oldPath", change.oldPath);
+            //Add root slash
+            xmlNode.setAttribute("oldPath", "/" + change.oldPath);
         }
         if (change.newPath != null) {
-            xmlNode.setAttribute("newPath", change.newPath);
+            //Add root slash
+            xmlNode.setAttribute("newPath", "/" + change.newPath);
         }
         if (change.newContent != null) {
             xmlNode.appendChild(this._convertNode(change.newContent, true));

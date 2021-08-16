@@ -29,7 +29,8 @@ export class ChangeFactory {
     }
 
     static _fromXmlDom(xmlElement) {
-        const [type, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath"), xmlElement.getAttribute("newPath")];
+        //Drop root slash
+        const [type, oldPath, newPath] = [xmlElement.localName, xmlElement.getAttribute("oldPath").slice(1), xmlElement.getAttribute("newPath").slice(1)];
         let newContent;
         const xmlContent = DomHelper.firstChildElement(xmlElement);
         if(xmlContent != null) {

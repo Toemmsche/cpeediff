@@ -20,7 +20,7 @@
  * @param {String} strB The second string
  * @param {Number} q The length of a q-gram. Defaults to 2 for max length < 100, else 4
  */
-export function getStringCV(strA, strB, defaultValue = null,  q = null) {
+export function getStringCV(strA, strB, defaultValue = null, q = null) {
     /*
     We compute the q-gram distance as described in "Approximate string-matching with q-grams and maximal matches"
     by Esko Ukkonen, 1992. The q-gram distance is nothing but the Manhattan distance between the q-gram profiles of
@@ -32,9 +32,8 @@ export function getStringCV(strA, strB, defaultValue = null,  q = null) {
     bound for the editing distance between two strings.
      */
 
-
     //Avoid division by zero
-    if(strA.length === 0 && strB.length === 0) {
+    if (strA.length === 0 && strB.length === 0) {
         return defaultValue;
         //Edge cases
     }
@@ -52,57 +51,121 @@ export function getStringCV(strA, strB, defaultValue = null,  q = null) {
     }
 
     //Avoid unnecessary computations for short strings
-    if(strA.length < q || strB.length < q) {
+    if (strA.length < q || strB.length < q) {
         return strA === strB ? 0 : 1;
     }
 
-    function qGramMap(str) {
-        const qGrams = new Map();
-        for (let i = 0; i + q <= str.length; i++) {
-            const qGram = str.slice(i, i + q);
-            if (!qGrams.has(qGram)) {
-                //initial count
-                qGrams.set(qGram, 0);
-            }
-            //update value
-            qGrams.set(qGram, qGrams.get(qGram) + 1);
-        }
-        return qGrams;
+    //Only preserve ASCII characters
+    strA = strA.replace(/[^\x00-\xFF]/g, "");
+    strB = strB.replace(/[^\x00-\xFF]/g, "");
+
+    strA = Buffer.alloc(strA.length, strA, "ascii");
+    strB = Buffer.alloc(strB.length, strB, "ascii");
+
+    const qGrams = new Map();
+    let running = 0;
+    let slice = strA.slice(0, q);
+    for (let i = 0; i < q; i++) {
+        running += slice[q - 1 - i] * Math.pow(256, i);
+    }
+    qGrams.set(running, (qGrams.has(running) ? qGrams.get(running) : 0) - 1)
+    for (let i = q; i < strA.length; i++) {
+        running %= Math.pow(256, q - 1);
+        running *= 256;
+        running += strA[i];
+        qGrams.set(running, (qGrams.has(running) ? qGrams.get(running) : 0) + 1)
     }
 
-    //Compute q-gram profiles for A and B
-    const qGramsA = qGramMap(strA);
-    const qGramsB = qGramMap(strB);
+    running = 0;
+    slice = strB.slice(0, q);
+    for (let i = 0; i < q; i++) {
+        running += slice[q - 1 - i] * Math.pow(256, i);
+
+    }
+    qGrams.set(running, (qGrams.has(running) ? qGrams.get(running) : 0) - 1)
+    for (let i = q; i < strB.length; i++) {
+        running %= Math.pow(256, q - 1);
+        running *= 256;
+        running += strB[i];
+        qGrams.set(running, (qGrams.has(running) ? qGrams.get(running) : 0) - 1)
+    }
 
     //compute q-gram distance
     let qGramDist = 0;
-    for (const [qGram, count] of qGramsA) {
-        if (qGramsB.has(qGram)) {
-            qGramDist += Math.abs(count - qGramsB.get(qGram));
-            //delete processed q-grams
-            qGramsB.delete(qGram);
-        } else {
-            //count in B is 0 implicitly
-            qGramDist += count;
-        }
+    for (const [qGram, count] of qGrams) {
+        qGramDist += Math.abs(count);
     }
 
-    //check for unique qGrams in B
-    for (const [qGram, count] of qGramsB) {
-        //count in A is 0 implicitly
-        qGramDist += count;
+    return (qGramDist / (2*q)) / (Math.max(strA.length, strB.length) - q + 1);
+}
+
+export function getFastStringCV(strA, strB, defaultValue = null, q = null) {
+
+    //Avoid division by zero
+    if (strA.length === 0 && strB.length === 0) {
+        return defaultValue;
+        //Edge cases
     }
 
-    return (qGramDist / 2*q) / (strA.length + strB.length);
+    /*
+   The parameter q should be chosen according to the length of the two strings. For max(|A|, |B|) < 100,
+   it defaults to 2 and 4 otherwise
+    */
+
+    q = 2;
+
+
+    //Avoid unnecessary computations for short strings
+    if (strA.length < q || strB.length < q) {
+        return strA === strB ? 0 : 1;
+    }
+
+    //Only preserve ASCII characters
+    strA = strA.replace(/[^\x00-\xFF]/g, "");
+    strB = strB.replace(/[^\x00-\xFF]/g, "");
+
+    strA = Buffer.alloc(strA.length, strA, "ascii");
+    strB = Buffer.alloc(strB.length, strB, "ascii");
+
+
+    const modConst = Math.pow(256, q - 1);
+
+    const qGrams = new Array(Math.pow(256, q)).fill(0);
+
+    let running = 0;
+    let slice = strA.slice(0, q);
+    for (let i = 0; i < q; i++) {
+        running += slice[q - 1 - i] * Math.pow(256, i);
+    }
+    for (let i = q; i < strA.length; i++) {
+        running %= modConst;
+        running *= 256;
+        running += strA[i];
+        qGrams[running]++;
+    }
+
+    running = 0;
+    slice = strB.slice(0, q);
+    for (let i = 0; i < q; i++) {
+        running += slice[q - 1 - i] * Math.pow(256, i);
+    }
+    for (let i = q; i < strB.length; i++) {
+        running %= modConst;
+        running *= 256;
+        running += strB[i];
+        qGrams[running]--;
+    }
+
+    return qGrams.reduce((a, b) => a + Math.abs(b), 0) / (2 * q);
 }
 
 
 export function levenstein(a, b) {
-    if(a.length == 0) return b.length;
-    if(b.length == 0) return a.length;
+    if (a.length == 0) return b.length;
+    if (b.length == 0) return a.length;
 
     // swap to save some memory O(min(a,b)) instead of O(a)
-    if(a.length > b.length) {
+    if (a.length > b.length) {
         var tmp = a;
         a = b;
         b = tmp;
@@ -110,19 +173,19 @@ export function levenstein(a, b) {
 
     var row = [];
     // init the row
-    for(var i = 0; i <= a.length; i++){
+    for (var i = 0; i <= a.length; i++) {
         row[i] = i;
     }
 
     // fill in the rest
-    for(var i = 1; i <= b.length; i++){
+    for (var i = 1; i <= b.length; i++) {
         var prev = i;
-        for(var j = 1; j <= a.length; j++){
+        for (var j = 1; j <= a.length; j++) {
             var val;
-            if(b.charAt(i-1) == a.charAt(j-1)){
-                val = row[j-1]; // match
+            if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                val = row[j - 1]; // match
             } else {
-                val = Math.min(row[j-1] + 1, // substitution
+                val = Math.min(row[j - 1] + 1, // substitution
                     prev + 1,     // insertion
                     row[j] + 1);  // deletion
             }

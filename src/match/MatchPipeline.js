@@ -51,10 +51,10 @@ export class MatchPipeline {
         switch (Config.MATCH_MODE) {
             case Config.MATCH_MODES.FAST:
                 Config.EXP = false;
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new HungSimMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new FastSimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.BALANCED:
                 Config.EXP =  true;
-                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
+                return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.QUALITY:
                 Config.EXP = false;
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
