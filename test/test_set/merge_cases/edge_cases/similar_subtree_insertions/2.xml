@@ -1,0 +1,17 @@
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <loop condition="data.items.length > 0">
+        <call id="a2" endpoint="shipItems">
+            <parameters>
+                <label>Initiate shipping to customer</label>
+                <method>:post</method>
+                <arguments>
+                    <item>data.items.pop()</item>
+                    <to>data.address</to>
+                </arguments>
+            </parameters>
+        </call>
+    </loop>
+    <loop condition="!data.billed">
+        <manipulate>data.billingRetries++;</manipulate>
+    </loop>
+</description>

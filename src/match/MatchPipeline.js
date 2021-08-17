@@ -54,16 +54,18 @@ export class MatchPipeline {
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new FastSimilarityMatcher(), new PathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.BALANCED:
                 Config.EXP =  true;
+                Config.COMPARISON_THRESHOLD = 0.4;
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
             case Config.MATCH_MODES.QUALITY:
                 Config.EXP = false;
+                Config.COMPARISON_THRESHOLD = 0.4;
                 return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
         }
     }
 
     static forMerge() {
         //no unmatched matcher
-        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new PropertyMatcher()]);
+        return new MatchPipeline([new FixedMatcher(), new HashMatcher(), new SimilarityMatcher(), new CommonalityPathMatcher(), new PathMatcher(), new UnmatchedMatcher(), new PropertyMatcher()]);
     }
 
     /*

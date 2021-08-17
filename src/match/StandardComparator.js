@@ -65,7 +65,8 @@ export class StandardComparator extends AbstractComparator {
         if (seqA == null || seqB == null) {
             return defaultValue;
         }
-        const maxLength = Math.max(seqA.length, seqB.length);
+
+        const maxLength =  Math.max(seqA.length, seqB.length);
         if (maxLength === 0) return defaultValue;
         return 1 - (getLcs(seqA, seqB).length / maxLength);
     }

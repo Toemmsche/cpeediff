@@ -19,9 +19,15 @@
  */
 export class DomHelper {
 
+    static XML_NODE_TYPES =  {
+        ELEMENT: 1,
+        TEXT: 3
+    }
+
+
     static firstChildElement(xmlParent, localName = null) {
         let xmlChild = xmlParent?.firstChild;
-        while(xmlChild != null && (xmlChild.nodeType !== 1 || (localName != null && xmlChild.localName !== localName))) {
+        while(xmlChild != null && (xmlChild.nodeType !== this.XML_NODE_TYPES.ELEMENT || (localName != null && xmlChild.localName !== localName))) {
             xmlChild = xmlChild.nextSibling;
         }
         return xmlChild;

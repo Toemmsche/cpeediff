@@ -36,6 +36,7 @@ root.setAttributeNS("http://example.com/ns", "ns:attr", "val");
 console.log(new xmldom.XMLSerializer().serializeToString(doc));
  */
 
+/*
 
 Logger.enableLogging();
 Logger.startTimed()
@@ -45,7 +46,7 @@ Logger.result("took " + Logger.endTimed() + "ms", this);
 Logger.startTimed()
 console.log(getStringCV("asdfg", "Linux"));
 Logger.result("took " + Logger.endTimed() + "ms", this);
-
+ */
 /*
 Logger.startTimed()
 console.log(levenstein("Greetings, this is a Tux".repeat(1000), "I love playing treek on my twenty Linux".repeat(1000)));
