@@ -1,0 +1,15 @@
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <parallel>
+        <parallel_branch>
+            <manipulate>initiatePackaging(data.items);</manipulate>
+        </parallel_branch>
+        <parallel_branch>
+            <manipulate>bill(data.card, data.amount);</manipulate>
+        </parallel_branch>
+    </parallel>
+    <parallel>
+        <parallel_branch>
+            <manipulate>initiateShipping(data.items, data.address);</manipulate>
+        </parallel_branch>
+    </parallel>
+</description>

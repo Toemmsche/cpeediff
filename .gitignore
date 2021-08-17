@@ -4,5 +4,5 @@
 /src/temp/Report
 .vs
 *.log
-old.xml
-new.xml
+./old.xml
+./new.xml

@@ -1,0 +1,23 @@
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <loop condition="data.test > 0">
+        <call endpoint="asdfs">
+            <parameters>
+                <arguments>
+                    <arg1>data.cost</arg1>
+                </arguments>
+            </parameters>
+        </call>
+        <parallel>
+            <parallel_branch>
+                <terminate/>
+            </parallel_branch>
+            <parallel_branch>
+                <manipulate>
+                    data.C++;
+                    data.B++;
+                    callMethod();
+                </manipulate>
+            </parallel_branch>
+        </parallel>
+    </loop>
+</description>
