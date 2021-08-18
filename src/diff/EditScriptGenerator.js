@@ -14,215 +14,203 @@
    limitations under the License.
 */
 
-
-import {EditScript} from "./EditScript.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {Config} from "../Config.js";
-import {getLis} from "../lib/Lis.js";
-import {Logger} from "../../util/Logger.js";
+import {EditScript} from './EditScript.js';
+import {Config} from '../Config.js';
+import {getLis} from '../lib/Lis.js';
+import {Logger} from '../../util/Logger.js';
 
 export class EditScriptGenerator {
 
-    _matching;
-    _editScript;
+  _matching;
+  _editScript;
 
-    generateEditScript(oldTree, newTree, matching) {
-        Logger.info("Generating edit script...", this);
-        Logger.startTimed();
+  generateEditScript(oldTree, newTree, matching) {
+    Logger.info('Generating edit script...', this);
+    Logger.startTimed();
 
-        const copyOfOld = NodeFactory.getNode(oldTree);
+    const copyOfOld = Node.fromNode(oldTree);
 
-        this._matching = matching;
-        this._editScript = new EditScript();
+    this._matching = matching;
+    this._editScript = new EditScript();
 
-        const newPreOrderArray = newTree.toPreOrderArray();
+    const newPreOrderArray = newTree.toPreOrderArray();
 
-        //iterate in pre order through new tree
-        for (const newNode of newPreOrderArray) {
-            if (matching.hasNew(newNode)) {
-                //new Node has a match in the old tree
-                const match = matching.getNew(newNode);
-                //skip the root
-                if (!newNode.isRoot() && matching.getNew(newNode.parent) !== match.parent) {
-                    this._move(match);
-                }
-                if (!newNode.contentEquals(match)) {
-                    this._update(match,);
-                }
-            } else {
-                this._insert(newNode);
-            }
+    //iterate in pre order through new tree
+    for (const newNode of newPreOrderArray) {
+      if (matching.hasNew(newNode)) {
+        //new Node has a match in the old tree
+        const match = matching.getNew(newNode);
+        //skip the root
+        if (!newNode.isRoot() && matching.getNew(newNode.parent) !== match.parent) {
+          this._move(match);
         }
-
-        const oldPreOrderArray = oldTree.toPreOrderArray();
-        for (let i = 0; i < oldPreOrderArray.length; i++) {
-            const oldNode = oldPreOrderArray[i];
-            if (!matching.hasOld(oldNode)) {
-                //skip all descendants in the post-order traversal
-                i += oldNode.size() - 1;
-                this._delete(oldNode);
-            }
+        if (!newNode.contentEquals(match)) {
+          this._update(match,);
         }
-
-        for (const newNode of newTree.toPreOrderArray()) {
-            if (!matching.hasNew(newNode)) {
-                throw new Error();
-            }
-        }
-        for (const oldNode of oldTree.toPreOrderArray()) {
-            if (!matching.hasOld(oldNode)) {
-                throw new Error();
-            }
-        }
-
-        //All nodes in the old tree have the correct parent
-        //However, the children of a node might still be misaligned
-        for (const oldNode of oldTree.toPreOrderArray()) {
-            if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
-                this._alignChildren(oldNode, this._editScript);
-            }
-        }
-
-        //verify edit script
-        if(!this._editScript.verify(copyOfOld, newTree)) {
-            Logger.error("Generated edit script is not valid for the given trees", this);
-        }
-
-        Logger.stat("Edit script generation took " + Logger.endTimed() + "ms", this);
-        Logger.stat("Cost of edit script: " + this._editScript.cost, this);
-        return this._editScript;
+      } else {
+        this._insert(newNode);
+      }
     }
 
-    _alignChildren(oldParent) {
-        /*
-         Map every node in the child node list to its matching partner's child index.
-         Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
-         */
-        const nodes = oldParent.children;
-        const arr = nodes.map(n => this._matching.getOld(n).index);
-        let lis = getLis(arr);
-
-
-        const inLis= new Set();
-        for (const index of lis) {
-            inLis.add(nodes[index]);
-        }
-
-        outer: for (let i = 0; i < nodes.length; i++) {
-            const node = nodes[i];
-            if(!inLis.has(node)) {
-                /*
-                 The node may be moved further back in the node list.
-                 In order to also consider the following node, we must move the iteration index back.
-                */
-                i--;
-                const oldPath = node.xPath();
-                const thisMatchIndex = this._matching.getOld(node).index;
-                for (let j = 0; j < nodes.length; j++) {
-                    const lisMatchIndex = this._matching.getOld(nodes[j]).index;
-                    if(inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
-                        //move within node list, adjust index for move further back
-                        node.changeIndex(j > node.index ? j - 1 : j);
-                        const newPath = node.xPath();
-                        this._editScript.move(oldPath, newPath);
-                        inLis.add(node);
-                        continue outer;
-                    }
-                }
-                inLis.add(node);
-
-                //move to end of node list
-                node.changeIndex(nodes.length - 1);
-                const newPath = node.xPath();
-                this._editScript.move(oldPath, newPath);
-            }
-        }
+    const oldPreOrderArray = oldTree.toPreOrderArray();
+    for (let i = 0; i < oldPreOrderArray.length; i++) {
+      const oldNode = oldPreOrderArray[i];
+      if (!matching.hasOld(oldNode)) {
+        //skip all descendants in the post-order traversal
+        i += oldNode.size() - 1;
+        this._delete(oldNode);
+      }
     }
 
-    _delete(oldNode) {
-        const oldPath = oldNode.xPath();
-        //TODO document that removeFromParent() does not change the parent attribute
-        oldNode.removeFromParent();
-        this._editScript.delete(oldNode);
-
+    for (const newNode of newTree.toPreOrderArray()) {
+      if (!matching.hasNew(newNode)) {
+        throw new Error();
+      }
+    }
+    for (const oldNode of oldTree.toPreOrderArray()) {
+      if (!matching.hasOld(oldNode)) {
+        throw new Error();
+      }
     }
 
-    _move(oldNode) {
-        const newNode = this._matching.getOld(oldNode);
-        const oldPath = oldNode.xPath();
-
-        //move oldNode to newParent
-        oldNode.removeFromParent();
-
-        //find appropriate insertion index
-        const insertionIndex = this._findInsertionIndex(newNode);
-
-        const newParent = this._matching.getNew(newNode.parent);
-        newParent.insertChild(insertionIndex, oldNode);
-        const newPath = oldNode.xPath();
-        this._editScript.move(oldPath, newPath);
+    //All nodes in the old tree have the correct parent
+    //However, the children of a node might still be misaligned
+    for (const oldNode of oldTree.toPreOrderArray()) {
+      if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
+        this._alignChildren(oldNode, this._editScript);
+      }
     }
 
-    _insert(newNode) {
-        const copy = NodeFactory.getNode(newNode, true);
-
-        const deleteLater = [];
-        const matchOrRemove = (copiedNode, newNode) => {
-            if (this._matching.hasNew(newNode)) {
-                deleteLater.push(copiedNode);
-            } else {
-                this._matching.matchNew(newNode, copiedNode);
-                for (let i = 0; i < copiedNode.degree(); i++) {
-                    matchOrRemove(copiedNode.getChild(i), newNode.getChild(i));
-                }
-            }
-        }
-        matchOrRemove(copy, newNode);
-        for (const copiedNode of deleteLater) {
-            copiedNode.removeFromParent();
-        }
-
-        //find appropriate insertion index
-        const insertionIndex = this._findInsertionIndex(newNode);
-
-
-        //perform insert operation at match of the parent node
-        const newParent = this._matching.getNew(newNode.parent);
-        newParent.insertChild(insertionIndex, copy);
-        const newPath = copy.xPath();
-
-        this._editScript.insert(copy);
+    //verify edit script
+    if (!this._editScript.verify(copyOfOld, newTree)) {
+      Logger.error('Generated edit script is not valid for the given trees', this);
     }
 
-    _findInsertionIndex(newNode) {
-        let insertionIndex;
-        if (newNode.index > 0) {
-            const leftSibling = newNode.getSiblings()[newNode.index - 1];
-            //left sibling has a match
-            insertionIndex = this._matching.getNew(leftSibling).index + 1;
-        } else {
-            insertionIndex = 0;
-        }
-        return insertionIndex;
-    }
+    Logger.stat('Edit script generation took ' + Logger.endTimed() + 'ms', this);
+    Logger.stat('Cost of edit script: ' + this._editScript.cost, this);
+    return this._editScript;
+  }
 
-    _update(oldNode) {
-        const newNode = this._matching.getOld(oldNode);
-
-        //overwrite old values
-        oldNode.attributes = new Map();
-        for(const [key, val] of newNode.attributes) {
-            oldNode.attributes.set(key,val);
-        }
-        oldNode.text = newNode.text;
-        this._editScript.update(oldNode);
-    }
-
-    /**
-     * Convert adjacent edits to sequence operations
-     * @private
+  _alignChildren(oldParent) {
+    /*
+     Map every node in the child node list to its matching partner's child index.
+     Find the Longest Increasing Subsequence (LIS) amount the resulting array and move every child that is not part of this sequence.
      */
-    _postProcess() {
-        //TODO
+    const nodes = oldParent.children;
+    const arr = nodes.map(n => this._matching.getOld(n).index);
+    let lis = getLis(arr);
+
+    const inLis = new Set();
+    for (const index of lis) {
+      inLis.add(nodes[index]);
     }
+
+    outer: for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      if (!inLis.has(node)) {
+        /*
+         The node may be moved further back in the node list.
+         In order to also consider the following node, we must move the iteration index back.
+        */
+        i--;
+        const oldPath = node.xPath();
+        const thisMatchIndex = this._matching.getOld(node).index;
+        for (let j = 0; j < nodes.length; j++) {
+          const lisMatchIndex = this._matching.getOld(nodes[j]).index;
+          if (inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
+            //move within node list, adjust index for move further back
+            node.changeIndex(j > node.index ? j - 1 : j);
+            const newPath = node.xPath();
+            this._editScript.move(oldPath, newPath);
+            inLis.add(node);
+            continue outer;
+          }
+        }
+        inLis.add(node);
+
+        //move to end of node list
+        node.changeIndex(nodes.length - 1);
+        const newPath = node.xPath();
+        this._editScript.move(oldPath, newPath);
+      }
+    }
+  }
+
+  _delete(oldNode) {
+    const oldPath = oldNode.xPath();
+    //TODO document that removeFromParent() does not change the parent attribute
+    oldNode.removeFromParent();
+    this._editScript.delete(oldNode);
+
+  }
+
+  _move(oldNode) {
+    const newNode = this._matching.getOld(oldNode);
+    const oldPath = oldNode.xPath();
+
+    //move oldNode to newParent
+    oldNode.removeFromParent();
+
+    //find appropriate insertion index
+    const insertionIndex = this._findInsertionIndex(newNode);
+
+    const newParent = this._matching.getNew(newNode.parent);
+    newParent.insertChild(insertionIndex, oldNode);
+    const newPath = oldNode.xPath();
+    this._editScript.move(oldPath, newPath);
+  }
+
+  _insert(newNode) {
+    const copy = Node.fromNode(newNode, true);
+
+    const deleteLater = [];
+    const matchOrRemove = (copiedNode, newNode) => {
+      if (this._matching.hasNew(newNode)) {
+        deleteLater.push(copiedNode);
+      } else {
+        this._matching.matchNew(newNode, copiedNode);
+        for (let i = 0; i < copiedNode.degree(); i++) {
+          matchOrRemove(copiedNode.getChild(i), newNode.getChild(i));
+        }
+      }
+    };
+    matchOrRemove(copy, newNode);
+    for (const copiedNode of deleteLater) {
+      copiedNode.removeFromParent();
+    }
+
+    //find appropriate insertion index
+    const insertionIndex = this._findInsertionIndex(newNode);
+
+    //perform insert operation at match of the parent node
+    const newParent = this._matching.getNew(newNode.parent);
+    newParent.insertChild(insertionIndex, copy);
+    const newPath = copy.xPath();
+
+    this._editScript.insert(copy);
+  }
+
+  _findInsertionIndex(newNode) {
+    let insertionIndex;
+    if (newNode.index > 0) {
+      const leftSibling = newNode.getSiblings()[newNode.index - 1];
+      //left sibling has a match
+      insertionIndex = this._matching.getNew(leftSibling).index + 1;
+    } else {
+      insertionIndex = 0;
+    }
+    return insertionIndex;
+  }
+
+  _update(oldNode) {
+    const newNode = this._matching.getOld(oldNode);
+
+    //overwrite old values
+    oldNode.attributes = new Map();
+    for (const [key, val] of newNode.attributes) {
+      oldNode.attributes.set(key, val);
+    }
+    oldNode.text = newNode.text;
+    this._editScript.update(oldNode);
+  }
 }

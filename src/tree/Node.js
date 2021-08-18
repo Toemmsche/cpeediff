@@ -1,381 +1,453 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http=//www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-import {Dsl} from "../Dsl.js";
-import {Logger} from "../../util/Logger.js";
+import {Dsl} from '../Dsl.js';
+import {Logger} from '../../util/Logger.js';
+import {DomHelper} from '../../util/DomHelper.js';
+import xmldom from 'xmldom';
 
 /**
  * A node inside a CPEE process tree parsed from an XML document.
- * Process trees are rooted trees that are ordered and labeled.
- * Additionally, each node can have optinal attributes and text content.
- *
- * A node is considered a leaf node if it corresponds to a leaf element in the CPEE DSL {@see Dsl},
- * an inner node if it corresponds to an inner element in the CPEE DSL {@see Dsl}
- * or a property node otherwise. Property nodes describe the content of their closes non-property node ancestor
- * in more detail, although their content does NOT contribute to the text content of their logical parent.
- * @property {String} label The label of the node, equivalent to the XML tag
- * @property {Map<String, String>} attributes The attributes of the node as key-value pairs
- * @property {String} text The text content of the node
+ * A node is considered a(n)
+ * - leaf node if it corresponds to a activity DSL-Element.
+ * - inner node if it corresponds to a control flow DSL-Element.
+ * - property node otherwise.
  */
 export class Node {
+  /** @type {!String} */
+  label;
+  /** @type {!Map<String, String>} */
+  attributes;
+  /** @type {?String} */
+  text;
 
-    /*
-    Node Content
-     */
+  /**
+   * @param {!String} label
+   * @param {?String} text
+   */
+  constructor(label, text = null) {
+    this.label = label;
+    this.text = text;
+    this.attributes = new Map();
+    this.#children = [];
+    this.#parent = null;
+    this.#index = null;
+  }
 
-    label;
-    attributes;
-    text;
+  /**
+   * @type {?Node}
+   * @private
+   */
+  #parent;
 
+  /** @return {?Node} */
+  get parent() {
+    return this.#parent;
+  }
 
-    /**
-     * Construct a new node with the given label and text content and an empty attribute map.
-     * @param {String} label The label of the node
-     * @param {String} text  The content of the node
-     */
-    constructor(label, text = null) {
-        this.label = label;
-        this.text = text;
-        this.attributes = new Map();
-        this._children = [];
-        this._parent = null;
-        this._index = null;
+  /**
+   * The index of this node within the parent's ordered child list.
+   * @type {?Number}
+   * @private
+   */
+  #index;
+
+  /** @return {?Number} */
+  get index() {
+    return this.#index;
+  }
+
+  /**
+   * @type {!Array<Node>}
+   * @private
+   */
+  #children;
+
+  /** @return {!Array<Node>} */
+  get children() {
+    return this.#children;
+  }
+
+  /**
+   * Create a new Node instance from an existing node.
+   * @param {!Node} node
+   * @param {!Boolean} includeChildren
+   * @return {!Node}
+   */
+  static fromNode(node, includeChildren = true) {
+    const copy = new Node(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      copy.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        copy.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    return copy;
+  }
+
+  /**
+   * Create a new Node instance from an XML string or xmldom object.
+   * @param {String|Object} xmlElement
+   * @param {!Boolean} includeChildren
+   * @return {!Node}
+   */
+  static fromXml(xmlElement, includeChildren = true) {
+    if (xmlElement instanceof String) {
+      xmlElement = DomHelper.firstChildElement(
+          new xmldom
+              .DOMParser()
+              .parseFromString(xmlElement, 'text/xml'));
+    }
+    const root = new Node(xmlElement.localName);
+    // parse attributes
+    for (let i = 0; i < xmlElement.attributes.length; i++) {
+      const attrNode = xmlElement.attributes.item(i);
+      root.attributes.set(attrNode.name, attrNode.value);
     }
 
-    /*
-    Structural Information
-     */
-
-    /**
-     * The parent node of this node. Null if this is the root node.
-     * @type Node|null
-     * @private
-     */
-    _parent;
-
-    /**
-     * @returns {Node|null} The parent node of this node.
-     */
-    get parent() {
-        return this._parent;
-    }
-
-    /**
-     * The index of this node within the parent's ordered child list. Null if this is the root node.
-     * @type Number|null
-     * @private
-     */
-    _index;
-
-    /**
-     * @returns {Number|null} The index of this node within the parent's ordered child list.
-     */
-    get index() {
-        return this._index;
-    }
-
-    /**
-     * The ordered array of the children of this node.
-     * @type Node[]
-     * @private
-     */
-    _children;
-
-    /**
-     * @returns {Node[]} The ordered array of children of this node.
-     */
-    get children() {
-        return this._children;
-    }
-
-    /**
-     * Returns a subsequence of all nodes that lie on the path from the root (exclusive) to this node (inclusive)
-     * @param {number|null} limit The maximum length of the path, unlimited if null.
-     * @returns {Node[]} The array of all nodes on this node's path.
-     */
-    path(limit = null) {
-        const pathArr = [];
-        let node = this;
-        while (node != null && (limit == null  || pathArr.length < limit)) {
-            pathArr.push(node);
-            node = node._parent;
+    for (let i = 0; i < xmlElement.childNodes.length; i++) {
+      const childElement = xmlElement.childNodes.item(i);
+      if (childElement.nodeType === DomHelper.XML_NODE_TYPES.TEXT) {
+        // check if text node contains a non-empty payload
+        if (childElement.data.match(/^\s*$/) == null) {
+          if (root.text == null) {
+            root.text = '';
+          }
+          root.text += childElement.data;
         }
-        //this node is always last in path
-        return pathArr.reverse().slice(1);
+      } else if (childElement.nodeType === DomHelper.XML_NODE_TYPES.ELEMENT &&
+          includeChildren) {
+        root.appendChild(this.fromXml(childElement, includeChildren));
+      }
     }
+    return root;
+  }
 
-    /**
-     * @returns {IterableIterator<Node>} An iterator for the children of this node.
-     */
-    [Symbol.iterator]() {
-        return this._children[Symbol.iterator]();
+  /**
+   * @return {!IterableIterator<Node>} An iterator for this node's children
+   */
+  [Symbol.iterator]() {
+    return this.#children[Symbol.iterator]();
+  }
+
+  /** @param {!Node} node */
+  appendChild(node) {
+    node.#index = this.#children.push(node) - 1;
+    node.#parent = this;
+  }
+
+  /**
+   * Move this node to a new position within the child list of its parent.
+   * @param {!Number} index The new index.
+   */
+  changeIndex(index) {
+    // delete
+    this.#parent.#children.splice(this.#index, 1);
+    // insert
+    this.#parent.#children.splice(index, 0, this);
+    // adjust indices of all children
+    this.#parent.#fixChildIndices();
+  }
+
+  /**
+   * Determines if the content of this node is equal to the content
+   * of another node.
+   * @param {!Node} other
+   * @return {!Boolean} True, iff the content equals.
+   */
+  contentEquals(other) {
+    return this.label === other.label &&
+        this.text !== other.text &&
+        this.attributes.size === other.attributes.size &&
+        ![...this.attributes.entries()]
+            .some((entry) => other.attributes.get(entry[0]) !== entry[1]);
+  }
+
+  /**
+   * @return {!Number} The number of children of this node
+   */
+  degree() {
+    return this.#children.length;
+  }
+
+  /**
+   * Restore the correct indices of all children.
+   * @private
+   */
+  #fixChildIndices() {
+    this.#children.forEach((node, index) => node.#index = index);
+  }
+
+  /**
+   * @param {!Number} index
+   * @return {!Node}
+   */
+  getChild(index) {
+    return this.#children[index];
+  }
+
+  /** @return {?Node} */
+  getLeftSibling() {
+    return this.#index > 0 ?
+        this.getSiblings()[this.#index - 1] :
+        null;
+  }
+
+  /** @return {?Node} */
+  getRightSibling() {
+    return this.#index < this.getSiblings().length - 1 ?
+        this.getSiblings()[this.#index + 1] :
+        null;
+  }
+
+  /** @return {?Array<Node>} The child list of the parent node */
+  getSiblings() {
+    return this.#parent.#children;
+  }
+
+  /** @return {!Boolean} */
+  hasAttributes() {
+    return this.attributes.size > 0;
+  }
+
+  /** @return {!Boolean} */
+  hasChildren() {
+    return this.degree() > 0;
+  }
+
+  /**
+   * @return {!Boolean} If the order of the children of this node
+   * has semantic implications in terms of the CPEE DSL.
+   */
+  hasInternalOrdering() {
+    return Dsl.INTERNAL_ORDERING_SET.has(this.label);
+  }
+
+  /** @return {!Array<Node>} All inner nodes of this subtree in pre-order */
+  innerNodes() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => n.isInnerNode());
+  }
+
+  /**
+   * @param {!Number} index
+   * @param {!Node} node
+   */
+  insertChild(index, node) {
+    this.#children.splice(index, 0, node);
+    node.#parent = this;
+    this.#fixChildIndices();
+  }
+
+  /** @return {!Boolean} */
+  isAlternative() {
+    return this.label === Dsl.ELEMENTS.ALTERNATIVE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isBreak() {
+    return this.label === Dsl.ELEMENTS.ESCAPE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isCall() {
+    return this.label === Dsl.ELEMENTS.CALL.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isChoice() {
+    return this.label === Dsl.ELEMENTS.CHOOSE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isCritical() {
+    return this.label === Dsl.ELEMENTS.CRITICAL.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isEmpty() {
+    return !this.isInnterruptLeafNode() &&
+        (this.text === '' || this.text == null) &&
+        !this.hasAttributes() &&
+        !this.hasChildren();
+  }
+
+  /**
+   * @return {!Boolean} If this node corresponds to a control flow DSL-Element
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isInnerNode() {
+    return Dsl.INNER_NODE_SET.has(this.label);
+  }
+
+  /** @return {!Boolean} */
+  isInnterruptLeafNode() {
+    return this.isTermination() || this.isStop() || this.isBreak();
+  }
+
+  /**
+   * @return {!Boolean} If this node corresponds to an activity DSL-Element
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isLeaf() {
+    return Dsl.LEAF_NODE_SET.has(this.label);
+  }
+
+  /** @return {!Boolean} */
+  isLoop() {
+    return this.label === Dsl.ELEMENTS.LOOP.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isOtherwise() {
+    return this.label === Dsl.ELEMENTS.OTHERWISE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isParallel() {
+    return this.label === Dsl.ELEMENTS.PARALLEL.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isParallelBranch() {
+    return this.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /**
+   * @return {!Boolean} If this node corresponds to a property
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isPropertyNode() {
+    // Call arguments that are named after DSL-elements
+    // can break the first condition.
+    return !Dsl.ELEMENT_SET.has(this.label) ||
+        (this.#parent != null && !Dsl.ELEMENT_SET.has(this.#parent.label));
+  }
+
+  /** @return {!Boolean} */
+  isRoot() {
+    return this.label === Dsl.ELEMENTS.ROOT.label && this.#parent == null;
+  }
+
+  /** @return {!Boolean} */
+  isScript() {
+    return this.label === Dsl.ELEMENTS.MANIPULATE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isStop() {
+    return this.label === Dsl.ELEMENTS.STOP.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Boolean} */
+  isTermination() {
+    return this.label === Dsl.ELEMENTS.TERMINATE.label &&
+        !this.#parent.isPropertyNode();
+  }
+
+  /** @return {!Array<Node>} All leaf nodes of this subtree in pre-order */
+  leaves() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => n.isLeaf());
+  }
+
+  /** @return {!Array<Node>} All property nodes of this subtree in pre-order */
+  nonPropertyNodes() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => !n.isPropertyNode());
+  }
+
+  /**
+   * Compute a subsequence of this node's path.
+   * The path is the sequence of all ancestors of this node,
+   * starting from the root (inclusive) to this node (exclusive).
+   * @param {?Number} limit The maximum length of the subsequence,
+   *   unlimited if null.
+   * @return {!Array<Node>} The subsequence of the path.
+   */
+  path(limit = null) {
+    const pathArr = [];
+    let node = this;
+    while (node != null && (limit == null || pathArr.length < limit)) {
+      pathArr.push(node);
+      node = node.#parent;
     }
+    // this node is always last in path
+    return pathArr.reverse().slice(1);
+  }
 
-    /**
-     * @returns {number} The number of children of this node.
-     */
-    degree() {
-        return this._children.length;
+  /**
+   * Remove a node from the child list of its parent.
+   * Note: The parent attribute is not cleared by this function.
+   */
+  removeFromParent() {
+    if (this.#parent != null) {
+      this.#parent.children.splice(this.#index, 1);
+      this.#parent.#fixChildIndices();
+    } else {
+      // Unexpected, but non-fatal event
+      Logger.warn('Removing node ' +
+          this.toString() + ' that has no parent', this);
     }
+  }
 
-    /**
-     * @param index The index of the desired child of this node.
-     * @returns {Node|null} The child at the desired index, if it exists.
-     */
-    getChild(index) {
-        return this._children[index];
-    }
+  /**
+   * Warning: This function takes O(n) time!
+   * @return {number} The size of the subtree rooted at this node.
+   */
+  size() {
+    return this
+        .#children
+        .reduce((acc, child) => acc + child.size(), this.#children.length);
+  }
 
-    /**
-     * @returns {Node[]} The child list of the parent node. Null if the node does not have a parent.
-     */
-    getSiblings() {
-        return this._parent._children;
-    }
+  /**
+   * Create a list of all nodes contained in the subtree rooted at this node
+   * in post-order.
+   * @return {!Array<Node>}
+   */
+  toPostOrderArray() {
+    return this
+        .#children
+        .map((child) => child.toPreOrderArray())
+        .reduce((arr1, arr2) => arr1.concat(arr2), [])
+        .concat([this]);
+  }
 
-    /**
-     * @returns {Node|null} The sibling node with the next lower index, if it exists.
-     */
-    getLeftSibling() {
-        if (this._index > 0) {
-            return this.getSiblings()[this._index - 1];
-        }
-        return null;
-    }
+  /**
+   * Create a list of all nodes contained in the subtree rooted at this node
+   * in pre-order.
+   * @return {!Array<Node>}
+   */
+  toPreOrderArray() {
+    const arr = [this].concat(
+        this
+            .#children
+            .map((child) => child.toPreOrderArray())
+            .reduce((arr1, arr2) => arr1.concat(arr2), []));
+    return arr;
+  }
 
-    /**
-     * @returns {Node|null} The sibling node with the next higher index, if it exists.
-     */
-    getRightSibling() {
-        if (this._index < this.getSiblings().length - 1) {
-            return this.getSiblings()[this._index + 1];
-        }
-        return null;
-    }
-
-    /**
-     * Determines if the content (label, attributes and text) of this node is equal to the content
-     * of another node.
-     * @param {Node} other The other node to compare against.
-     * @returns {Boolean} If the content equals.
-     */
-    contentEquals(other) {
-        if (this.label !== other.label) return false;
-        if (this.attributes.size !== other.attributes.size) return false;
-        for (const [key, value] of this.attributes) {
-            if (other.attributes.get(key) !== value) return false;
-        }
-        if (this.text !== other.text) return false;
-        return true;
-    }
-
-    /**
-     * @returns {boolean} If this node has at least one child.
-     */
-    hasChildren() {
-        return this.degree() > 0;
-    }
-
-    /**
-     * @returns {boolean} If this node has at least one attribute.
-     */
-    hasAttributes() {
-        return this.attributes.size > 0
-    }
-
-    /**
-     * @returns {boolean} If the order of the children of this node
-     *                    has semantic implications in terms of the CPEE DSL {@see Dsl}.
-     */
-    hasInternalOrdering() {
-        return Dsl.INTERNAL_ORDERING_SET.has(this.label);
-    }
-
-    /**
-     * @returns {boolean} If this node corresponds to a leaf element in terms of the CPEE DSL {@see Dsl}.
-     */
-    isLeaf() {
-        return Dsl.LEAF_NODE_SET.has(this.label);
-    }
-
-    /**
-     * @returns {boolean} If this node corresponds to an inner element in terms of the CPEE DSL {@see Dsl}.
-     */
-    isInnerNode() {
-        return Dsl.INNER_NODE_SET.has(this.label);
-    }
-
-    /**
-     * @returns {boolean} If this node corresponds to a property in terms of the CPEE DSL {@see Dsl}.
-     */
-    isPropertyNode() {
-        return !Dsl.ELEMENT_SET.has(this.label) || this._parent?.isPropertyNode();
-    }
-
-    /**
-     * @returns {boolean} If this node is the root node of the process tree it is a part of.
-     */
-    isRoot() {
-        return this.label === Dsl.ELEMENTS.ROOT.label && this._parent == null;
-    }
-
-    /**
-     * @returns {boolean} If this node does not have any content.
-     */
-    isEmpty() {
-        return !this.isLeaf()
-            && (this.text === "" || this.text == null)
-            && !this.hasAttributes()
-            && !this.hasChildren();
-    }
-
-    /**
-     * Append a node at the end of the child list.
-     * @param {Node} node The node to append.
-     */
-    appendChild(node) {
-        node._index = this._children.push(node) - 1;
-        node._parent = this;
-    }
-
-    /**
-     * Insert a child at a specified position within the child list.
-     * @param {Number} index The position at which to insert the node.
-     * @param {Node} node The node to insert.
-     */
-    insertChild(index, node) {
-        this._children.splice(index, 0, node);
-        node._parent = this;
-        this._fixChildIndices();
-    }
-
-    /**
-     * Move this node to a new position within the child list of its parent.
-     * Afterwards, the index should equal the specified index.
-     * @param {Number} newIndex The new index.
-     */
-    changeIndex(newIndex) {
-        //delete
-        this._parent._children.splice(this._index, 1);
-        //insert
-        this._parent._children.splice(newIndex, 0, this);
-        //adjust indices of all children
-        this._parent._fixChildIndices();
-    }
-
-    /**
-     * Remove a node from the child list of its parent.
-     * Note: The parent attribute is not cleared by this function.
-     */
-    removeFromParent() {
-        if (this._parent != null) {
-            this._parent.children.splice(this._index, 1);
-            this._parent._fixChildIndices();
-        } else {
-            Logger.warn("Removing node " + this.toString() + " that has no parent", this);
-        }
-
-    }
-
-    /**
-     * Restore the correct indices of all children.
-     * @private
-     */
-    _fixChildIndices() {
-        for (let i = 0; i < this._children.length; i++) {
-            this._children[i]._index = i;
-        }
-    }
-
-    /**
-     * Returns the index of each node in the path from the root (exclusive) to this node (inclusive).
-     * @returns {string} The array of indices of all nodes on the path.
-     */
-    xPath() {
-        //discard root node
-        return this.path().map(n => n.index).join("/");
-    }
-
-    //TODO
-    toString() {
-        return this.label;
-    }
-
-    /**
-     * Traverses the subtree rooted at this node in pre-order and appends all visited nodes to a given array.
-     * @param {Node[]} arr The target array. Defaults to an empty array.
-     * @returns {Node[]} The target array containing all nodes of this subtree in pre-order.
-     */
-    toPreOrderArray(arr = []) {
-        arr.push(this);
-        for (const child of this) {
-            child.toPreOrderArray(arr);
-        }
-        return arr;
-    }
-
-    /**
-     * Traverses the subtree rooted at this node in post-order and appends all visited nodes to a given array.
-     * @param {Node[]} arr The target array. Defaults to an empty array.
-     * @returns {Node[]} The target array containing all nodes of this subtree in post-order.
-     */
-    toPostOrderArray(arr = []) {
-        for (const child of this) {
-            child.toPostOrderArray(arr);
-        }
-        arr.push(this);
-        return arr;
-    }
-
-    /**
-     * Returns all nodes of the subtree rooted at this node that correspond to an inner node in terms
-     * of the CPEE DSL {@see Dsl}. The nodes are visited in pre-order.
-     * @returns {Node[]} All inner nodes of this subtree in pre-order.
-     */
-    innerNodes() {
-        return this.toPreOrderArray()
-            .filter(n => n.isInnerNode());
-    }
-
-    /**
-     * Returns all nodes of the subtree rooted at this node that correspond to a leaf node in terms
-     * of the CPEE DSL {@see Dsl}. The nodes are visited in pre-order.
-     * @returns {Node[]} All leaf nodes of this subtree in pre-order.
-     */
-    leaves() {
-        return this.toPreOrderArray()
-            .filter(n => n.isLeaf());
-    }
-
-    /**
-     * Returns all nodes of the subtree rooted at this node that do NOT correspond to a property in terms
-     * of the CPEE DSL {@see Dsl}. The nodes are visited in pre-order.
-     * @returns {Node[]} All non-property nodes of this subtree in pre-order.
-     */
-    nonPropertyNodes() {
-        return this.toPreOrderArray()
-            .filter(n => !n.isPropertyNode());
-    }
-
-    /**
-     * Warning: This function takes O(n) time!
-     * @returns {number} The size of the subtree rooted at this node.
-     */
-    size() {
-        return this.toPostOrderArray().length;
-    }
+  /**
+   * Returns the an XPath like positional identifier for this node.
+   * @return {!String} The array of indices of all nodes on the path.
+   */
+  xPath() {
+    // discard root node
+    return this.path().map((node) => node.index).join('/');
+  }
 }
 

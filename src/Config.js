@@ -16,55 +16,55 @@
 
 export const Config = {
 
-    MATCH_MODE: "quality",
-    MATCH_MODES: {
-        FAST: "fast",
-        BALANCED: "balanced",
-        QUALITY: "quality"
-    },
+  MATCH_MODE: 'quality',
+  MATCH_MODES: {
+    FAST: 'fast',
+    BALANCED: 'balanced',
+    QUALITY: 'quality'
+  },
 
-    LOG_LEVEL: "error",
-    LOG_LEVELS: {
-        ERROR: "error",
-        WARN: "warn",
-        ALL: "all"
-    },
+  LOG_LEVEL: 'error',
+  LOG_LEVELS: {
+    ERROR: 'error',
+    WARN: 'warn',
+    ALL: 'all'
+  },
 
-    COMPARATOR: {
-        PATH_COMPARE_RANGE: 5,
+  COMPARATOR: {
+    PATH_COMPARE_RANGE: 5,
 
-        //TODO
-        WEIGHT_BOOST_MULITPLIER: 1,
+    //TODO
+    WEIGHT_BOOST_MULITPLIER: 1,
 
-        //General weights
-        WRITTEN_VAR_WEIGHT: 2,
-        READ_VAR_WEIGHT: 1,
+    //General weights
+    WRITTEN_VAR_WEIGHT: 2,
+    READ_VAR_WEIGHT: 1,
 
-        //Call weights
-        CALL_ENDPOINT_WEIGHT: 3,
-        CALL_METHOD_WEIGHT: 1,
-        CALL_LABEL_WEIGHT: 0.5,
-        CALL_ARGS_WEIGHT: 2,
-        CALL_SERVICE_WEIGHT: 1,
-        CALL_CODE_WEIGHT: 1,
+    //Call weights
+    CALL_ENDPOINT_WEIGHT: 3,
+    CALL_METHOD_WEIGHT: 1,
+    CALL_LABEL_WEIGHT: 0.5,
+    CALL_ARGS_WEIGHT: 2,
+    CALL_SERVICE_WEIGHT: 1,
+    CALL_CODE_WEIGHT: 1,
 
-        EPSILON_PENALTY: 0.01,
+    EPSILON_PENALTY: 0.01,
 
-        CONDITION_WEIGHT: 2,
-        MODE_WEIGHT: 1,
+    CONDITION_WEIGHT: 2,
+    MODE_WEIGHT: 1,
 
-        CONTENT_WEIGHT: 5,
-        POSITION_WEIGHT: 1
-    },
+    CONTENT_WEIGHT: 5,
+    POSITION_WEIGHT: 1
+  },
 
-    COMPARISON_THRESHOLD: 0.4,
+  COMPARISON_THRESHOLD: 0.4,
 
-    EXACT_EDIT_SCRIPT: false,
+  EXACT_EDIT_SCRIPT: false,
 
-    VARIABLE_PREFIX: "data.",
-    ADD_INIT_SCRIPT: false,
+  VARIABLE_PREFIX: 'data.',
+  ADD_INIT_SCRIPT: false,
 
-    PRETTY_XML: false
-}
+  PRETTY_XML: false
+};
 
 

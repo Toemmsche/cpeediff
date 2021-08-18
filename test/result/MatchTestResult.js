@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-import {AbstractTestResult} from "./AbstractTestResult.js";
+import {AbstractTestResult} from './AbstractTestResult.js';
 
-export class MatchTestResult extends AbstractTestResult{
+export class MatchTestResult extends AbstractTestResult {
 
-    constructor(caseName, algorithm, actual, verdict) {
-        super(caseName, algorithm, actual, verdict);
-    }
+  constructor(caseName, algorithm, actual, verdict) {
+    super(caseName, algorithm, actual, verdict);
+  }
 }
 
 

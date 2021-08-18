@@ -14,52 +14,51 @@
    limitations under the License.
 */
 
-import {AbstractNodeFactory} from "../tree/AbstractNodeFactory.js";
-import {MergeNode} from "./MergeNode.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
+import {AbstractNodeFactory} from '../tree/AbstractNodeFactory.js';
+import {MergeNode} from './MergeNode.js';
 
 export class MergeNodeFactory extends AbstractNodeFactory {
 
-    static _fromNode(node, includeChildren) {
-        const mergeNode = new MergeNode(node.label, node.text);
-        for (const [key, value] of node.attributes) {
-            mergeNode.attributes.set(key, value);
-        }
-        if (includeChildren) {
-            for (const child of node) {
-                mergeNode.appendChild(this.getNode(child, includeChildren))
-            }
-        }
-        return mergeNode;
+  static _fromNode(node, includeChildren) {
+    const mergeNode = new MergeNode(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      mergeNode.attributes.set(key, value);
     }
+    if (includeChildren) {
+      for (const child of node) {
+        mergeNode.appendChild(this.getNode(child, includeChildren));
+      }
+    }
+    return mergeNode;
+  }
 
-    static _fromDeltaNode(deltaNode, includeChildren) {
-        const mergeNode = this._fromNode(deltaNode, includeChildren);
-        mergeNode.type = deltaNode.type;
-        mergeNode.baseNode = deltaNode.baseNode;
-        for (const [key, update] of deltaNode.updates) {
-            mergeNode.updates.set(key, update.copy());
-        }
-        if (includeChildren) {
-            for (const placeholder of mergeNode.placeholders) {
-                mergeNode.placeholders.push(this.getNode(placeholder, includeChildren));
-            }
-        }
-        return mergeNode;
+  static _fromDeltaNode(deltaNode, includeChildren) {
+    const mergeNode = this._fromNode(deltaNode, includeChildren);
+    mergeNode.type = deltaNode.type;
+    mergeNode.baseNode = deltaNode.baseNode;
+    for (const [key, update] of deltaNode.updates) {
+      mergeNode.updates.set(key, update.copy());
     }
+    if (includeChildren) {
+      for (const placeholder of mergeNode.placeholders) {
+        mergeNode.placeholders.push(this.getNode(placeholder, includeChildren));
+      }
+    }
+    return mergeNode;
+  }
 
-    static _fromMergeNode(mergeNode, includeChildren) {
-        const copy = this._fromDeltaNode(mergeNode, includeChildren);
-        copy.changeOrigin = mergeNode.changeOrigin;
-        copy.confidence = mergeNode.confidence;
-        return copy;
-    }
+  static _fromMergeNode(mergeNode, includeChildren) {
+    const copy = this._fromDeltaNode(mergeNode, includeChildren);
+    copy.changeOrigin = mergeNode.changeOrigin;
+    copy.confidence = mergeNode.confidence;
+    return copy;
+  }
 
-    static _fromXmlString(xml, includeChildren) {
-        return this._fromNode(NodeFactory.getNode(xml, includeChildren), includeChildren);
-    }
+  static _fromXmlString(xml, includeChildren) {
+    return this._fromNode(Node.fromNode(xml, includeChildren), includeChildren);
+  }
 
-    static _fromXmlDom(xmlElement, includeChildren) {
-        return this._fromNode(NodeFactory.getNode(xmlElement, includeChildren), includeChildren);
-    }
+  static _fromXmlDom(xmlElement, includeChildren) {
+    return this._fromNode(Node.fromNode(xmlElement, includeChildren), includeChildren);
+  }
 }

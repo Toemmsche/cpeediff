@@ -16,11 +16,12 @@
 
 export class AbstractComparator {
 
-    constructor() {
-        if (this.constructor === AbstractComparator) {
-            throw new Error("Instantiation of abstract export class 'AbstractComparator'");
-        }
+  constructor() {
+    if (this.constructor === AbstractComparator) {
+      throw new Error('Instantiation of abstract export class \'AbstractComparator\'');
     }
+  }
 
-    compare(node, other) {}
+  compare(node, other) {
+  }
 }

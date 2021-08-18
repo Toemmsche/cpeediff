@@ -14,18 +14,18 @@
    limitations under the License.
 */
 
-import {AbstractExpected} from "./AbstractExpected.js";
+import {AbstractExpected} from './AbstractExpected.js';
 
 export class ExpectedMerge extends AbstractExpected {
 
-    expectedTrees;
-    acceptedTrees;
+  expectedTrees;
+  acceptedTrees;
 
-    constructor(expectedTrees, acceptedTrees) {
-        super();
-        this.expectedTrees = expectedTrees;
-        this.acceptedTrees = acceptedTrees;
-    }
+  constructor(expectedTrees, acceptedTrees) {
+    super();
+    this.expectedTrees = expectedTrees;
+    this.acceptedTrees = acceptedTrees;
+  }
 }
 
 

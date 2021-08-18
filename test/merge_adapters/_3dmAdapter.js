@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {MergeAdapter} from "./MergeAdapter.js";
+import {TestConfig} from '../TestConfig.js';
+import {MergeAdapter} from './MergeAdapter.js';
 
-export class _3dmAdapter extends MergeAdapter  {
+export class _3dmAdapter extends MergeAdapter {
 
-    constructor() {
-        super(TestConfig.MERGES._3DM.path, TestConfig.MERGES._3DM.displayName);
-    }
+  constructor() {
+    super(TestConfig.MERGES._3DM.path, TestConfig.MERGES._3DM.displayName);
+  }
 }
 
 

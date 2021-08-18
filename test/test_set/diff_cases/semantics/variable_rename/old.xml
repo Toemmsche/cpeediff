@@ -8,15 +8,15 @@
             </parameters>
         </call>
     </loop>
-   <parallel>
-       <parallel_branch>
-           <terminate/>
-       </parallel_branch>
-       <parallel_branch>
-           <manipulate>
-               data.A++;
-               data.B++;
-           </manipulate>
-       </parallel_branch>
-   </parallel>
+    <parallel>
+        <parallel_branch>
+            <terminate/>
+        </parallel_branch>
+        <parallel_branch>
+            <manipulate>
+                data.A++;
+                data.B++;
+            </manipulate>
+        </parallel_branch>
+    </parallel>
 </description>

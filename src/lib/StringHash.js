@@ -14,12 +14,12 @@
    limitations under the License.
 */
 
-import murmur32 from "murmur-32";
+import murmur32 from 'murmur-32';
 
 export function stringHash(str) {
-    const m32 = murmur32(str);
-    const dv = new DataView(m32);
-    return dv.getInt32(0);
+  const m32 = murmur32(str);
+  const dv = new DataView(m32);
+  return dv.getInt32(0);
 }
 
 

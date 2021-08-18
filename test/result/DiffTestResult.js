@@ -14,37 +14,35 @@
    limitations under the License.
 */
 
-import {AbstractTestResult} from "./AbstractTestResult.js";
-import {TestConfig} from "../TestConfig.js";
+import {AbstractTestResult} from './AbstractTestResult.js';
 
-export class DiffTestResult extends AbstractTestResult{
+export class DiffTestResult extends AbstractTestResult {
 
-    runtime;
+  runtime;
 
-    constructor(caseName, algorithm, runtime, actual, verdict) {
-        super(caseName, algorithm, actual, verdict);
-        this.runtime = runtime;
+  constructor(caseName, algorithm, runtime, actual, verdict) {
+    super(caseName, algorithm, actual, verdict);
+    this.runtime = runtime;
+  }
+
+  /**
+   * @return any[] An array of all values that should appear in the evaluation table.
+   */
+  values() {
+    //A non-OK verdict indicates failure, fill array with it
+    if (!this.isOk()) {
+      return [this.algorithm, ...(new Array(8).fill(this.verdict))];
     }
+    return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.editOperations,
+      this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
+  }
 
-
-    /**
-     * @return any[] An array of all values that should appear in the evaluation table.
-     */
-    values() {
-        //A non-OK verdict indicates failure, fill array with it
-        if(!this.isOk()) {
-            return [this.algorithm, ...(new Array(8).fill(this.verdict))];
-        }
-        return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.editOperations,
-            this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
-    }
-
-    /**
-     * @return String[] An array containing the descriptors of all values that should appear in the evaluation table.
-     */
-    static header() {
-        return ["Algorithm", "Runtime", "Cost","Diff Size", "Edit Operations", "Insertions", "Moves", "Updates", "Deletions" ];
-    }
+  /**
+   * @return String[] An array containing the descriptors of all values that should appear in the evaluation table.
+   */
+  static header() {
+    return ['Algorithm', 'Runtime', 'Cost', 'Diff Size', 'Edit Operations', 'Insertions', 'Moves', 'Updates', 'Deletions'];
+  }
 }
 
 

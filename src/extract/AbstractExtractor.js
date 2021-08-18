@@ -14,23 +14,22 @@
    limitations under the License.
 */
 
+export class AbstractExtractor {
 
-export class AbstractExtractor  {
-   
-   _memo;
-   
-   constructor() {
-      this._memo = new Map();
-   }
-   
-   get(node) {
-       if(!this._memo.has(node)) {
-         this._extract(node);
-       }
-       return this._memo.get(node);
-   }
-   
-   _extract(node) {
-      throw new Error("Interface method not implemented");
-   }
+  _memo;
+
+  constructor() {
+    this._memo = new Map();
+  }
+
+  get(node) {
+    if (!this._memo.has(node)) {
+      this._extract(node);
+    }
+    return this._memo.get(node);
+  }
+
+  _extract(node) {
+    throw new Error('Interface method not implemented');
+  }
 }

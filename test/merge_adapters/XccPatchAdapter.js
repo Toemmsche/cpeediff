@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {MergeAdapter} from "./MergeAdapter.js";
+import {TestConfig} from '../TestConfig.js';
+import {MergeAdapter} from './MergeAdapter.js';
 
-export class XccPatchAdapter extends MergeAdapter  {
+export class XccPatchAdapter extends MergeAdapter {
 
-    constructor() {
-        super(TestConfig.MERGES.XCC.path, TestConfig.MERGES.XCC.displayName);
-    }
+  constructor() {
+    super(TestConfig.MERGES.XCC.path, TestConfig.MERGES.XCC.displayName);
+  }
 }
 
 

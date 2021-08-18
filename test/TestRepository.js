@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
-import {Preprocessor} from "../src/io/Preprocessor.js";
+import {Preprocessor} from '../src/io/Preprocessor.js';
 
 export class TestRepository {
 
-    static _bookingTree =  new Preprocessor().parseWithMetadata(fs.readFileSync("test/test_set/examples/booking.xml").toString());
+  static _bookingTree = new Preprocessor().parseWithMetadata(fs.readFileSync('test/test_set/examples/booking.xml').toString());
 
-    static bookingTree() {
-        return this._bookingTree.copy(true);
-    }
+  static bookingTree() {
+    return this._bookingTree.copy(true);
+  }
 }
 
 

@@ -14,75 +14,75 @@
    limitations under the License.
 */
 
-import {execFileSync} from "child_process";
-import {XmlFactory} from "../../src/io/XmlFactory.js";
-import {TestConfig as Testconfig, TestConfig} from "../TestConfig.js";
-import fs from "fs";
-import {Preprocessor} from "../../src/io/Preprocessor.js";
-import {HashExtractor} from "../../src/extract/HashExtractor.js";
-import {Logger} from "../../util/Logger.js";
-import {ActualMerge} from "../actual/ActualMerge.js";
+import {execFileSync} from 'child_process';
+import {XmlFactory} from '../../src/io/XmlFactory.js';
+import {TestConfig as Testconfig, TestConfig} from '../TestConfig.js';
+import fs from 'fs';
+import {Preprocessor} from '../../src/io/Preprocessor.js';
+import {HashExtractor} from '../../src/extract/HashExtractor.js';
+import {Logger} from '../../util/Logger.js';
+import {ActualMerge} from '../actual/ActualMerge.js';
 
 export class MergeAdapter {
 
-    pathPrefix;
-    displayName;
+  pathPrefix;
+  displayName;
 
-    constructor(pathPrefix, displayName) {
-        this.pathPrefix = pathPrefix;
-        this.displayName = displayName;
+  constructor(pathPrefix, displayName) {
+    this.pathPrefix = pathPrefix;
+    this.displayName = displayName;
+  }
+
+  _run(base, branch1, branch2) {
+    const baseString = XmlFactory.serialize(base);
+    const branch1String = XmlFactory.serialize(branch1);
+    const branch2String = XmlFactory.serialize(branch2);
+
+    const baseFilePath = this.pathPrefix + '/base.xml';
+    const branch1Filepath = this.pathPrefix + '/1.xml';
+    const branch2FilePath = this.pathPrefix + '/2.xml';
+
+    fs.writeFileSync(baseFilePath, baseString);
+    fs.writeFileSync(branch1Filepath, branch1String);
+    fs.writeFileSync(branch2FilePath, branch2String);
+
+    return execFileSync(this.pathPrefix + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+  }
+
+  evalCase(testCase) {
+    let exec;
+    try {
+      exec = this._run(testCase.base, testCase.branch1, testCase.branch2);
+    } catch (e) {
+      //check if timeout or runtime error
+      if (e.code === 'ETIMEDOUT') {
+        Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
+        return testCase.complete(this.displayName, null, Testconfig.VERDICTS.TIMEOUT);
+      } else {
+        Logger.info(this.displayName + ' crashed on ' + testCase.name + ': ' + e.toString(), this);
+        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
+      }
     }
+    const actual = new ActualMerge(exec, new Preprocessor().parseWithMetadata(exec));
+    const verdict = this._verifyResult(actual, testCase.expected);
 
-    _run(base, branch1, branch2) {
-        const baseString = XmlFactory.serialize(base);
-        const branch1String = XmlFactory.serialize(branch1);
-        const branch2String = XmlFactory.serialize(branch2);
-
-        const baseFilePath = this.pathPrefix + "/base.xml";
-        const branch1Filepath = this.pathPrefix + "/1.xml";
-        const branch2FilePath = this.pathPrefix + "/2.xml";
-
-        fs.writeFileSync(baseFilePath, baseString);
-        fs.writeFileSync(branch1Filepath, branch1String);
-        fs.writeFileSync(branch2FilePath, branch2String);
-
-        return execFileSync(this.pathPrefix + "/" + TestConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+    if (verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
+      Logger.info(this.displayName + ' gave wrong answer for ' + testCase.name, this);
     }
+    return testCase.complete(this.displayName, actual, verdict);
+  }
 
-    evalCase(testCase) {
-        let exec;
-        try {
-            exec = this._run(testCase.base, testCase.branch1, testCase.branch2);
-        } catch (e) {
-            //check if timeout or runtime error
-            if (e.code === "ETIMEDOUT") {
-                Logger.info(this.displayName + " timed out for " + testCase.name, this);
-                return testCase.complete(this.displayName, null, Testconfig.VERDICTS.TIMEOUT);
-            } else {
-                Logger.info(this.displayName + " crashed on " + testCase.name + ": " + e.toString(), this);
-                return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
-            }
-        }
-        const actual = new ActualMerge(exec, new Preprocessor().parseWithMetadata(exec));
-        const verdict = this._verifyResult(actual, testCase.expected);
-
-        if (verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
-            Logger.info(this.displayName + " gave wrong answer for " + testCase.name, this);
-        }
-        return testCase.complete(this.displayName, actual, verdict);
+  _verifyResult(actualMerge, expectedMerge) {
+    const actualTree = actualMerge.tree;
+    const hashExtractor = new HashExtractor();
+    if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
+      return TestConfig.VERDICTS.OK;
+    } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
+      return TestConfig.VERDICTS.ACCEPTABLE;
+    } else {
+      return TestConfig.VERDICTS.WRONG_ANSWER;
     }
-
-    _verifyResult(actualMerge, expectedMerge) {
-        const actualTree = actualMerge.tree;
-        const hashExtractor = new HashExtractor();
-        if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
-            return TestConfig.VERDICTS.OK;
-        } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
-            return TestConfig.VERDICTS.ACCEPTABLE;
-        } else {
-            return TestConfig.VERDICTS.WRONG_ANSWER;
-        }
-    }
+  }
 }
 
 

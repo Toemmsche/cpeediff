@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-import {DeltaNode} from "../patch/DeltaNode.js";
-import {Confidence} from "./Confidence.js";
+import {DeltaNode} from '../patch/DeltaNode.js';
+import {Confidence} from './Confidence.js';
 
 /**
  * A node inside a CPEE process tree that is the result of a merge.
@@ -26,23 +26,23 @@ import {Confidence} from "./Confidence.js";
  */
 export class MergeNode extends DeltaNode {
 
-    //merge related information
-    changeOrigin;
-    confidence;
+  //merge related information
+  changeOrigin;
+  confidence;
 
-    /**
-     * Construct a new MergeNode. Includes properties from {@see DeltaNode}.
-     * @param {String} label The node label
-     * @param {String} text The text content
-     * @param {String} type The operation type associated with the node
-     * @param {Number|null} baseNode The base node ID
-     * @param {Number} changeOrigin The branch in which this node was changed (0 if unchanged)
-     */
-    constructor(label, text = null, type = "NIL", baseNode = null, changeOrigin = 0) {
-        super(label, text, type, baseNode);
-        this.changeOrigin = changeOrigin;
-        //initial high confidence
-        this.confidence = new Confidence(true, true, true);
-    }
+  /**
+   * Construct a new MergeNode. Includes properties from {@see DeltaNode}.
+   * @param {String} label The node label
+   * @param {String} text The text content
+   * @param {String} type The operation type associated with the node
+   * @param {Number|null} baseNode The base node ID
+   * @param {Number} changeOrigin The branch in which this node was changed (0 if unchanged)
+   */
+  constructor(label, text = null, type = 'NIL', baseNode = null, changeOrigin = 0) {
+    super(label, text, type, baseNode);
+    this.changeOrigin = changeOrigin;
+    //initial high confidence
+    this.confidence = new Confidence(true, true, true);
+  }
 }
 

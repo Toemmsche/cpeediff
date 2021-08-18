@@ -1,42 +1,37 @@
-/*
-    Copyright 2021 Tom Papke
+import {EditScriptGenerator} from './EditScriptGenerator.js';
+import {MatchPipeline} from '../match/MatchPipeline.js';
+import {Node} from '../tree/Node.js';
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-
-import {StandardComparator} from "../match/StandardComparator.js";
-import {EditScriptGenerator} from "./EditScriptGenerator.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {MatchPipeline} from "../match/MatchPipeline.js";
-import {Logger} from "../../util/Logger.js";
-
+/**
+ * A coordinator class for the CPEE process tree difference algorithm.
+ */
 export class CpeeDiff {
-    
-    _matchPipeline;
-    _editScriptGenerator;
-    
-    constructor(matchPipeline = MatchPipeline.fromMode()) {
-        this._matchPipeline = matchPipeline;
-        this._editScriptGenerator = new EditScriptGenerator();
-    }
+  #matchPipeline;
+  #editScriptGenerator;
 
-    diff(oldTree, newTree, comparator = new StandardComparator()) {
-        //Edit script generation will modify the old tree, hence a copy is used
-        const oldTreeCopy = NodeFactory.getNode(oldTree);
-        const matching = this._matchPipeline.execute(oldTreeCopy, newTree, comparator);
-        //generate edit script
-        const editScript = this._editScriptGenerator.generateEditScript(oldTreeCopy, newTree, matching);
-        return editScript;
-    }
+  /**
+   * Create a new CpeeDiff instance with the specified match pipeline.
+   * By default, the pipeline is configured based on the selected matching
+   * mode.
+   * @param {!MatchPipeline} matchPipeline
+   */
+  constructor(matchPipeline = MatchPipeline.fromMode()) {
+    this.#matchPipeline = matchPipeline;
+    this.#editScriptGenerator = new EditScriptGenerator();
+  }
+
+  /**
+   * Run the diff algorithm from a top-level perspective
+   * @param {!Node} oldTree The original process tree
+   * @param {!Node} newTree The changed process tree
+   * @return {!EditScript}
+   */
+  diff(oldTree, newTree) {
+    // Edit script generation modifies the old tree, hence a copy is used
+    const oldTreeCopy = Node.fromNode(oldTree);
+    const matching = this.#matchPipeline.execute(oldTreeCopy, newTree);
+    return this
+        .#editScriptGenerator
+        .generateEditScript(oldTreeCopy, newTree, matching);
+  }
 }

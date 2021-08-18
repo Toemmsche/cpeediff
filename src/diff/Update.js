@@ -16,17 +16,17 @@
 
 export class Update {
 
-    oldVal;
-    newVal;
-    origin;
+  oldVal;
+  newVal;
+  origin;
 
-    constructor(oldVal, newVal, origin = null) {
-        this.oldVal = oldVal;
-        this.newVal = newVal;
-        this.origin = origin;
-    }
+  constructor(oldVal, newVal, origin = null) {
+    this.oldVal = oldVal;
+    this.newVal = newVal;
+    this.origin = origin;
+  }
 
-    copy() {
-        return Object.assign(new Update(), this);
-    }
+  copy() {
+    return Object.assign(new Update(), this);
+  }
 }

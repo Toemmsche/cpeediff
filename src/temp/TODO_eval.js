@@ -14,7 +14,6 @@
 //      comparison of different versions of cpeediff (ultra-fast (hash only), fast(no commonality matching), slow (commonality mastching))
 //
 
-
 /*
 merge rules and conflicts
 

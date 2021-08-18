@@ -14,69 +14,67 @@
    limitations under the License.
 */
 
-import {Logger} from "../../util/Logger.js";
+import {Logger} from '../../util/Logger.js';
 
 export class Matching {
 
-    /**
-     * @type Map<Node,Node>
-     */
-    newToOldMap;
-    oldToNewMap;
+  /**
+   * @type Map<Node,Node>
+   */
+  newToOldMap;
+  oldToNewMap;
 
+  constructor(oldToNewMap = new Map(), newToOldMap = new Map()) {
+    this.newToOldMap = newToOldMap;
+    this.oldToNewMap = oldToNewMap;
+  }
 
-    constructor(oldToNewMap = new Map(), newToOldMap = new Map() ) {
-        this.newToOldMap = newToOldMap;
-        this.oldToNewMap = oldToNewMap;
+  matchNew(newNode, oldNode) {
+    if (this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
+      Logger.error('matching of already matched node', new Error('matching of already matched node'), this);
     }
-
-    matchNew(newNode, oldNode) {
-        if(this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
-            Logger.error("matching of already matched node", new Error("matching of already matched node"), this);
-        }
-        if(newNode == null || oldNode == null) {
-            Logger.error("matching of undefined or null", new Error("matching of undefined or null"), this);
-        }
-        this.newToOldMap.set(newNode, oldNode);
-        this.oldToNewMap.set(oldNode, newNode);
+    if (newNode == null || oldNode == null) {
+      Logger.error('matching of undefined or null', new Error('matching of undefined or null'), this);
     }
+    this.newToOldMap.set(newNode, oldNode);
+    this.oldToNewMap.set(oldNode, newNode);
+  }
 
-    getNew(newNode) {
-        return this.newToOldMap.get(newNode);
+  getNew(newNode) {
+    return this.newToOldMap.get(newNode);
+  }
+
+  getOld(oldNode) {
+    return this.oldToNewMap.get(oldNode);
+  }
+
+  getOther(node) {
+    if (this.hasNew(node)) {
+      return this.getNew(node);
+    } else {
+      return this.getOld(node);
     }
+  }
 
+  hasAny(node) {
+    return this.hasNew(node) || this.hasOld(node);
+  }
 
-    getOld(oldNode) {
-        return this.oldToNewMap.get(oldNode);
-    }
+  hasNew(newNode) {
+    return this.newToOldMap.has(newNode);
+  }
 
-    getOther(node) {
-        if(this.hasNew(node)) {
-            return this.getNew(node);
-        } else {
-            return this.getOld(node);
-        }
-    }
+  hasOld(oldNode) {
+    return this.oldToNewMap.has(oldNode);
+  }
 
-    hasAny(node) {
-        return this.hasNew(node) || this.hasOld(node);
-    }
+  areMatched(oldNode, newNode) {
+    return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
+  }
 
-    hasNew(newNode) {
-        return this.newToOldMap.has(newNode);
-    }
-
-    hasOld(oldNode) {
-        return this.oldToNewMap.has(oldNode);
-    }
-
-    areMatched(oldNode, newNode) {
-        return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
-    }
-
-    size() {
-        return this.newToOldMap.size;
-    }
+  size() {
+    return this.newToOldMap.size;
+  }
 
 }
 

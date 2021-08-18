@@ -14,28 +14,27 @@
    limitations under the License.
 */
 
-
-import * as fs from "fs";
-import {Logger} from "./Logger.js";
+import * as fs from 'fs';
+import {Logger} from './Logger.js';
 
 export class DirectoryScraper {
 
-    static scrape(rootDir) {
-        let dirs = new Set();
-        if(!fs.existsSync(rootDir)) {
-           Logger.warn("Location " + rootDir + " does not exist", this);
+  static scrape(rootDir) {
+    let dirs = new Set();
+    if (!fs.existsSync(rootDir)) {
+      Logger.warn('Location ' + rootDir + ' does not exist', this);
+    } else {
+      fs.readdirSync(rootDir).forEach((dir) => {
+        const fullPath = rootDir + '/' + dir;
+        if (fs.lstatSync(fullPath).isFile()) {
+          //rootDir also contains files
+          dirs.add(rootDir);
         } else {
-            fs.readdirSync(rootDir).forEach((dir) => {
-                const fullPath = rootDir + "/" + dir;
-                if(fs.lstatSync(fullPath).isFile()) {
-                    //rootDir also contains files
-                    dirs.add(rootDir);
-                } else {
-                    this.scrape(fullPath).forEach(res => dirs.add(res));
-                }
-            });
+          this.scrape(fullPath).forEach(res => dirs.add(res));
         }
-        return new Array(...dirs.values());
+      });
     }
+    return new Array(...dirs.values());
+  }
 }
 

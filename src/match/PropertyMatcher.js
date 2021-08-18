@@ -14,40 +14,40 @@
    limitations under the License.
 */
 
-import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
+import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
 
 export class PropertyMatcher extends AbstractMatchingAlgorithm {
 
-    match(oldTree, newTree, matching) {
-        const newLeaves = newTree.leaves().filter(n => matching.hasNew(n));
+  match(oldTree, newTree, matching) {
+    const newLeaves = newTree.leaves().filter(n => matching.hasNew(n));
 
-        //match properties of leaf nodes
-        for (const newLeaf of newLeaves) {
-            if (matching.hasNew(newLeaf)) {
-                this._matchProperties(matching.getNew(newLeaf), newLeaf, matching);
-            }
-        }
+    //match properties of leaf nodes
+    for (const newLeaf of newLeaves) {
+      if (matching.hasNew(newLeaf)) {
+        this._matchProperties(matching.getNew(newLeaf), newLeaf, matching);
+      }
     }
+  }
 
-    _matchProperties(oldNode, newNode, matching) {
-        //We assume that no two properties that are siblings in the xml tree share the same label
-        const oldLabelMap = new Map();
-        for (const oldChild of oldNode) {
-            if (!matching.hasOld(oldChild)) {
-                oldLabelMap.set(oldChild.label, oldChild);
-            }
-        }
-        for (const newChild of newNode) {
-            if (!matching.hasNew(newChild)) {
-                if (oldLabelMap.has(newChild.label)) {
-                    const match = oldLabelMap.get(newChild.label);
-                    matching.matchNew(newChild, match);
-                    //Theoretically, a repeated matching can occur if two arguments in the new tree have the same name
-                    //Even though this situation is highly unlikely, we delete the entry in the label map to prevent it.
-                    oldLabelMap.delete(newChild.label);
-                    this._matchProperties(match, newChild, matching);
-                }
-            }
-        }
+  _matchProperties(oldNode, newNode, matching) {
+    //We assume that no two properties that are siblings in the xml tree share the same label
+    const oldLabelMap = new Map();
+    for (const oldChild of oldNode) {
+      if (!matching.hasOld(oldChild)) {
+        oldLabelMap.set(oldChild.label, oldChild);
+      }
     }
+    for (const newChild of newNode) {
+      if (!matching.hasNew(newChild)) {
+        if (oldLabelMap.has(newChild.label)) {
+          const match = oldLabelMap.get(newChild.label);
+          matching.matchNew(newChild, match);
+          //Theoretically, a repeated matching can occur if two arguments in the new tree have the same name
+          //Even though this situation is highly unlikely, we delete the entry in the label map to prevent it.
+          oldLabelMap.delete(newChild.label);
+          this._matchProperties(match, newChild, matching);
+        }
+      }
+    }
+  }
 }

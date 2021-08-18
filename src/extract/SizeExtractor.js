@@ -14,16 +14,16 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
+import {AbstractExtractor} from './AbstractExtractor.js';
 
 export class SizeExtractor extends AbstractExtractor {
 
-    _extract(node) {
-        let size = 1;
-        for(const child of node) {
-            size += this.get(child);
-        }
-        this._memo.set(node, size);
+  _extract(node) {
+    let size = 1;
+    for (const child of node) {
+      size += this.get(child);
     }
+    this._memo.set(node, size);
+  }
 
 }

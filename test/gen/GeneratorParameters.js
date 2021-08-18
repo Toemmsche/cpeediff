@@ -16,19 +16,19 @@
 
 export class GeneratorParameters {
 
-    maxSize;
-    maxDepth;
-    maxDegree;
-    maxVars;
+  maxSize;
+  maxDepth;
+  maxDegree;
+  maxVars;
 
-    constructor(maxSize, maxDepth, maxDegree, maxVars) {
-        this.maxSize = maxSize;
-        this.maxDepth = maxDepth;
-        this.maxDegree = maxDegree;
-        this.maxVars = maxVars;
-    }
+  constructor(maxSize, maxDepth, maxDegree, maxVars) {
+    this.maxSize = maxSize;
+    this.maxDepth = maxDepth;
+    this.maxDegree = maxDegree;
+    this.maxVars = maxVars;
+  }
 
-    toString() {
-        return JSON.stringify(this);
-    }
+  toString() {
+    return JSON.stringify(this);
+  }
 }

@@ -14,22 +14,22 @@
    limitations under the License.
 */
 
-import xmldom from "xmldom";
-import vkbeautify from "vkbeautify";
-import {XmlDomFactory} from "./XmlDomFactory.js";
-import {Dsl} from "../Dsl.js";
-import {Config} from "../Config.js";
+import xmldom from 'xmldom';
+import vkbeautify from 'vkbeautify';
+import {XmlDomFactory} from './XmlDomFactory.js';
+import {Dsl} from '../Dsl.js';
+import {Config} from '../Config.js';
 
 export class XmlFactory {
 
-    static serialize(object) {
-        const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
-        const root = XmlDomFactory.convert(object);
-        doc.appendChild(root);
-        let xmlString = new xmldom.XMLSerializer().serializeToString(doc);
-        if(Config.PRETTY_XML) {
-            xmlString = vkbeautify.xml(xmlString);
-        }
-        return xmlString;
+  static serialize(object) {
+    const doc = xmldom.DOMImplementation.prototype.createDocument(Dsl.DEFAULT_NAMESPACE);
+    const root = XmlDomFactory.convert(object);
+    doc.appendChild(root);
+    let xmlString = new xmldom.XMLSerializer().serializeToString(doc);
+    if (Config.PRETTY_XML) {
+      xmlString = vkbeautify.xml(xmlString);
     }
+    return xmlString;
+  }
 }

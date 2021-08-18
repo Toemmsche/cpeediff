@@ -14,50 +14,49 @@
    limitations under the License.
 */
 
-import {Node} from "../tree/Node.js"
-import {HashExtractor} from "../extract/HashExtractor.js";
+import {HashExtractor} from '../extract/HashExtractor.js';
 
 export class TreeStringSerializer {
-    
-    //similar to unix tree command
-    static serializeTree(tree) {
-        return constructRecursive(tree, []);
 
-        function constructRecursive(node, barList) {
-            const isLast = node._parent != null && node._index === node._parent._children.length - 1;
-            let line = "";
-            for (let i = 0; i < barList.length; i++) {
-                const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
-                line += " ".repeat(spaceCount);
-                if (i === barList.length - 1) {
-                    if (isLast) {
-                        line += "└";
-                    } else {
-                        line += "├";
-                    }
-                } else {
-                    line += "│";
-                }
-            }
-            if (isLast) {
-                barList.pop();
-            }
-            line += "─";
-            const lineLength = line.length;
-            //TODO rework
-            line += node.toString() + new HashExtractor().get(node) + "\n";
-            if (node.hasChildren()) {
-                barList.push(lineLength + 1);
-                for (const child of node) {
-                    line += constructRecursive(child, barList);
-                }
-            }
-            return line;
+  //similar to unix tree command
+  static serializeTree(tree) {
+    return constructRecursive(tree, []);
+
+    function constructRecursive(node, barList) {
+      const isLast = node._parent != null && node._index === node._parent._children.length - 1;
+      let line = '';
+      for (let i = 0; i < barList.length; i++) {
+        const spaceCount = barList[i] - (i > 0 ? barList[i - 1] : 0) - 1;
+        line += ' '.repeat(spaceCount);
+        if (i === barList.length - 1) {
+          if (isLast) {
+            line += '└';
+          } else {
+            line += '├';
+          }
+        } else {
+          line += '│';
         }
+      }
+      if (isLast) {
+        barList.pop();
+      }
+      line += '─';
+      const lineLength = line.length;
+      //TODO rework
+      line += node.toString() + new HashExtractor().get(node) + '\n';
+      if (node.hasChildren()) {
+        barList.push(lineLength + 1);
+        for (const child of node) {
+          line += constructRecursive(child, barList);
+        }
+      }
+      return line;
     }
+  }
 
-    static serializeDeltaTree(deltaTree) {
-        return this.serializeTree(deltaTree);
-    }
+  static serializeDeltaTree(deltaTree) {
+    return this.serializeTree(deltaTree);
+  }
 }
 

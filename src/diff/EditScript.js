@@ -14,86 +14,86 @@
    limitations under the License.
 */
 
-import {EditOperation} from "./EditOperation.js";
-import {Dsl} from "../Dsl.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {HashExtractor} from "../extract/HashExtractor.js";
-import {Patcher} from "../patch/Patcher.js";
+import {EditOperation} from './EditOperation.js';
+import {Dsl} from '../Dsl.js';
+import {HashExtractor} from '../extract/HashExtractor.js';
+import {Patcher} from '../patch/Patcher.js';
+import {Node} from '../tree/Node.js';
 
 export class EditScript {
 
-    _editOperations;
-    cost;
+  _editOperations;
+  cost;
 
-    constructor() {
-        this._editOperations = [];
-        this.cost = 0;
-    }
+  constructor() {
+    this._editOperations = [];
+    this.cost = 0;
+  }
 
-    toString() {
-        return this._editOperations.map(c => c.toString()).join("\n");
-    }
-    
-    addOperation(editOperation) {
-        this._editOperations.push(editOperation);
-    }
+  toString() {
+    return this._editOperations.map(c => c.toString()).join('\n');
+  }
 
-    insert(insertedNode) {
-        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
-            insertedNode.xPath(), NodeFactory.getNode(insertedNode)));
-        //TODO speed up
-        this.cost += insertedNode.size();
-    }
+  addOperation(editOperation) {
+    this._editOperations.push(editOperation);
+  }
 
-    delete(deletedNode) {
-        this._editOperations.push(new EditOperation( Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null,  null));
-        this.cost += deletedNode.size();
-    }
+  insert(insertedNode) {
+    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
+        insertedNode.xPath(), Node.fromNode(insertedNode)));
+    //TODO speed up
+    this.cost += insertedNode.size();
+  }
 
-    move(oldPath, newPath) {
-        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.MOVE_TO.label, oldPath,  newPath));
-        this.cost++;
-    }
+  delete(deletedNode) {
+    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null, null));
+    this.cost += deletedNode.size();
+  }
 
-    update(updatedNode) {
-        this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
-            null, NodeFactory.getNode(updatedNode, false)));
-        const path = updatedNode.xPath();
-        this.cost++;
-    }
+  move(oldPath, newPath) {
+    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.MOVE_TO.label, oldPath, newPath));
+    this.cost++;
+  }
 
-    totalEditOperations() {
-        return this._editOperations.length;
-    }
+  update(updatedNode) {
+    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
+        null, Node.fromNode(updatedNode, false)));
+    const path = updatedNode.xPath();
+    this.cost++;
+  }
 
-    insertions() {
-        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.INSERTION.label).length;
-    }
+  totalEditOperations() {
+    return this._editOperations.length;
+  }
 
-    moves() {
-        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.MOVE_TO.label).length;
-    }
+  insertions() {
+    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.INSERTION.label).length;
+  }
 
-    updates() {
-        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.UPDATE.label).length;
-    }
+  moves() {
+    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.MOVE_TO.label).length;
+  }
 
-    deletions() {
-        return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
-    }
+  updates() {
+    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.UPDATE.label).length;
+  }
 
-    verify(oldTree, newTree) {
-        const patchedTree = new Patcher().patch(oldTree, this);
-        const hashExtractor = new HashExtractor();
-        return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);
-    }
+  deletions() {
+    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
+  }
 
-    /**
-     *
-     * @return {IterableIterator<EditOperation>} An iterator for the changes contained in this edit script.
-     */
-    [Symbol.iterator]() {
-        return this._editOperations[Symbol.iterator]();
-    }
+  verify(oldTree, newTree) {
+    const patchedTree = new Patcher().patch(oldTree, this);
+    const hashExtractor = new HashExtractor();
+    return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);
+  }
+
+  /**
+   *
+   * @return {IterableIterator<EditOperation>} An iterator for the changes contained in this edit script.
+   */
+  [Symbol.iterator]() {
+    return this._editOperations[Symbol.iterator]();
+  }
 
 }

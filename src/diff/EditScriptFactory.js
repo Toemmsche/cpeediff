@@ -14,32 +14,32 @@
    limitations under the License.
 */
 
-import xmldom from "xmldom";
-import {EditScript} from "./EditScript.js";
-import {ChangeFactory} from "./ChangeFactory.js";
-import {DomHelper} from "../../util/DomHelper.js";
+import xmldom from 'xmldom';
+import {EditScript} from './EditScript.js';
+import {ChangeFactory} from './ChangeFactory.js';
+import {DomHelper} from '../../util/DomHelper.js';
 
 export class EditScriptFactory {
 
-    static getEditScript(source) {
-        switch (source.constructor) {
-            case String:
-                return this._fromXmlString(source);
-            default:
-                return this._fromXmlDom(source);
-        }
+  static getEditScript(source) {
+    switch (source.constructor) {
+      case String:
+        return this._fromXmlString(source);
+      default:
+        return this._fromXmlDom(source);
     }
+  }
 
-    static _fromXmlDom(xmlElement) {
-        const editScript = new EditScript();
-        if(xmlElement.hasAttribute("cost") != null) {
-            editScript.cost = parseInt(xmlElement.getAttribute("cost"));
-        }
-        DomHelper.forAllChildElements(xmlElement, (xmlChange) => editScript.addOperation(ChangeFactory.getChange(xmlChange)))
-        return editScript;
+  static _fromXmlDom(xmlElement) {
+    const editScript = new EditScript();
+    if (xmlElement.hasAttribute('cost') != null) {
+      editScript.cost = parseInt(xmlElement.getAttribute('cost'));
     }
+    DomHelper.forAllChildElements(xmlElement, (xmlChange) => editScript.addOperation(ChangeFactory.getChange(xmlChange)));
+    return editScript;
+  }
 
-    static _fromXmlString(xml) {
-        return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, "text/xml").firstChild);
-    }
+  static _fromXmlString(xml) {
+    return this._fromXmlDom(new xmldom.DOMParser().parseFromString(xml, 'text/xml').firstChild);
+  }
 }

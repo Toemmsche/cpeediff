@@ -1,19 +1,24 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <manipulate>data.budget = 100;</manipulate>
-    <loop condition="data.costs > 0">
-        <call endpoint="http://www.example.com/shopping">
+    <loop condition="!data.shipped">
+        <call id="a2" endpoint="shipItems">
             <parameters>
-                <label>Buy a random item</label>
+                <label>Initiate shipping to customer</label>
                 <method>:post</method>
                 <arguments>
-                    <max_price>data.budget</max_price>
+                    <item>data.items.pop()</item>
+                    <to>data.address</to>
                 </arguments>
             </parameters>
-            <code>
-                <finalize>
-                    data.items.push(result.value('name'));
-                </finalize>
-            </code>
+        </call>
+        <call id="a2" endpoint="shipItems">
+            <parameters>
+                <label>Initiate shipping to customer</label>
+                <method>:post</method>
+                <arguments>
+                    <item>data.items.pop()</item>
+                    <to>data.address</to>
+                </arguments>
+            </parameters>
         </call>
     </loop>
 </description>

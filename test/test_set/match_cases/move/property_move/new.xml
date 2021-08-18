@@ -26,7 +26,8 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;
+                    <finalize output="result">data.airline = result.value('id'); data.costs +=
+                        result.value('costs').to_f;
                     </finalize>
                 </code>
             </call>
@@ -41,7 +42,8 @@
                         </arguments>
                     </parameters>
                     <code>
-                        <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;
+                        <finalize output="result">data.airline = result.value('id'); data.costs +=
+                            result.value('costs').to_f;
                         </finalize>
                     </code>
                 </call>

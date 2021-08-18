@@ -14,25 +14,25 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
+import {TestConfig} from '../TestConfig.js';
 
 export class AbstractTestResult {
 
-    caseName;
-    algorithm;
-    actual;
-    verdict;
+  caseName;
+  algorithm;
+  actual;
+  verdict;
 
-    constructor(caseName, algorithm, actual, verdict) {
-        this.caseName = caseName;
-        this.algorithm = algorithm;
-        this.actual = actual;
-        this.verdict = verdict;
-    }
+  constructor(caseName, algorithm, actual, verdict) {
+    this.caseName = caseName;
+    this.algorithm = algorithm;
+    this.actual = actual;
+    this.verdict = verdict;
+  }
 
-    isOk() {
-        return this.verdict === TestConfig.VERDICTS.OK;
-    }
+  isOk() {
+    return this.verdict === TestConfig.VERDICTS.OK;
+  }
 }
 
 

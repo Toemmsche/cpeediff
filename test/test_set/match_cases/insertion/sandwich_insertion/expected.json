@@ -1,4 +1,15 @@
 {
-    "matches": [[0,0],[1,1], [8,8], [9,10]],
-    "notNewMatched": [9, 17]
+  "matches": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "notNewMatched": [
+    1
+  ]
 }

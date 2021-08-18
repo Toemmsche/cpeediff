@@ -14,203 +14,202 @@
    limitations under the License.
 */
 
-import {DeltaNodeFactory} from "./DeltaNodeFactory.js";
-import {Dsl} from "../Dsl.js";
-import {IdExtractor} from "../extract/IdExtractor.js";
-import {Update} from "../diff/Update.js";
+import {Dsl} from '../Dsl.js';
+import {IdExtractor} from '../extract/IdExtractor.js';
+import {Update} from '../diff/Update.js';
 
 export class DeltaTreeGenerator {
 
-    tree;
-    moveMap;
+  tree;
+  moveMap;
 
-    _handleInsert(change) {
-        const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const index = indexArr.pop();
-        const [parent, movfrParent] = this._findNode(indexArr.join("/"));
-        const newNode = DeltaNodeFactory.getNode(change.newContent);
+  _handleInsert(change) {
+    const indexArr = change.newPath.split('/').map(str => parseInt(str));
+    const index = indexArr.pop();
+    const [parent, movfrParent] = this._findNode(indexArr.join('/'));
+    const newNode = DeltaNode.fromNode(change.newContent);
 
-        this._applyInsert(parent, newNode, index);
-        if (movfrParent != null) {
-            this._applyInsert(movfrParent, newNode, index);
-        }
+    this._applyInsert(parent, newNode, index);
+    if (movfrParent != null) {
+      this._applyInsert(movfrParent, newNode, index);
+    }
+  }
+
+  _applyInsert(parent, node, index) {
+    const child = DeltaNode.fromNode(node, true);
+    parent.insertChild(index, child);
+    for (const descendant of child.toPreOrderArray()) {
+      descendant.type = Dsl.CHANGE_MODEL.INSERTION.label;
+    }
+  }
+
+  _handleMove(change) {
+    //find moved node
+    let [node, movfrNode] = this._findNode(change.oldPath);
+
+    //configure move_from placeholder node
+    let movfrParent;
+    const noMovfrNode = movfrNode == null;
+    if (movfrNode == null) {
+      movfrNode = DeltaNode.fromNode(node, true);
+      movfrNode._index = node.index;
+      movfrParent = node.parent;
+    } else {
+      movfrParent = movfrNode.parent;
+      movfrNode.removeFromParent();
     }
 
-    _applyInsert(parent, node, index) {
-        const child = DeltaNodeFactory.getNode(node, true);
-        parent.insertChild(index, child);
-        for (const descendant of child.toPreOrderArray()) {
-            descendant.type = Dsl.CHANGE_MODEL.INSERTION.label
+    //detach node
+    node.removeFromParent();
+
+    //find new parent
+    const parentIndexArr = change.newPath.split('/').map(str => parseInt(str));
+    const targetIndex = parentIndexArr.pop();
+    const [parent] = this._findNode(parentIndexArr.join('/'));
+
+    //insert node
+    parent.insertChild(targetIndex, node);
+    node.type = change.type;
+
+    //Insert placeholder at old position
+    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM;
+
+    movfrParent.placeholders.push(movfrNode);
+    //create entry in move map
+    this.moveMap.set(node, movfrNode);
+  }
+
+  _handleUpdate(change) {
+    const [node, movfrNode] = this._findNode(change.oldPath);
+    const newContent = change.newContent;
+
+    this._applyUpdate(node, newContent);
+    if (movfrNode != null) {
+      this._applyUpdate(movfrNode, newContent);
+    }
+  }
+
+  _applyUpdate(node, newContent) {
+    if (node.text !== newContent.text) {
+      node.updates.set('text', new Update(node.text, newContent.text));
+      node.text = newContent.text;
+    }
+    //detected updated and inserted attributes
+    for (const [key, value] of newContent.attributes) {
+      if (node.attributes.has(key)) {
+        if (node.attributes.get(key) !== value) {
+          node.updates.set(key, new Update(node.attributes.get(key), value));
+          node.attributes.set(key, value);
         }
+      } else {
+        node.updates.set(key, new Update(null, value));
+        node.attributes.set(key, value);
+      }
     }
 
-    _handleMove(change) {
-        //find moved node
-        let [node, movfrNode] = this._findNode(change.oldPath);
+    //detect deleted attributes
+    for (const [key, value] of node.attributes) {
+      if (!newContent.attributes.has(key)) {
+        node.updates.set(key, new Update(value, null));
+        node.attributes.delete(key);
+      }
+    }
+  }
 
-        //configure move_from placeholder node
-        let movfrParent;
-        const noMovfrNode = movfrNode == null;
-        if (movfrNode == null) {
-            movfrNode = DeltaNodeFactory.getNode(node, true);
-            movfrNode._index = node.index;
-            movfrParent = node.parent;
-        } else {
-            movfrParent = movfrNode.parent;
-            movfrNode.removeFromParent();
-        }
+  _handleDelete(change) {
+    const [node, movfrNode] = this._findNode(change.oldPath);
 
-        //detach node
-        node.removeFromParent();
+    this._applyDelete(node);
+    if (movfrNode != null) {
+      this._applyDelete(movfrNode);
+    }
+  }
 
-        //find new parent
-        const parentIndexArr = change.newPath.split("/").map(str => parseInt(str));
-        const targetIndex = parentIndexArr.pop();
-        const [parent] = this._findNode(parentIndexArr.join("/"));
-
-        //insert node
-        parent.insertChild(targetIndex, node);
-        node.type = change.type;
-
-        //Insert placeholder at old position
-        movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM;
-
-        movfrParent.placeholders.push(movfrNode);
-        //create entry in move map
-        this.moveMap.set(node, movfrNode);
+  _applyDelete(node) {
+    for (const descendant of node.toPreOrderArray()) {
+      descendant.type = Dsl.CHANGE_MODEL.DELETION.label;
     }
 
-    _handleUpdate(change) {
-        const [node, movfrNode] = this._findNode(change.oldPath);
-        const newContent = change.newContent;
+    node.removeFromParent();
+    node.parent.placeholders.push(node);
+  }
 
-        this._applyUpdate(node, newContent);
-        if (movfrNode != null) {
-            this._applyUpdate(movfrNode, newContent);
-        }
+  extendedDeltaTree(tree, editScript) {
+    const deltaTree = this.deltaTree(this.tree, editScript);
+    this._resolvePlaceholders(this.tree);
+  }
+
+  deltaTree(tree, editScript) {
+    //copy this tree
+    tree = DeltaNode.fromNode(tree);
+    this.tree = tree;
+    this.moveMap = new Map();
+
+    const idExtractor = new IdExtractor();
+    for (const node of this.tree.toPreOrderArray()) {
+      node.baseNode = idExtractor.get(node);
     }
 
-    _applyUpdate(node, newContent) {
-        if (node.text !== newContent.text) {
-            node.updates.set("text", new Update(node.text, newContent.text));
-            node.text = newContent.text;
+    for (const change of editScript) {
+      switch (change.type) {
+        case Dsl.CHANGE_MODEL.INSERTION.label: {
+          this._handleInsert(change);
+          break;
         }
-        //detected updated and inserted attributes
-        for (const [key, value] of newContent.attributes) {
-            if (node.attributes.has(key)) {
-                if (node.attributes.get(key) !== value) {
-                    node.updates.set(key, new Update(node.attributes.get(key), value));
-                    node.attributes.set(key, value);
-                }
-            } else {
-                node.updates.set(key, new Update(null, value));
-                node.attributes.set(key, value);
-            }
+        case Dsl.CHANGE_MODEL.MOVE_TO.label: {
+          this._handleMove(change);
+          break;
         }
-
-        //detect deleted attributes
-        for (const [key, value] of node.attributes) {
-            if (!newContent.attributes.has(key)) {
-                node.updates.set(key, new Update(value, null))
-                node.attributes.delete(key);
-            }
+        case Dsl.CHANGE_MODEL.UPDATE.label: {
+          this._handleUpdate(change);
+          break;
         }
+        case Dsl.CHANGE_MODEL.DELETION.label: {
+          this._handleDelete(change);
+          break;
+        }
+      }
     }
+    return this.tree;
+  }
 
-    _handleDelete(change) {
-        const [node, movfrNode] = this._findNode(change.oldPath);
-
-        this._applyDelete(node);
-        if (movfrNode != null) {
-            this._applyDelete(movfrNode);
+  _findNode(indexPath) {
+    let currNode = this.tree;
+    let moveFromPlaceHolder = null;
+    if (indexPath !== '') {
+      //remove root path "/"
+      for (let index of indexPath.split('/').map(str => parseInt(str))) {
+        if (index >= currNode.degree()) {
+          throw new Error('Edit script not applicable to tree');
         }
+        if (moveFromPlaceHolder != null) {
+          /*
+          if (index > moveFromPlaceHolder.degree()) {
+              throw new Error("Edit script not applicable to tree");
+          }
+          */
+          //TODO
+          moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
+        }
+        currNode = currNode.getChild(index);
+        if (this.moveMap.has(currNode)) {
+          moveFromPlaceHolder = this.moveMap.get(currNode);
+        }
+      }
     }
+    return [currNode, moveFromPlaceHolder];
+  }
 
-    _applyDelete(node) {
-        for (const descendant of node.toPreOrderArray()) {
-            descendant.type = Dsl.CHANGE_MODEL.DELETION.label
-        }
-
-        node.removeFromParent();
-        node.parent.placeholders.push(node);
+  _resolvePlaceholders(node, isMoveTo = false) {
+    for (const child of node) {
+      this._resolvePlaceholders(child, isMoveTo || child.isMove());
     }
-
-    extendedDeltaTree(tree, editScript) {
-        const deltaTree = this.deltaTree(this.tree, editScript)
-        this._resolvePlaceholders(this.tree);
+    while (node.placeholders.length > 0) {
+      const placeholder = node.placeholders.pop();
+      if (!isMoveTo || !placeholder.type === Dsl.CHANGE_MODEL.MOVE_FROM) {
+        node.insertChild(placeholder.index, placeholder);
+      }
     }
-
-    deltaTree(tree, editScript) {
-        //copy this tree
-        tree = DeltaNodeFactory.getNode(tree);
-        this.tree = tree;
-        this.moveMap = new Map();
-
-        const idExtractor = new IdExtractor();
-        for (const node of this.tree.toPreOrderArray()) {
-            node.baseNode = idExtractor.get(node);
-        }
-
-        for (const change of editScript) {
-            switch (change.type) {
-                case Dsl.CHANGE_MODEL.INSERTION.label: {
-                    this._handleInsert(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.MOVE_TO.label: {
-                    this._handleMove(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.UPDATE.label: {
-                    this._handleUpdate(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.DELETION.label: {
-                    this._handleDelete(change);
-                    break;
-                }
-            }
-        }
-        return this.tree;
-    }
-
-    _findNode(indexPath) {
-        let currNode = this.tree;
-        let moveFromPlaceHolder = null;
-        if (indexPath !== "") {
-            //remove root path "/"
-            for (let index of indexPath.split("/").map(str => parseInt(str))) {
-                if (index >= currNode.degree()) {
-                    throw new Error("Edit script not applicable to tree");
-                }
-                if (moveFromPlaceHolder != null) {
-                    /*
-                    if (index > moveFromPlaceHolder.degree()) {
-                        throw new Error("Edit script not applicable to tree");
-                    }
-                    */
-                    //TODO
-                    moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
-                }
-                currNode = currNode.getChild(index);
-                if (this.moveMap.has(currNode)) {
-                    moveFromPlaceHolder = this.moveMap.get(currNode);
-                }
-            }
-        }
-        return [currNode, moveFromPlaceHolder];
-    }
-
-    _resolvePlaceholders(node, isMoveTo = false) {
-        for (const child of node) {
-            this._resolvePlaceholders(child, isMoveTo || child.isMove());
-        }
-        while (node.placeholders.length > 0) {
-            const placeholder = node.placeholders.pop();
-            if (!isMoveTo || !placeholder.type === Dsl.CHANGE_MODEL.MOVE_FROM) {
-                node.insertChild(placeholder.index, placeholder);
-            }
-        }
-    }
+  }
 }
 

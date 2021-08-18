@@ -14,39 +14,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import {Node} from "../tree/Node.js"
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {TreeGenerator} from "../../test/gen/TreeGenerator.js";
-import {GeneratorParameters} from "../../test/gen/GeneratorParameters.js";
-import {XmlFactory} from "../io/XmlFactory.js";
-import {CpeeDiff} from "../diff/CpeeDiff.js";
-import fs from "fs";
-import {Preprocessor} from "../io/Preprocessor.js";
-import {Config} from "../Config.js";
-import {CpeeMerge} from "../merge/CpeeMerge.js";
-import {DeltaTreeGenerator} from "../patch/DeltaTreeGenerator.js";
-import {CpeeDiffAdapter} from "../../test/diff_adapters/CpeeDiffAdapter.js";
-import {Dsl} from "../Dsl.js";
-import {TestConfig} from "../../test/TestConfig.js";
-import {Logger} from "../../util/Logger.js";
-import {HashExtractor} from "../extract/HashExtractor.js";
+import {Node} from '../tree/Node.js';
+import {XmlFactory} from '../io/XmlFactory.js';
+import {CpeeDiff} from '../diff/CpeeDiff.js';
+import {Preprocessor} from '../io/Preprocessor.js';
+import {Config} from '../Config.js';
+import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
+import {Logger} from '../../util/Logger.js';
+import {HashExtractor} from '../extract/HashExtractor.js';
+import {DeltaNode} from '../patch/DeltaNode.js';
 
 Logger.enableLogging();
-
-let base = new Preprocessor().parseFromFile("old.xml");
-let newTree = new Preprocessor().parseFromFile("new.xml");
+Config.LOG_LEVEL = 'all';
 
 
-const es = new CpeeDiff().diff(base, newTree)
 
-const deltaTree = NodeFactory.getNode(new DeltaTreeGenerator().deltaTree(base, es));
+
+const base = new Preprocessor().parseFromFile('old.xml');
+const newTree = new Preprocessor().parseFromFile('new.xml');
+
+const es = new CpeeDiff().diff(base, newTree);
+
+const deltaTree = Node.fromNode(new DeltaTreeGenerator().deltaTree(base, es));
 
 const h = new HashExtractor();
 console.log(h.get(newTree) === h.get(deltaTree));
 
 console.log(XmlFactory.serialize(es));
 console.log(XmlFactory.serialize(deltaTree));
-
 
 
 
@@ -57,14 +52,10 @@ const nT = new Preprocessor().parseWithMetadata(n);
 const oT = new Preprocessor().parseWithMetadata(o);
 */
 
-
-
 /*
 let tree1 = new Preprocessor().parseWithMetadata(xmlA);
 let tree2 =  new Preprocessor().parseWithMetadata(xmlB);
 let tree3 =  new Preprocessor().parseWithMetadata(xmlC);
-
-
 
 
 console.log(TreeStringSerializer.serializeTree(tree1));

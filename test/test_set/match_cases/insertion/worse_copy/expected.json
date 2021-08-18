@@ -1,4 +1,11 @@
 {
-  "matches": [[9,3]],
-  "notNewMatched": [10]
+  "matches": [
+    [
+      9,
+      3
+    ]
+  ],
+  "notNewMatched": [
+    10
+  ]
 }

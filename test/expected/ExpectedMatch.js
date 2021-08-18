@@ -14,28 +14,28 @@
    limitations under the License.
 */
 
-import {AbstractExpected} from "./AbstractExpected.js";
+import {AbstractExpected} from './AbstractExpected.js';
 
 export class ExpectedMatch extends AbstractExpected {
 
-    matches;
-    notMatches;
+  matches;
+  notMatches;
 
-    oldMatched
-    notOldMatched;
+  oldMatched;
+  notOldMatched;
 
-    newMatched;
-    notNewMatched;
+  newMatched;
+  notNewMatched;
 
-    constructor() {
-        super();
-        this.matches = [];
-        this.notMatches = [];
-        this.oldMatched = [];
-        this.notOldMatched = [];
-        this.newMatched = [];
-        this.notNewMatched = [];
-    }
+  constructor() {
+    super();
+    this.matches = [];
+    this.notMatches = [];
+    this.oldMatched = [];
+    this.notOldMatched = [];
+    this.newMatched = [];
+    this.notNewMatched = [];
+  }
 }
 
 

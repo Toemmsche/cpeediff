@@ -14,13 +14,13 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
+import {AbstractExtractor} from './AbstractExtractor.js';
 
 export class LeafSetExtractor extends AbstractExtractor {
 
-    _extract(node) {
-        const leafSet  = new Set(node.leaves());
-        this._memo.set(node, leafSet);
-    }
+  _extract(node) {
+    const leafSet = new Set(node.leaves());
+    this._memo.set(node, leafSet);
+  }
 
 }

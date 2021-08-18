@@ -19,28 +19,27 @@
  */
 export class DomHelper {
 
-    static XML_NODE_TYPES =  {
-        ELEMENT: 1,
-        TEXT: 3
-    }
+  static XML_NODE_TYPES = {
+    ELEMENT: 1,
+    TEXT: 3
+  };
 
+  static firstChildElement(xmlParent, localName = null) {
+    let xmlChild = xmlParent?.firstChild;
+    while (xmlChild != null && (xmlChild.nodeType !== this.XML_NODE_TYPES.ELEMENT || (localName != null && xmlChild.localName !== localName))) {
+      xmlChild = xmlChild.nextSibling;
+    }
+    return xmlChild;
+  }
 
-    static firstChildElement(xmlParent, localName = null) {
-        let xmlChild = xmlParent?.firstChild;
-        while(xmlChild != null && (xmlChild.nodeType !== this.XML_NODE_TYPES.ELEMENT || (localName != null && xmlChild.localName !== localName))) {
-            xmlChild = xmlChild.nextSibling;
-        }
-        return xmlChild;
+  static forAllChildElements(xmlParent, func) {
+    if (xmlParent == null) return;
+    for (let i = 0; i < xmlParent.childNodes.length; i++) {
+      const xmlChild = xmlParent.childNodes.item(i);
+      if (xmlChild.nodeType === 1) {
+        func(xmlChild);
+      }
     }
-    
-    static forAllChildElements(xmlParent, func) {
-        if(xmlParent == null) return;
-        for (let i = 0; i < xmlParent.childNodes.length; i++) {
-            const xmlChild = xmlParent.childNodes.item(i);
-            if(xmlChild.nodeType === 1) {
-                func(xmlChild);
-            }
-        }
-    }
+  }
 }
 

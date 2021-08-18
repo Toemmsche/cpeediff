@@ -14,27 +14,25 @@
    limitations under the License.
 */
 
-
-
 export class EditOperation {
 
-    type;
-    oldPath;
-    newPath;
-    newContent;
+  type;
+  oldPath;
+  newPath;
+  newContent;
 
-    constructor(type, oldPath = null, newPath = null, newContent = null) {
-        this.type = type;
-        this.oldPath = oldPath;
-        this.newPath = newPath;
-        this.newContent = newContent;
-    }
+  constructor(type, oldPath = null, newPath = null, newContent = null) {
+    this.type = type;
+    this.oldPath = oldPath;
+    this.newPath = newPath;
+    this.newContent = newContent;
+  }
 
-    toString() {
-        return this.type + " " +
-            (this.oldPath !== null ? this.oldPath + " " : "") +
-            (this.oldPath !== null && this.newPath !== null  ? "-> " : "") +
-            (this.newPath !== null ? this.newPath + " " : "") +
-            (this.newContent !== null ? this.newContent + " " : "");
-    }
+  toString() {
+    return this.type + ' ' +
+        (this.oldPath !== null ? this.oldPath + ' ' : '') +
+        (this.oldPath !== null && this.newPath !== null ? '-> ' : '') +
+        (this.newPath !== null ? this.newPath + ' ' : '') +
+        (this.newContent !== null ? this.newContent + ' ' : '');
+  }
 }

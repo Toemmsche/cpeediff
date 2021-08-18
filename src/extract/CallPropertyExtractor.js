@@ -14,49 +14,49 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
-import {Dsl} from "../Dsl.js";
-import {CallProperties} from "./CallProperties.js";
+import {AbstractExtractor} from './AbstractExtractor.js';
+import {Dsl} from '../Dsl.js';
+import {CallProperties} from './CallProperties.js';
 
 export class CallPropertyExtractor extends AbstractExtractor {
 
-    _extract(node) {
-        if (node.label !== Dsl.ELEMENTS.CALL.label) {
-            throw new Error("Cannot extract properties from non-call node");
-        }
-        const endpoint = node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label);
-
-        let method, label, args;
-        const parameters = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.PARAMETERS.label);
-        if (parameters != null) {
-            method = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.METHOD.label);
-            if (method != null) {
-                method = method.text;
-            }
-            label = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.LABEL.label);
-            if (label != null) {
-                label = label.text;
-            }
-
-            args = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
-            if (args != null) {
-                args = args
-                    .children
-                    .map(n => n.label);
-            } else {
-                args = [];
-            }
-        }
-
-        let code = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.CODE.label);
-        if (code != null) {
-            code = code.children
-                .sort((a, b) => a.label.localeCompare(b.label))
-                .map(n => n.text)
-                .join("");
-        }
-
-        this._memo.set(node, new CallProperties(endpoint, method, args, code, label));
+  _extract(node) {
+    if (node.label !== Dsl.ELEMENTS.CALL.label) {
+      throw new Error('Cannot extract properties from non-call node');
     }
+    const endpoint = node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label);
+
+    let method, label, args;
+    const parameters = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.PARAMETERS.label);
+    if (parameters != null) {
+      method = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.METHOD.label);
+      if (method != null) {
+        method = method.text;
+      }
+      label = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.LABEL.label);
+      if (label != null) {
+        label = label.text;
+      }
+
+      args = parameters.children.find(n => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
+      if (args != null) {
+        args = args
+            .children
+            .map(n => n.label);
+      } else {
+        args = [];
+      }
+    }
+
+    let code = node.children.find(n => n.label === Dsl.CALL_PROPERTIES.CODE.label);
+    if (code != null) {
+      code = code.children
+          .sort((a, b) => a.label.localeCompare(b.label))
+          .map(n => n.text)
+          .join('');
+    }
+
+    this._memo.set(node, new CallProperties(endpoint, method, args, code, label));
+  }
 
 }

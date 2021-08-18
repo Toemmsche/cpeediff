@@ -15,17 +15,17 @@
 */
 
 export class LogMessage {
-    level;
-    message;
-    source;
+  level;
+  message;
+  source;
 
-    constructor(level, message, source) {
-        this.level = level;
-        this.message = message;
-        this.source = source;
-    }
+  constructor(level, message, source) {
+    this.level = level;
+    this.message = message;
+    this.source = source;
+  }
 
-    toString() {
-        return "[" + this.level + "]" + (this.source !== null ? "<" + this.source.constructor.name + ">" : "") + ": " + this.message;
-    }
+  toString() {
+    return '[' + this.level + ']' + (this.source !== null ? '<' + this.source.constructor.name + '>' : '') + ': ' + this.message;
+  }
 }

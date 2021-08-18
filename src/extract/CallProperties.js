@@ -16,34 +16,34 @@
 
 export class CallProperties {
 
-    endpoint;
-    method;
-    label;
-    code;
-    args;
+  endpoint;
+  method;
+  label;
+  code;
+  args;
 
-    constructor(endpoint, method, args, code, label) {
-        this.endpoint = endpoint;
-        this.method = method;
-        this.args = args;
-        this.code = code;
-        this.label = label;
-    }
+  constructor(endpoint, method, args, code, label) {
+    this.endpoint = endpoint;
+    this.method = method;
+    this.args = args;
+    this.code = code;
+    this.label = label;
+  }
 
-    hasLabel() {
-        return this.label != null;
-    }
+  hasLabel() {
+    return this.label != null;
+  }
 
-    hasCode() {
-        return this.code != null;
-    }
+  hasCode() {
+    return this.code != null;
+  }
 
-    hasArgs() {
-        return this.args != null && this.args.length > 0;
-    }
+  hasArgs() {
+    return this.args != null && this.args.length > 0;
+  }
 
-    hasMethod() {
-        return this.method != null;
-    }
+  hasMethod() {
+    return this.method != null;
+  }
 
 }

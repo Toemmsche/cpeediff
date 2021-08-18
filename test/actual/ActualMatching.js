@@ -14,16 +14,16 @@
    limitations under the License.
 */
 
-import {AbstractActual} from "./AbstractActual.js";
+import {AbstractActual} from './AbstractActual.js';
 
 export class ActualMatching extends AbstractActual {
 
-    matching;
+  matching;
 
-    constructor(raw, matching) {
-        super(raw);
-        this.matching = matching;
-    }
+  constructor(raw, matching) {
+    super(raw);
+    this.matching = matching;
+  }
 }
 
 

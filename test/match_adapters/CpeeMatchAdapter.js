@@ -14,24 +14,24 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {MatchPipeline} from "../../src/match/MatchPipeline.js";
-import {MatchAdapter} from "./MatchAdapter.js";
-import {Config} from "../../src/Config.js";
+import {TestConfig} from '../TestConfig.js';
+import {MatchPipeline} from '../../src/match/MatchPipeline.js';
+import {MatchAdapter} from './MatchAdapter.js';
+import {Config} from '../../src/Config.js';
 
-export class CpeeMatchAdapter extends MatchAdapter{
+export class CpeeMatchAdapter extends MatchAdapter {
 
-    matchMode;
+  matchMode;
 
-    constructor(matchMode = Config.MATCH_MODES.QUALITY) {
-        super(TestConfig.MATCHINGS.CPEEMATCH.path,  TestConfig.MATCHINGS.CPEEMATCH.displayName + "_" + matchMode);
-        this.matchMode = matchMode;
-    }
+  constructor(matchMode = Config.MATCH_MODES.QUALITY) {
+    super(TestConfig.MATCHINGS.CPEEMATCH.path, TestConfig.MATCHINGS.CPEEMATCH.displayName + '_' + matchMode);
+    this.matchMode = matchMode;
+  }
 
-    _run(oldTree, newTree) {
-        Config.MATCH_MODE = this.matchMode;
-        return MatchPipeline.fromMode().execute(oldTree, newTree);
-    }
+  _run(oldTree, newTree) {
+    Config.MATCH_MODE = this.matchMode;
+    return MatchPipeline.fromMode().execute(oldTree, newTree);
+  }
 }
 
 

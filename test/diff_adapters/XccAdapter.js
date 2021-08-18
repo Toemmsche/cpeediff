@@ -14,67 +14,66 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {DiffAdapter} from "./DiffAdapter.js";
-import {DomHelper} from "../../util/DomHelper.js";
-import xmldom from "xmldom";
-import {NodeFactory} from "../../src/tree/NodeFactory.js";
+import {TestConfig} from '../TestConfig.js';
+import {DiffAdapter} from './DiffAdapter.js';
+import {DomHelper} from '../../util/DomHelper.js';
+import xmldom from 'xmldom';
 
 export class XccAdapter extends DiffAdapter {
 
-    constructor() {
-        super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
-    }
+  constructor() {
+    super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+  }
 
-    _parseOutput(output) {
-        let updates = 0;
-        let insertions = 0;
-        let moves = 0;
-        let deletions = 0;
+  _parseOutput(output) {
+    let updates = 0;
+    let insertions = 0;
+    let moves = 0;
+    let deletions = 0;
 
-        let cost = 0;
-        //parse output
-        const delta = DomHelper.firstChildElement(
-            new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
-        DomHelper.forAllChildElements(delta, (xmlOperation) => {
-            switch (xmlOperation.localName) {
-                case "insert":
-                    //moves are insertions and deletions with the same "id" attribute
-                    if (xmlOperation.hasAttribute("id")) {
-                        moves++;
-                    } else {
-                        insertions++;
-                        //determine cost
-                        const xmlNewValue = DomHelper.firstChildElement(xmlOperation, "newvalue");
-                        DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-                            cost += NodeFactory.getNode(xmlElement).size();
-                        })
-                    }
-                    break;
-                case "delete":
-                    //moves are insertions and deletions with the same "id" attribute
-                    if (xmlOperation.hasAttribute("id")) {
-                        moves++;
-                    } else {
-                        deletions++;
-                        //determine cost
-                        const xmlNewValue = DomHelper.firstChildElement(xmlOperation, "oldvalue");
-                        DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-                            cost += NodeFactory.getNode(xmlElement).size();
-                        })
-                    }
-                    break;
-                case "update":
-                    updates++;
-                    break;
-            }
-        })
-        moves /= 2;
-        //updates and moves have unit cost
-        cost += updates + moves;
-        //every move is counted twice
-        return [insertions, moves, updates, deletions, cost];
-    }
+    let cost = 0;
+    //parse output
+    const delta = DomHelper.firstChildElement(
+        new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'delta');
+    DomHelper.forAllChildElements(delta, (xmlOperation) => {
+      switch (xmlOperation.localName) {
+        case 'insert':
+          //moves are insertions and deletions with the same "id" attribute
+          if (xmlOperation.hasAttribute('id')) {
+            moves++;
+          } else {
+            insertions++;
+            //determine cost
+            const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'newvalue');
+            DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
+              cost += Node.fromNode(xmlElement).size();
+            });
+          }
+          break;
+        case 'delete':
+          //moves are insertions and deletions with the same "id" attribute
+          if (xmlOperation.hasAttribute('id')) {
+            moves++;
+          } else {
+            deletions++;
+            //determine cost
+            const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'oldvalue');
+            DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
+              cost += Node.fromNode(xmlElement).size();
+            });
+          }
+          break;
+        case 'update':
+          updates++;
+          break;
+      }
+    });
+    moves /= 2;
+    //updates and moves have unit cost
+    cost += updates + moves;
+    //every move is counted twice
+    return [insertions, moves, updates, deletions, cost];
+  }
 }
 
 

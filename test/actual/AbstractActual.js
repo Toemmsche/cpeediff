@@ -16,11 +16,11 @@
 
 export class AbstractActual {
 
-    raw;
+  raw;
 
-    constructor(raw) {
-        this.raw = raw;
-    }
+  constructor(raw) {
+    this.raw = raw;
+  }
 }
 
 

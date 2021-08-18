@@ -14,32 +14,32 @@
    limitations under the License.
 */
 
-import {AbstractExpected} from "./AbstractExpected.js";
-import {XmlFactory} from "../../src/io/XmlFactory.js";
+import {AbstractExpected} from './AbstractExpected.js';
+import {XmlFactory} from '../../src/io/XmlFactory.js';
 
-export class ExpectedDiff extends AbstractExpected{
+export class ExpectedDiff extends AbstractExpected {
 
-    editScript;
+  editScript;
 
-    constructor( editScript = null) {
-        super();
-        this.editScript = editScript;
-    }
+  constructor(editScript = null) {
+    super();
+    this.editScript = editScript;
+  }
 
-    toString() {
-        return "Cost: " + this.editScript?.cost + "\n" +
-            "Diff Size: " + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + "\n" +
-            "Total changes: " +  + this.editScript?.totalEditOperations() + "\n" +
-            "Insertions: " + this.editScript?.insertions() + "\n" +
-            "Moves: " + this.editScript?.moves() + "\n" +
-            "Updates: " + this.editScript?.updates() + "\n" +
-            "Deletions: " + this.editScript?.deletions();
-    }
+  toString() {
+    return 'Cost: ' + this.editScript?.cost + '\n' +
+        'Diff Size: ' + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + '\n' +
+        'Total changes: ' + +this.editScript?.totalEditOperations() + '\n' +
+        'Insertions: ' + this.editScript?.insertions() + '\n' +
+        'Moves: ' + this.editScript?.moves() + '\n' +
+        'Updates: ' + this.editScript?.updates() + '\n' +
+        'Deletions: ' + this.editScript?.deletions();
+  }
 
-    values() {
-        return ["Expected", "-", this.editScript?.cost, (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined), this.editScript?.totalEditOperations(),
-            this.editScript?.insertions(), this.editScript?.moves(), this.editScript?.updates(), this.editScript?.deletions()];
-    }
+  values() {
+    return ['Expected', '-', this.editScript?.cost, (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined), this.editScript?.totalEditOperations(),
+      this.editScript?.insertions(), this.editScript?.moves(), this.editScript?.updates(), this.editScript?.deletions()];
+  }
 
 }
 

@@ -38,6 +38,7 @@
 //      shorten some names (variables -> vars e..g)
 //      resolve naming conflicts (call as argunment)
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever necessary
+//      generator function
 
 //TODO bugs+
 //      fix performance and excessive movement
@@ -64,7 +65,6 @@
 //      Turn autogenearted tests into class
 //      use the change types and keywords objects instead of strings
 //      delete includes deleted tree
-
 
 /*
 Problems with examined matching algorithms:

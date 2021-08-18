@@ -14,16 +14,16 @@
    limitations under the License.
 */
 
-import {AbstractActual} from "./AbstractActual.js";
+import {AbstractActual} from './AbstractActual.js';
 
 export class ActualMerge extends AbstractActual {
 
-    tree;
-    
-    constructor(raw, tree) {
-        super(raw);
-        this.tree = tree;
-    }
+  tree;
+
+  constructor(raw, tree) {
+    super(raw);
+    this.tree = tree;
+  }
 }
 
 

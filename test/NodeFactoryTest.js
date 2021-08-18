@@ -14,55 +14,54 @@
    limitations under the License.
 */
 
-import {Node} from "../src/tree/Node.js"
-import {TestRepository} from "./TestRepository.js";
-import assert from "assert.js";
-import {NodeFactory} from "../src/tree/NodeFactory.js";
+import {Node} from '../src/tree/Node.js';
+import {TestRepository} from './TestRepository.js';
+import assert from 'assert.js';
 
-describe("NodeFactory", () => {
+describe('NodeFactory', () => {
 
-    let bookAirCall;
+  let bookAirCall;
 
-    beforeEach(() => {
-        const tree = TestRepository.bookingTree();
-        bookAirCall = tree.getChild(1);
+  beforeEach(() => {
+    const tree = TestRepository.bookingTree();
+    bookAirCall = tree.getChild(1);
 
+  });
+
+  describe('#getNode()', () => {
+    it('if input is Node, should return a copy', () => {
+      //do not copy child nodes
+      let copy = Node.fromNode(bookAirCall);
+
+      //verify content equality
+      assert.strictEqual(copy.degree(), bookAirCall.degree());
+      assert.strictEqual(copy.text, bookAirCall.text);
+      assert.strictEqual(copy.attributes.size, bookAirCall.attributes.size);
+      for (const key of bookAirCall.attributes.keys()) {
+        assert.strictEqual(copy.attributes.get(key), bookAirCall.attributes.get(key));
+      }
+
+      //verify reference inequality
+      assert.strictEqual(copy === bookAirCall, false);
+
+      //insert one child
+      bookAirCall.insertChild(0, new Node('dummy'));
+
+      //do copy child nodes
+      copy = Node.fromNode(bookAirCall, true);
+
+      //verify structural equality
+      assert.strictEqual(copy.degree(), bookAirCall.degree());
+      assert.ok(copy.getChild(0).contentEquals(bookAirCall.getChild(0)));
     });
-
-    describe("#getNode()", () => {
-        it("if input is Node, should return a copy", () => {
-            //do not copy child nodes
-            let copy = NodeFactory.getNode(bookAirCall);
-
-            //verify content equality
-            assert.strictEqual(copy.degree(), bookAirCall.degree());
-            assert.strictEqual(copy.text, bookAirCall.text);
-            assert.strictEqual(copy.attributes.size, bookAirCall.attributes.size);
-            for (const key of bookAirCall.attributes.keys()) {
-                assert.strictEqual(copy.attributes.get(key), bookAirCall.attributes.get(key));
-            }
-
-            //verify reference inequality
-            assert.strictEqual(copy === bookAirCall, false);
-
-            //insert one child
-            bookAirCall.insertChild(0, new Node("dummy"));
-
-            //do copy child nodes
-            copy = NodeFactory.getNode(bookAirCall, true);
-
-            //verify structural equality
-            assert.strictEqual(copy.degree(), bookAirCall.degree());
-            assert.ok(copy.getChild(0).contentEquals(bookAirCall.getChild(0)));
-        })
-    })
+  });
 
 });
 
 function strictArrayEqual(actual, expected) {
-    assert.strictEqual(actual.length, expected.length);
-    for (let i = 0; i < actual.length; i++) {
-        assert.strictEqual(actual[i], expected[i]);
-    }
+  assert.strictEqual(actual.length, expected.length);
+  for (let i = 0; i < actual.length; i++) {
+    assert.strictEqual(actual[i], expected[i]);
+  }
 }
 

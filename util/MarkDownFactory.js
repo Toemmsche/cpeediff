@@ -14,45 +14,45 @@
    limitations under the License.
 */
 
-import {markdownTable} from "markdown-table";
-import {DiffTestResult} from "../test/result/DiffTestResult.js";
+import {markdownTable} from 'markdown-table';
+import {DiffTestResult} from '../test/result/DiffTestResult.js';
 
 export class MarkDownFactory {
 
-    static tabularize(sources) {
-        if (sources.length > 0) {
-            switch (sources[0].constructor) {
-                case DiffTestResult:
-                    return markdownTable([DiffTestResult.header(), ...sources.map(res => res.values())]);
-                default:
-                    return this._tabularizePrimitives(sources);
-            }
-        }
+  static tabularize(sources) {
+    if (sources.length > 0) {
+      switch (sources[0].constructor) {
+        case DiffTestResult:
+          return markdownTable([DiffTestResult.header(), ...sources.map(res => res.values())]);
+        default:
+          return this._tabularizePrimitives(sources);
+      }
     }
+  }
 
-    static _tabularizePrimitives(diffResults) {
-        const table = [];
-        const header = [];
-        for (const property in diffResults[0]) {
-            const v = diffResults[0][property];
-            //only accept serializable values
-            if (this._isPrimitive(v)) {
-                header.push(property);
-            }
+  static _tabularizePrimitives(diffResults) {
+    const table = [];
+    const header = [];
+    for (const property in diffResults[0]) {
+      const v = diffResults[0][property];
+      //only accept serializable values
+      if (this._isPrimitive(v)) {
+        header.push(property);
+      }
 
-        }
-        table.push(header);
-        for (const result of diffResults) {
-            //only accept serializable values
-            table.push(Object.values(result).filter(v => this._isPrimitive(v)));
-        }
-        return markdownTable(table);
     }
-
-    static _isPrimitive(val) {
-        return val !== Object(val);
+    table.push(header);
+    for (const result of diffResults) {
+      //only accept serializable values
+      table.push(Object.values(result).filter(v => this._isPrimitive(v)));
     }
+    return markdownTable(table);
+  }
 
-    s
+  static _isPrimitive(val) {
+    return val !== Object(val);
+  }
+
+  s;
 }
 

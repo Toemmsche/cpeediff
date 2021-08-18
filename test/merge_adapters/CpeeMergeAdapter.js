@@ -14,33 +14,33 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {MergeAdapter} from "./MergeAdapter.js";
-import {XmlFactory} from "../../src/io/XmlFactory.js";
-import fs from "fs";
-import {execFileSync} from "child_process";
+import {TestConfig} from '../TestConfig.js';
+import {MergeAdapter} from './MergeAdapter.js';
+import {XmlFactory} from '../../src/io/XmlFactory.js';
+import fs from 'fs';
+import {execFileSync} from 'child_process';
 
 export class CpeeMergeAdapter extends MergeAdapter {
 
-    constructor() {
-        super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
-    }
+  constructor() {
+    super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
+  }
 
-    _run(base, branch1, branch2) {
-        const baseString = XmlFactory.serialize(base);
-        const branch1String = XmlFactory.serialize(branch1);
-        const branch2String = XmlFactory.serialize(branch2);
+  _run(base, branch1, branch2) {
+    const baseString = XmlFactory.serialize(base);
+    const branch1String = XmlFactory.serialize(branch1);
+    const branch2String = XmlFactory.serialize(branch2);
 
-        const baseFilePath = "base.xml";
-        const branch1Filepath = "1.xml";
-        const branch2FilePath = "2.xml";
+    const baseFilePath = 'base.xml';
+    const branch1Filepath = '1.xml';
+    const branch2FilePath = '2.xml';
 
-        fs.writeFileSync(baseFilePath, baseString);
-        fs.writeFileSync(branch1Filepath, branch1String);
-        fs.writeFileSync(branch2FilePath, branch2String);
+    fs.writeFileSync(baseFilePath, baseString);
+    fs.writeFileSync(branch1Filepath, branch1String);
+    fs.writeFileSync(branch2FilePath, branch2String);
 
-        return execFileSync("./main.js", ["merge", baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
-    }
+    return execFileSync('./main.js', ['merge', baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+  }
 }
 
 

@@ -27,7 +27,9 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs +=
+                        result.value('costs').to_f;
+                    </finalize>
                 </code>
             </call>
             <call id="a4" endpoint="approve">
@@ -48,7 +50,8 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;
+                    <finalize output="result">data.airline = result.value('id'); data.costs +=
+                        result.value('costs').to_f;
                     </finalize>
                 </code>
             </call>

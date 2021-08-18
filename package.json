@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "main": "demo.js",
-  "esversion": 6,
+  "esversion": 12,
   "scripts": {
     "start": "node main.js",
     "test": "mocha"
@@ -21,7 +21,30 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/eslint-parser": "^7.15.0",
+    "@babel/eslint-plugin": "^7.14.5",
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/preset-env": "^7.15.0",
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
     "mocha": "^9.0.0",
     "munkres-js": "^1.2.2"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "extends": "google",
+    "rules": {},
+    "parserOptions": {
+      "sourceType": "module",
+      "ecmaVersion": 2021,
+      "babelOptions": {
+        "configFile": "./.babelrc"
+      }
+    },
+    "parser": "@babel/eslint-parser"
   }
 }

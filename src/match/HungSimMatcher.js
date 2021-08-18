@@ -14,34 +14,33 @@
    limitations under the License.
 */
 
-import {Config} from "../Config.js";
-import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
-import computeMunkres from "munkres-js";
+import {Config} from '../Config.js';
+import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import computeMunkres from 'munkres-js';
 
 export class HungSimMatcher extends AbstractMatchingAlgorithm {
 
-    match(oldTree, newTree, matching, comparator) {
-        //filter for unmatched nodes and sort ascending by size
-        const oldNodes = oldTree.leaves().filter(n => !matching.hasAny(n));
-        const newNodes = newTree.leaves().filter(n => !matching.hasAny(n));
+  match(oldTree, newTree, matching, comparator) {
+    //filter for unmatched nodes and sort ascending by size
+    const oldNodes = oldTree.leaves().filter(n => !matching.hasAny(n));
+    const newNodes = newTree.leaves().filter(n => !matching.hasAny(n));
 
-
-        const matrix = new Array(newNodes.length);
-        for (let i = 0; i < matrix.length; i++) {
-            matrix[i] = new Array(oldNodes.length);
-            for (let j = 0; j < matrix[i].length; j++) {
-                const compValue = comparator.compare(newNodes[i], oldNodes[j]);
-                    matrix[i][j] = compValue;
-            }
-        }
-
-        const opt = computeMunkres(matrix);
-
-        for(const [i, j] of opt) {
-            if(matrix[i][j] <= Config.COMPARISON_THRESHOLD) {
-                matching.matchNew(newNodes[i], oldNodes[j]);
-            }
-        }
-
+    const matrix = new Array(newNodes.length);
+    for (let i = 0; i < matrix.length; i++) {
+      matrix[i] = new Array(oldNodes.length);
+      for (let j = 0; j < matrix[i].length; j++) {
+        const compValue = comparator.compare(newNodes[i], oldNodes[j]);
+        matrix[i][j] = compValue;
+      }
     }
+
+    const opt = computeMunkres(matrix);
+
+    for (const [i, j] of opt) {
+      if (matrix[i][j] <= Config.COMPARISON_THRESHOLD) {
+        matching.matchNew(newNodes[i], oldNodes[j]);
+      }
+    }
+
+  }
 }

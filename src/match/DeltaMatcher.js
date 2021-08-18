@@ -14,15 +14,15 @@
    limitations under the License.
 */
 
-import {AbstractMatchingAlgorithm} from "./AbstractMatchingAlgorithm.js";
-import {DeltaNode} from "../patch/DeltaNode.js";
+import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {DeltaNode} from '../patch/DeltaNode.js';
 
 export class DeltaMatcher extends AbstractMatchingAlgorithm {
 
-    match(oldTree, newTree, matching) {
-        if(oldTree.constructor !== DeltaNode || newTree.constructor !== DeltaNode) {
-            throw new Error("Cannot ony delta match DeltaNodes")
-        }
+  match(oldTree, newTree, matching) {
+    if (oldTree.constructor !== DeltaNode || newTree.constructor !== DeltaNode) {
+      throw new Error('Cannot ony delta match DeltaNodes');
     }
+  }
 }
 

@@ -14,97 +14,108 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
-import {CallPropertyExtractor} from "./CallPropertyExtractor.js";
-import {Dsl} from "../Dsl.js";
-import {Config} from "../Config.js";
+import {AbstractExtractor} from './AbstractExtractor.js';
+import {CallPropertyExtractor} from './CallPropertyExtractor.js';
+import {Dsl} from '../Dsl.js';
+import {Config} from '../Config.js';
 
 export class VariableExtractor extends AbstractExtractor {
 
-    callPropertyExtractor;
+  callPropertyExtractor;
 
-    constructor(callPropertyExtractor = new CallPropertyExtractor()) {
-        super();
-        this.callPropertyExtractor = callPropertyExtractor;
+  constructor(callPropertyExtractor = new CallPropertyExtractor()) {
+    super();
+    this.callPropertyExtractor = callPropertyExtractor;
+  }
+
+  _extract(node) {
+    this._memo.set(node, {
+      writtenVariables: this._getWrittenVariables(node),
+      readVariables: this._getReadVariables(node),
+      argVariables: this._getArgVariables(node)
+    });
+  }
+
+  _getWrittenVariables(node) {
+    let writtenVariables = new Set();
+    let code;
+    if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
+      code = node.text;
+    } else if (node.label === Dsl.ELEMENTS.CALL.label) {
+      code = this.callPropertyExtractor.get(node).code;
+    }
+    if (code != null) {
+      writtenVariables = new Set(this._modVarsFromString(code));
+    }
+    return writtenVariables;
+  }
+
+  _getReadVariables(node) {
+    const readVariables = new Set();
+    if (node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label)) {
+      const condition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+      for (const readVar of this._readVarsFromString(condition)) {
+        readVariables.add(readVar);
+      }
+    }
+    let code;
+    if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
+      code = node.text;
+    } else if (node.label === Dsl.ELEMENTS.CALL.label) {
+      code = this.callPropertyExtractor.get(node).code;
+    }
+    if (code != null) {
+      for (const readVar of this._readVarsFromString(code)) {
+        readVariables.add(readVar);
+      }
     }
 
-    _extract(node) {
-        this._memo.set(node, {
-            writtenVariables: this._getWrittenVariables(node),
-            readVariables: this._getReadVariables(node),
-            argVariables: this._getArgVariables(node)
-        });
-    }
+    return readVariables;
+  }
 
-    _getWrittenVariables(node) {
-        let writtenVariables = new Set();
-        let code;
-        if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
-            code = node.text;
-        } else if (node.label === Dsl.ELEMENTS.CALL.label) {
-            code = this.callPropertyExtractor.get(node).code;
+  _getArgVariables(node) {
+    const argVariables = [];
+    if (node.label === Dsl.ELEMENTS.CALL.label) {
+      const callProps = this.callPropertyExtractor.get(node);
+      if (callProps.hasArgs()) {
+        for (const arg of callProps.args) {
+          const readVars = this._readVarsFromString(arg);
+          if (readVars.length !== 1) {
+            argVariables.push(arg);
+          } else {
+            argVariables.push(readVars[0]);
+          }
         }
-        if (code != null) {
-            writtenVariables = new Set(this._modVarsFromString(code));
-        }
-        return writtenVariables;
+      }
     }
+    return argVariables;
+  }
 
-    _getReadVariables(node) {
-        const readVariables = new Set();
-        if (node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label)) {
-            const condition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
-            for (const readVar of this._readVarsFromString(condition)) {
-                readVariables.add(readVar);
-            }
-        }
-        let code;
-        if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
-            code = node.text;
-        } else if (node.label === Dsl.ELEMENTS.CALL.label) {
-            code = this.callPropertyExtractor.get(node).code;
-        }
-        if (code != null) {
-            for (const readVar of this._readVarsFromString(code)) {
-                readVariables.add(readVar);
-            }
-        }
-
-        return readVariables;
+  _modVarsFromString(str) {
+    const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
+    //positive lookahead for assignment operators and positive lookbehind for data element prefix
+    let regex;
+    if (Config.EXP) {
+      regex = new RegExp('(?<=' + prefix + ')[a-zA-Z$_](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))', 'g');
+    } else {
+      regex = new RegExp('(?<=' + prefix + ')[$_a-zA-Z](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))', 'g');
     }
+    const matches = str.match(regex);
+    return matches == null ? [] : matches;
+  }
 
-    _getArgVariables(node) {
-        const argVariables = [];
-        if (node.label === Dsl.ELEMENTS.CALL.label) {
-            const callProps = this.callPropertyExtractor.get(node);
-            if (callProps.hasArgs()) {
-                for (const arg of callProps.args) {
-                    const readVars = this._readVarsFromString(arg);
-                    if(readVars.length !== 1) {
-                        argVariables.push(arg);
-                    } else {
-                        argVariables.push(readVars[0])
-                    }
-                }
-            }
-        }
-        return argVariables;
-    }
+  _readVarsFromString(str) {
+    const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
 
-    _modVarsFromString(str) {
-        const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
-        //positive lookahead for assignment operators and positive lookbehind for data element prefix
-        const regex = new RegExp("(?<=" + prefix + ")[$_a-zA-Z](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))", "g")
-        const matches = str.match(regex);
-        return matches == null ? [] : matches;
+    //negative lookahead for assignment operators and positive lookbehind for data element prefix
+    //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
+    let regex;
+    if (Config.EXP) {
+      regex = new RegExp('(?<=' + prefix + ')[a-zA-Z$_](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])', 'g');
+    } else {
+      regex = new RegExp('(?<=' + prefix + ')[$_a-zA-Z](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])', 'g');
     }
-
-    _readVarsFromString(str) {
-        const prefix = Config.VARIABLE_PREFIX.replaceAll("." , "\\.");
-        //negative lookahead for assignment operators and positive lookbehind for data element prefix
-        //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
-        const regex = new RegExp("(?<="+ prefix +")[$_a-zA-Z](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])", "g");
-        const matches = str.match(regex);
-        return matches == null ? [] : matches;
-    }
+    const matches = str.match(regex);
+    return matches == null ? [] : matches;
+  }
 }

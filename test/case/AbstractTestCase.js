@@ -14,8 +14,6 @@
    limitations under the License.
 */
 
-import exp from "constants";
-
 /**
  * Abstract superclass for all test cases.
  * @property {String} name The name of this test case
@@ -23,28 +21,28 @@ import exp from "constants";
  */
 export class AbstractTestCase {
 
-    name;
-    expected;
+  name;
+  expected;
 
-    /**
-     * Create a new test case
-     * @param {String} name The name of this test case
-     * @param {AbstractExpected} expected The expected result for this test case
-     */
-    constructor(name, expected) {
-        this.name = name;
-        this.expected = expected;
-    }
+  /**
+   * Create a new test case
+   * @param {String} name The name of this test case
+   * @param {AbstractExpected} expected The expected result for this test case
+   */
+  constructor(name, expected) {
+    this.name = name;
+    this.expected = expected;
+  }
 
-    /**
-     * Construct a test case from a test case directory.
-     * @param {String} testCaseDir An absolute or relative path to the directory containing the files
-     * that define the test case.
-     * @return AbstractTestCase The constructed test case
-     */
-    static from(testCaseDir) {
-        return null;
-    }
+  /**
+   * Construct a test case from a test case directory.
+   * @param {String} testCaseDir An absolute or relative path to the directory containing the files
+   * that define the test case.
+   * @return AbstractTestCase The constructed test case
+   */
+  static from(testCaseDir) {
+    return null;
+  }
 }
 
 

@@ -14,80 +14,78 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import {DiffAdapter} from "./DiffAdapter.js";
-import xmldom from "xmldom";
-import {DomHelper} from "../../util/DomHelper.js";
-import {NodeFactory} from "../../src/tree/NodeFactory.js";
+import {TestConfig} from '../TestConfig.js';
+import {DiffAdapter} from './DiffAdapter.js';
+import xmldom from 'xmldom';
+import {DomHelper} from '../../util/DomHelper.js';
 
 export class DeltaJsAdapter extends DiffAdapter {
 
-    constructor() {
-        super(TestConfig.DIFFS.DELTAJS.path, TestConfig.DIFFS.DELTAJS.displayName);
-    }
+  constructor() {
+    super(TestConfig.DIFFS.DELTAJS.path, TestConfig.DIFFS.DELTAJS.displayName);
+  }
 
-    _parseOutput(output) {
-        let updates = 0;
-        let insertions = 0;
-        let moves = 0;
-        let deletions = 0;
+  _parseOutput(output) {
+    let updates = 0;
+    let insertions = 0;
+    let moves = 0;
+    let deletions = 0;
 
-        let cost = 0;
+    let cost = 0;
 
-        //parse output
-        //diff is enclosed in delta
-        let delta = DomHelper.firstChildElement(
-            new xmldom.DOMParser().parseFromString(output, "text/xml"), "delta");
+    //parse output
+    //diff is enclosed in delta
+    let delta = DomHelper.firstChildElement(
+        new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'delta');
 
-
-        DomHelper.forAllChildElements(delta, (xmlForest) => {
-            //operations are grouped as forests
-            DomHelper.forAllChildElements(xmlForest, (xmlOperation) => {
-                //Deltajs does not mark moves or updates. Instead, they are provided as insertions.
-                //We are so generous and detect updates among their delta
-                if (xmlOperation.childNodes.length === 0) return;
-                switch (xmlOperation.localName) {
-                    case "move":
-                        moves++;
-                        break;
-                    case "insert":
-                        const xmlInsertedElement = DomHelper.firstChildElement(xmlOperation);
-                        if (xmlInsertedElement == null) {
-                            //Text insertions are mapped to updates
-                            updates++;
-                            return;
-                        } else {
-                            insertions++;
-                            DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                                cost += NodeFactory.getNode(xmlElement).size();
-                            });
-                        }
-                        break;
-                    case "remove":
-                        const xmlDeletedElement = DomHelper.firstChildElement(xmlOperation);
-                        if (xmlDeletedElement == null) {
-                            //Text deletions are mapped to updates
-                            updates++;
-                            return;
-                        } else {
-                            deletions++;
-                            DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                                cost += NodeFactory.getNode(xmlElement).size();
-                            });
-                        }
-                        break;
-                    case "update":
-                        updates++;
-                        break;
-                }
-            })
-        })
-        //every update is counted twice
-        updates /= 2;
-        //moves and updates have unit cost
-        cost += updates + moves;
-        return [insertions, moves, updates, deletions, cost];
-    }
+    DomHelper.forAllChildElements(delta, (xmlForest) => {
+      //operations are grouped as forests
+      DomHelper.forAllChildElements(xmlForest, (xmlOperation) => {
+        //Deltajs does not mark moves or updates. Instead, they are provided as insertions.
+        //We are so generous and detect updates among their delta
+        if (xmlOperation.childNodes.length === 0) return;
+        switch (xmlOperation.localName) {
+          case 'move':
+            moves++;
+            break;
+          case 'insert':
+            const xmlInsertedElement = DomHelper.firstChildElement(xmlOperation);
+            if (xmlInsertedElement == null) {
+              //Text insertions are mapped to updates
+              updates++;
+              return;
+            } else {
+              insertions++;
+              DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
+                cost += Node.fromNode(xmlElement).size();
+              });
+            }
+            break;
+          case 'remove':
+            const xmlDeletedElement = DomHelper.firstChildElement(xmlOperation);
+            if (xmlDeletedElement == null) {
+              //Text deletions are mapped to updates
+              updates++;
+              return;
+            } else {
+              deletions++;
+              DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
+                cost += Node.fromNode(xmlElement).size();
+              });
+            }
+            break;
+          case 'update':
+            updates++;
+            break;
+        }
+      });
+    });
+    //every update is counted twice
+    updates /= 2;
+    //moves and updates have unit cost
+    cost += updates + moves;
+    return [insertions, moves, updates, deletions, cost];
+  }
 }
 
 

@@ -16,19 +16,19 @@
 
 export class AggregateMergeResult {
 
-    algorithm;
-    ok;
-    acceptable
-    wrongAnswer;
-    runtimeError;
+  algorithm;
+  ok;
+  acceptable;
+  wrongAnswer;
+  runtimeError;
 
-    constructor(algorithm, ok, acceptable, wrongAnswer, runtimeError) {
-        this.algorithm = algorithm;
-        this.ok = ok;
-        this.acceptable = acceptable;
-        this.wrongAnswer = wrongAnswer;
-        this.runtimeError = runtimeError;
-    }
+  constructor(algorithm, ok, acceptable, wrongAnswer, runtimeError) {
+    this.algorithm = algorithm;
+    this.ok = ok;
+    this.acceptable = acceptable;
+    this.wrongAnswer = wrongAnswer;
+    this.runtimeError = runtimeError;
+  }
 }
 
 

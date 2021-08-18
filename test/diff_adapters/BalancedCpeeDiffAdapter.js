@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import {Config} from "../../src/Config.js";
-import {CpeeDiffAdapter} from "./CpeeDiffAdapter.js";
+import {Config} from '../../src/Config.js';
+import {CpeeDiffAdapter} from './CpeeDiffAdapter.js';
 
 export class BalancedCpeeDiffAdapter extends CpeeDiffAdapter {
 
-    constructor() {
-        super(Config.MATCH_MODES.BALANCED);
-    }
+  constructor() {
+    super(Config.MATCH_MODES.BALANCED);
+  }
 }
 
 

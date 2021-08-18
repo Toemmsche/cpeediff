@@ -14,83 +14,81 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import xmldom from "xmldom";
-import {DiffAdapter} from "./DiffAdapter.js";
-import {DomHelper} from "../../util/DomHelper.js";
-import {NodeFactory} from "../../src/tree/NodeFactory.js";
-
+import {TestConfig} from '../TestConfig.js';
+import xmldom from 'xmldom';
+import {DiffAdapter} from './DiffAdapter.js';
+import {DomHelper} from '../../util/DomHelper.js';
 
 export class XyDiffAdapter extends DiffAdapter {
 
-    constructor() {
-        super(TestConfig.DIFFS.XYDIFF.path, TestConfig.DIFFS.XYDIFF.displayName);
-    }
+  constructor() {
+    super(TestConfig.DIFFS.XYDIFF.path, TestConfig.DIFFS.XYDIFF.displayName);
+  }
 
-    _parseOutput(output) {
-        let updates = 0;
-        let insertions = 0;
-        let moves = 0;
-        let deletions = 0;
+  _parseOutput(output) {
+    let updates = 0;
+    let insertions = 0;
+    let moves = 0;
+    let deletions = 0;
 
-        let cost = 0;
+    let cost = 0;
 
-        //parse output
-        //enclosing tag for diff is "unit_delta"
-        let delta = DomHelper.firstChildElement(new xmldom.DOMParser().parseFromString(output, "text/xml"), "unit_delta");
-        //changes are further enclosed in a "t" tag
-        delta = DomHelper.firstChildElement(delta, "t");
-        DomHelper.forAllChildElements(delta, (xmlOperation) => {
-            //edit operations are shortened to a single letter
-            switch (xmlOperation.localName) {
-                case "i":
-                    //Check if an entire XML element was inserted, or if text content was updated
-                    if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
-                        moves++;
-                    } else {
-                        const xmlElement = DomHelper.firstChildElement(xmlOperation);
-                        if(xmlElement != null) {
-                            insertions++;
-                            //adjust cost
-                            cost += NodeFactory.getNode(xmlElement).size();
-                        } else {
-                            //text content insertions are mapped to updates
-                            updates++;
-                        }
-                    }
-                    break;
-                case "d":
-                    if(xmlOperation.hasAttribute("move") && xmlOperation.getAttribute("move") === "yes") {
-                        moves++;
-                    } else {
-                        //Check if an entire element was deleted, or if text content was updated
-                        const xmlElement = DomHelper.firstChildElement(xmlOperation);
-                        if(xmlElement != null) {
-                            deletions++;
-                            //adjust cost
-                            cost += NodeFactory.getNode(xmlElement).size();
-                        } else {
-                            //text content deletions are mapped to updates
-                            updates++;
-                        }
-                    }
-                    break;
-                default:
-                    /*
-                    XyDiff represents changes on attributes (which are updates in our change model)
-                    by prefixing the change operation with the letter "a".
-                     */
-                    updates++;
-                    break;
+    //parse output
+    //enclosing tag for diff is "unit_delta"
+    let delta = DomHelper.firstChildElement(new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'unit_delta');
+    //changes are further enclosed in a "t" tag
+    delta = DomHelper.firstChildElement(delta, 't');
+    DomHelper.forAllChildElements(delta, (xmlOperation) => {
+      //edit operations are shortened to a single letter
+      switch (xmlOperation.localName) {
+        case 'i':
+          //Check if an entire XML element was inserted, or if text content was updated
+          if (xmlOperation.hasAttribute('move') && xmlOperation.getAttribute('move') === 'yes') {
+            moves++;
+          } else {
+            const xmlElement = DomHelper.firstChildElement(xmlOperation);
+            if (xmlElement != null) {
+              insertions++;
+              //adjust cost
+              cost += Node.fromNode(xmlElement).size();
+            } else {
+              //text content insertions are mapped to updates
+              updates++;
             }
-        })
-        //every move is counted twice
-        moves /= 2;
-        //moves and updates have unit cost
-        cost += moves + updates;
-        //all moves are detected twice
-        return [insertions, moves, updates, deletions, cost];
-    }
+          }
+          break;
+        case 'd':
+          if (xmlOperation.hasAttribute('move') && xmlOperation.getAttribute('move') === 'yes') {
+            moves++;
+          } else {
+            //Check if an entire element was deleted, or if text content was updated
+            const xmlElement = DomHelper.firstChildElement(xmlOperation);
+            if (xmlElement != null) {
+              deletions++;
+              //adjust cost
+              cost += Node.fromNode(xmlElement).size();
+            } else {
+              //text content deletions are mapped to updates
+              updates++;
+            }
+          }
+          break;
+        default:
+          /*
+          XyDiff represents changes on attributes (which are updates in our change model)
+          by prefixing the change operation with the letter "a".
+           */
+          updates++;
+          break;
+      }
+    });
+    //every move is counted twice
+    moves /= 2;
+    //moves and updates have unit cost
+    cost += moves + updates;
+    //all moves are detected twice
+    return [insertions, moves, updates, deletions, cost];
+  }
 }
 
 

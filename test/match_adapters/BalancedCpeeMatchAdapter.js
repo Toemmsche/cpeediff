@@ -14,14 +14,13 @@
    limitations under the License.
 */
 
-import {Config} from "../../src/Config.js";
-import {CpeeMatchAdapter} from "./CpeeMatchAdapter.js";
+import {Config} from '../../src/Config.js';
+import {CpeeMatchAdapter} from './CpeeMatchAdapter.js';
 
-export class BalancedCpeeMatchAdapter extends CpeeMatchAdapter{
+export class BalancedCpeeMatchAdapter extends CpeeMatchAdapter {
 
-
-    constructor() {
-        super(Config.MATCH_MODES.BALANCED);
-    }
+  constructor() {
+    super(Config.MATCH_MODES.BALANCED);
+  }
 
 }

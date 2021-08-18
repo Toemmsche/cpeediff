@@ -14,22 +14,22 @@
    limitations under the License.
 */
 
-import {AbstractExtractor} from "./AbstractExtractor.js";
+import {AbstractExtractor} from './AbstractExtractor.js';
 
 export class IdExtractor extends AbstractExtractor {
 
-    _extract(node) {
-        //compute all ids on first use
-        let root;
-        if(node.parent == null) {
-            root = node;
-        } else {
-            root = node.path()[0].parent;
-        }
-        const preOrder = root.toPreOrderArray();
-        for (let i = 0; i < preOrder.length; i++) {
-            this._memo.set(preOrder[i], i);
-        }
+  _extract(node) {
+    //compute all ids on first use
+    let root;
+    if (node.parent == null) {
+      root = node;
+    } else {
+      root = node.path()[0].parent;
     }
+    const preOrder = root.toPreOrderArray();
+    for (let i = 0; i < preOrder.length; i++) {
+      this._memo.set(preOrder[i], i);
+    }
+  }
 
 }

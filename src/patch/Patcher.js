@@ -14,99 +14,92 @@
    limitations under the License.
 */
 
-import {DeltaNodeFactory} from "./DeltaNodeFactory.js";
-import {Dsl} from "../Dsl.js";
-import {Update} from "../diff/Update.js";
-import {NodeFactory} from "../tree/NodeFactory.js";
-import {Logger} from "../../util/Logger.js";
+import {Dsl} from '../Dsl.js';
 
 export class Patcher {
 
-    _tree;
+  _tree;
 
-    patch(tree, editScript) {
-        //copy the tree
-        this._tree = NodeFactory.getNode(tree);
+  patch(tree, editScript) {
+    //copy the tree
+    this._tree = Node.fromNode(tree);
 
-        for (const change of editScript) {
-            switch (change.type) {
-                case Dsl.CHANGE_MODEL.INSERTION.label: {
-                    this._handleInsert(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.MOVE_TO.label: {
-                    this._handleMove(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.UPDATE.label: {
-                    this._handleUpdate(change);
-                    break;
-                }
-                case Dsl.CHANGE_MODEL.DELETION.label: {
-                    this._handleDelete(change);
-                    break;
-                }
-            }
+    for (const change of editScript) {
+      switch (change.type) {
+        case Dsl.CHANGE_MODEL.INSERTION.label: {
+          this._handleInsert(change);
+          break;
         }
-        return this._tree;
-    }
-
-    _findNode(indexPath) {
-        let currNode = this._tree;
-        if (indexPath !== "") {
-            for (let index of indexPath.split("/").map(str => parseInt(str))) {
-                if (index >= currNode.degree()) {
-                    throw new Error("Edit script not applicable to tree");
-                }
-                currNode = currNode.getChild(index);
-            }
+        case Dsl.CHANGE_MODEL.MOVE_TO.label: {
+          this._handleMove(change);
+          break;
         }
-        return currNode;
-    }
-
-
-
-    _handleMove(change) {
-        const movedNode = this._findNode(change.oldPath);
-        movedNode.removeFromParent();
-
-        //Extract new child index
-        const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const index = indexArr.pop();
-
-        //Find parent node
-        const targetParent = this._findNode(indexArr.join("/"));
-
-       targetParent.insertChild(index, movedNode);
-    }
-
-
-    _handleInsert(change) {
-        //Extract new child index
-        const indexArr = change.newPath.split("/").map(str => parseInt(str));
-        const index = indexArr.pop();
-
-        //Find parent node
-        const parent = this._findNode(indexArr.join("/"));
-
-        //Insert
-        const newNode = NodeFactory.getNode(change.newContent, true);
-        parent.insertChild(index, newNode);
-    }
-
-    _handleUpdate(change) {
-        const node = this._findNode(change.oldPath);
-
-        node.attributes = new Map();
-        for(const [key, val] of change.newContent.attributes) {
-            node.attributes.set(key,val);
+        case Dsl.CHANGE_MODEL.UPDATE.label: {
+          this._handleUpdate(change);
+          break;
         }
-        node.text = change.newContent.text;
+        case Dsl.CHANGE_MODEL.DELETION.label: {
+          this._handleDelete(change);
+          break;
+        }
+      }
     }
+    return this._tree;
+  }
 
-    _handleDelete(change) {
-        this._findNode(change.oldPath).removeFromParent();
+  _findNode(indexPath) {
+    let currNode = this._tree;
+    if (indexPath !== '') {
+      for (let index of indexPath.split('/').map(str => parseInt(str))) {
+        if (index >= currNode.degree()) {
+          throw new Error('Edit script not applicable to tree');
+        }
+        currNode = currNode.getChild(index);
+      }
     }
+    return currNode;
+  }
+
+  _handleMove(change) {
+    const movedNode = this._findNode(change.oldPath);
+    movedNode.removeFromParent();
+
+    //Extract new child index
+    const indexArr = change.newPath.split('/').map(str => parseInt(str));
+    const index = indexArr.pop();
+
+    //Find parent node
+    const targetParent = this._findNode(indexArr.join('/'));
+
+    targetParent.insertChild(index, movedNode);
+  }
+
+  _handleInsert(change) {
+    //Extract new child index
+    const indexArr = change.newPath.split('/').map(str => parseInt(str));
+    const index = indexArr.pop();
+
+    //Find parent node
+    const parent = this._findNode(indexArr.join('/'));
+
+    //Insert
+    const newNode = Node.fromNode(change.newContent, true);
+    parent.insertChild(index, newNode);
+  }
+
+  _handleUpdate(change) {
+    const node = this._findNode(change.oldPath);
+
+    node.attributes = new Map();
+    for (const [key, val] of change.newContent.attributes) {
+      node.attributes.set(key, val);
+    }
+    node.text = change.newContent.text;
+  }
+
+  _handleDelete(change) {
+    this._findNode(change.oldPath).removeFromParent();
+  }
 
 }
 

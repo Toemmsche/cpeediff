@@ -23,21 +23,21 @@
  */
 export class Confidence {
 
-    contentConfident;
-    parentConfident;
-    positionConfident;
+  contentConfident;
+  parentConfident;
+  positionConfident;
 
-    /**
-     * Create a new confidence object.
-     * @param {Boolean} contentConfident If the merge is confident about the content of a node.
-     * @param {Boolean} parentConfident If the merge is confident about the parent node of a node.
-     * @param {Boolean} positionConfident If the merge is confident about the position of a node within
-     */
-    constructor(contentConfident, parentConfident, positionConfident) {
-        this.contentConfident = contentConfident;
-        this.parentConfident = parentConfident;
-        this.positionConfident = positionConfident;
-    }
+  /**
+   * Create a new confidence object.
+   * @param {Boolean} contentConfident If the merge is confident about the content of a node.
+   * @param {Boolean} parentConfident If the merge is confident about the parent node of a node.
+   * @param {Boolean} positionConfident If the merge is confident about the position of a node within
+   */
+  constructor(contentConfident, parentConfident, positionConfident) {
+    this.contentConfident = contentConfident;
+    this.parentConfident = parentConfident;
+    this.positionConfident = positionConfident;
+  }
 }
 
 

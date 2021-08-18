@@ -14,33 +14,30 @@
    limitations under the License.
 */
 
-import {AbstractActual} from "./AbstractActual.js";
+import {AbstractActual} from './AbstractActual.js';
 
 export class ActualDiff extends AbstractActual {
 
-    editOperations;
-    insertions;
-    moves;
-    updates;
-    deletions;
+  editOperations;
+  insertions;
+  moves;
+  updates;
+  deletions;
 
-    cost;
+  cost;
 
+  constructor(raw, insertions, moves, updates, deletions, cost = 0) {
+    super(raw);
+    this.editOperations = insertions + moves + updates + deletions;
+    this.insertions = insertions;
+    this.moves = moves;
+    this.updates = updates;
+    this.deletions = deletions;
+    this.diffSize = raw.length;
+    this.cost = cost;
+  }
 
-    constructor(raw, insertions, moves, updates, deletions, cost = 0) {
-        super(raw);
-        this.editOperations = insertions + moves + updates + deletions;
-        this.insertions = insertions;
-        this.moves = moves;
-        this.updates = updates;
-        this.deletions = deletions;
-        this.diffSize = raw.length;
-        this.cost = cost;
-    }
-
-    diffSize;
-
-
+  diffSize;
 
 }
 

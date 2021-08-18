@@ -14,53 +14,52 @@
    limitations under the License.
 */
 
-import {TestConfig} from "../TestConfig.js";
-import fs from "fs";
-import {DiffAdapter} from "./DiffAdapter.js";
+import {TestConfig} from '../TestConfig.js';
+import {DiffAdapter} from './DiffAdapter.js';
 
 export class XmlDiffAdapter extends DiffAdapter {
 
-    constructor() {
-        super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);
-    }
+  constructor() {
+    super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);
+  }
 
-    _parseOutput(output) {
-        let updates = 0;
-        let insertions = 0;
-        let moves = 0;
-        let deletions = 0;
+  _parseOutput(output) {
+    let updates = 0;
+    let insertions = 0;
+    let moves = 0;
+    let deletions = 0;
 
-        //parse output
-        for (const line of output.split("\n")) {
-            if (line !== "") {
-                if (!line.startsWith("[")) {
-                    throw new Error("unknown output");
-                }
-
-                //xmldiff output pattern: [{type}, {path} {description of the change}]
-                const type = line.split(",")[0].slice(1);
-                switch (type) {
-                    case "delete":
-                        deletions++;
-                        break;
-                    case "insert":
-                        insertions++;
-                        break;
-                    case "move":
-                        moves++;
-                        break;
-                    default:
-                        //There are many operations that are best mapped to an update like "insert-attribute"
-                        //or "rename"
-                        updates++;
-                        break;
-                }
-            }
+    //parse output
+    for (const line of output.split('\n')) {
+      if (line !== '') {
+        if (!line.startsWith('[')) {
+          throw new Error('unknown output');
         }
-        //Every operation has unit cost
-        const cost = insertions + moves + updates + deletions;
-        return [insertions, moves, updates, deletions, cost];
+
+        //xmldiff output pattern: [{type}, {path} {description of the change}]
+        const type = line.split(',')[0].slice(1);
+        switch (type) {
+          case 'delete':
+            deletions++;
+            break;
+          case 'insert':
+            insertions++;
+            break;
+          case 'move':
+            moves++;
+            break;
+          default:
+            //There are many operations that are best mapped to an update like "insert-attribute"
+            //or "rename"
+            updates++;
+            break;
+        }
+      }
     }
+    //Every operation has unit cost
+    const cost = insertions + moves + updates + deletions;
+    return [insertions, moves, updates, deletions, cost];
+  }
 }
 
 

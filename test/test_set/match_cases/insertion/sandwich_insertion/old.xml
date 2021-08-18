@@ -8,20 +8,10 @@
                 <amount>data.amount</amount>
             </arguments>
         </parameters>
+        <code>
+            <finalize>
+                data.paymentReceived = result.value('success');
+            </finalize>
+        </code>
     </call>
-    <loop condition="!data.shipped">
-        <call id="a2" endpoint="shipItem">
-            <parameters>
-                <label>Initiate shipping to customer</label>
-                <method>:post</method>
-                <arguments>
-                    <item>data.items</item>
-                    <to>data.address</to>
-                </arguments>
-            </parameters>
-            <code>
-                <finalize output="result">data.shipped = true;</finalize>
-            </code>
-        </call>
-    </loop>
 </description>
