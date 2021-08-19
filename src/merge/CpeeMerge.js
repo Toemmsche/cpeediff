@@ -15,7 +15,7 @@
 */
 
 import {MatchPipeline} from '../match/MatchPipeline.js';
-import {StandardComparator} from '../match/StandardComparator.js';
+import {Comparator} from '../match/Comparator.js';
 import {Matching} from '../match/Matching.js';
 import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
@@ -38,7 +38,7 @@ export class CpeeMerge {
       }
     }
     //find duplicate insertions
-    return MatchPipeline.forMerge().execute(deltaTree1, deltaTree2, new StandardComparator(), matching);
+    return MatchPipeline.forMerge().execute(deltaTree1, deltaTree2, new Comparator(), matching);
   }
 
   _setChangeOrigin(deltaTree, origin) {
@@ -247,8 +247,8 @@ export class CpeeMerge {
   merge(base, tree1, tree2) {
     const differ = new CpeeDiff();
 
-    const delta1 = differ.diff(base, tree1, new StandardComparator());
-    const delta2 = differ.diff(base, tree2, new StandardComparator());
+    const delta1 = differ.diff(base, tree1, new Comparator());
+    const delta2 = differ.diff(base, tree2, new Comparator());
 
     const deltaTreeFactory = new DeltaTreeGenerator();
     //Merge tree 1

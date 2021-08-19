@@ -6,9 +6,9 @@ import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
 export class FixedMatcher extends AbstractMatchingAlgorithm {
   /**
    * Match the root (and init script, if present) of the trees.
-   * @param {!Node} oldTree
-   * @param {!Node} newTree
-   * @param {!Matching} matching
+   * @param {Node} oldTree
+   * @param {Node} newTree
+   * @param {Matching} matching
    */
   match(oldTree, newTree, matching) {
     if (!matching.areMatched(oldTree, newTree)) {

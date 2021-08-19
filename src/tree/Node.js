@@ -9,17 +9,20 @@ import xmldom from 'xmldom';
  * - leaf node if it corresponds to a activity DSL-Element.
  * - inner node if it corresponds to a control flow DSL-Element.
  * - property node otherwise.
+ *
+ * In the case that a node is the root node, i.e. does not have a parent,
+ * it is labelled as a tree in code.
  */
 export class Node {
-  /** @type {!String} */
+  /** @type {String} */
   label;
-  /** @type {!Map<String, String>} */
+  /** @type {Map<String, String>} */
   attributes;
   /** @type {?String} */
   text;
 
   /**
-   * @param {!String} label
+   * @param {String} label
    * @param {?String} text
    */
   constructor(label, text = null) {
@@ -55,21 +58,21 @@ export class Node {
   }
 
   /**
-   * @type {!Array<Node>}
+   * @type {Array<Node>}
    * @private
    */
   #children;
 
-  /** @return {!Array<Node>} */
+  /** @return {Array<Node>} */
   get children() {
     return this.#children;
   }
 
   /**
    * Create a new Node instance from an existing node.
-   * @param {!Node} node
-   * @param {!Boolean} includeChildren
-   * @return {!Node}
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {Node}
    */
   static fromNode(node, includeChildren = true) {
     const copy = new Node(node.label, node.text);
@@ -87,8 +90,8 @@ export class Node {
   /**
    * Create a new Node instance from an XML string or xmldom object.
    * @param {String|Object} xmlElement
-   * @param {!Boolean} includeChildren
-   * @return {!Node}
+   * @param {Boolean} includeChildren
+   * @return {Node}
    */
   static fromXml(xmlElement, includeChildren = true) {
     if (xmlElement instanceof String) {
@@ -123,13 +126,13 @@ export class Node {
   }
 
   /**
-   * @return {!IterableIterator<Node>} An iterator for this node's children
+   * @return {IterableIterator<Node>} An iterator for this node's children
    */
   [Symbol.iterator]() {
     return this.#children[Symbol.iterator]();
   }
 
-  /** @param {!Node} node */
+  /** @param {Node} node */
   appendChild(node) {
     node.#index = this.#children.push(node) - 1;
     node.#parent = this;
@@ -137,7 +140,7 @@ export class Node {
 
   /**
    * Move this node to a new position within the child list of its parent.
-   * @param {!Number} index The new index.
+   * @param {Number} index The new index.
    */
   changeIndex(index) {
     // delete
@@ -151,8 +154,8 @@ export class Node {
   /**
    * Determines if the content of this node is equal to the content
    * of another node.
-   * @param {!Node} other
-   * @return {!Boolean} True, iff the content equals.
+   * @param {Node} other
+   * @return {Boolean} True, iff the content equals.
    */
   contentEquals(other) {
     return this.label === other.label &&
@@ -163,7 +166,7 @@ export class Node {
   }
 
   /**
-   * @return {!Number} The number of children of this node
+   * @return {Number} The number of children of this node
    */
   degree() {
     return this.#children.length;
@@ -178,8 +181,8 @@ export class Node {
   }
 
   /**
-   * @param {!Number} index
-   * @return {!Node}
+   * @param {Number} index
+   * @return {Node}
    */
   getChild(index) {
     return this.#children[index];
@@ -204,25 +207,25 @@ export class Node {
     return this.#parent.#children;
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   hasAttributes() {
     return this.attributes.size > 0;
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   hasChildren() {
     return this.degree() > 0;
   }
 
   /**
-   * @return {!Boolean} If the order of the children of this node
+   * @return {Boolean} If the order of the children of this node
    * has semantic implications in terms of the CPEE DSL.
    */
   hasInternalOrdering() {
     return Dsl.INTERNAL_ORDERING_SET.has(this.label);
   }
 
-  /** @return {!Array<Node>} All inner nodes of this subtree in pre-order */
+  /** @return {Array<Node>} All inner nodes of this subtree in pre-order */
   innerNodes() {
     return this
         .toPreOrderArray()
@@ -230,8 +233,8 @@ export class Node {
   }
 
   /**
-   * @param {!Number} index
-   * @param {!Node} node
+   * @param {Number} index
+   * @param {Node} node
    */
   insertChild(index, node) {
     this.#children.splice(index, 0, node);
@@ -239,37 +242,37 @@ export class Node {
     this.#fixChildIndices();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isAlternative() {
     return this.label === Dsl.ELEMENTS.ALTERNATIVE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isBreak() {
     return this.label === Dsl.ELEMENTS.ESCAPE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isCall() {
     return this.label === Dsl.ELEMENTS.CALL.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isChoice() {
     return this.label === Dsl.ELEMENTS.CHOOSE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isCritical() {
     return this.label === Dsl.ELEMENTS.CRITICAL.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isEmpty() {
     return !this.isInnterruptLeafNode() &&
         (this.text === '' || this.text == null) &&
@@ -278,52 +281,52 @@ export class Node {
   }
 
   /**
-   * @return {!Boolean} If this node corresponds to a control flow DSL-Element
+   * @return {Boolean} If this node corresponds to a control flow DSL-Element
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isInnerNode() {
     return Dsl.INNER_NODE_SET.has(this.label);
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isInnterruptLeafNode() {
     return this.isTermination() || this.isStop() || this.isBreak();
   }
 
   /**
-   * @return {!Boolean} If this node corresponds to an activity DSL-Element
+   * @return {Boolean} If this node corresponds to an activity DSL-Element
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isLeaf() {
     return Dsl.LEAF_NODE_SET.has(this.label);
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isLoop() {
     return this.label === Dsl.ELEMENTS.LOOP.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isOtherwise() {
     return this.label === Dsl.ELEMENTS.OTHERWISE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isParallel() {
     return this.label === Dsl.ELEMENTS.PARALLEL.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isParallelBranch() {
     return this.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label &&
         !this.#parent.isPropertyNode();
   }
 
   /**
-   * @return {!Boolean} If this node corresponds to a property
+   * @return {Boolean} If this node corresponds to a property
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isPropertyNode() {
@@ -333,37 +336,37 @@ export class Node {
         (this.#parent != null && !Dsl.ELEMENT_SET.has(this.#parent.label));
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isRoot() {
     return this.label === Dsl.ELEMENTS.ROOT.label && this.#parent == null;
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isScript() {
     return this.label === Dsl.ELEMENTS.MANIPULATE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isStop() {
     return this.label === Dsl.ELEMENTS.STOP.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Boolean} */
+  /** @return {Boolean} */
   isTermination() {
     return this.label === Dsl.ELEMENTS.TERMINATE.label &&
         !this.#parent.isPropertyNode();
   }
 
-  /** @return {!Array<Node>} All leaf nodes of this subtree in pre-order */
+  /** @return {Array<Node>} All leaf nodes of this subtree in pre-order */
   leaves() {
     return this
         .toPreOrderArray()
         .filter((n) => n.isLeaf());
   }
 
-  /** @return {!Array<Node>} All property nodes of this subtree in pre-order */
+  /** @return {Array<Node>} All property nodes of this subtree in pre-order */
   nonPropertyNodes() {
     return this
         .toPreOrderArray()
@@ -373,10 +376,10 @@ export class Node {
   /**
    * Compute a subsequence of this node's path.
    * The path is the sequence of all ancestors of this node,
-   * starting from the root (inclusive) to this node (exclusive).
+   * starting from the root (inclusive) to this node (inclusive).
    * @param {?Number} limit The maximum length of the subsequence,
    *   unlimited if null.
-   * @return {!Array<Node>} The subsequence of the path.
+   * @return {Array<Node>} The subsequence of the path.
    */
   path(limit = null) {
     const pathArr = [];
@@ -386,7 +389,7 @@ export class Node {
       node = node.#parent;
     }
     // this node is always last in path
-    return pathArr.reverse().slice(1);
+    return pathArr.reverse();
   }
 
   /**
@@ -417,7 +420,7 @@ export class Node {
   /**
    * Create a list of all nodes contained in the subtree rooted at this node
    * in post-order.
-   * @return {!Array<Node>}
+   * @return {Array<Node>}
    */
   toPostOrderArray() {
     return this
@@ -430,7 +433,7 @@ export class Node {
   /**
    * Create a list of all nodes contained in the subtree rooted at this node
    * in pre-order.
-   * @return {!Array<Node>}
+   * @return {Array<Node>}
    */
   toPreOrderArray() {
     const arr = [this].concat(
@@ -443,11 +446,12 @@ export class Node {
 
   /**
    * Returns the an XPath like positional identifier for this node.
-   * @return {!String} The array of indices of all nodes on the path.
+   * @return {String} The array of indices of all nodes on the path
+   *     excluding the root.
    */
   xPath() {
     // discard root node
-    return this.path().map((node) => node.index).join('/');
+    return this.path().slice(1).map((node) => node.index).join('/');
   }
 }
 

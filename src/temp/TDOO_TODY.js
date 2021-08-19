@@ -16,6 +16,9 @@
 //      compress match comparison
 //      not possible to regenerate a matching
 //      cpeediff is only one to detect moves to inserted subtrees
+//      do use diff word
+//      sorting in hash matcher and pathmatcher
+//      matches are inferred in unmatched matcher
 
 //TODO today
 //      use private class fields
@@ -27,6 +30,9 @@
 //     adjust change model of DIffxml to include updates
 //      remove adjustmenets to change model
 //      try guaranteed inner match again, that must be better...
+//      selkow and tai in thesis
+//      compress edit script gen phase in thesis
+//      add persistbestmatches in thesis as pseudocode
 
 /*
 TO BEAT for benchmark

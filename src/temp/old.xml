@@ -10,15 +10,5 @@
                 </arguments>
             </parameters>
         </call>
-        <call id="a2" endpoint="shipItems">
-            <parameters>
-                <label>Initiate shipping to customer</label>
-                <method>:post</method>
-                <arguments>
-                    <item>data.items.pop()</item>
-                    <to>data.address</to>
-                </arguments>
-            </parameters>
-        </call>
     </loop>
 </description>

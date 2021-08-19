@@ -9,7 +9,7 @@ import {Config} from '../Config.js';
 import {CommonalityPathMatcher} from './CommonalityPathMatcher.js';
 import {FastSimilarityMatcher} from './FastSimilarityMatcher.js';
 import {PathMatcher} from './PathMatcher.js';
-import {StandardComparator} from './StandardComparator.js';
+import {Comparator} from './Comparator.js';
 
 /**
  * Wrapper for an ordered sequence of matching modules (matchers for short).
@@ -54,7 +54,7 @@ export class MatchPipeline {
 
   /**
    * Construct a matching pipeline based on the selected matching mode.
-   * @return {!MatchPipeline}
+   * @return {MatchPipeline}
    */
   static fromMode() {
     switch (Config.MATCH_MODE) {
@@ -102,13 +102,13 @@ export class MatchPipeline {
   /**
    * Construct a matching between the passed process trees by executing the
    * matching pipeline in order.
-   * @param {!Node} oldTree
-   * @param {!Node} newTree
-   * @return {!Matching}
+   * @param {Node} oldTree
+   * @param {Node} newTree
+   * @return {Matching}
    */
   execute(oldTree, newTree) {
     const matching = new Matching();
-    const comparator = new StandardComparator();
+    const comparator = new Comparator();
     for (const matcher of this.#matchers) {
       Logger.info('Running matching module ' +
           matcher.constructor.name + '...', this);

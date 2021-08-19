@@ -82,7 +82,7 @@ export class EditScript {
     return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
   }
 
-  verify(oldTree, newTree) {
+  isValid(oldTree, newTree) {
     const patchedTree = new Patcher().patch(oldTree, this);
     const hashExtractor = new HashExtractor();
     return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);

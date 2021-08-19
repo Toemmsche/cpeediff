@@ -7,19 +7,19 @@ import {Dsl} from '../Dsl.js';
  * visualization.
  */
 export class DeltaNode extends Node {
-  /** @type {!String} */
+  /** @type {String} */
   type;
-  /** @type {!Map<String, Update>} */
+  /** @type {Map<String, Update>} */
   updates;
-  /** @type {!Array<DeltaNode>} */
+  /** @type {Array<DeltaNode>} */
   placeholders;
   /** @type {?Number} */
   baseNode;
 
   /**
-   * @param {!String} label
+   * @param {String} label
    * @param {?String} text
-   * @param {!String} type
+   * @param {String} type
    * @param {?Number} baseNode The base node ID
    */
   constructor(label, text = null,
@@ -32,35 +32,35 @@ export class DeltaNode extends Node {
   }
 
   /**
-   * @return {!Boolean} If this node was updated.
+   * @return {Boolean} If this node was updated.
    */
   isUpdated() {
     return this.updates.size > 0;
   }
 
   /**
-   * @return {!Boolean} If this node was moved.
+   * @return {Boolean} If this node was moved.
    */
   isMoved() {
     return this.type === Dsl.CHANGE_MODEL.MOVE_TO.label;
   }
 
   /**
-   * @return {!Boolean} If this node was deleted.
+   * @return {Boolean} If this node was deleted.
    */
   isDeleted() {
     return this.type === Dsl.CHANGE_MODEL.DELETION.label;
   }
 
   /**
-   * @return {!Boolean} If this node was inserted.
+   * @return {Boolean} If this node was inserted.
    */
   isInserted() {
     return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
   }
 
   /**
-   * @return {!Boolean} If this node was not changed.
+   * @return {Boolean} If this node was not changed.
    */
   isNil() {
     return this.type === Dsl.CHANGE_MODEL.NIL.label && !this.isUpdated();
@@ -68,9 +68,9 @@ export class DeltaNode extends Node {
 
   /**
    * Create a new DeltaNode instance from an existing node.
-   * @param {!Node} node
-   * @param {!Boolean} includeChildren
-   * @return {!Node}
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {Node}
    */
   static fromNode(node, includeChildren) {
     const deltaNode = new DeltaNode(node.label, node.text);

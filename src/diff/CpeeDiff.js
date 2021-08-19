@@ -13,7 +13,7 @@ export class CpeeDiff {
    * Create a new CpeeDiff instance with the specified match pipeline.
    * By default, the pipeline is configured based on the selected matching
    * mode.
-   * @param {!MatchPipeline} matchPipeline
+   * @param {MatchPipeline} matchPipeline
    */
   constructor(matchPipeline = MatchPipeline.fromMode()) {
     this.#matchPipeline = matchPipeline;
@@ -22,9 +22,9 @@ export class CpeeDiff {
 
   /**
    * Run the diff algorithm from a top-level perspective
-   * @param {!Node} oldTree The original process tree
-   * @param {!Node} newTree The changed process tree
-   * @return {!EditScript}
+   * @param {Node} oldTree The original process tree
+   * @param {Node} newTree The changed process tree
+   * @return {EditScript}
    */
   diff(oldTree, newTree) {
     // Edit script generation modifies the old tree, hence a copy is used

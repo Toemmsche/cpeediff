@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-const {StandardComparator} = require('../match/StandardComparator');
+const {Comparator} = require('../match/Comparator');
 const {Lcs} = require('../lib/Lcs');
 const {Config} = require('../Config');
 const {AbstractMatchingAlgorithm} = require('../match/AbstractMatchingAlgorithm');
@@ -34,7 +34,7 @@ export class PathMatching extends AbstractMatchingAlgorithm {
    *                                    The order the matching algorithms are applied in matters.
    * @return {Matching} A matching containing a mapping of nodes from oldTree to newTree
    */
-  static match(oldTree, newTree, matching = new Matching(), comparator = new StandardComparator()) {
+  static match(oldTree, newTree, matching = new Matching(), comparator = new Comparator()) {
     //get all nodes, leaf nodes and inner nodes of the trees
     const oldLeaves = oldTree.leaves()();
     const newLeaves = newTree.leaves()();
