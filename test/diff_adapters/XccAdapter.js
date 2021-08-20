@@ -18,6 +18,7 @@ import {TestConfig} from '../TestConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
+import {Node} from '../../src/tree/Node.js';
 
 export class XccAdapter extends DiffAdapter {
 
@@ -46,7 +47,7 @@ export class XccAdapter extends DiffAdapter {
             //determine cost
             const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'newvalue');
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromNode(xmlElement).size();
+              cost += Node.fromXml(xmlElement).size();
             });
           }
           break;
@@ -59,7 +60,7 @@ export class XccAdapter extends DiffAdapter {
             //determine cost
             const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'oldvalue');
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromNode(xmlElement).size();
+              cost += Node.fromXml(xmlElement).size();
             });
           }
           break;

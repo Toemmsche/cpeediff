@@ -44,7 +44,7 @@ export class EditScript {
    * @return {EditScript}
    */
   static fromXml(xmlElement) {
-    if (xmlElement instanceof String) {
+    if (xmlElement.constructor === String) {
       xmlElement = DomHelper.firstChildElement(
           new xmldom
               .DOMParser()
@@ -52,10 +52,10 @@ export class EditScript {
     }
     const editScript = new EditScript();
     if (xmlElement.hasAttribute('cost')) {
-      editScript.cost = parseInt(xmlElement.getAttribute('cost'));
+      editScript.#cost = parseInt(xmlElement.getAttribute('cost'));
     }
     DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
-      editScript.addOperation(EditOperation.fromXml(xmlChange)));
+      editScript.#editOperations.push(EditOperation.fromXml(xmlChange)));
     return editScript;
   }
 
@@ -65,14 +65,6 @@ export class EditScript {
    */
   [Symbol.iterator]() {
     return this.#editOperations[Symbol.iterator]();
-  }
-
-  /**
-   * Append an operation to this edit script.
-   * @param {EditOperation} editOperation
-   */
-  addOperation(editOperation) {
-    this.#editOperations.push(editOperation);
   }
 
   /**

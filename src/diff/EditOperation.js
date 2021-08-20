@@ -1,4 +1,5 @@
 import {DomHelper} from '../../util/DomHelper.js';
+import {Node} from '../tree/Node.js';
 import xmldom from 'xmldom';
 
 /**
@@ -37,7 +38,7 @@ export class EditOperation {
    * @return {EditOperation}
    */
   static fromXml(xmlElement) {
-    if (xmlElement instanceof String) {
+    if (xmlElement.constructor === String) {
       xmlElement = DomHelper.firstChildElement(
           new xmldom
               .DOMParser()
@@ -57,7 +58,7 @@ export class EditOperation {
     let newContent;
     const xmlContent = DomHelper.firstChildElement(xmlElement);
     if (xmlContent != null) {
-      newContent = Node.fromNode(xmlContent);
+      newContent = Node.fromXml(xmlContent);
     }
     return new EditOperation(type, oldPath, newPath, newContent);
   }

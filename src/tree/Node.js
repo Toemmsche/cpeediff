@@ -94,7 +94,7 @@ export class Node {
    * @return {Node}
    */
   static fromXml(xmlElement, includeChildren = true) {
-    if (xmlElement instanceof String) {
+    if (xmlElement.constructor === String) {
       xmlElement = DomHelper.firstChildElement(
           new xmldom
               .DOMParser()
@@ -414,7 +414,7 @@ export class Node {
   size() {
     return this
         .#children
-        .reduce((acc, child) => acc + child.size(), this.#children.length);
+        .reduce((acc, child) => acc + child.size(), 1);
   }
 
   /**

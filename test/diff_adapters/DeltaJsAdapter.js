@@ -18,6 +18,7 @@ import {TestConfig} from '../TestConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import xmldom from 'xmldom';
 import {DomHelper} from '../../util/DomHelper.js';
+import {Node} from '../../src/tree/Node.js';
 
 export class DeltaJsAdapter extends DiffAdapter {
 
@@ -57,7 +58,7 @@ export class DeltaJsAdapter extends DiffAdapter {
             } else {
               insertions++;
               DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                cost += Node.fromNode(xmlElement).size();
+                cost += Node.fromXml(xmlElement).size();
               });
             }
             break;
@@ -70,7 +71,7 @@ export class DeltaJsAdapter extends DiffAdapter {
             } else {
               deletions++;
               DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                cost += Node.fromNode(xmlElement).size();
+                cost += Node.fromXml(xmlElement).size();
               });
             }
             break;

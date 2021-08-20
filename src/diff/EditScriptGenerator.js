@@ -20,23 +20,6 @@ export class EditScriptGenerator {
   #editScript;
 
   /**
-   * Find the optimal target index for an insertion.
-   * @param {Node} newNode The node whose match should be inserted.
-   * @return {Number} The optimal insertion index.
-   */
-  #findInsertionIndex(newNode) {
-    let insertionIndex;
-    if (newNode.index > 0) {
-      const leftSibling = newNode.getSiblings()[newNode.index - 1];
-      // Left sibling has a match
-      insertionIndex = this.#matching.getNew(leftSibling).index + 1;
-    } else {
-      insertionIndex = 0;
-    }
-    return insertionIndex;
-  }
-
-  /**
    * Align the children of a node.
    * @param {Node} oldParent A node from the old (original) tree.
    */
@@ -87,6 +70,23 @@ export class EditScriptGenerator {
   #delete(oldNode) {
     oldNode.removeFromParent();
     this.#editScript.delete(oldNode);
+  }
+
+  /**
+   * Find the optimal target index for an insertion.
+   * @param {Node} newNode The node whose match should be inserted.
+   * @return {Number} The optimal insertion index.
+   */
+  #findInsertionIndex(newNode) {
+    let insertionIndex;
+    if (newNode.index > 0) {
+      const leftSibling = newNode.getSiblings()[newNode.index - 1];
+      // Left sibling has a match
+      insertionIndex = this.#matching.getNew(leftSibling).index + 1;
+    } else {
+      insertionIndex = 0;
+    }
+    return insertionIndex;
   }
 
   /**
@@ -163,8 +163,8 @@ export class EditScriptGenerator {
 
     // Verify the validity of the edit script
     if (!this.#editScript.isValid(copyOfOld, newTree)) {
-      Logger.error('Generated edit script is not valid',
-          new Error('Generated edit script is not valid'), this);
+      const msg = 'Generated edit script is not valid';
+      Logger.error(msg, new Error(msg), this);
     }
 
     Logger.stat('Edit script generation took ' +

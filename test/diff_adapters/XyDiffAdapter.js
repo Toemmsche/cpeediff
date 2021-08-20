@@ -18,6 +18,7 @@ import {TestConfig} from '../TestConfig.js';
 import xmldom from 'xmldom';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
+import {Node} from '../../src/tree/Node.js';
 
 export class XyDiffAdapter extends DiffAdapter {
 
@@ -50,7 +51,7 @@ export class XyDiffAdapter extends DiffAdapter {
             if (xmlElement != null) {
               insertions++;
               //adjust cost
-              cost += Node.fromNode(xmlElement).size();
+              cost += Node.fromXml(xmlElement).size();
             } else {
               //text content insertions are mapped to updates
               updates++;
@@ -66,7 +67,7 @@ export class XyDiffAdapter extends DiffAdapter {
             if (xmlElement != null) {
               deletions++;
               //adjust cost
-              cost += Node.fromNode(xmlElement).size();
+              cost += Node.fromXml(xmlElement).size();
             } else {
               //text content deletions are mapped to updates
               updates++;

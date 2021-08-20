@@ -19,9 +19,9 @@ import {Dsl} from '../../src/Dsl.js';
 import {XmlFactory} from '../../src/io/XmlFactory.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {TestConfig} from '../TestConfig.js';
-import {EditScriptFactory} from '../../src/diff/EditScriptFactory.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
+import {EditScript} from '../../src/diff/EditScript.js';
 
 export class CpeeDiffAdapter extends DiffAdapter {
   mode;
