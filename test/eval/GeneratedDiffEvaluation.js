@@ -87,7 +87,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
         //make relative
         if (result.isOk()) {
           result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+          result.actual.editOperations /= testCase.expected.editScript.size();
 
           if (!resultsPerAdapter.has(adapter)) {
             resultsPerAdapter.set(adapter, []);
@@ -183,7 +183,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
         //make relative
         if (result.isOk()) {
           result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+          result.actual.editOperations /= testCase.expected.editScript.size();
 
           if (!resultsPerAdapter.has(adapter)) {
             resultsPerAdapter.set(adapter, []);
@@ -279,7 +279,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
         //make relative
         if (result.isOk()) {
           result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+          result.actual.editOperations /= testCase.expected.editScript.size();
 
           if (!resultsPerAdapter.has(adapter)) {
             resultsPerAdapter.set(adapter, []);
@@ -365,7 +365,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
           const result = adapter.evalCase(testCase);
           if (result.isOk()) {
             result.actual.cost /= testCase.expected.editScript.cost;
-            result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+            result.actual.editOperations /= testCase.expected.editScript.size();
           }
           resultsPerAdapter.get(adapter).push(result);
         }
@@ -398,7 +398,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
           const result = adapter.evalCase(testCase);
           if (result.isOk()) {
             result.actual.cost /= testCase.expected.editScript.cost;
-            result.actual.editOperations /= testCase.expected.editScript.totalEditOperations();
+            result.actual.editOperations /= testCase.expected.editScript.size();
           }
           resultsPerAdapter.get(adapter).push(result);
         }

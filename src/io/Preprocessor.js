@@ -140,7 +140,7 @@ export class Preprocessor {
       editScript?.insert(script);
     }
 
-    if (editScript.totalEditOperations() > 0) {
+    if (editScript.size() > 0) {
       Logger.warn('Document was modified during preprocessing, '
           + editScript.insertions() + ' insertions, ' +
           editScript.moves() + ' moves, ' +

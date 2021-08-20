@@ -1,26 +1,28 @@
-/*
-    Copyright 2021 Tom Papke
+import {DomHelper} from '../../util/DomHelper.js';
+import xmldom from 'xmldom';
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
+/**
+ * Data class for a single edit operation. Every edit operation in the CpeeDiff
+ * change model is quadruple, although not all values must be present to
+ * successfully apply an edit operation.
+ */
 export class EditOperation {
-
+  /** @type {String} */
   type;
+  /** @type {?String} */
   oldPath;
+  /** @type {?String} */
   newPath;
+  /** @type {?Node} */
   newContent;
 
+  /**
+   * Construct a new EditOperation instance.
+   * @param {String} type
+   * @param {?String} oldPath
+   * @param {?String} newPath
+   * @param {?Node} newContent
+   */
   constructor(type, oldPath = null, newPath = null, newContent = null) {
     this.type = type;
     this.oldPath = oldPath;
@@ -28,6 +30,42 @@ export class EditOperation {
     this.newContent = newContent;
   }
 
+  /**
+   * Regenerate an EditOperation instance from an XML document or xmldom Object.
+   * @param {String|Object} xmlElement The XML document as a string or xmldom
+   *     Object.
+   * @return {EditOperation}
+   */
+  static fromXml(xmlElement) {
+    if (xmlElement instanceof String) {
+      xmlElement = DomHelper.firstChildElement(
+          new xmldom
+              .DOMParser()
+              .parseFromString(xmlElement, 'text/xml'));
+    }
+
+    const [
+      type,
+      oldPath,
+      newPath,
+    ] =
+        [
+          xmlElement.localName,
+          xmlElement.getAttribute('oldPath').slice(1), // Drop root slash
+          xmlElement.getAttribute('newPath').slice(1), // Drop root slash
+        ];
+    let newContent;
+    const xmlContent = DomHelper.firstChildElement(xmlElement);
+    if (xmlContent != null) {
+      newContent = Node.fromNode(xmlContent);
+    }
+    return new EditOperation(type, oldPath, newPath, newContent);
+  }
+
+  /**
+   * Create a string representation of this edit operation.
+   * @return {String}
+   */
   toString() {
     return this.type + ' ' +
         (this.oldPath !== null ? this.oldPath + ' ' : '') +

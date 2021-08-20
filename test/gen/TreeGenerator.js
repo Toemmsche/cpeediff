@@ -694,7 +694,7 @@ export class TreeGenerator {
 
     const testCase = new DiffTestCase(
         Math.max(original.size(),
-            preparedTree.size()) + '_' + proposedEditScript.totalEditOperations() + (changeParams.local ? '_local' : ''),
+            preparedTree.size()) + '_' + proposedEditScript.size() + (changeParams.local ? '_local' : ''),
         original, preparedTree,
         new ExpectedDiff(proposedEditScript));
 

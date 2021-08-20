@@ -16,7 +16,7 @@
 
 import {Dsl} from '../Dsl.js';
 import {IdExtractor} from '../extract/IdExtractor.js';
-import {Update} from '../diff/Update.js';
+import {Update} from './Update.js';
 
 export class DeltaTreeGenerator {
 

@@ -55,7 +55,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
     let deletions = 0;
 
     //parse output
-    let delta = EditScriptFactory.getEditScript(output);
+    let delta = EditScript.fromXml(output);
     for (const change of delta) {
       switch (change.type) {
         case Dsl.CHANGE_MODEL.INSERTION.label:

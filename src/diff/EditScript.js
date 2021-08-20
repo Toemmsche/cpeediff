@@ -1,87 +1,139 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {EditOperation} from './EditOperation.js';
 import {Dsl} from '../Dsl.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 import {Patcher} from '../patch/Patcher.js';
 import {Node} from '../tree/Node.js';
+import {DomHelper} from '../../util/DomHelper.js';
+import xmldom from 'xmldom';
 
+/**
+ * A wrapper class for an ordered sequence of edit operations, commonly
+ * referred to as an edit script. An edit script captures the changes that
+ * transform one version of a process tree into another.
+ */
 export class EditScript {
+  /**
+   * @type {Array<EditOperation>}
+   * @private
+   */
+  #editOperations;
 
-  _editOperations;
-  cost;
-
+  /**
+   * Construct a new EditScript instance.
+   */
   constructor() {
-    this._editOperations = [];
-    this.cost = 0;
+    this.#editOperations = [];
+    this.#cost = 0;
   }
 
-  toString() {
-    return this._editOperations.map(c => c.toString()).join('\n');
+  /**
+   * @type {Number}
+   * @private
+   */
+  #cost;
+
+  /** @return {Number} */
+  get cost() {
+    return this.#cost;
   }
 
+  /**
+   * Regenerate an EditSript instance from an XML document or xmldom Object.
+   * @param {String|Object} xmlElement The XML document as a string or xmldom
+   *     Object.
+   * @return {EditScript}
+   */
+  static fromXml(xmlElement) {
+    if (xmlElement instanceof String) {
+      xmlElement = DomHelper.firstChildElement(
+          new xmldom
+              .DOMParser()
+              .parseFromString(xmlElement, 'text/xml'));
+    }
+    const editScript = new EditScript();
+    if (xmlElement.hasAttribute('cost')) {
+      editScript.cost = parseInt(xmlElement.getAttribute('cost'));
+    }
+    DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
+      editScript.addOperation(EditOperation.fromXml(xmlChange)));
+    return editScript;
+  }
+
+  /**
+   * @return {IterableIterator<EditOperation>} An iterator for the changes
+   *     contained in this edit script.
+   */
+  [Symbol.iterator]() {
+    return this.#editOperations[Symbol.iterator]();
+  }
+
+  /**
+   * Append an operation to this edit script.
+   * @param {EditOperation} editOperation
+   */
   addOperation(editOperation) {
-    this._editOperations.push(editOperation);
+    this.#editOperations.push(editOperation);
   }
 
-  insert(insertedNode) {
-    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.INSERTION.label, null,
-        insertedNode.xPath(), Node.fromNode(insertedNode)));
-    //TODO speed up
-    this.cost += insertedNode.size();
-  }
-
+  /**
+   * Append a DELETE operation to this edit script.
+   * @param {Node} deletedNode The root of the deleted subtree.
+   */
   delete(deletedNode) {
-    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.DELETION.label, deletedNode.xPath(), null, null));
-    this.cost += deletedNode.size();
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.DELETION.label,
+            deletedNode.xPath(),
+            null,
+            null,
+        ));
+    this.#cost += deletedNode.size();
   }
 
-  move(oldPath, newPath) {
-    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.MOVE_TO.label, oldPath, newPath));
-    this.cost++;
-  }
-
-  update(updatedNode) {
-    this._editOperations.push(new EditOperation(Dsl.CHANGE_MODEL.UPDATE.label, updatedNode.xPath(),
-        null, Node.fromNode(updatedNode, false)));
-    const path = updatedNode.xPath();
-    this.cost++;
-  }
-
-  totalEditOperations() {
-    return this._editOperations.length;
-  }
-
-  insertions() {
-    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.INSERTION.label).length;
-  }
-
-  moves() {
-    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.MOVE_TO.label).length;
-  }
-
-  updates() {
-    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.UPDATE.label).length;
-  }
-
+  /**
+   * Count the number of deletions in this edit script.
+   * @return {Number}
+   */
   deletions() {
-    return this._editOperations.filter(c => c.type === Dsl.CHANGE_MODEL.DELETION.label).length;
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.DELETION.label)
+        .length;
   }
 
+  /**
+   * Append a INSERT operation to this edit script.
+   * @param {Node} insertedNode The root of the inserted subtree *after* it has
+   *     been inserted.
+   */
+  insert(insertedNode) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.INSERTION.label,
+            null,
+            insertedNode.xPath(),
+            Node.fromNode(insertedNode),
+        ));
+    this.#cost += insertedNode.size();
+  }
+
+  /**
+   * Count the number of insertions in this edit script.
+   * @return {Number}
+   */
+  insertions() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.INSERTION.label)
+        .length;
+  }
+
+  /**
+   * Check if this edit script is valid for a process tree transformation.
+   * @param {Node} oldTree The root of the old (original) process tree.
+   * @param {Node} newTree The root of the new (changed) process tree.
+   * @return {Boolean} True, iff this edit script is valid.
+   */
   isValid(oldTree, newTree) {
     const patchedTree = new Patcher().patch(oldTree, this);
     const hashExtractor = new HashExtractor();
@@ -89,11 +141,59 @@ export class EditScript {
   }
 
   /**
-   *
-   * @return {IterableIterator<EditOperation>} An iterator for the changes contained in this edit script.
+   * Append a MOVE operation to this edit script.
+   * @param {String} oldPath The path of the moved node *before* it was moved.
+   * @param {String} newPath The path of the moved node *after* it was moved.
    */
-  [Symbol.iterator]() {
-    return this._editOperations[Symbol.iterator]();
+  move(oldPath, newPath) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.MOVE_TO.label,
+            oldPath,
+            newPath,
+            null,
+        ));
+    this.#cost++;
   }
 
+  /**
+   * Count the number of moves in this edit script.
+   * @return {Number}
+   */
+  moves() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.MOVE_TO.label)
+        .length;
+  }
+
+  /** @return {Number} */
+  size() {
+    return this.#editOperations.length;
+  }
+
+  /**
+   * Append an UPDATE operation to this edit script.
+   * @param {Node} updatedNode The updated node *after* the update was applied.
+   */
+  update(updatedNode) {
+    this.#editOperations.push(new EditOperation(
+        Dsl.CHANGE_MODEL.UPDATE.label,
+        updatedNode.xPath(),
+        null,
+        Node.fromNode(updatedNode, false),
+    ));
+    this.#cost++;
+  }
+
+  /**
+   * Count the number of updates in this edit script.
+   * @return {Number}
+   */
+  updates() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.UPDATE.label)
+        .length;
+  }
 }
