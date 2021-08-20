@@ -274,10 +274,14 @@ export class Node {
 
   /** @return {Boolean} */
   isEmpty() {
-    return !this.isInnterruptLeafNode() &&
-        (this.text === '' || this.text == null) &&
-        !this.hasAttributes() &&
-        !this.hasChildren();
+    if (this.isInnerNode()) {
+      return !this.isRoot() && !this.hasChildren();
+    } else if (this.isLeaf()) {
+      return this.isScript() && (this.text === '' || this.text == null);
+    } else {
+      return !this.hasChildren() && (this.text === '' || this.text == null) &&
+          !this.hasAttributes();
+    }
   }
 
   /**

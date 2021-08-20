@@ -44,23 +44,17 @@ export class EditOperation {
               .DOMParser()
               .parseFromString(xmlElement, 'text/xml'));
     }
-
-    const [
-      type,
-      oldPath,
-      newPath,
-    ] =
-        [
-          xmlElement.localName,
-          xmlElement.getAttribute('oldPath').slice(1), // Drop root slash
-          xmlElement.getAttribute('newPath').slice(1), // Drop root slash
-        ];
     let newContent;
     const xmlContent = DomHelper.firstChildElement(xmlElement);
     if (xmlContent != null) {
       newContent = Node.fromXml(xmlContent);
     }
-    return new EditOperation(type, oldPath, newPath, newContent);
+    return new EditOperation(
+        xmlElement.localName,
+        xmlElement.getAttribute('oldPath').slice(1), // Drop root slash
+        xmlElement.getAttribute('newPath').slice(1),
+        newContent,
+    );
   }
 
   /**

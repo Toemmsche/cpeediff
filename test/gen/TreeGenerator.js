@@ -118,7 +118,7 @@ export class TreeGenerator {
     }
 
     //preprocess and prune empty nodes
-    const preparedTree = new Preprocessor().prepareTree(root);
+    const preparedTree = new Preprocessor().preprocess(root);
     Logger.stat('Tree generation took ' + Logger.endTimed() + 'ms', this);
     return preparedTree;
   }
@@ -135,7 +135,7 @@ export class TreeGenerator {
       this._appendRandomly(root, newNode);
       currSize += newNode.size();
     }
-    return new Preprocessor().prepareTree(root);
+    return new Preprocessor().preprocess(root);
   }
 
   /**
@@ -346,7 +346,10 @@ export class TreeGenerator {
     if (finalizeCode.text !== '') {
       code.appendChild(finalizeCode);
     }
-    node.appendChild(code);
+    if(code.hasChildren()) {
+      node.appendChild(code);
+    }
+
 
     return node;
   }
@@ -663,7 +666,7 @@ export class TreeGenerator {
     }
 
     //Record all changes applied during tree preparation
-    const preparedTree = new Preprocessor().prepareTree(tree);
+    const preparedTree = new Preprocessor().preprocess(tree);
 
     //construct the matching
     const newNodeSet = new Set(preparedTree.toPreOrderArray());

@@ -277,7 +277,7 @@ export class CpeeMerge {
     this._findOrderConflicts(mt2);
 
     //trim tree
-    return new Preprocessor().prepareTree(mt1);
+    return new Preprocessor().preprocess(mt1);
   }
 
   /**
