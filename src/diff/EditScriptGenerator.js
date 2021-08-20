@@ -8,9 +8,15 @@ import {Node} from '../tree/Node.js';
  * A generator that produces edit scripts conforming to (any) matching.
  */
 export class EditScriptGenerator {
-  /** @type {Matching} */
+  /**
+   * @type {Matching}
+   * @private
+   */
   #matching;
-  /** @type {EditScript} */
+  /**
+   * @type {EditScript}
+   * @private
+   */
   #editScript;
 
   /**
@@ -77,7 +83,7 @@ export class EditScriptGenerator {
     }
   }
 
-  /** @param {Node} oldNode The node to delete */
+  /** @param {Node} oldNode The node (or subtree) to delete */
   #delete(oldNode) {
     oldNode.removeFromParent();
     this.#editScript.delete(oldNode);
@@ -87,7 +93,7 @@ export class EditScriptGenerator {
    * Generate an edit script from the provided matching.
    * @param {Node} oldTree The root of the old (original) tree.
    *     WARNING: It will be modified in the process.
-   * @param {Node} newTree The new (changed) tree.
+   * @param {Node} newTree The root of the new (changed) tree.
    * @param {Matching} matching A matching between the nodes of the trees.
    * @return {EditScript} A minimum conforming edit script.
    */
@@ -167,7 +173,10 @@ export class EditScriptGenerator {
     return this.#editScript;
   }
 
-  /** @param {Node} newNode The node (or subtree) to insert. */
+  /**
+   *  @param {Node} newNode The node (or subtree) of which a copy should be
+   *      inserted.
+   */
   #insert(newNode) {
     const copy = Node.fromNode(newNode, true);
 
@@ -197,7 +206,7 @@ export class EditScriptGenerator {
     this.#editScript.insert(copy);
   }
 
-  /** @param {Node} oldNode The node to move. The destination is inferred. */
+  /** @param {Node} oldNode The node (or subtree) to move. */
   #move(oldNode) {
     const newNode = this.#matching.getOld(oldNode);
     const oldPath = oldNode.xPath();

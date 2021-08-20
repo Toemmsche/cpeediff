@@ -1,16 +1,18 @@
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 
 /**
  * Simple matching module executed at the start of each matching pipeline.
+ * @implements {MatcherInterface}
  */
-export class FixedMatcher extends AbstractMatchingAlgorithm {
+export class FixedMatcher {
   /**
    * Match the root (and init script, if present) of the trees.
-   * @param {Node} oldTree
-   * @param {Node} newTree
-   * @param {Matching} matching
+   * @param {Node} oldTree The root of the old (original) process tree
+   * @param {Node} newTree The root of the new (changed) process tree
+   * @param {Matching} matching The existing matching to be extended
+   * @param {Comparator} comparator The comparator used for comparisons.
    */
-  match(oldTree, newTree, matching) {
+  match(oldTree, newTree, matching, comparator) {
     if (!matching.areMatched(oldTree, newTree)) {
       matching.matchNew(newTree, oldTree);
     }

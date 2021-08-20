@@ -1,48 +1,91 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http=//www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-/**
- * @copyright Tom Papke 2021
- * @license
- */
-
-import {AbstractExtractor} from './AbstractExtractor.js';
+import {ExtractorInterface} from './ExtractorInterface.js';
 import {PrimeGenerator} from '../lib/PrimeGenerator.js';
 import {stringHash} from '../lib/StringHash.js';
 
-export class HashExtractor extends AbstractExtractor {
+/**
+ * Extractor for retrieving and caching the hash (and content hash) value
+ * for a subtree.
+ */
+export class HashExtractor extends ExtractorInterface {
+  /**
+   * @type {Map<Node,Number>}
+   * @protected
+   */
+  _memo;
 
-  _contentHashMemo;
+  /**
+   * Extract the hash value for a subtree and cache it.
+   * @param {Node} node The root of the subtree.
+   * @protected
+   */
+  _extract(node) {
+    this._memo.set(node, this.getContentHash(node) + this.#childHash(node));
+  }
 
+  /**
+   * Get the cached element size of a subtree. If it is not cached,
+   * compute it first.
+   * @param {Node} node The root node of the subtree
+   * @return {Number}
+   */
+  get(node) {
+    if (!this._memo.has(node)) {
+      this._extract(node);
+    }
+    return this._memo.get(node);
+  }
+
+  /**
+   * @type {Map<Node,Number>}
+   * @private
+   */
+  #contentHashMemo;
+
+  /**
+   * Create a new instance.
+   */
   constructor() {
     super();
-    this._contentHashMemo = new Map();
+    this._memo = new Map();
+    this.#contentHashMemo = new Map();
   }
 
-  _extract(node) {
-    this._memo.set(node, this.getContentHash(node) + this._childHash(node));
-  }
-
-  getContentHash(node) {
-    if (!this._contentHashMemo.has(node)) {
-      this._contentHashMemo.set(node, this._contentHash(node));
+  /**
+   * Compute the child hash value for a subtree.
+   * @param {Node} node The root of the subtree
+   * @return {Number}
+   * @private
+   */
+  #childHash(node) {
+    let childHash = 0;
+    if (node.hasInternalOrdering()) {
+      // Respect order by multiplying child hashes with distinct prime number
+      // based on index
+      const primes = PrimeGenerator.primes(node.degree());
+      childHash += node
+          .children
+          // Use child hash value
+          .map((child, i) => this.get(child) * primes[i])
+          .reduce((prev, curr) => prev + curr, 0);
+    } else {
+      // Arbitrary order, achieved by simple addition
+      childHash += node
+          .children
+          // Use child hash value
+          .map((child) => this.get(child))
+          .reduce((prev, curr) => prev + curr, 0);
     }
-    return this._contentHashMemo.get(node);
+    return childHash;
   }
 
-  _contentHash(node) {
+  /**
+   * Compute the content hash value for a subtree.
+   * @param {Node} node The root of the subtree
+   * @return {Number}
+   * @private
+   */
+  #contentHash(node) {
+    // Attribute order is irrelevant
     const sortedAttrList = new Array(...node.attributes.keys()).sort();
     let content = node.label;
     for (const key of sortedAttrList) {
@@ -54,22 +97,16 @@ export class HashExtractor extends AbstractExtractor {
     return stringHash(content);
   }
 
-  _childHash(node) {
-    let childHash = 0;
-    if (node.hasInternalOrdering()) {
-      //preserve order by multiplying child hashes with distinct prime number based on index
-      const primes = PrimeGenerator.primes(node.degree());
-      childHash += node
-          .children
-          .map((n, i) => this.get(n) * primes[i])
-          .reduce((prev, curr) => prev + curr, 0);
-    } else {
-      //arbitrary order, achieved by simple addition
-      childHash += node
-          .children
-          .map(n => this.get(n))
-          .reduce((prev, curr) => prev + curr, 0);
+  /**
+   * Get the cached content hash value for a subtree.
+   * If it is not cached, calculate and cache it first.
+   * @param {Node} node The root of the subtree.
+   * @return {Number}
+   */
+  getContentHash(node) {
+    if (!this.#contentHashMemo.has(node)) {
+      this.#contentHashMemo.set(node, this.#contentHash(node));
     }
-    return childHash;
+    return this.#contentHashMemo.get(node);
   }
 }

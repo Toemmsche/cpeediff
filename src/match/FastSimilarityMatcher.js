@@ -1,4 +1,4 @@
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {persistBestMatches} from './BestMatchPersister.js';
 import {Config} from '../Config.js';
 import {Dsl} from '../Dsl.js';
@@ -7,17 +7,18 @@ import {Dsl} from '../Dsl.js';
  * A matching module that matches similar leaf nodes while enforcing
  * endpoint equality for call nodes.
  * The comparison logic resides in the passed comparator.
+ * @implements MatcherInterface
  */
-export class FastSimilarityMatcher extends AbstractMatchingAlgorithm {
+export class FastSimilarityMatcher {
   /**
    * Extend the matching with matches between sufficiently similar leaf nodes.
    * For each unmatched new leaf node, the old node with the lowest comparison
    * value that is better than that node's current best match is chosen. Matches
    * between call nodes are only allowed if their endpoints equal.
-   * @param {Node} oldTree
-   * @param {Node} newTree
-   * @param {Matching} matching
-   * @param {Comparator} comparator
+   * @param {Node} oldTree The root of the old (original) process tree
+   * @param {Node} newTree The root of the new (changed) process tree
+   * @param {Matching} matching The existing matching to be extended
+   * @param {Comparator} comparator The comparator used for comparisons.
    */
   match(oldTree, newTree, matching, comparator) {
     // filter for unmatched leaf nodes

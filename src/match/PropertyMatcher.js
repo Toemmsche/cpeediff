@@ -1,20 +1,22 @@
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 
 /**
  * A matching module dedicated to the matching or property nodes.
+ * @implements {MatcherInterface}
  */
-export class PropertyMatcher extends AbstractMatchingAlgorithm {
+export class PropertyMatcher {
   /**
    * Extend the matching with matches between property nodes of matched
    * leaf and inner nodes.
-   * @param {Node} oldTree
-   * @param {Node} newTree
-   * @param {Matching} matching
+   * @param {Node} oldTree The root of the old (original) process tree
+   * @param {Node} newTree The root of the new (changed) process tree
+   * @param {Matching} matching The existing matching to be extended
+   * @param {Comparator} comparator The comparator used for comparisons.
    */
-  match(oldTree, newTree, matching) {
-    const newLeaves =
+  match(oldTree, newTree, matching, comparator) {
+    const newMatchedNodes =
         newTree
-            .leaves()
+            .nonPropertyNodes()
             .filter((node) => matching.hasNew(node)); // must be matched
 
     const matchProperties = (oldNode, newNode) => {
@@ -22,12 +24,12 @@ export class PropertyMatcher extends AbstractMatchingAlgorithm {
       // share the same label
       const oldLabelMap = new Map();
       for (const oldChild of oldNode) {
-        if (!matching.hasOld(oldChild)) {
+        if (oldChild.isPropertyNode() && !matching.hasOld(oldChild)) {
           oldLabelMap.set(oldChild.label, oldChild);
         }
       }
       for (const newChild of newNode) {
-        if (!matching.hasNew(newChild)) {
+        if (newChild.isPropertyNode() && !matching.hasNew(newChild)) {
           if (oldLabelMap.has(newChild.label)) {
             const match = oldLabelMap.get(newChild.label);
             matching.matchNew(newChild, match);
@@ -42,10 +44,8 @@ export class PropertyMatcher extends AbstractMatchingAlgorithm {
       }
     };
 
-    for (const newLeaf of newLeaves) {
-      if (matching.hasNew(newLeaf)) {
-        matchProperties(matching.getNew(newLeaf), newLeaf);
-      }
+    for (const newMatchedNode of newMatchedNodes) {
+      matchProperties(matching.getNew(newMatchedNode), newMatchedNode);
     }
   }
 }

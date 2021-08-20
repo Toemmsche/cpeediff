@@ -1,20 +1,21 @@
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 import {Logger} from '../../util/Logger.js';
 import {persistBestMatches} from './BestMatchPersister.js';
 
 /**
  * A matching module that employs hashing to find robust matches efficiently.
+ * @implements {MatcherInterface}
  */
-export class HashMatcher extends AbstractMatchingAlgorithm {
+export class HashMatcher {
   /**
    * Extend the matching with matches between subtrees with an identical
    * hash value. If multiple subtrees have the same value, the first pair with
    * the lowest positional comparison value is matched.
-   * @param {Node} oldTree
-   * @param {Node} newTree
-   * @param {Matching} matching
-   * @param {Comparator} comparator
+   * @param {Node} oldTree The root of the old (original) process tree
+   * @param {Node} newTree The root of the new (changed) process tree
+   * @param {Matching} matching The existing matching to be extended
+   * @param {Comparator} comparator The comparator used for comparisons.
    */
   match(oldTree, newTree, matching, comparator) {
     // filter for unmatched nodes and sort new Nodes descending by size

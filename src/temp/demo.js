@@ -35,13 +35,8 @@ const newTree = new Preprocessor().parseFromFile('new.xml');
 
 const es = new CpeeDiff().diff(base, newTree);
 
-const deltaTree = Node.fromNode(new DeltaTreeGenerator().deltaTree(base, es));
-
-const h = new HashExtractor();
-console.log(h.get(newTree) === h.get(deltaTree));
 
 console.log(XmlFactory.serialize(es));
-console.log(XmlFactory.serialize(deltaTree));
 
 
 

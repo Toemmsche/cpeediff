@@ -15,11 +15,11 @@ import {Comparator} from './Comparator.js';
  * Wrapper for an ordered sequence of matching modules (matchers for short).
  */
 export class MatchPipeline {
-  /** @type {Array<AbstractMatchingAlgorithm>} */
+  /** @type {Array<MatcherInterface>} */
   #matchers;
 
   /**
-   * @param {Array<AbstractMatchingAlgorithm>} matchers
+   * @param {Array<MatcherInterface>} matchers
    */
   constructor(matchers) {
     const len = matchers.length;

@@ -1,11 +1,12 @@
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {Logger} from '../../util/Logger.js';
 
 /**
  * A matching module that reconsiders unmatched nodes for a match
  * if certain conditions are met.
+ * @implements {MatcherInterface}
  */
-export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
+export class UnmatchedMatcher {
   /**
    * @param {Node} node The input node
    * @param {Function} boolFunc A boolean function taking a single node as an
@@ -23,10 +24,10 @@ export class UnmatchedMatcher extends AbstractMatchingAlgorithm {
    * Extend the matching with matches that can be inferred from the matching
    * of surrounding nodes, e.g., if a node is vertically or horizontally
    * sandwiched between matches.
-   * @param {Node} oldTree
-   * @param {Node} newTree
-   * @param {Matching} matching
-   * @param {Comparator} comparator
+   * @param {Node} oldTree The root of the old (original) process tree
+   * @param {Node} newTree The root of the new (changed) process tree
+   * @param {Matching} matching The existing matching to be extended
+   * @param {Comparator} comparator The comparator used for comparisons.
    */
   match(oldTree, newTree, matching, comparator) {
     const newInners =

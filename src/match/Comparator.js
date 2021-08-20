@@ -49,7 +49,8 @@ export class Comparator {
         [
           Config.COMPARATOR.CONTENT_WEIGHT,
           Config.COMPARATOR.POSITION_WEIGHT,
-        ]);
+        ],
+    );
     return compareValue;
   }
 
@@ -65,12 +66,12 @@ export class Comparator {
 
     const conditionA =
         alternativeA.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-            alternativeA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
-            Dsl.INNER_PROPERTIES.CONDITION.default;
+        alternativeA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        Dsl.INNER_PROPERTIES.CONDITION.default;
     const conditionB =
         alternativeB.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-            alternativeB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
-            Dsl.INNER_PROPERTIES.CONDITION.default;
+        alternativeB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
       readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
@@ -80,7 +81,8 @@ export class Comparator {
     }
     // readVariablesCV may be null
     const contentCV = this.weightedAverage([readVariablesCV],
-        [Config.COMPARATOR.CONDITION_WEIGHT], 0);
+        [Config.COMPARATOR.CONDITION_WEIGHT], 0,
+    );
 
     return contentCV;
   }
@@ -114,7 +116,8 @@ export class Comparator {
           Config.COMPARATOR.CALL_LABEL_WEIGHT,
           Config.COMPARATOR.CALL_METHOD_WEIGHT,
           Config.COMPARATOR.CALL_ARGS_WEIGHT,
-        ]);
+        ],
+    );
     // If the endpoint (including method, label and arguments) of two calls
     // perfectly matches, we can assume they fulfill the same semantic purpose
     if (serviceCallCV === 0) {
@@ -136,7 +139,8 @@ export class Comparator {
         [
           Config.COMPARATOR.WRITTEN_VAR_WEIGHT,
           Config.COMPARATOR.READ_VAR_WEIGHT,
-        ]);
+        ],
+    );
     if (codeCV !== null && propsA.code !== propsB.code) {
       // Small penalty for code string inequality
       codeCV += Config.COMPARATOR.EPSILON_PENALTY;
@@ -152,7 +156,8 @@ export class Comparator {
         [
           Config.COMPARATOR.CALL_SERVICE_WEIGHT,
           Config.COMPARATOR.CALL_CODE_WEIGHT,
-        ]);
+        ],
+    );
     return contentCV;
   }
 
@@ -165,12 +170,12 @@ export class Comparator {
   #compareChoiceContent(choiceA, choiceB) {
     const modeA =
         choiceA.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
-            choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
-            Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
+        Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
     const modeB =
         choiceB.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
-            choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
-            Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
+        Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
 
     // all or nothing
     const modeCV = modeA === modeB ? 0 : 1;
@@ -208,8 +213,8 @@ export class Comparator {
       case Dsl.ELEMENTS.CHOOSE.label: {
         return this.#compareChoiceContent(nodeA, nodeB);
       }
-      // Label equality is sufficient for parallel_branch, critical, otherwise,
-      // and root...
+      // Label equality is sufficient for parallel_branch, critical,
+      // otherwise, and root...
       default: {
         return 0;
       }
@@ -241,12 +246,12 @@ export class Comparator {
   #compareLoopContent(loopA, loopB) {
     const modeA =
         loopA.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
-            loopA.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
-            Dsl.INNER_PROPERTIES.LOOP_MODE.default;
+        loopA.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
+        Dsl.INNER_PROPERTIES.LOOP_MODE.default;
     const modeB =
         loopB.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
-            loopB.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
-            Dsl.INNER_PROPERTIES.LOOP_MODE.default;
+        loopB.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
+        Dsl.INNER_PROPERTIES.LOOP_MODE.default;
 
     // all or nothing
     const modeCV = modeA === modeB ? 0 : 1;
@@ -255,12 +260,12 @@ export class Comparator {
 
     const conditionA =
         loopA.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-            loopA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
-            Dsl.INNER_PROPERTIES.CONDITION.default;
+        loopA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        Dsl.INNER_PROPERTIES.CONDITION.default;
     const conditionB =
         loopB.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-            loopB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
-            Dsl.INNER_PROPERTIES.CONDITION.default;
+        loopB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
       readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
@@ -277,7 +282,8 @@ export class Comparator {
         [
           Config.COMPARATOR.MODE_WEIGHT,
           Config.COMPARATOR.CONDITION_WEIGHT,
-        ], 0);
+        ], 0,
+    );
 
     return contentCV;
   }
@@ -291,23 +297,23 @@ export class Comparator {
   #compareParallelContent(parallelA, parallelB) {
     const waitA =
         parallelA.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
-            parallelA.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
-            Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
+        parallelA.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
+        Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
     const waitB =
         parallelB.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
-            parallelB.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
-            Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
+        parallelB.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
+        Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
 
     const cancelA =
         parallelA.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
-            parallelA.attributes
-                .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
-            Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
+        parallelA.attributes
+            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
+        Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
     const cancelB =
         parallelB.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
-            parallelB.attributes
-                .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
-            Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
+        parallelB.attributes
+            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
+        Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
 
     // all or nothing
     const modeCV = waitA === waitB && cancelA === cancelB ? 0 : 1;
@@ -327,17 +333,17 @@ export class Comparator {
     const radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
 
     /*
-    const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radiu
-    s, 0), node.index).map(n => this.#hashExtractor.get(n));
-    const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - ra
-    dius, 0), other.index).map(n => this.#hashExtractor.get(n));
-    const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+     const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radiu
+     s, 0), node.index).map(n => this.#hashExtractor.get(n));
+     const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - ra
+     dius, 0), other.index).map(n => this.#hashExtractor.get(n));
+     const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
 
-    const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.inde
-    x + radius + 1).map(n => this.#hashExtractor.get(n));
-    const otherRightSlice = other.getSiblings().slice(other.index + 1, other.
-    index + radius + 1).map(n => this.#hashExtractor.get(n));
-    const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
+     const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.inde
+     x + radius + 1).map(n => this.#hashExtractor.get(n));
+     const otherRightSlice = other.getSiblings().slice(other.index + 1, other.
+     index + radius + 1).map(n => this.#hashExtractor.get(n));
+     const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
      */
 
     // exclude the compared nodes
@@ -390,7 +396,8 @@ export class Comparator {
         [
           Config.COMPARATOR.WRITTEN_VAR_WEIGHT,
           Config.COMPARATOR.READ_VAR_WEIGHT,
-        ]);
+        ],
+    );
 
     if (contentCV != null && scriptA.text !== scriptB.text) {
       // Small penalty for code string inequality

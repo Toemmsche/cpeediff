@@ -126,6 +126,16 @@ export class Logger {
   }
 
   /**
+   * Create a log with log level ERROR that signals the execution of an
+   * abstract method.
+   * @param {Object} source The caller object
+   */
+  static abstractMethodExecution(source = null) {
+    const msg = 'Execuction of an abstract method';
+    this.error(msg, new Error('msg'), source);
+  }
+
+  /**
    * Publish a result to stdout without any additional information like log level or caller class.
    * @param {String} message The result to log.
    * @param {Object} source The caller object

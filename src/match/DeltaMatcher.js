@@ -14,10 +14,10 @@
    limitations under the License.
 */
 
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {DeltaNode} from '../patch/DeltaNode.js';
 
-export class DeltaMatcher extends AbstractMatchingAlgorithm {
+export class DeltaMatcher extends MatcherInterface {
 
   match(oldTree, newTree, matching) {
     if (oldTree.constructor !== DeltaNode || newTree.constructor !== DeltaNode) {

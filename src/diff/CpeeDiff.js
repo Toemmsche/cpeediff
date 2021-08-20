@@ -22,8 +22,8 @@ export class CpeeDiff {
 
   /**
    * Run the diff algorithm from a top-level perspective
-   * @param {Node} oldTree The original process tree
-   * @param {Node} newTree The changed process tree
+   * @param {Node} oldTree The root of the original process tree
+   * @param {Node} newTree The root of the changed process tree
    * @return {EditScript}
    */
   diff(oldTree, newTree) {

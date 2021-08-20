@@ -1,120 +1,133 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http=//www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-import {AbstractExtractor} from './AbstractExtractor.js';
-import {CallPropertyExtractor} from './CallPropertyExtractor.js';
 import {Dsl} from '../Dsl.js';
 import {Config} from '../Config.js';
 
-export class VariableExtractor extends AbstractExtractor {
+/**
+ * Extractor for the sets of read and written variables determined by a node's
+ * content.
+ * @implements {ExtractorInterface<{writtenVariables: Set<String>,
+ *     readVariables: Set<Node>}>}
+ */
+export class VariableExtractor {
+  /**
+   * @type {Map<Node,{writtenVariables: Set<String>,
+   *     readVariables: Set<Node>}>}
+   * @protected
+   */
+  _memo;
 
-  callPropertyExtractor;
-
-  constructor(callPropertyExtractor = new CallPropertyExtractor()) {
-    super();
-    this.callPropertyExtractor = callPropertyExtractor;
-  }
-
+  /**
+   * Extract the sets of read and written variables from a node's content and
+   * cache it.
+   * @param {Node} node
+   * @protected
+   */
   _extract(node) {
     this._memo.set(node, {
-      writtenVariables: this._getWrittenVariables(node),
-      readVariables: this._getReadVariables(node),
-      argVariables: this._getArgVariables(node)
+      writtenVariables: this.#getWrittenVariables(node),
+      readVariables: this.#getReadVariables(node),
     });
   }
 
-  _getWrittenVariables(node) {
-    let writtenVariables = new Set();
+  /**
+   * Get the cached sets of read and written variables.
+   * If they are not cached, compute and cache them first.
+   * @param {Node} node
+   * @return {{writtenVariables: Set<String>,
+   *     readVariables: Set<Node>}}
+   */
+  get(node) {
+    if (!this._memo.has(node)) {
+      this._extract(node);
+    }
+    return this._memo.get(node);
+  }
+
+  callPropertyExtractor;
+
+  /**
+   * Create a new VariableExtractor instance.
+   * @param {CallPropertyExtractor} callPropertyExtractor The existing call
+   *     property extractor
+   */
+  constructor(callPropertyExtractor) {
+    this._memo = new Map();
+    this.callPropertyExtractor = callPropertyExtractor;
+  }
+
+  /**
+   * Get the set of read variables for a node.
+   * @param {Node} node
+   * @return {Set<String>}
+   * @private
+   */
+  #getReadVariables(node) {
     let code;
-    if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
+    if (node.isInnerNode()) {
+      // May be null, we will check later
+      code = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
+    } else if (node.isScript()) {
       code = node.text;
-    } else if (node.label === Dsl.ELEMENTS.CALL.label) {
+    } else if (node.isCall()) {
       code = this.callPropertyExtractor.get(node).code;
     }
+    const readVariables = new Set();
     if (code != null) {
-      writtenVariables = new Set(this._modVarsFromString(code));
+      for (const readVar of this.#readVarsFromString(code)) {
+        readVariables.add(readVar);
+      }
+    }
+    return readVariables;
+  }
+
+  /**
+   * Get the set of written variables for a node.
+   * @param {Node} node
+   * @return {Set<String>}
+   * @private
+   */
+  #getWrittenVariables(node) {
+    let code;
+    if (node.isScript()) {
+      code = node.text;
+    } else if (node.isCall()) {
+      code = this.callPropertyExtractor.get(node).code;
+    }
+    let writtenVariables = new Set();
+    if (code != null) {
+      writtenVariables = new Set(this.#writtenVarsFromString(code));
     }
     return writtenVariables;
   }
 
-  _getReadVariables(node) {
-    const readVariables = new Set();
-    if (node.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label)) {
-      const condition = node.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label);
-      for (const readVar of this._readVarsFromString(condition)) {
-        readVariables.add(readVar);
-      }
-    }
-    let code;
-    if (node.label === Dsl.ELEMENTS.MANIPULATE.label) {
-      code = node.text;
-    } else if (node.label === Dsl.ELEMENTS.CALL.label) {
-      code = this.callPropertyExtractor.get(node).code;
-    }
-    if (code != null) {
-      for (const readVar of this._readVarsFromString(code)) {
-        readVariables.add(readVar);
-      }
-    }
-
-    return readVariables;
-  }
-
-  _getArgVariables(node) {
-    const argVariables = [];
-    if (node.label === Dsl.ELEMENTS.CALL.label) {
-      const callProps = this.callPropertyExtractor.get(node);
-      if (callProps.hasArgs()) {
-        for (const arg of callProps.args) {
-          const readVars = this._readVarsFromString(arg);
-          if (readVars.length !== 1) {
-            argVariables.push(arg);
-          } else {
-            argVariables.push(readVars[0]);
-          }
-        }
-      }
-    }
-    return argVariables;
-  }
-
-  _modVarsFromString(str) {
+  /**
+   * Get an array of read variables contained in a String of code.
+   * @param {String} str
+   * @return {Array<String>}
+   */
+  #readVarsFromString(str) {
+    // Cannot keep raw dots in variable prefix
     const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
-    //positive lookahead for assignment operators and positive lookbehind for data element prefix
-    let regex;
-    if (Config.EXP) {
-      regex = new RegExp('(?<=' + prefix + ')[a-zA-Z$_](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))', 'g');
-    } else {
-      regex = new RegExp('(?<=' + prefix + ')[$_a-zA-Z](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))', 'g');
-    }
+    // Negative lookahead for assignment operators and positive lookbehind for
+    // Data element prefix. Also, a positive lookahead for any non-word
+    // character is necessary to avoid matching a partial variable descriptor.
+    const regex = new RegExp('(?<=' + prefix + ')' +
+        '[a-zA-Z$_](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])', 'g');
     const matches = str.match(regex);
     return matches == null ? [] : matches;
   }
 
-  _readVarsFromString(str) {
+  /**
+   * Get an array of written variables contained in a String of code.
+   * @param {String} str
+   * @return {Array<String>}
+   */
+  #writtenVarsFromString(str) {
+    // Cannot keep raw dots in variable prefix
     const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
-
-    //negative lookahead for assignment operators and positive lookbehind for data element prefix
-    //Also, a positive lookahead for any non-word character is necessary to avoid matching a partial variable descriptor
-    let regex;
-    if (Config.EXP) {
-      regex = new RegExp('(?<=' + prefix + ')[a-zA-Z$_](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])', 'g');
-    } else {
-      regex = new RegExp('(?<=' + prefix + ')[$_a-zA-Z](\\w|\\$)*(?=($|\\s*[^\\w_$]))(?!\\s*=[^=])', 'g');
-    }
+    // Positive lookahead for assignment operators and positive lookbehind for
+    // data element prefix.
+    const regex = new RegExp('(?<=' + prefix + ')' +
+        '[a-zA-Z$_](\\w|\\$)*(?=\\s*(=[^=]|\\+=|\\+\\+|-=|--|\\*=|\\/=))', 'g');
     const matches = str.match(regex);
     return matches == null ? [] : matches;
   }

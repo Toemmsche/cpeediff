@@ -15,10 +15,10 @@
 */
 
 import {Config} from '../Config.js';
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import computeMunkres from 'munkres-js';
 
-export class HungSimMatcher extends AbstractMatchingAlgorithm {
+export class HungSimMatcher extends MatcherInterface {
 
   match(oldTree, newTree, matching, comparator) {
     //filter for unmatched nodes and sort ascending by size

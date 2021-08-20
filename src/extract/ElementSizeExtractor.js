@@ -1,32 +1,49 @@
-/*
-    Copyright 2021 Tom Papke
+/**
+ * Extractor for retrieving and caching the size of a subtree in terms of
+ * non-Property nodes only.
+ * @implements {ExtractorInterface<Number>}
+ */
+export class ElementSizeExtractor {
+  /**
+   * @type {Map<Node,Number>}
+   * @protected
+   */
+  _memo;
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http=//www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-import {AbstractExtractor} from './AbstractExtractor.js';
-
-export class ElementSizeExtractor extends AbstractExtractor {
-
+  /**
+   * Extract the element size for a subtree and cache it.
+   * @param {Node} node The root of the subtree
+   * @protected
+   */
   _extract(node) {
     let size = 0;
     if (!node.isPropertyNode()) {
       size = 1;
       for (const child of node) {
+        // Use cached values to improve runtime
         size += this.get(child);
       }
     }
     this._memo.set(node, size);
   }
 
+  /**
+   * Get the cached element size of a subtree. If it is not cached,
+   * compute it first.
+   * @param {Node} node The root node of the subtree
+   * @return {Number}
+   */
+  get(node) {
+    if (!this._memo.has(node)) {
+      this._extract(node);
+    }
+    return this._memo.get(node);
+  }
+
+  /**
+   * Create a new Extractor instance
+   */
+  constructor() {
+    this._memo = new Map();
+  }
 }

@@ -15,6 +15,7 @@
 */
 
 import {Dsl} from '../Dsl.js';
+import {Node} from '../tree/Node.js';
 
 export class Patcher {
 

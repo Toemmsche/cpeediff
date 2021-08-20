@@ -1,8 +1,8 @@
 import {Config} from '../Config.js';
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {LeafSetExtractor} from '../extract/LeafSetExtractor.js';
 
-export class CommonalityPathMatcher extends AbstractMatchingAlgorithm {
+export class CommonalityPathMatcher extends MatcherInterface {
 
   _leafSetExtractor;
 

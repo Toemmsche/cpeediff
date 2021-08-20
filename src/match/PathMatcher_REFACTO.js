@@ -15,10 +15,10 @@
 */
 
 import {Config} from '../Config.js';
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 import {persistBestMatches} from './BestMatchPersister.js';
 
-export class PathMatcher extends AbstractMatchingAlgorithm {
+export class PathMatcher extends MatcherInterface {
   match(oldTree, newTree, matching, comparator) {
     /**
      * @type {Map<Node, Set<Node>>}

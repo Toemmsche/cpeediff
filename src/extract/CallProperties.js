@@ -1,49 +1,51 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http=//www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
+/**
+ * Data class to hold the semantic properties of a Call node.
+ */
 export class CallProperties {
-
+  /** @type {String} */
   endpoint;
+  /** @type {String} */
   method;
+  /** @type {String} */
   label;
-  code;
+  /** @type {Array<String>} */
   args;
+  /** @type {String} */
+  code;
 
-  constructor(endpoint, method, args, code, label) {
+  /**
+   * Create a new CallProperties instance.
+   * @param {String} endpoint
+   * @param {String} method
+   * @param {String} label
+   * @param {Array<String>} args
+   * @param {String} code
+   */
+  constructor(endpoint, method, label, args, code) {
     this.endpoint = endpoint;
     this.method = method;
+    this.label = label;
     this.args = args;
     this.code = code;
-    this.label = label;
   }
 
-  hasLabel() {
-    return this.label != null;
-  }
-
-  hasCode() {
-    return this.code != null;
-  }
-
+  /** @return {Boolean} If the args property has a non-null value. */
   hasArgs() {
     return this.args != null && this.args.length > 0;
   }
 
+  /** @return {Boolean} If the code property has a non-null value. */
+  hasCode() {
+    return this.code != null;
+  }
+
+  /** @return {Boolean} If the label property has a non-null value. */
+  hasLabel() {
+    return this.label != null;
+  }
+
+  /** @return {Boolean} If the method property has a non-null value. */
   hasMethod() {
     return this.method != null;
   }
-
 }

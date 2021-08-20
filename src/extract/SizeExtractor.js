@@ -1,23 +1,39 @@
-/*
-    Copyright 2021 Tom Papke
+/**
+ * Extractor for the size of a subtree (number of nodes).
+ * @implements {ExtractorInterface<Number>}
+ */
+export class SizeExtractor {
+  /**
+   * @type {Map<Node,Number>}
+   * @protected
+   */
+  _memo;
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+  /**
+   * Create a new SizeExtractor instance
+   */
+  constructor() {
+    this._memo = new Map();
+  }
 
-       http=//www.apache.org/licenses/LICENSE-2.0
+  /**
+   * Get the cached size of a subtree.
+   * If it is not cached, calculate and cache it first.
+   * @param {Node} node The root of the subtree
+   * @return {Number}
+   */
+  get(node) {
+    if (!this._memo.has(node)) {
+      this._extract(node);
+    }
+    return this._memo.get(node);
+  }
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-import {AbstractExtractor} from './AbstractExtractor.js';
-
-export class SizeExtractor extends AbstractExtractor {
-
+  /**
+   * Extract the size for a subtree and cache it.
+   * @param {Node} node The root node of the subtree.
+   * @protected
+   */
   _extract(node) {
     let size = 1;
     for (const child of node) {
@@ -25,5 +41,4 @@ export class SizeExtractor extends AbstractExtractor {
     }
     this._memo.set(node, size);
   }
-
 }

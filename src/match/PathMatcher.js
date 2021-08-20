@@ -15,9 +15,9 @@
 */
 
 import {Config} from '../Config.js';
-import {AbstractMatchingAlgorithm} from './AbstractMatchingAlgorithm.js';
+import {MatcherInterface} from './MatcherInterface.js';
 
-export class PathMatcher extends AbstractMatchingAlgorithm {
+export class PathMatcher extends MatcherInterface {
 
   match(oldTree, newTree, matching, comparator) {
     //use a temporary map until the best matches are found

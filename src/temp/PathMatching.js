@@ -17,11 +17,11 @@
 const {Comparator} = require('../match/Comparator');
 const {Lcs} = require('../lib/Lcs');
 const {Config} = require('../Config');
-const {AbstractMatchingAlgorithm} = require('../match/AbstractMatchingAlgorithm');
+const {MatcherInterface} = require('../match/MatcherInterface');
 const {Matching} = require('../match/Matching');
 const {CpeeTree} = require('../tree/CpeeTree');
 
-export class PathMatching extends AbstractMatchingAlgorithm {
+export class PathMatching extends MatcherInterface {
 
   /**
    * Matches nodes in the two process trees according to the matching algorithm

@@ -159,7 +159,7 @@ export class Node {
    */
   contentEquals(other) {
     return this.label === other.label &&
-        this.text !== other.text &&
+        this.text === other.text &&
         this.attributes.size === other.attributes.size &&
         ![...this.attributes.entries()]
             .some((entry) => other.attributes.get(entry[0]) !== entry[1]);
@@ -191,15 +191,15 @@ export class Node {
   /** @return {?Node} */
   getLeftSibling() {
     return this.#index > 0 ?
-        this.getSiblings()[this.#index - 1] :
-        null;
+           this.getSiblings()[this.#index - 1] :
+           null;
   }
 
   /** @return {?Node} */
   getRightSibling() {
     return this.#index < this.getSiblings().length - 1 ?
-        this.getSiblings()[this.#index + 1] :
-        null;
+           this.getSiblings()[this.#index + 1] :
+           null;
   }
 
   /** @return {?Array<Node>} The child list of the parent node */
@@ -285,7 +285,7 @@ export class Node {
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isInnerNode() {
-    return Dsl.INNER_NODE_SET.has(this.label);
+    return !this.isPropertyNode() && Dsl.INNER_NODE_SET.has(this.label);
   }
 
   /** @return {Boolean} */
@@ -298,7 +298,7 @@ export class Node {
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isLeaf() {
-    return Dsl.LEAF_NODE_SET.has(this.label);
+    return !this.isPropertyNode() && Dsl.LEAF_NODE_SET.has(this.label);
   }
 
   /** @return {Boolean} */
@@ -451,7 +451,10 @@ export class Node {
    */
   xPath() {
     // discard root node
-    return this.path().slice(1).map((node) => node.index).join('/');
+    return this.path()
+        .slice(1)
+        .map((node) => node.index)
+        .join('/');
   }
 }
 
