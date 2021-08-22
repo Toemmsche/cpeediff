@@ -71,20 +71,18 @@ export class MatchPipeline {
             ]);
       case Config.MATCH_MODES.BALANCED:
         Config.EXP = true;
-        Config.COMPARATOR.WEIGHT_BOOST_MULTIPLIER = 1.1;
         return new MatchPipeline(
             [
               new FixedMatcher(),
               new HashMatcher(),
               new SimilarityMatcher(),
-              new CommonalityPathMatcher(),
+              new PathMatcher(),
               new PathMatcher(),
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
       case Config.MATCH_MODES.QUALITY:
           Config.EXP = false;
-        Config.COMPARATOR.WEIGHT_BOOST_MULTIPLIER = 1.0;
         return new MatchPipeline(
             [
               new FixedMatcher(),

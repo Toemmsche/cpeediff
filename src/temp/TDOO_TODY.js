@@ -16,7 +16,6 @@
 //      compress match comparison
 //      not possible to regenerate a matching
 //      cpeediff is only one to detect moves to inserted subtrees
-//      sorting in hash matcher and pathmatcher
 //      decision to omit deleted node in edit script ? maybe reconsider
 
 //TODO today
