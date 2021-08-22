@@ -20,9 +20,10 @@
 //      decision to omit deleted node in edit script ? maybe reconsider
 
 //TODO today
-//      use private class fields
-//      stick to nodejs style guidelines
-//      use JSDoc with types except where a description is necessary
+//      tidy algos (except merge)
+//        use private class fields
+//         stick to nodejs style guidelines
+//      look at JNDiff
 
 //TODO maybe
 //      better commonality complexity

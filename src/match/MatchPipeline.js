@@ -59,7 +59,6 @@ export class MatchPipeline {
   static fromMode() {
     switch (Config.MATCH_MODE) {
       case Config.MATCH_MODES.FAST:
-        Config.EXP = false;
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -71,21 +70,17 @@ export class MatchPipeline {
               new PropertyMatcher(),
             ]);
       case Config.MATCH_MODES.BALANCED:
-        Config.EXP = true;
-        Config.COMPARISON_THRESHOLD = 0.4;
         return new MatchPipeline(
             [
               new FixedMatcher(),
               new HashMatcher(),
               new SimilarityMatcher(),
-              new CommonalityPathMatcher(),
+              new PathMatcher(),
               new PathMatcher(),
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
       case Config.MATCH_MODES.QUALITY:
-        Config.EXP = false;
-        Config.COMPARISON_THRESHOLD = 0.4;
         return new MatchPipeline(
             [
               new FixedMatcher(),

@@ -20,14 +20,14 @@ export const Config = {
   MATCH_MODES: {
     FAST: 'fast',
     BALANCED: 'balanced',
-    QUALITY: 'quality'
+    QUALITY: 'quality',
   },
 
   LOG_LEVEL: 'error',
   LOG_LEVELS: {
     ERROR: 'error',
     WARN: 'warn',
-    ALL: 'all'
+    ALL: 'all',
   },
 
   COMPARATOR: {
@@ -54,7 +54,9 @@ export const Config = {
     MODE_WEIGHT: 1,
 
     CONTENT_WEIGHT: 5,
-    POSITION_WEIGHT: 1
+    POSITION_WEIGHT: 1,
+
+    COMMONALITY_WEIGHT: 6,
   },
 
   COMPARISON_THRESHOLD: 0.4,

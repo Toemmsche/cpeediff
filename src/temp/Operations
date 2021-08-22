@@ -38,3 +38,9 @@ applying to process models (diff
 
 Define goals before introducing the algorithm (functional + non functional)
 matching criteria
+
+Future work:
+- tree sequence operations
+- count occurence of endpoint or var in tree
+- presist the comparison value for matches
+- rely on stronger matches (calls, hash matching, etc.) as structure roots

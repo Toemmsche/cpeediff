@@ -42,7 +42,7 @@ Config.LOG_LEVEL = 'all';
 //new MatchingAlgorithmEvaluation([new QualityCpeeMatchAdapter()]).evalAll(TestConfig.MATCH_CASES_DIR);
 //new GeneratedMatchEvaluation([new QualityCpeeMatchAdapter(), new BalancedCpeeMatchAdapter(), new FastCpeeMatchAdapter()]).standardAggregate();
 //new DiffAlgorithmEvaluation([new CpeeDiffLocalAdapter()]).evalAll(TestConfig.MATCH_CASES_DIR);
-new GeneratedDiffEvaluation([new QualityCpeeDiffAdapter(), new XccAdapter(), new XyDiffAdapter()]).standardSingle();
+new GeneratedDiffEvaluation([new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter(), new FastCpeeDiffAdapter(), new XccAdapter(), new XyDiffAdapter()]).standardSingle();
 //DiffAlgorithmEvaluation.all().evalAll();
 //new MergeAlgorithmEvaluation([new CpeeMergeAdapter()]).evalAll();
 

@@ -58,7 +58,8 @@ export class HashMatcher {
         hashExtractor.get(a) - hashExtractor.get(b));
 
       for (let i = 0; i < newPreOrder.length; i++) {
-        if (!matching.hasNew(newPreOrder[i])) {
+        if (!matching.hasNew(newPreOrder[i]) &&
+            !matching.hasOld(oldPreOrder[i])) {
           matching.matchNew(newPreOrder[i], oldPreOrder[i]);
         }
       }

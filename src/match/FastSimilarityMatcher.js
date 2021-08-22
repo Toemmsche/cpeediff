@@ -32,7 +32,8 @@ export class FastSimilarityMatcher {
     // Only matches between nodes with the same label are allowed
     const keyFunction =
         (node) => node.isCall() ?
-            node.label + node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT) :
+            node.label +
+                node.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label) :
             node.label;
     const compareFunction = (oldNode, newNode) =>
       comparator.compare(oldNode, newNode);
