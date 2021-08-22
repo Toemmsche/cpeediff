@@ -35,6 +35,7 @@ export class UnmatchedMatcher {
             .innerNodes()
             .filter((node) => !matching.hasNew(node));
     for (const newNode of newInners) {
+      // TODO not sure about this one
       if (newNode.isOtherwise() && matching.hasNew(newNode.parent)) {
         const parentMatch = matching.getNew(newNode.parent);
         const potentialMatches =

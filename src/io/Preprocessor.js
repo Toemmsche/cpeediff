@@ -144,9 +144,9 @@ export class Preprocessor {
       }
 
       if (deleted) {
-        editScript?.delete(node);
+        editScript?.appendDeletion(node);
       } else if (updated) {
-        editScript?.update(node);
+        editScript?.appendUpdate(node);
       }
     }
 
@@ -161,7 +161,7 @@ export class Preprocessor {
       }
       tree.insertChild(0, script);
 
-      editScript?.insert(script);
+      editScript?.appendInsertion(script);
     }
 
     if (editScript.size() > 0) {

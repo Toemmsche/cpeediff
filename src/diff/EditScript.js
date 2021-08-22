@@ -15,17 +15,24 @@ import xmldom from 'xmldom';
  */
 export class EditScript {
   /**
+   * Construct a new EditScript instance.
+   */
+  constructor() {
+    this.#editOperations = [];
+    this.#cost = 0;
+  }
+
+  /**
    * @type {Array<EditOperation>}
    * @private
    */
   #editOperations;
 
   /**
-   * Construct a new EditScript instance.
+   * @return {Array<EditOperation>}
    */
-  constructor() {
-    this.#editOperations = [];
-    this.#cost = 0;
+  get editOperations() {
+    return this.#editOperations;
   }
 
   /**
@@ -37,17 +44,6 @@ export class EditScript {
   /** @return {Number} */
   get cost() {
     return this.#cost;
-  }
-
-  /**
-   * @param {String} xml The XML document.
-   * @return {EditScript}
-   */
-  static fromXmlString(xml) {
-    return this.fromXmlDom(DomHelper.firstChildElement(
-        new xmldom
-            .DOMParser()
-            .parseFromString(xml, 'text/xml')));
   }
 
   /**
@@ -65,6 +61,17 @@ export class EditScript {
   }
 
   /**
+   * @param {String} xml The XML document.
+   * @return {EditScript}
+   */
+  static fromXmlString(xml) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')));
+  }
+
+  /**
    * @return {IterableIterator<EditOperation>} An iterator for the changes
    *     contained in this edit script.
    */
@@ -76,7 +83,7 @@ export class EditScript {
    * Append a DELETE operation to this edit script.
    * @param {Node} deletedNode The root of the deleted subtree.
    */
-  delete(deletedNode) {
+  appendDeletion(deletedNode) {
     this.#editOperations.push(
         new EditOperation(
             Dsl.CHANGE_MODEL.DELETION.label,
@@ -102,7 +109,7 @@ export class EditScript {
    * @param {Node} insertedNode The root of the inserted subtree *after* it has
    *     been inserted.
    */
-  insert(insertedNode) {
+  appendInsertion(insertedNode) {
     this.#editOperations.push(
         new EditOperation(
             Dsl.CHANGE_MODEL.INSERTION.label,
@@ -140,7 +147,7 @@ export class EditScript {
    * @param {String} oldPath The path of the moved node *before* it was moved.
    * @param {String} newPath The path of the moved node *after* it was moved.
    */
-  move(oldPath, newPath) {
+  appendMove(oldPath, newPath) {
     this.#editOperations.push(
         new EditOperation(
             Dsl.CHANGE_MODEL.MOVE_TO.label,
@@ -167,30 +174,6 @@ export class EditScript {
   }
 
   /**
-   * Append an UPDATE operation to this edit script.
-   * @param {Node} updatedNode The updated node *after* the update was applied.
-   */
-  update(updatedNode) {
-    this.#editOperations.push(new EditOperation(
-        Dsl.CHANGE_MODEL.UPDATE.label,
-        updatedNode.xPath(),
-        null,
-        Node.fromNode(updatedNode, false),
-    ));
-    this.#cost++;
-  }
-
-  /**
-   * @return {Number} The number of updates in this edit script.
-   */
-  updates() {
-    return this
-        .#editOperations
-        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.UPDATE.label)
-        .length;
-  }
-
-  /**
    * @return {Object} The XML DOM object for this edit script.
    */
   toXmlDom() {
@@ -214,5 +197,29 @@ export class EditScript {
    */
   toXmlString() {
     return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+  }
+
+  /**
+   * Append an UPDATE operation to this edit script.
+   * @param {Node} updatedNode The updated node *after* the update was applied.
+   */
+  appendUpdate(updatedNode) {
+    this.#editOperations.push(new EditOperation(
+        Dsl.CHANGE_MODEL.UPDATE.label,
+        updatedNode.xPath(),
+        null,
+        Node.fromNode(updatedNode, false),
+    ));
+    this.#cost++;
+  }
+
+  /**
+   * @return {Number} The number of updates in this edit script.
+   */
+  updates() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.UPDATE.label)
+        .length;
   }
 }

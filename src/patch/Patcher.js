@@ -1,106 +1,108 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {Dsl} from '../Dsl.js';
 import {Node} from '../tree/Node.js';
 
+/**
+ * A wrapper class for the patching capabilities of CpeeDiff.
+ */
 export class Patcher {
+  /**
+   * @type {Node}
+   * @private
+   */
+  #tree;
 
-  _tree;
-
+  /**
+   * Apply an edit script to a tree.
+   * @param {Node} tree The root of the tree. It will not be modified.
+   * @param {EditScript} editScript
+   * @return {Node} The root of the editOpd tree.
+   */
   patch(tree, editScript) {
-    //copy the tree
-    this._tree = Node.fromNode(tree);
+    // TODO really copy?
+    // Copy the old tree
+    this.#tree = Node.fromNode(tree);
 
-    for (const change of editScript) {
-      switch (change.type) {
+    for (const editOp of editScript.editOperations) {
+      switch (editOp.type) {
         case Dsl.CHANGE_MODEL.INSERTION.label: {
-          this._handleInsert(change);
+          this.#handleInsertion(editOp);
           break;
         }
         case Dsl.CHANGE_MODEL.MOVE_TO.label: {
-          this._handleMove(change);
+          this.#handleMove(editOp);
           break;
         }
         case Dsl.CHANGE_MODEL.UPDATE.label: {
-          this._handleUpdate(change);
+          this.#handleUpdate(editOp);
           break;
         }
         case Dsl.CHANGE_MODEL.DELETION.label: {
-          this._handleDelete(change);
+          this.#handleDeletion(editOp);
           break;
         }
       }
     }
-    return this._tree;
+    return this.#tree;
   }
 
-  _findNode(indexPath) {
-    let currNode = this._tree;
-    if (indexPath !== '') {
-      for (let index of indexPath.split('/').map(str => parseInt(str))) {
-        if (index >= currNode.degree()) {
-          throw new Error('Edit script not applicable to tree');
-        }
-        currNode = currNode.getChild(index);
-      }
-    }
-    return currNode;
-  }
-
-  _handleMove(change) {
-    const movedNode = this._findNode(change.oldPath);
+  /**
+   * @param {EditOperation} move
+   */
+  #handleMove(move) {
+    const movedNode = this.#tree.findNode(move.oldPath);
     movedNode.removeFromParent();
 
-    //Extract new child index
-    const indexArr = change.newPath.split('/').map(str => parseInt(str));
+    // Extract new child index
+    const indexArr =
+        move
+            .newPath
+            .split('/')
+            .map((str) => parseInt(str));
     const index = indexArr.pop();
 
-    //Find parent node
-    const targetParent = this._findNode(indexArr.join('/'));
+    // Find parent node
+    const targetParent = this.#tree.findNode(indexArr.join('/'));
 
     targetParent.insertChild(index, movedNode);
   }
 
-  _handleInsert(change) {
-    //Extract new child index
-    const indexArr = change.newPath.split('/').map(str => parseInt(str));
+  /**
+   * @param {EditOperation} insertion
+   */
+  #handleInsertion(insertion) {
+    // Extract new child index
+    const indexArr =
+        insertion
+            .newPath
+            .split('/')
+            .map((str)=> parseInt(str));
     const index = indexArr.pop();
 
-    //Find parent node
-    const parent = this._findNode(indexArr.join('/'));
+    // Find parent node
+    const parent = this.#tree.findNode(indexArr.join('/'));
 
-    //Insert
-    const newNode = Node.fromNode(change.newContent, true);
+    // Insert
+    const newNode = Node.fromNode(insertion.newContent, true);
     parent.insertChild(index, newNode);
   }
 
-  _handleUpdate(change) {
-    const node = this._findNode(change.oldPath);
+  /**
+   * @param {EditOperation} update
+   */
+  #handleUpdate(update) {
+    const node = this.#tree.findNode(update.oldPath);
 
     node.attributes = new Map();
-    for (const [key, val] of change.newContent.attributes) {
+    for (const [key, val] of update.newContent.attributes) {
       node.attributes.set(key, val);
     }
-    node.text = change.newContent.text;
+    node.text = update.newContent.text;
   }
 
-  _handleDelete(change) {
-    this._findNode(change.oldPath).removeFromParent();
+  /**
+   * @param {EditOperation} deletion
+   */
+  #handleDeletion(deletion) {
+    this.#tree.findNode(deletion.oldPath).removeFromParent();
   }
-
 }
-

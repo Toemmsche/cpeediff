@@ -181,6 +181,25 @@ export class Node {
   }
 
   /**
+   * Fina a node in the sutree rooted at this node based on its index path.
+   * @param {String} indexPath The index path of the node.
+   * @return {Node}
+   */
+  findNode(indexPath) {
+    let currNode = this;
+    if (indexPath !== '') {
+      for (const index of indexPath.split('/').map((str) => parseInt(str))) {
+        if (index >= currNode.degree()) {
+          const msg = 'Invalid index path';
+          Logger.error(msg, new Error(msg), this);
+        }
+        currNode = currNode.getChild(index);
+      }
+    }
+    return currNode;
+  }
+
+  /**
    * Restore the correct indices of all children.
    * @private
    */

@@ -35,17 +35,6 @@ export class EditOperation {
   }
 
   /**
-   * @param {String} xml The XML document.
-   * @return {EditOperation}
-   */
-  static fromXmlString(xml) {
-    return this.fromXmlDom(DomHelper.firstChildElement(
-        new xmldom
-            .DOMParser()
-            .parseFromString(xml, 'text/xml')));
-  }
-
-  /**
    * @param {Object} xmlElement The XML DOM object.
    * @return {EditOperation}
    */
@@ -61,6 +50,37 @@ export class EditOperation {
         xmlElement.getAttribute('newPath').slice(1),
         newContent,
     );
+  }
+
+  /**
+   * @param {String} xml The XML document.
+   * @return {EditOperation}
+   */
+  static fromXmlString(xml) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')));
+  }
+
+  /** @return {Boolean} */
+  isDeletion() {
+    return this.type === Dsl.CHANGE_MODEL.DELETION.label;
+  }
+
+  /** @return {Boolean} */
+  isInsertion() {
+    return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
+  }
+
+  /** @return {Boolean} */
+  isMove() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE_TO.label;
+  }
+
+  /** @return {Boolean} */
+  isUpdate() {
+    return this.type === Dsl.CHANGE_MODEL.UPDATE.label;
   }
 
   /**

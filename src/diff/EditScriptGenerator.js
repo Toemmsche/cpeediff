@@ -54,14 +54,14 @@ export class EditScriptGenerator {
             // Move within nodes, adjust index for move further back
             node.changeIndex(j > node.index ? j - 1 : j);
             const newPath = node.xPath();
-            this.#editScript.move(oldPath, newPath);
+            this.#editScript.appendMove(oldPath, newPath);
             continue outer;
           }
         }
         // Move to end of nodes
         node.changeIndex(nodes.length - 1);
         const newPath = node.xPath();
-        this.#editScript.move(oldPath, newPath);
+        this.#editScript.appendMove(oldPath, newPath);
       }
     }
   }
@@ -69,7 +69,7 @@ export class EditScriptGenerator {
   /** @param {Node} oldNode The node (or subtree) to delete */
   #delete(oldNode) {
     oldNode.removeFromParent();
-    this.#editScript.delete(oldNode);
+    this.#editScript.appendDeletion(oldNode);
   }
 
   /**
@@ -203,7 +203,7 @@ export class EditScriptGenerator {
     const newParent = this.#matching.getNew(newNode.parent);
     newParent.insertChild(insertionIndex, copy);
 
-    this.#editScript.insert(copy);
+    this.#editScript.appendInsertion(copy);
   }
 
   /** @param {Node} oldNode The node (or subtree) to move. */
@@ -219,7 +219,7 @@ export class EditScriptGenerator {
     const newParent = this.#matching.getNew(newNode.parent);
     newParent.insertChild(insertionIndex, oldNode);
     const newPath = oldNode.xPath();
-    this.#editScript.move(oldPath, newPath);
+    this.#editScript.appendMove(oldPath, newPath);
   }
 
   /** @param {Node} oldNode The node to be updated. */
@@ -232,6 +232,6 @@ export class EditScriptGenerator {
       oldNode.attributes.set(key, val);
     }
     oldNode.text = newNode.text;
-    this.#editScript.update(oldNode);
+    this.#editScript.appendUpdate(oldNode);
   }
 }
