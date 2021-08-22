@@ -939,8 +939,8 @@ export class TreeGenerator {
           break;
         }
         default: {
-          if (this._withProbability(0.8)) {
-            //80% chance to change string value
+          if (this._withProbability(0.6)) {
+            //60% chance to change string value
             const oldVal = node.attributes.get(changedAttributeKey);
             node.attributes.set(changedAttributeKey, oldVal + this._randomString(10));
           } else {
@@ -951,7 +951,7 @@ export class TreeGenerator {
       }
     }
     //There's a chance to insert a new random attribute, regardless of the applied update
-    if (this._withProbability(0.2)) {
+    if (this._withProbability(0.4)) {
       node.attributes.set(this._randomString(10), this._randomString(10));
     }
   }

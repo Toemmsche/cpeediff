@@ -479,7 +479,7 @@ export class Comparator {
       if (items[i] != null) {
         // Perfect matches receive a boost for their weight.
         const adjustedWeight =
-            (items[i] === 0 ? Config.COMPARATOR.WEIGHT_BOOST_MULITPLIER : 1) *
+            (items[i] === 0 ? Config.COMPARATOR.WEIGHT_BOOST_MULTIPLIER : 1) *
             weights[i];
         itemSum += items[i] * adjustedWeight;
         weightSum += adjustedWeight;

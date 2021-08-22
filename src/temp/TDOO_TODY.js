@@ -23,7 +23,9 @@
 //      tidy algos (except merge)
 //        use private class fields
 //         stick to nodejs style guidelines
-//      look at JNDiff
+//      look at JNDiff --> Disappointing and no literature available, discard, weird chagne model,
+//      eval Weight boost
+//    use cd dir instead of callpath
 
 //TODO maybe
 //      better commonality complexity

@@ -7,6 +7,7 @@
 //      option to output no diff
 //      perfect match shortcut in matchers
 //    add raw mode that also considers preprocessor changes
+//    deleted tree in edit script
 
 //TODO gen
 //      trees are still too small because of preprocessor, check that out

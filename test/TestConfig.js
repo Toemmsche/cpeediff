@@ -96,6 +96,10 @@ export const TestConfig = {
     XYDIFF: {
       displayName: 'XyDiff',
       path: '../xml_diff_algos/xydiff'
+    },
+    JNDIFF: {
+      displayName: 'JNDiff',
+      path: '../xml_diff_algos/jndiff'
     }
   },
 
