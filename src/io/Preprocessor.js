@@ -39,6 +39,7 @@ export class Preprocessor {
 
     let tree;
     if (root == null) {
+      // Empty tree
       return new Node(Dsl.ELEMENTS.ROOT.label);
     }
     if (root.localName === Dsl.XML_DOC.PROPERTIES_ROOT) {
@@ -47,7 +48,7 @@ export class Preprocessor {
           DomHelper.firstChildElement(root, Dsl.XML_DOC.DSLX);
       const xmlDescription =
           DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.ROOT.label);
-      tree = Node.fromXml(xmlDescription, true);
+      tree = Node.fromXmlDom(xmlDescription, true);
 
       // Parse endpoints
       const xmlEndpoints =
@@ -67,7 +68,7 @@ export class Preprocessor {
       });
     } else {
       // Hop straight into tree parsing
-      tree = Node.fromXml(root, true);
+      tree = Node.fromXmlDom(root, true);
     }
 
     return this.preprocess(tree, endpointToUrl, dataElements);
@@ -119,7 +120,7 @@ export class Preprocessor {
           );
           updated = true;
         }
-      } else if (node.label === Dsl.ELEMENTS.CALL.label) {
+      } else if (node.isCall()) {
         node.attributes.set(
             Dsl.CALL_PROPERTIES.ENDPOINT.label,
             Math.floor(Math.random * 1000000).toString(),

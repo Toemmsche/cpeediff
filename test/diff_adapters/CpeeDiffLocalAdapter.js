@@ -16,7 +16,6 @@
 
 import {CpeeDiff} from '../../src/diff/CpeeDiff.js';
 import {Dsl} from '../../src/Dsl.js';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {TestConfig} from '../TestConfig.js';
 import {Logger} from '../../util/Logger.js';
@@ -83,7 +82,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
     }
     const counters = this._parseOutput(exec.output);
     //An OK verdict is emitted because the diff algorithm didnt fail
-    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(XmlFactory.serialize(exec.output), ...counters), TestConfig.VERDICTS.OK);
+    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), TestConfig.VERDICTS.OK);
   }
 }
 

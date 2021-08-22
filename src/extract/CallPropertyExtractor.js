@@ -68,7 +68,7 @@ export class CallPropertyExtractor {
             .join('');
     this._memo.set(
         call,
-        new CallProperties(endpoint, method, label, args, code ),
+        new CallProperties(endpoint, method, label, args, code),
     );
   }
 

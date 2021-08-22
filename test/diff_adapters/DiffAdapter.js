@@ -14,7 +14,6 @@
    limitations under the License.
 */
 
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import {TestConfig} from '../TestConfig.js';
 import fs from 'fs';
 import xmldom from 'xmldom';
@@ -34,8 +33,8 @@ export class DiffAdapter {
   }
 
   _run(oldTree, newTree) {
-    const oldTreeString = XmlFactory.serialize(oldTree);
-    const newTreeString = XmlFactory.serialize(newTree);
+    const oldTreeString = oldTree.toXmlString();
+    const newTreeString = newTree.toXmlString();
 
     const oldFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.OLD_TREE;
     const newFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.NEW_TREE;

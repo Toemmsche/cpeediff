@@ -21,7 +21,6 @@ import {hideBin} from 'yargs/helpers';
 import {Config} from './src/Config.js';
 import {Preprocessor} from './src/io/Preprocessor.js';
 import {CpeeDiff} from './src/diff/CpeeDiff.js';
-import {XmlFactory} from './src/io/XmlFactory.js';
 import {DeltaTreeGenerator} from './src/patch/DeltaTreeGenerator.js';
 import {DiffAlgorithmEvaluation} from './test/eval/DiffAlgorithmEvaluation.js';
 import {MergeAlgorithmEvaluation} from './test/eval/MergeAlgorithmEvaluation.js';
@@ -120,13 +119,13 @@ const argv = yargs(hideBin(process.argv))
 
       switch (argv.format) {
         case 'editScript': {
-          Logger.result((XmlFactory.serialize(editScript)));
+          Logger.result(editScript.toXmlString());
           break;
         }
         case 'deltaTree': {
           const deltaTreeGen = new DeltaTreeGenerator();
           const deltaTree = deltaTreeGen.deltaTree(oldTree, editScript);
-          Logger.result((XmlFactory.serialize(deltaTree)));
+          Logger.result(deltaTree.toXmlString());
           break;
         }
       }

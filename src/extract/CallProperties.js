@@ -29,22 +29,22 @@ export class CallProperties {
     this.code = code;
   }
 
-  /** @return {Boolean} If the args property has a non-null value. */
+  /** @return {Boolean} */
   hasArgs() {
     return this.args != null && this.args.length > 0;
   }
 
-  /** @return {Boolean} If the code property has a non-null value. */
+  /** @return {Boolean} */
   hasCode() {
     return this.code != null;
   }
 
-  /** @return {Boolean} If the label property has a non-null value. */
+  /** @return {Boolean} */
   hasLabel() {
     return this.label != null;
   }
 
-  /** @return {Boolean} If the method property has a non-null value. */
+  /** @return {Boolean} */
   hasMethod() {
     return this.method != null;
   }

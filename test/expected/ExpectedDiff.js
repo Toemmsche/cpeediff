@@ -15,7 +15,6 @@
 */
 
 import {AbstractExpected} from './AbstractExpected.js';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 
 export class ExpectedDiff extends AbstractExpected {
 
@@ -28,7 +27,7 @@ export class ExpectedDiff extends AbstractExpected {
 
   toString() {
     return 'Cost: ' + this.editScript?.cost + '\n' +
-        'Diff Size: ' + (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined) + '\n' +
+        'Diff Size: ' + (this.editScript != null ? this.editScript.toXmlString().length : undefined) + '\n' +
         'Total changes: ' + +this.editScript?.size() + '\n' +
         'Insertions: ' + this.editScript?.insertions() + '\n' +
         'Moves: ' + this.editScript?.moves() + '\n' +
@@ -37,7 +36,7 @@ export class ExpectedDiff extends AbstractExpected {
   }
 
   values() {
-    return ['Expected', '-', this.editScript?.cost, (this.editScript != null ? XmlFactory.serialize(this.editScript).length : undefined), this.editScript?.size(),
+    return ['Expected', '-', this.editScript?.cost, (this.editScript != null ? this.editScript.toXmlString().length : undefined), this.editScript?.size(),
       this.editScript?.insertions(), this.editScript?.moves(), this.editScript?.updates(), this.editScript?.deletions()];
   }
 

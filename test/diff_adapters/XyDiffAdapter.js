@@ -51,7 +51,7 @@ export class XyDiffAdapter extends DiffAdapter {
             if (xmlElement != null) {
               insertions++;
               //adjust cost
-              cost += Node.fromXml(xmlElement).size();
+              cost += Node.fromXmlDom(xmlElement).size();
             } else {
               //text content insertions are mapped to updates
               updates++;
@@ -67,7 +67,7 @@ export class XyDiffAdapter extends DiffAdapter {
             if (xmlElement != null) {
               deletions++;
               //adjust cost
-              cost += Node.fromXml(xmlElement).size();
+              cost += Node.fromXmlDom(xmlElement).size();
             } else {
               //text content deletions are mapped to updates
               updates++;

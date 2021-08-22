@@ -16,7 +16,6 @@
 
 import {TestConfig} from '../TestConfig.js';
 import {MergeAdapter} from './MergeAdapter.js';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
 

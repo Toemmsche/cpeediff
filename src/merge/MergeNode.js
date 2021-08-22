@@ -41,7 +41,7 @@ export class MergeNode extends DeltaNode {
   constructor(label, text = null, type = 'NIL', baseNode = null, changeOrigin = 0) {
     super(label, text, type, baseNode);
     this.changeOrigin = changeOrigin;
-    //initial high confidence
+    // Initial high confidence
     this.confidence = new Confidence(true, true, true);
   }
 }

@@ -15,7 +15,6 @@
 */
 
 import {execFileSync} from 'child_process';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import {TestConfig as Testconfig, TestConfig} from '../TestConfig.js';
 import fs from 'fs';
 import {Preprocessor} from '../../src/io/Preprocessor.js';

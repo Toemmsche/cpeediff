@@ -17,7 +17,6 @@
 import {TestConfig} from '../TestConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import vkbeautify from 'vkbeautify';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
 
@@ -28,8 +27,8 @@ export class UnixDiffAdapter extends DiffAdapter {
   }
 
   _run(oldTree, newTree) {
-    const oldTreeString = XmlFactory.serialize(oldTree);
-    const newTreeString = XmlFactory.serialize(newTree);
+    const oldTreeString = oldTree.toXmlString();
+    const newTreeString = newTree.toXmlString();
 
     const oldFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.OLD_TREE;
     const newFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.NEW_TREE;

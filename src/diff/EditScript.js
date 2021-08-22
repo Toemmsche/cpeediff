@@ -10,6 +10,8 @@ import xmldom from 'xmldom';
  * A wrapper class for an ordered sequence of edit operations, commonly
  * referred to as an edit script. An edit script captures the changes that
  * transform one version of a process tree into another.
+ *
+ * @implements {XmlSerializable<EditScript>}
  */
 export class EditScript {
   /**
@@ -38,24 +40,27 @@ export class EditScript {
   }
 
   /**
-   * Regenerate an EditSript instance from an XML document or xmldom Object.
-   * @param {String|Object} xmlElement The XML document as a string or xmldom
-   *     Object.
+   * @param {String} xml The XML document.
    * @return {EditScript}
    */
-  static fromXml(xmlElement) {
-    if (xmlElement.constructor === String) {
-      xmlElement = DomHelper.firstChildElement(
-          new xmldom
-              .DOMParser()
-              .parseFromString(xmlElement, 'text/xml'));
-    }
+  static fromXmlString(xml) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')));
+  }
+
+  /**
+   * @param {Object} xmlElement The XML DOM object.
+   * @return {EditScript}
+   */
+  static fromXmlDom(xmlElement) {
     const editScript = new EditScript();
     if (xmlElement.hasAttribute('cost')) {
       editScript.#cost = parseInt(xmlElement.getAttribute('cost'));
     }
     DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
-      editScript.#editOperations.push(EditOperation.fromXml(xmlChange)));
+      editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
     return editScript;
   }
 
@@ -83,8 +88,7 @@ export class EditScript {
   }
 
   /**
-   * Count the number of deletions in this edit script.
-   * @return {Number}
+   * @return {Number} The number of deletions in this edit script.
    */
   deletions() {
     return this
@@ -110,8 +114,7 @@ export class EditScript {
   }
 
   /**
-   * Count the number of insertions in this edit script.
-   * @return {Number}
+   * @return {Number} The number of insertions in this edit script.
    */
   insertions() {
     return this
@@ -149,8 +152,7 @@ export class EditScript {
   }
 
   /**
-   * Count the number of moves in this edit script.
-   * @return {Number}
+   * @return {Number} The number of moves in this edit script.
    */
   moves() {
     return this
@@ -179,13 +181,38 @@ export class EditScript {
   }
 
   /**
-   * Count the number of updates in this edit script.
-   * @return {Number}
+   * @return {Number} The number of updates in this edit script.
    */
   updates() {
     return this
         .#editOperations
         .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.UPDATE.label)
         .length;
+  }
+
+  /**
+   * @return {Object} The XML DOM object for this edit script.
+   */
+  toXmlDom() {
+    const doc =
+        xmldom
+            .DOMImplementation
+            .prototype
+            .createDocument(Dsl.DEFAULT_NAMESPACE);
+
+    const xmlNode = doc.createElement('delta');
+    xmlNode.setAttribute('cost', this.#cost);
+    for (const change of this) {
+      xmlNode.appendChild(change.toXmlDom());
+    }
+
+    return xmlNode;
+  }
+
+  /**
+   * @return {String} The XML document for this edit script.
+   */
+  toXmlString() {
+    return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
   }
 }

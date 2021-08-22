@@ -16,7 +16,6 @@
 
 import {Config} from '../../src/Config.js';
 import {Dsl} from '../../src/Dsl.js';
-import {XmlFactory} from '../../src/io/XmlFactory.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {TestConfig} from '../TestConfig.js';
 import fs from 'fs';
@@ -32,8 +31,8 @@ export class CpeeDiffAdapter extends DiffAdapter {
   }
 
   _run(oldTree, newTree) {
-    const oldTreeString = XmlFactory.serialize(oldTree);
-    const newTreeString = XmlFactory.serialize(newTree);
+    const oldTreeString = oldTree.toXmlString();
+    const newTreeString = newTree.toXmlString();
 
     const oldFilePath = TestConfig.FILENAMES.OLD_TREE;
     const newFilePath = TestConfig.FILENAMES.NEW_TREE;
@@ -55,7 +54,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
     let deletions = 0;
 
     //parse output
-    let delta = EditScript.fromXml(output);
+    let delta = EditScript.fromXmlString(output);
     for (const change of delta) {
       switch (change.type) {
         case Dsl.CHANGE_MODEL.INSERTION.label:

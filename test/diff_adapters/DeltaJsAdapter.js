@@ -58,7 +58,7 @@ export class DeltaJsAdapter extends DiffAdapter {
             } else {
               insertions++;
               DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                cost += Node.fromXml(xmlElement).size();
+                cost += Node.fromXmlDom(xmlElement).size();
               });
             }
             break;
@@ -71,7 +71,7 @@ export class DeltaJsAdapter extends DiffAdapter {
             } else {
               deletions++;
               DomHelper.forAllChildElements(xmlOperation, (xmlElement) => {
-                cost += Node.fromXml(xmlElement).size();
+                cost += Node.fromXmlDom(xmlElement).size();
               });
             }
             break;

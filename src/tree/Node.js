@@ -12,6 +12,8 @@ import xmldom from 'xmldom';
  *
  * In the case that a node is the root node, i.e. does not have a parent,
  * it is labelled as a tree in code.
+ *
+ * @implements {XmlSerializable<Node>}
  */
 export class Node {
   /** @type {String} */
@@ -58,6 +60,7 @@ export class Node {
   }
 
   /**
+   * The ordered child list of this node.
    * @type {Array<Node>}
    * @private
    */
@@ -88,23 +91,16 @@ export class Node {
   }
 
   /**
-   * Create a new Node instance from an XML string or xmldom object.
-   * @param {String|Object} xmlElement
-   * @param {Boolean} includeChildren
+   * @param {String} xmlElement The XML DOM object.
+   * @param {Boolean} includeChildren Whether to include children.
    * @return {Node}
    */
-  static fromXml(xmlElement, includeChildren = true) {
-    if (xmlElement.constructor === String) {
-      xmlElement = DomHelper.firstChildElement(
-          new xmldom
-              .DOMParser()
-              .parseFromString(xmlElement, 'text/xml'));
-    }
-    const root = new Node(xmlElement.localName);
+  static fromXmlDom(xmlElement, includeChildren = true) {
+    const node = new Node(xmlElement.localName);
     // parse attributes
     for (let i = 0; i < xmlElement.attributes.length; i++) {
       const attrNode = xmlElement.attributes.item(i);
-      root.attributes.set(attrNode.name, attrNode.value);
+      node.attributes.set(attrNode.name, attrNode.value);
     }
 
     for (let i = 0; i < xmlElement.childNodes.length; i++) {
@@ -112,17 +108,29 @@ export class Node {
       if (childElement.nodeType === DomHelper.XML_NODE_TYPES.TEXT) {
         // check if text node contains a non-empty payload
         if (childElement.data.match(/^\s*$/) == null) {
-          if (root.text == null) {
-            root.text = '';
+          if (node.text == null) {
+            node.text = '';
           }
-          root.text += childElement.data;
+          node.text += childElement.data;
         }
       } else if (childElement.nodeType === DomHelper.XML_NODE_TYPES.ELEMENT &&
           includeChildren) {
-        root.appendChild(this.fromXml(childElement, includeChildren));
+        node.appendChild(this.fromXmlDom(childElement, includeChildren));
       }
     }
-    return root;
+    return node;
+  }
+
+  /**
+   * @param {String} xml The XML document.
+   * @param {Boolean} includeChildren Whether to include children.
+   * @return {Node}
+   */
+  static fromXmlString(xml, includeChildren = true) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')), includeChildren);
   }
 
   /**
@@ -446,6 +454,41 @@ export class Node {
             .map((child) => child.toPreOrderArray())
             .reduce((arr1, arr2) => arr1.concat(arr2), []));
     return arr;
+  }
+
+  /**
+   * @return {Object} XML DOM object for this node and its children.
+   */
+  toXmlDom() {
+    const doc =
+        xmldom
+            .DOMImplementation
+            .prototype
+            .createDocument(Dsl.DEFAULT_NAMESPACE);
+    const xmlElement = doc.createElement(this.label);
+    if (this.isRoot()) {
+      xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
+    }
+    for (const [key, value] of this.attributes) {
+      xmlElement.setAttribute(key, value);
+    }
+
+    for (const child of this) {
+      xmlElement.appendChild(child.toXmlDom());
+    }
+
+    if (this.text != null) {
+      xmlElement.appendChild(doc.createTextNode(this.text));
+    }
+
+    return xmlElement;
+  }
+
+  /**
+   * @return {String} XML document of this node and its children.
+   */
+  toXmlString() {
+    return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
   }
 
   /**

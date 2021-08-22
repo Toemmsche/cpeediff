@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 import {Node} from '../tree/Node.js';
-import {XmlFactory} from '../io/XmlFactory.js';
 import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Preprocessor} from '../io/Preprocessor.js';
 import {Config} from '../Config.js';

@@ -47,7 +47,7 @@ export class XccAdapter extends DiffAdapter {
             //determine cost
             const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'newvalue');
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromXml(xmlElement).size();
+              cost += Node.fromXmlDom(xmlElement).size();
             });
           }
           break;
@@ -60,7 +60,7 @@ export class XccAdapter extends DiffAdapter {
             //determine cost
             const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'oldvalue');
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromXml(xmlElement).size();
+              cost += Node.fromXmlDom(xmlElement).size();
             });
           }
           break;
