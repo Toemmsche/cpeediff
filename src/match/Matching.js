@@ -41,11 +41,7 @@ export class Matching {
    * @return {?Node}
    */
   getMatch(node) {
-    if (this.newToOldMap.has(node)) {
-      return this.newToOldMap.get(node);
-    } else {
-      return this.oldToNewMap.get(node);
-    }
+    return this.newToOldMap.get(node) ?? this.oldToNewMap.get(node);
   }
 
   /**

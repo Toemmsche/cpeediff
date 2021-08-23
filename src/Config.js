@@ -34,7 +34,7 @@ export const Config = {
     PATH_COMPARE_RANGE: 5,
 
     //TODO
-    WEIGHT_BOOST_MULTIPLIER: 1.1,
+    WEIGHT_BOOST_MULTIPLIER: 1,
 
     //General weights
     WRITTEN_VAR_WEIGHT: 2,

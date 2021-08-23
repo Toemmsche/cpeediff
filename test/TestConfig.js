@@ -22,11 +22,11 @@ export const TestConfig = {
     EXPONENTIAL: true,
     INTERVAL: 100,
     FACTOR: 2,
-    LIMIT: 9,
+    LIMIT: 11,
     INITIAL_SIZE: 100,
     REPS: 10,
 
-    INITIAL_CHANGES: 10
+    INITIAL_CHANGES: 5,
   },
 
   //TODO option to store genearted models in test case folder
@@ -46,7 +46,7 @@ export const TestConfig = {
     BRANCH_1: '1.xml',
     BRANCH_2: '2.xml',
     EXPECTED_MERGE_PREFIX: 'expected',
-    ACCEPTED_MERGE_PREFIX: 'accepted'
+    ACCEPTED_MERGE_PREFIX: 'accepted',
   },
 
   MATCH_CASES_DIR: 'test/test_set/match_cases',

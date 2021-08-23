@@ -65,12 +65,10 @@ export class Comparator {
         this.#compareReadVariables(alternativeA, alternativeB);
 
     const conditionA =
-        alternativeA.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-        alternativeA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        alternativeA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) ??
         Dsl.INNER_PROPERTIES.CONDITION.default;
     const conditionB =
-        alternativeB.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-        alternativeB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        alternativeB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) ??
         Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
@@ -169,12 +167,10 @@ export class Comparator {
    */
   #compareChoiceContent(choiceA, choiceB) {
     const modeA =
-        choiceA.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
-        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ??
         Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
     const modeB =
-        choiceB.attributes.has(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ?
-        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) :
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ??
         Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
 
     // all or nothing
@@ -245,12 +241,10 @@ export class Comparator {
    */
   #compareLoopContent(loopA, loopB) {
     const modeA =
-        loopA.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
-        loopA.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
+        loopA.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ??
         Dsl.INNER_PROPERTIES.LOOP_MODE.default;
     const modeB =
-        loopB.attributes.has(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ?
-        loopB.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) :
+        loopB.attributes.get(Dsl.INNER_PROPERTIES.LOOP_MODE.label) ??
         Dsl.INNER_PROPERTIES.LOOP_MODE.default;
 
     // all or nothing
@@ -259,12 +253,10 @@ export class Comparator {
     let readVariablesCV = this.#compareReadVariables(loopA, loopB);
 
     const conditionA =
-        loopA.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-        loopA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        loopA.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) ??
         Dsl.INNER_PROPERTIES.CONDITION.default;
     const conditionB =
-        loopB.attributes.has(Dsl.INNER_PROPERTIES.CONDITION.label) ?
-        loopB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) :
+        loopB.attributes.get(Dsl.INNER_PROPERTIES.CONDITION.label) ??
         Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
@@ -296,23 +288,19 @@ export class Comparator {
    */
   #compareParallelContent(parallelA, parallelB) {
     const waitA =
-        parallelA.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
-        parallelA.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
+        parallelA.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ??
         Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
     const waitB =
-        parallelB.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ?
-        parallelB.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) :
+        parallelB.attributes.get(Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label) ??
         Dsl.INNER_PROPERTIES.PARALLEL_WAIT.default;
 
     const cancelA =
-        parallelA.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
         parallelA.attributes
-            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
+            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ??
         Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
     const cancelB =
-        parallelB.attributes.has(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ?
         parallelB.attributes
-            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) :
+            .get(Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.label) ??
         Dsl.INNER_PROPERTIES.PARALLEL_CANCEL.default;
 
     // all or nothing

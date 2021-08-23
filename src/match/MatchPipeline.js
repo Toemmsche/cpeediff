@@ -82,7 +82,7 @@ export class MatchPipeline {
               new PropertyMatcher(),
             ]);
       case Config.MATCH_MODES.QUALITY:
-          Config.EXP = false;
+        Config.EXP = false;
         return new MatchPipeline(
             [
               new FixedMatcher(),

@@ -63,13 +63,13 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
       let size;
       if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
       } else {
         size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
       }
       //choose sensible generator and change parameters
       const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
+      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * (TestConfig.PROGRESSION.FACTOR ** i));
 
       const treeGen = new TreeGenerator(genParams);
 
@@ -159,7 +159,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
       let size;
       if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
       } else {
         size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
       }
@@ -255,7 +255,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
       let size;
       if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
       } else {
         size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
       }
@@ -346,11 +346,11 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
   standardAggregate() {
     Logger.info('Aggregate evaluation of diff algorithms with standard progression', this);
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
       const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
       const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
+      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES *(TestConfig.PROGRESSION.FACTOR ** i));
 
       const testId = [size, changeParams.totalChanges].join('_');
 
@@ -380,7 +380,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
   flatAggregate() {
     Logger.info('Aggregate evaluation of diff algorithms no change progression', this);
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
       const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
 
       const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));

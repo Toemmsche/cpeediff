@@ -463,27 +463,28 @@ export class Node {
   /**
    * Create a list of all nodes contained in the subtree rooted at this node
    * in post-order.
+   * @param {Array<Node>} arr Helper array for performance reasons.
    * @return {Array<Node>}
    */
-  toPostOrderArray() {
-    return this
-        .#children
-        .map((child) => child.toPreOrderArray())
-        .reduce((arr1, arr2) => arr1.concat(arr2), [])
-        .concat([this]);
+  toPostOrderArray(arr = []) {
+    for (const child of this) {
+      child.toPostOrderArray(arr);
+    }
+    arr.push(this);
+    return arr;
   }
 
   /**
    * Create a list of all nodes contained in the subtree rooted at this node
    * in pre-order.
+   * @param {Array<Node>} arr Helper array for performance reasons.
    * @return {Array<Node>}
    */
-  toPreOrderArray() {
-    const arr = [this].concat(
-        this
-            .#children
-            .map((child) => child.toPreOrderArray())
-            .reduce((arr1, arr2) => arr1.concat(arr2), []));
+  toPreOrderArray(arr = []) {
+    arr.push(this);
+    for (const child of this) {
+      child.toPreOrderArray(arr);
+    }
     return arr;
   }
 

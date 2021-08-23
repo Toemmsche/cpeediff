@@ -43,11 +43,11 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
   standardAggregate() {
     Logger.info('Evaluation of matching algorithms with standard size progression', this);
     for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * Math.pow(TestConfig.PROGRESSION.FACTOR, i);
+      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
 
       //choose sensible generator and change parameters
       const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * Math.pow(TestConfig.PROGRESSION.FACTOR, i));
+      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * (TestConfig.PROGRESSION.FACTOR ** i));
 
       const testId = '~' + [size, changeParams.totalChanges].join('_');
 

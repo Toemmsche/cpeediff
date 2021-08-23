@@ -23,6 +23,7 @@ import {Logger} from '../../util/Logger.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 import {DeltaNode} from '../patch/DeltaNode.js';
 
+console.log(null ?? "right");
 Logger.enableLogging();
 Config.LOG_LEVEL = 'all';
 

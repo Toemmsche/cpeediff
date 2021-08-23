@@ -1,4 +1,3 @@
-import {MatcherInterface} from './MatcherInterface.js';
 import {Logger} from '../../util/Logger.js';
 
 /**
@@ -41,8 +40,10 @@ export class UnmatchedMatcher {
         const potentialMatches =
             parentMatch.children.filter((node) => node.isOtherwise());
         if (potentialMatches.length > 1) {
-          Logger.warn('Choose node with multiple \'otherwise\' branches',
-              this);
+          Logger.warn(
+              'Choose node with multiple \'otherwise\' branches',
+              this,
+          );
         } else if (potentialMatches.length === 1 &&
             !matching.isMatched(potentialMatches[0])) {
           matching.matchNew(newNode, potentialMatches[0]);
@@ -51,7 +52,7 @@ export class UnmatchedMatcher {
       }
 
       const parentMatch = matching.getMatch(newNode.parent);
-      let minCV= 1;
+      let minCV = 1;
       let minCVNode = null;
 
       newNode.children.forEach((node) => {
@@ -77,8 +78,8 @@ export class UnmatchedMatcher {
         const rightSibling = newNode.getRightSibling();
 
         // Left or right sibling must either not exist, or be matched
-        if (!this._nullOrTrue(leftSibling, (n) => matching.isMatched(n)) ||
-            !this._nullOrTrue(rightSibling, (n) => matching.isMatched(n))) {
+        if ((leftSibling && !matching.isMatched(leftSibling)) ||
+            (rightSibling && !matching.isMatched(rightSibling))) {
           continue;
         }
 

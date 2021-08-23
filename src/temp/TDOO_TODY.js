@@ -23,11 +23,13 @@
 //      add JNDiff
 
 //TODO today
+//      eval weight boost ?????
 //      $$$ find solution to "with equation" and citeyear in section title
 //      $ apply rules from Jürgen
-//      test base content similarity --> no restriction in similarity
-//      $ add jsdoc to properties and extend to test
-//      add const where applicable
+//      $$$ test base content similarity --> no restriction in similarity
+//      $$$ add jsdoc to properties and extend to test
+//      $$ add const where applicable
+//      $$ use fancy features like || and ??
 
 //TODO maybe
 //      better commonality complexity
