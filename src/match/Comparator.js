@@ -234,7 +234,7 @@ export class Comparator {
     }
     const maxLength = Math.max(seqA.length, seqB.length);
     if (maxLength === 0) return defaultValue;
-    return 1 - (getLcs(seqA, seqB).length / maxLength);
+    return 1 - getLcs(seqA, seqB) / maxLength;
   }
 
   /**

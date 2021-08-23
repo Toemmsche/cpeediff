@@ -11,21 +11,41 @@ import {Dsl} from '../Dsl.js';
  * @implements {XmlSerializable<EditOperation>}
  */
 export class EditOperation {
-  /** @type {String} */
+  /**
+   * The type of edit operation.
+   * @type {String}
+   * @const
+   */
   type;
-  /** @type {?String} */
+  /**
+   * The path of the node affected by this edit operation *before* it was
+   * applied.
+   * @type {?String}
+   * @const
+   */
   oldPath;
-  /** @type {?String} */
+  /**
+   * The path of the node affected by this edit operation *after* it was
+   * applied.
+   * @type {?String}
+   * @const
+   */
   newPath;
-  /** @type {?Node} */
+  /**
+   * The new content added by this edit operation.
+   * @type {?Node}
+   * @const
+   */
   newContent;
 
   /**
    * Construct a new EditOperation instance.
-   * @param {String} type
-   * @param {?String} oldPath
-   * @param {?String} newPath
-   * @param {?Node} newContent
+   * @param {String} type The type of edit operation.
+   * @param {?String} oldPath The path of the node affected by this edit
+   *     operation *before* it was applied.
+   * @param {?String} newPath The path of the node affected by this edit
+   *     operation *after* it was applied.
+   * @param {?Node} newContent The new content added by this edit operation.
    */
   constructor(type, oldPath = null, newPath = null, newContent = null) {
     this.type = type;

@@ -28,7 +28,7 @@ export class EditScriptGenerator {
     // To find the minimal number of moves, map each child to the index of
     // its matching partner and compute the longest increasing subsequence (LIS)
     // on the result. Every node that isn't part of the LIS must be moved.
-    const lis = getLis(nodes.map((node) => this.#matching.getOld(node).index));
+    const lis = getLis(nodes.map((node) => this.#matching.getMatch(node).index));
 
     const inLis = new Set();
     for (const index of lis) {
@@ -47,9 +47,9 @@ export class EditScriptGenerator {
         const oldPath = node.xPath();
         // Find the first node that is part of the LIS whose destined index is
         // larger than the destined index of node.
-        const thisMatchIndex = this.#matching.getOld(node).index;
+        const thisMatchIndex = this.#matching.getMatch(node).index;
         for (let j = 0; j < nodes.length; j++) {
-          const lisMatchIndex = this.#matching.getOld(nodes[j]).index;
+          const lisMatchIndex = this.#matching.getMatch(nodes[j]).index;
           if (inLis.has(nodes[j]) && lisMatchIndex > thisMatchIndex) {
             // Move within nodes, adjust index for move further back
             node.changeIndex(j > node.index ? j - 1 : j);
@@ -82,7 +82,7 @@ export class EditScriptGenerator {
     if (newNode.index > 0) {
       const leftSibling = newNode.getSiblings()[newNode.index - 1];
       // Left sibling has a match
-      insertionIndex = this.#matching.getNew(leftSibling).index + 1;
+      insertionIndex = this.#matching.getMatch(leftSibling).index + 1;
     } else {
       insertionIndex = 0;
     }
@@ -110,12 +110,12 @@ export class EditScriptGenerator {
     // 1st traversal: Pre-order of new (changed) tree
     const newPreOrder = newTree.toPreOrderArray();
     for (const newNode of newPreOrder) {
-      if (matching.hasNew(newNode)) {
+      if (matching.isMatched(newNode)) {
         // New node is matched -> Move, Update, or Nil
-        const match = matching.getNew(newNode);
+        const match = matching.getMatch(newNode);
         // Move if parents of matched nodes aren't matched
         if (!newNode.isRoot() &&
-            matching.getNew(newNode.parent) !== match.parent) {
+            matching.getMatch(newNode.parent) !== match.parent) {
           this.#move(match);
         }
         // Update if the content (text & attributes) of matched nodes differs
@@ -131,7 +131,7 @@ export class EditScriptGenerator {
     const oldPreOrder = oldTree.toPreOrderArray();
     for (let i = 0; i < oldPreOrder.length; i++) {
       const oldNode = oldPreOrder[i];
-      if (!matching.hasOld(oldNode)) {
+      if (!matching.isMatched(oldNode)) {
         // Old node is not matched.
         // We can be certain that none of its descendants are matched either.
         // -> Deletion of the subtree rooted at this node
@@ -142,12 +142,12 @@ export class EditScriptGenerator {
 
     // TODO remove soon
     for (const newNode of newTree.toPreOrderArray()) {
-      if (!matching.hasNew(newNode)) {
+      if (!matching.isMatched(newNode)) {
         throw new Error();
       }
     }
     for (const oldNode of oldTree.toPreOrderArray()) {
-      if (!matching.hasOld(oldNode)) {
+      if (!matching.isMatched(oldNode)) {
         throw new Error();
       }
     }
@@ -182,7 +182,7 @@ export class EditScriptGenerator {
 
     const deleteLater = [];
     const matchOrRemove = (copiedNode, newNode) => {
-      if (this.#matching.hasNew(newNode)) {
+      if (this.#matching.isMatched(newNode)) {
         deleteLater.push(copiedNode);
       } else {
         this.#matching.matchNew(newNode, copiedNode);
@@ -200,7 +200,7 @@ export class EditScriptGenerator {
     const insertionIndex = this.#findInsertionIndex(newNode);
 
     // Perform insert operation at match of the parent node
-    const newParent = this.#matching.getNew(newNode.parent);
+    const newParent = this.#matching.getMatch(newNode.parent);
     newParent.insertChild(insertionIndex, copy);
 
     this.#editScript.appendInsertion(copy);
@@ -208,7 +208,7 @@ export class EditScriptGenerator {
 
   /** @param {Node} oldNode The node (or subtree) to move. */
   #move(oldNode) {
-    const newNode = this.#matching.getOld(oldNode);
+    const newNode = this.#matching.getMatch(oldNode);
     const oldPath = oldNode.xPath();
     // Delete from tree
     oldNode.removeFromParent();
@@ -216,7 +216,7 @@ export class EditScriptGenerator {
     // Find appropriate insertion index
     const insertionIndex = this.#findInsertionIndex(newNode);
 
-    const newParent = this.#matching.getNew(newNode.parent);
+    const newParent = this.#matching.getMatch(newNode.parent);
     newParent.insertChild(insertionIndex, oldNode);
     const newPath = oldNode.xPath();
     this.#editScript.appendMove(oldPath, newPath);
@@ -224,7 +224,7 @@ export class EditScriptGenerator {
 
   /** @param {Node} oldNode The node to be updated. */
   #update(oldNode) {
-    const newNode = this.#matching.getOld(oldNode);
+    const newNode = this.#matching.getMatch(oldNode);
 
     // Overwrite old values
     oldNode.attributes = new Map();

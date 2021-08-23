@@ -1,25 +1,22 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {AbstractActual} from './AbstractActual.js';
 
+/**
+ * Data class for the actual output of a merge algorithm.
+ */
 export class ActualMerge extends AbstractActual {
-
+  /**
+   * The root of the internal tree representation of the merge result.
+   * @type {Node}
+   * @const
+   */
   tree;
 
+  /**
+   * Construct a new ActualMerge instance.
+   * @param {String} raw The raw XML document containing the merge result.
+   * @param {Node} tree The root of the internal tree representation of the
+   *     merge result.
+   */
   constructor(raw, tree) {
     super(raw);
     this.tree = tree;

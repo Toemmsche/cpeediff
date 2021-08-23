@@ -31,13 +31,13 @@ export class PathMatcher {
               .path() // Reverse is in-place
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasNew(node));
+              .filter((node) => !matching.isMatched(node));
       let oldPath =
           oldNode
               .path() // Reverse is in-place
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasOld(node));
+              .filter((node) => !matching.isMatched(node));
 
       newNodeLoop: for (const newNode of newPath) {
         for (const oldNode of oldPath) {
@@ -79,7 +79,7 @@ export class PathMatcher {
       let minCV = 1;
       let minCVNode = null;
       for (const oldNode of oldNodeSet) {
-        if (matching.hasOld(oldNode)) continue;
+        if (matching.isMatched(oldNode)) continue;
         const CV = comparator.compare(oldNode, newNode);
 
         // Perfect match? => add to M and resume with different node

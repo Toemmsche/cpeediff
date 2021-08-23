@@ -17,14 +17,17 @@
 //      not possible to regenerate a matching
 //      cpeediff is only one to detect moves to inserted subtrees
 //      decision to omit deleted node in edit script ? maybe reconsider
+//      element of children(v) notation
+//      figure short description argument??
+//      which children are unordered?
+//      add JNDiff
 
 //TODO today
-//      tidy algos (except merge)
-//        use private class fields
-//         stick to nodejs style guidelines
-//      look at JNDiff --> Disappointing and no literature available, discard, weird chagne model,
-//      eval Weight boost
-//    use cd dir instead of callpath
+//      $$$ find solution to "with equation" and citeyear in section title
+//      $ apply rules from Jürgen
+//      test base content similarity --> no restriction in similarity
+//      $ add jsdoc to properties and extend to test
+//      add const where applicable
 
 //TODO maybe
 //      better commonality complexity

@@ -17,19 +17,19 @@ export class PropertyMatcher {
     const newMatchedNodes =
         newTree
             .nonPropertyNodes()
-            .filter((node) => matching.hasNew(node)); // must be matched
+            .filter((node) => matching.isMatched(node)); // must be matched
 
     const matchProperties = (oldNode, newNode) => {
       // We assume that no two properties that are siblings in the xml tree
       // share the same label
       const oldLabelMap = new Map();
       for (const oldChild of oldNode) {
-        if (oldChild.isPropertyNode() && !matching.hasOld(oldChild)) {
+        if (oldChild.isPropertyNode() && !matching.isMatched(oldChild)) {
           oldLabelMap.set(oldChild.label, oldChild);
         }
       }
       for (const newChild of newNode) {
-        if (newChild.isPropertyNode() && !matching.hasNew(newChild)) {
+        if (newChild.isPropertyNode() && !matching.isMatched(newChild)) {
           if (oldLabelMap.has(newChild.label)) {
             const match = oldLabelMap.get(newChild.label);
             matching.matchNew(newChild, match);
@@ -45,7 +45,7 @@ export class PropertyMatcher {
     };
 
     for (const newMatchedNode of newMatchedNodes) {
-      matchProperties(matching.getNew(newMatchedNode), newMatchedNode);
+      matchProperties(matching.getMatch(newMatchedNode), newMatchedNode);
     }
   }
 }

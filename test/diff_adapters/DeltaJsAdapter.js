@@ -78,6 +78,8 @@ export class DeltaJsAdapter extends DiffAdapter {
           case 'update':
             updates++;
             break;
+          default:
+         //   console.log(xmlOperation.localName);
         }
       });
     });

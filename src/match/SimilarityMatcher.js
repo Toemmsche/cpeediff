@@ -22,11 +22,11 @@ export class SimilarityMatcher {
     const oldLeaves =
         oldTree
             .leaves()
-            .filter((leaf) => !matching.hasAny(leaf));
+            .filter((leaf) => !matching.isMatched(leaf));
     const newLeaves =
         newTree
             .leaves()
-            .filter((leaf) => !matching.hasAny(leaf));
+            .filter((leaf) => !matching.isMatched(leaf));
 
     // Only matches between nodes with the same label are allowed
     const keyFunction = (node) => node.label;

@@ -10,20 +10,38 @@ import xmldom from 'xmldom';
  * @implements {XmlSerializable<DeltaNode>}
  */
 export class DeltaNode extends Node {
-  /** @type {String} */
+  /**
+   * The type of change this node was affected by.
+   * @type {String}
+   * @const
+   */
   type;
-  /** @type {Map<String, Update>} */
+  /**
+   * The updates applied to the attributes and text content of this node.
+   * @type {Map<String, Update>}
+   * @const
+   */
   updates;
-  /** @type {Array<DeltaNode>} */
+  /**
+   * Placeholder children of this node that were deleted or moved away.
+   * @type {Array<DeltaNode>}
+   * @const
+   */
   placeholders;
-  /** @type {?Number} */
+  /**
+   * The ID of the node in the base tree, if it exists, that this node
+   * corresponds to.
+   * @type {?Number}
+   * @const
+   */
   baseNode;
 
   /**
-   * @param {String} label
-   * @param {?String} text
-   * @param {String} type
-   * @param {?Number} baseNode The base node ID
+   * Construct a new DeltaNode instance.
+   * @param {String} label The label of the node.
+   * @param {?String} text The text content of the node.
+   * @param {String} type The type of change this node was affected by.
+   * @param {?Number} baseNode The base node ID.
    */
   constructor(label, text = null,
       type = Dsl.CHANGE_MODEL.NIL.label, baseNode = null) {
@@ -32,35 +50,6 @@ export class DeltaNode extends Node {
     this.type = type;
     this.updates = new Map();
     this.placeholders = [];
-  }
-
-  /**
-   * Create a new DeltaNode instance from an existing node.
-   * @param {Node} node
-   * @param {Boolean} includeChildren
-   * @return {Node}
-   */
-  static fromNode(node, includeChildren) {
-    const deltaNode = new DeltaNode(node.label, node.text);
-    for (const [key, value] of node.attributes) {
-      deltaNode.attributes.set(key, value);
-    }
-    if (includeChildren) {
-      for (const child of node) {
-        deltaNode.appendChild(this.fromNode(child, includeChildren));
-      }
-    }
-    if (node instanceof DeltaNode) {
-      deltaNode.type = node.type;
-      deltaNode.baseNode = node.baseNode;
-      for (const placeholder of node.placeholders) {
-        deltaNode.placeholders.push(this.fromNode(placeholder, true));
-      }
-      for (const [key, update] of node.updates) {
-        deltaNode.updates.set(key, update.copy());
-      }
-    }
-    return deltaNode;
   }
 
   /**
@@ -168,6 +157,35 @@ export class DeltaNode extends Node {
     }
 
     return xmlElement;
+  }
+
+  /**
+   * Create a new DeltaNode instance from an existing node.
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {Node}
+   */
+  static fromNode(node, includeChildren) {
+    const deltaNode = new DeltaNode(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      deltaNode.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        deltaNode.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    if (node instanceof DeltaNode) {
+      deltaNode.type = node.type;
+      deltaNode.baseNode = node.baseNode;
+      for (const placeholder of node.placeholders) {
+        deltaNode.placeholders.push(this.fromNode(placeholder, true));
+      }
+      for (const [key, update] of node.updates) {
+        deltaNode.updates.set(key, update.copy());
+      }
+    }
+    return deltaNode;
   }
 }
 

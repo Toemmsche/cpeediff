@@ -2,24 +2,46 @@
  * Data class to hold the semantic properties of a Call node.
  */
 export class CallProperties {
-  /** @type {String} */
+  /**
+   * A URI that uniquely identifies the call's handler.
+   * @type {String}
+   * @const
+   */
   endpoint;
-  /** @type {String} */
+  /**
+   * The HTTP method used for the call.
+   * @type {String}
+   * @const
+   */
   method;
-  /** @type {String} */
+  /**
+   * A short description of the call's purpose.
+   * @type {String}
+   * @const
+   */
   label;
-  /** @type {Array<String>} */
+  /**
+   * The arguments of the call.
+   * @type {Array<String>}
+   * @const
+   */
   args;
-  /** @type {String} */
+  /**
+   * A concatenation of all code snippets contained in the call.
+   * @type {String}
+   * @const
+   */
   code;
 
   /**
    * Create a new CallProperties instance.
-   * @param {String} endpoint
-   * @param {String} method
-   * @param {String} label
-   * @param {Array<String>} args
-   * @param {String} code
+   * @param {String} endpoint A URI that uniquely identifies the call's
+   *     handler.
+   * @param {String} method The HTTP method used for the call.
+   * @param {String} label The arguments of the call
+   * @param {Array<String>} args The arguments of the call
+   * @param {String} code A concatenation of all code snippets contained in the
+   *     call.
    */
   constructor(endpoint, method, label, args, code) {
     this.endpoint = endpoint;

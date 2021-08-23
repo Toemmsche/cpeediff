@@ -22,11 +22,11 @@ export class HashMatcher {
     const oldNodes =
         oldTree
             .nonPropertyNodes()
-            .filter((node) => !matching.hasAny(node));
+            .filter((node) => !matching.isMatched(node));
     const newNodes =
         newTree
             .nonPropertyNodes()
-            .filter((node) => !matching.hasAny(node))
+            .filter((node) => !matching.isMatched(node))
             // match subtrees in a greedy fashion to save performance
             .sort((a, b) => comparator.compareSize(b, a));
 
@@ -58,8 +58,8 @@ export class HashMatcher {
         hashExtractor.get(a) - hashExtractor.get(b));
 
       for (let i = 0; i < newPreOrder.length; i++) {
-        if (!matching.hasNew(newPreOrder[i]) &&
-            !matching.hasOld(oldPreOrder[i])) {
+        if (!matching.isMatched(newPreOrder[i]) &&
+            !matching.isMatched(oldPreOrder[i])) {
           matching.matchNew(newPreOrder[i], oldPreOrder[i]);
         }
       }

@@ -33,7 +33,7 @@ export function persistBestMatches(oldNodes, newNodes, matching,
   const oldToNewMap = new Map();
   newNodeLoop: for (const newNode of newNodes) {
     // existing matches cannot be altered
-    if (matching.hasNew(newNode)) {
+    if (matching.isMatched(newNode)) {
       continue;
     }
 
@@ -47,7 +47,7 @@ export function persistBestMatches(oldNodes, newNodes, matching,
     let minCVNode = null;
     for (const oldNode of candidates) {
       // existing matches cannot be altered
-      if (matching.hasOld(oldNode)) {
+      if (matching.isMatched(oldNode)) {
         continue;
       }
       // compare positionally only

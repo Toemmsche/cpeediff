@@ -89,7 +89,7 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
   _matchingCommonality(expected, actual) {
     let common = 0;
     for (const [newNode, oldNode] of expected.newToOldMap) {
-      if (actual.hasNew(newNode) && actual.getNew(newNode) === oldNode) {
+      if (actual.isMatched(newNode) && actual.getMatch(newNode) === oldNode) {
         common++;
       }
     }
@@ -101,9 +101,9 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
     let [mismatchedLeaves, mismatchedInners, unmatchedLeaves, unmatchedInners] = [0, 0, 0, 0];
 
     for (const [newNode, oldNode] of expected.newToOldMap) {
-      if (actual.hasNew(newNode) && actual.getNew(newNode) !== oldNode) {
-        const actualOldMatch = actual.getNew(newNode);
-        const actualNewMatch = actual.getOld(oldNode);
+      if (actual.isMatched(newNode) && actual.getMatch(newNode) !== oldNode) {
+        const actualOldMatch = actual.getMatch(newNode);
+        const actualNewMatch = actual.getMatch(oldNode);
         if (newNode.isInnerNode()) {
           //Logger.debug("Mismatched " + newNode.label, this)
           mismatchedInners++;
@@ -112,7 +112,7 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
           mismatchedLeaves++;
         }
       }
-      if (!actual.hasNew(newNode)) {
+      if (!actual.isMatched(newNode)) {
         if (newNode.isInnerNode()) {
           unmatchedInners++;
         } else if (newNode.isLeaf()) {

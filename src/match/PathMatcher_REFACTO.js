@@ -33,14 +33,14 @@ export class PathMatcher extends MatcherInterface {
               .slice()
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasOld(node));
+              .filter((node) => !matching.isMatched(node));
       let newPath =
           newNode
               .path()
               .slice()
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasNew(node));
+              .filter((node) => !matching.isMatched(node));
       oldNodeLoop:
       for (const oldNode of oldPath) {
         for (const newNode of newPath) {
@@ -77,7 +77,7 @@ export class PathMatcher extends MatcherInterface {
     const oldInners =
         oldTree
             .innerNodes()
-            .filter((node) => !matching.hasOld(node))
+            .filter((node) => !matching.isMatched(node))
             .sort((a, b) => comparator.compareSize(a, b));
     const newInnerSet = new Set(newInners);
     const oldInnerSet = new Set(oldInners);

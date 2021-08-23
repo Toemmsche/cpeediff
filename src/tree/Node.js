@@ -16,16 +16,28 @@ import xmldom from 'xmldom';
  * @implements {XmlSerializable<Node>}
  */
 export class Node {
-  /** @type {String} */
+  /**
+   * The label of this node.
+   * @type {String}
+   * @const
+   */
   label;
-  /** @type {Map<String, String>} */
+  /**
+   * The attributes of this node.
+   * @type {Map<String, String>}
+   * @const
+   */
   attributes;
-  /** @type {?String} */
+  /**
+   * The text content of this node.
+   * @type {String}
+   */
   text;
 
   /**
-   * @param {String} label
-   * @param {?String} text
+   * Create a new Node instance.
+   * @param {String} label The label of the node.
+   * @param {?String} text The text content of the node.
    */
   constructor(label, text = null) {
     this.label = label;

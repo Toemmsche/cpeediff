@@ -1,80 +1,84 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {Logger} from '../../util/Logger.js';
 
+/**
+ * Wrapper class for a bidirectional mapping between the nodes of two process
+ * trees.
+ */
 export class Matching {
-
   /**
+   * The mapping from new to old nodes.
    * @type Map<Node,Node>
+   * @const
    */
   newToOldMap;
+  /**
+   * The mapping from old to new nodes.
+   * @type Map<Node,Node>
+   * @const
+   */
   oldToNewMap;
 
-  constructor(oldToNewMap = new Map(), newToOldMap = new Map()) {
-    this.newToOldMap = newToOldMap;
-    this.oldToNewMap = oldToNewMap;
+  /**
+   * Construct a new Matching instance.
+   */
+  constructor() {
+    this.newToOldMap = new Map();
+    this.oldToNewMap = new Map();
   }
 
+  /**
+   * @param {Node} oldNode
+   * @param {Node} newNode
+   * @return {Boolean} True, iff they are matched.
+   */
+  areMatched(oldNode, newNode) {
+    return this.isMatched(newNode) && this.getMatch(newNode) === oldNode;
+  }
+
+  /**
+   * Get the matching partner of a new or old node, if it exists.
+   * @param {Node} node
+   * @return {?Node}
+   */
+  getMatch(node) {
+    if (this.newToOldMap.has(node)) {
+      return this.newToOldMap.get(node);
+    } else {
+      return this.oldToNewMap.get(node);
+    }
+  }
+
+  /**
+   * @param {Node} node
+   * @return {Boolean} True, iff the node is matched.
+   */
+  isMatched(node) {
+    return this.newToOldMap.has(node) || this.oldToNewMap.has(node);
+  }
+
+  /**
+   * Match a new node to an old node.
+   * @param {Node} newNode
+   * @param {Node} oldNode
+   */
   matchNew(newNode, oldNode) {
-    if (this.oldToNewMap.has(oldNode) || this.newToOldMap.has(newNode)) {
-      Logger.error('matching of already matched node', new Error('matching of already matched node'), this);
+    if (this.isMatched(newNode) || this.isMatched(oldNode)) {
+      const msg = 'Matching of already matched node';
+      Logger.error(msg, new Error(msg), this);
     }
     if (newNode == null || oldNode == null) {
-      Logger.error('matching of undefined or null', new Error('matching of undefined or null'), this);
+      const msg = 'Matching of undefined or null';
+      Logger.error(msg, new Error(msg), this);
     }
     this.newToOldMap.set(newNode, oldNode);
     this.oldToNewMap.set(oldNode, newNode);
   }
 
-  getNew(newNode) {
-    return this.newToOldMap.get(newNode);
-  }
-
-  getOld(oldNode) {
-    return this.oldToNewMap.get(oldNode);
-  }
-
-  getOther(node) {
-    if (this.hasNew(node)) {
-      return this.getNew(node);
-    } else {
-      return this.getOld(node);
-    }
-  }
-
-  hasAny(node) {
-    return this.hasNew(node) || this.hasOld(node);
-  }
-
-  hasNew(newNode) {
-    return this.newToOldMap.has(newNode);
-  }
-
-  hasOld(oldNode) {
-    return this.oldToNewMap.has(oldNode);
-  }
-
-  areMatched(oldNode, newNode) {
-    return this.hasNew(newNode) && this.getNew(newNode) === oldNode;
-  }
-
+  /**
+   * @return {Number} The number of matched nodes.
+   */
   size() {
     return this.newToOldMap.size;
   }
-
 }
 

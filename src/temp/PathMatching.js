@@ -129,7 +129,7 @@ export class PathMatching extends MatcherInterface {
       for (let i = 0; i < oldPath.length; i++) {
         for (let k = j; k < newPath.length; k++) {
           //does there already exist a match between the two paths?
-          if (matching.hasNew(newPath[k]) && oldPath.includes(matching.getNew(newPath[k]))) {
+          if (matching.isMatched(newPath[k]) && oldPath.includes(matching.getMatch(newPath[k]))) {
             //If so, we terminate to preserve ancestor order within the path
             return;
           } else if (comparator.compare(newPath[k], oldPath[i]) < Config.COMPARISON_THRESHOLD) {
@@ -173,7 +173,7 @@ export class PathMatching extends MatcherInterface {
 
       //index in newPath where last matching occurred
       for (let i = 0; i < newLcs.length; i++) {
-        if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.COMPARISON_THRESHOLD && !(matching.hasNew(newLcs[i] && oldPath.includes(matching.getNew(newLcs[i]))))) {
+        if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.COMPARISON_THRESHOLD && !(matching.isMatched(newLcs[i] && oldPath.includes(matching.getMatch(newLcs[i]))))) {
           matching.matchNew(newLcs[i], oldLcs[i]);
         }
       }
@@ -186,8 +186,8 @@ export class PathMatching extends MatcherInterface {
     start = new Date().getTime();
     //match properties of leaf nodes
     for (const newLeaf of newLeaves) {
-      if (matching.hasNew(newLeaf)) {
-        matchProperties(newLeaf, matching.getNew(newLeaf));
+      if (matching.isMatched(newLeaf)) {
+        matchProperties(newLeaf, matching.getMatch(newLeaf));
       }
     }
     end = new Date().getTime();

@@ -3,22 +3,31 @@
  * Contains information about the old and new value.
  */
 export class Update {
-  /** @type{String} */
+  /**
+   * The old value of the attribute or text content.
+   * @type{String}
+   * @const
+   */
   oldVal;
-  /** @type{String} */
+  /**
+   * The new value of the attribute or text content.
+   * @type{String}
+   * @const
+   */
   newVal;
   /**
    * The ID of the branch this change belongs to.
    * Null if the update does not occur in a merge context.
    * @type {?Number}
+   * @const
    */
   origin;
 
   /**
    * Construct a new Update instance.
-   * @param {String} oldVal
-   * @param {String} newVal
-   * @param {?Number} origin
+   * @param {String} oldVal The old value of the attribute or text content.
+   * @param {String} newVal The new value of the attribute or text content.
+   * @param {?Number} origin The ID of the branch this change belongs to.
    */
   constructor(oldVal, newVal, origin = null) {
     this.oldVal = oldVal;

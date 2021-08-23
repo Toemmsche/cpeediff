@@ -27,7 +27,7 @@ export class CommonalityPathMatcher {
     const oldSet = this.#leafSetExtractor.get(oldNode);
 
     for (const newCand of newSet) {
-      if (matching.hasNew(newCand) && oldSet.has(matching.getNew(newCand))) {
+      if (matching.isMatched(newCand) && oldSet.has(matching.getMatch(newCand))) {
         common++;
       }
     }
@@ -61,13 +61,13 @@ export class CommonalityPathMatcher {
               .path() // Reverse is in-place
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasNew(node));
+              .filter((node) => !matching.isMatched(node));
       let oldPath =
           oldNode
               .path() // Reverse is in-place
               .reverse()
               .slice(1)
-              .filter((node) => !matching.hasOld(node));
+              .filter((node) => !matching.isMatched(node));
 
       newNodeLoop: for (const newNode of newPath) {
         for (const oldNode of oldPath) {
@@ -109,7 +109,7 @@ export class CommonalityPathMatcher {
       let minCV = 1;
       let minCVNode = null;
       for (const oldNode of oldNodeSet) {
-        if (matching.hasOld(oldNode)) continue;
+        if (matching.isMatched(oldNode)) continue;
         const CV = comparator.weightedAverage(
             [
               comparator.compareContent(oldNode, newNode),

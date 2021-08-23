@@ -33,32 +33,32 @@ export class UnmatchedMatcher {
     const newInners =
         newTree
             .innerNodes()
-            .filter((node) => !matching.hasNew(node));
+            .filter((node) => !matching.isMatched(node));
     for (const newNode of newInners) {
       // TODO not sure about this one
-      if (newNode.isOtherwise() && matching.hasNew(newNode.parent)) {
-        const parentMatch = matching.getNew(newNode.parent);
+      if (newNode.isOtherwise() && matching.isMatched(newNode.parent)) {
+        const parentMatch = matching.getMatch(newNode.parent);
         const potentialMatches =
             parentMatch.children.filter((node) => node.isOtherwise());
         if (potentialMatches.length > 1) {
           Logger.warn('Choose node with multiple \'otherwise\' branches',
               this);
         } else if (potentialMatches.length === 1 &&
-            !matching.hasOld(potentialMatches[0])) {
+            !matching.isMatched(potentialMatches[0])) {
           matching.matchNew(newNode, potentialMatches[0]);
           continue;
         }
       }
 
-      const parentMatch = matching.getNew(newNode.parent);
+      const parentMatch = matching.getMatch(newNode.parent);
       let minCV= 1;
       let minCVNode = null;
 
       newNode.children.forEach((node) => {
-        if (matching.hasNew(node)) {
-          const match = matching.getNew(node);
+        if (matching.isMatched(node)) {
+          const match = matching.getMatch(node);
           if (match.parent.label === newNode.label &&
-              !matching.hasOld(match.parent) &&
+              !matching.isMatched(match.parent) &&
               match.parent.parent === parentMatch) {
             const CV = comparator.compare(newNode, match.parent);
             if (CV < minCV) {
@@ -69,7 +69,7 @@ export class UnmatchedMatcher {
         }
       });
 
-      // vertical sandwich has priority
+      // Vertical sandwich has priority.
       if (minCVNode != null) {
         matching.matchNew(newNode, minCVNode);
       } else {
@@ -77,13 +77,13 @@ export class UnmatchedMatcher {
         const rightSibling = newNode.getRightSibling();
 
         // Left or right sibling must either not exist, or be matched
-        if (!this._nullOrTrue(leftSibling, (n) => matching.hasNew(n)) ||
-            !this._nullOrTrue(rightSibling, (n) => matching.hasNew(n))) {
+        if (!this._nullOrTrue(leftSibling, (n) => matching.isMatched(n)) ||
+            !this._nullOrTrue(rightSibling, (n) => matching.isMatched(n))) {
           continue;
         }
 
-        const rightSiblingMatch = matching.getNew(rightSibling);
-        const leftSiblingMatch = matching.getNew(leftSibling);
+        const rightSiblingMatch = matching.getMatch(rightSibling);
+        const leftSiblingMatch = matching.getMatch(leftSibling);
 
         let potentialMatch;
 
@@ -102,7 +102,7 @@ export class UnmatchedMatcher {
             continue;
           }
           potentialMatch = leftSiblingMatch.getRightSibling();
-          // potential match cannot have a right sibling
+          // Potential match cannot have a right sibling
           if (potentialMatch.getRightSibling() != null) {
             continue;
           }
@@ -113,14 +113,14 @@ export class UnmatchedMatcher {
             continue;
           }
           potentialMatch = rightSiblingMatch.getLeftSibling();
-          // potential match cannot have a left sibling
+          // Potential match cannot have a left sibling
           if (potentialMatch.getLeftSibling() != null) {
             continue;
           }
           // Case 4: Node has neither a left nor a right sibling, but the parent
           // is matched
-        } else if (matching.hasNew(newNode.parent)) {
-          const parentMatch = matching.getNew(newNode.parent);
+        } else if (matching.isMatched(newNode.parent)) {
+          const parentMatch = matching.getMatch(newNode.parent);
           if (parentMatch.degree() === 1) {
             potentialMatch = parentMatch.getChild(0);
           } else {
@@ -130,13 +130,12 @@ export class UnmatchedMatcher {
           continue;
         }
 
-        // potential match must be unmatched and have the same label
+        // Potential match must be unmatched and have the same label
         if (potentialMatch.label === newNode.label &&
-            !matching.hasOld(potentialMatch)) {
+            !matching.isMatched(potentialMatch)) {
           matching.matchNew(newNode, potentialMatch);
         }
       }
     }
   }
-
 }

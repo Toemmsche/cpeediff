@@ -24,10 +24,10 @@ export class FastSimilarityMatcher {
     // filter for unmatched leaf nodes
     const oldLeaves = oldTree
         .leaves()
-        .filter((node) => !matching.hasAny(node));
+        .filter((node) => !matching.isMatched(node));
     const newLeaves = newTree
         .leaves()
-        .filter((node) => !matching.hasAny(node));
+        .filter((node) => !matching.isMatched(node));
 
     // Only matches between nodes with the same label are allowed
     const keyFunction =

@@ -57,7 +57,7 @@ export class CpeeMerge {
     nodeToInsert.changeOrigin = referenceNode.changeOrigin;
     nodeToInsert.type = referenceNode.type;
     let i = referenceNode.index - 1;
-    while (i >= 0 && (!matching.hasAny(referenceNode.parent.getChild(i)) || matching.getOther(referenceNode.parent.getChild(i)).parent !== newParent)) {
+    while (i >= 0 && (!matching.isMatched(referenceNode.parent.getChild(i)) || matching.getOther(referenceNode.parent.getChild(i)).parent !== newParent)) {
       i--;
     }
     if (i < 0) {
@@ -83,7 +83,7 @@ export class CpeeMerge {
 
   _applyDeletions(deltaTree, matching) {
     for (const node of deltaTree.toPreOrderArray()) {
-      if (!matching.hasAny(node) && !node.isInsertion()) {
+      if (!matching.isMatched(node) && !node.isInsertion()) {
         //no was deleted in other tree --> delete in this tree, too
         node.removeFromParent();
       }
@@ -93,7 +93,7 @@ export class CpeeMerge {
   _applyMovesAndInsertions(deltaTree, matching) {
     for (const node of deltaTree.toPreOrderArray()) {
       if (node.parent == null) continue;
-      if (matching.hasAny(node)) {
+      if (matching.isMatched(node)) {
         const match = matching.getOther(node);
         if (node.isMove() && !match.isMove()) {
           //node was moved in this tree, but not in the other one --> apply move to other tree
@@ -123,7 +123,7 @@ export class CpeeMerge {
     const updateConflicts = new Set();
     const moveConflicts = new Set();
     for (const node of deltaTree.toPreOrderArray()) {
-      if (matching.hasAny(node)) {
+      if (matching.isMatched(node)) {
         const match = matching.getOther(node);
         if (node.isMove() && match.isMove() && node.changeOrigin !== match.changeOrigin) {
           moveConflicts.add(node);
