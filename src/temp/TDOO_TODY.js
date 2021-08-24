@@ -34,7 +34,7 @@
 //TODO  24.8.
 //      $$$ clean up $$ merge and deltatree gen
 //      restructure evaluation in thesis (use avg always)
-//      simplify test set (no properties)
+//      $ simplify test set (no properties)
 //      remove matchNew (can just use match())
 
 //TODO maybe

@@ -3,6 +3,7 @@ import {IdExtractor} from '../extract/IdExtractor.js';
 import {Update} from './Update.js';
 import {DeltaNode} from './DeltaNode.js';
 import {Logger} from '../../util/Logger.js';
+import {Node} from '../tree/Node.js';
 
 /**
  * Generator class for delta trees, i.e. process trees that are annotated with
@@ -141,26 +142,28 @@ export class DeltaTreeGenerator {
   #findWithMovfr(indexPath) {
     let currNode = this.#deltaTree;
     let movfrNode = null;
+    let foundMovfrNode = false;
     if (indexPath !== '') {
       for (const index of indexPath
           .split('/') // Remove root path "/"
           .map((str) => parseInt(str))) {
-        if (this.#moveMap.has(currNode)) {
-          movfrNode = this.#moveMap.get(currNode);
-        }
         if (index >= currNode.degree()) {
           const msg = 'Edit script not applicable to tree';
           Logger.error(msg, new Error(msg), this);
         }
         if (movfrNode != null) {
-          if (index > movfrNode.degree()) {
-            const msg = 'Missing next move from placeholder';
-            Logger.error(msg, new Error(msg), this);
-          }
           movfrNode = movfrNode.getChild(index);
         }
         currNode = currNode.getChild(index);
+        if (this.#moveMap.has(currNode)) {
+          movfrNode = this.#moveMap.get(currNode);
+          foundMovfrNode = true;
+        }
       }
+    }
+    if (foundMovfrNode && movfrNode == null) {
+      const msg = 'Could not find movfr node';
+      Logger.error(msg, new Error(msg), this);
     }
     return [
       currNode,
@@ -214,6 +217,10 @@ export class DeltaTreeGenerator {
       // Append placeholder
       node.parent.placeholders.push(movfrNode);
     }
+    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
+
+    // Create entry in move map
+    this.#moveMap.set(node, movfrNode);
 
     // Detach regular node
     node.removeFromParent();
@@ -225,17 +232,16 @@ export class DeltaTreeGenerator {
             .split('/')
             .map((str) => parseInt(str));
     const targetIndex = parentIndexArr.pop();
-    const [parent] = this.#findWithMovfr(parentIndexArr.join('/'));
+    const [parent, movfrParent] = this.#findWithMovfr(parentIndexArr.join('/'));
+
+    // Insert dummy node in movfrParent
+    if (movfrParent != null) {
+      movfrParent.insertChild(targetIndex, new DeltaNode('dummy'));
+    }
 
     // Insert regular node
     parent.insertChild(targetIndex, node);
     node.type = move.type;
-
-    // Insert placeholder at old position
-    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
-
-    // Create entry in move map
-    this.#moveMap.set(node, movfrNode);
   }
 
   /**
@@ -270,7 +276,12 @@ export class DeltaTreeGenerator {
    * Trim excess nodes resulting from move operations.
    */
   #trim() {
-    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree) {
+    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree.toPostOrderArray()) {
+      // TODO
+      if (deltaNode.label === 'dummy') {
+        deltaNode.removeFromParent();
+        continue;
+      }
       if (deltaNode.isMoved()) {
         deltaNode
             .toPreOrderArray()

@@ -1,0 +1,22 @@
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <loop condition="data.persons > 0">
+        <critical>
+            <loop condition="data.costs == 0">
+                <call id="a2" endpoint="bookHotel">
+                    <parameters>
+                        <label>Book Hotel</label>
+                        <method>:post</method>
+                        <arguments>
+                            <to>data.to</to>
+                        </arguments>
+                    </parameters>
+                    <code>
+                        <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
+                    </code>
+                </call>
+                <manipulate id="a3">data.persons -= 1</manipulate>
+                <terminate/>
+            </loop>
+        </critical>
+    </loop>
+</description>

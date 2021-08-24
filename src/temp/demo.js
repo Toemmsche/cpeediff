@@ -26,15 +26,10 @@ import {Node} from '../tree/Node.js';
 
 const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
 const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
-const branch2 = new Preprocessor().parseFromFile('./src/temp/2.xml');
 
 
-const merge = new CpeeMerge().merge(base, branch1, branch2);
+const merge = new DeltaTreeGenerator().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
 
-const exp = new Preprocessor().parseFromFile(TestConfig.MERGE_CASES_DIR + "/move/move_conflict/expected_1.xml");
-
-console.log(new CpeeDiff().diff(merge, exp).toXmlString());
-console.log(merge.hashEquals(exp));
 console.log(merge.toXmlString());
 
 
