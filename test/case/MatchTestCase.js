@@ -29,7 +29,12 @@ export class MatchTestCase extends AbstractTestCase {
    * @param {Node} newTree The root of the changed process tree
    * @param {ExpectedMatch} expected Rules for the expected matching
    */
-  constructor(name, oldTree, newTree, expected) {
+  constructor(
+      name,
+      oldTree,
+      newTree,
+      expected,
+  ) {
     super(name, expected);
     this.oldTree = oldTree;
     this.newTree = newTree;

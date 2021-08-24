@@ -43,7 +43,13 @@ export class CallProperties {
    * @param {String} code A concatenation of all code snippets contained in the
    *     call.
    */
-  constructor(endpoint, method, label, args, code) {
+  constructor(
+      endpoint,
+      method,
+      label,
+      args,
+      code,
+  ) {
     this.endpoint = endpoint;
     this.method = method;
     this.label = label;

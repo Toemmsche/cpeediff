@@ -13,7 +13,6 @@ export class DeltaNode extends Node {
   /**
    * The type of change this node was affected by.
    * @type {String}
-   * @const
    */
   type;
   /**
@@ -32,7 +31,6 @@ export class DeltaNode extends Node {
    * The ID of the node in the base tree, if it exists, that this node
    * corresponds to.
    * @type {?Number}
-   * @const
    */
   baseNode;
 
@@ -43,8 +41,12 @@ export class DeltaNode extends Node {
    * @param {String} type The type of change this node was affected by.
    * @param {?Number} baseNode The base node ID.
    */
-  constructor(label, text = null,
-      type = Dsl.CHANGE_MODEL.NIL.label, baseNode = null) {
+  constructor(
+      label,
+      text = null,
+      type = Dsl.CHANGE_MODEL.NIL.label,
+      baseNode = null,
+  ) {
     super(label, text);
     this.baseNode = baseNode;
     this.type = type;
@@ -67,17 +69,25 @@ export class DeltaNode extends Node {
   }
 
   /**
+   * @return {Boolean} If this node is a placeholder for a moved node before it
+   *     was moved.
+   */
+  isMovedFrom() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
+  }
+
+  /**
    * @return {Boolean} If this node was moved.
    */
   isMoved() {
-    return this.type === Dsl.CHANGE_MODEL.MOVE_TO.label;
+    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
   }
 
   /**
    * @return {Boolean} If this node was not changed in any way regarding
    *     position or content.
    */
-  isNil() {
+  isUnchanged() {
     return this.type === Dsl.CHANGE_MODEL.NIL.label && !this.isUpdated();
   }
 
@@ -86,6 +96,35 @@ export class DeltaNode extends Node {
    */
   isUpdated() {
     return this.updates.size > 0;
+  }
+
+  /**
+   * Remove a node from the child list of its parent. Also adjust the indices
+   * of all placeholders. Note: The parent attribute is not cleared by this
+   * function.
+   */
+  removeFromParent() {
+    super.removeFromParent();
+    for (const placeholder of this.parent.placeholders) {
+      if (placeholder.index > this.index) {
+        placeholder.index = placeholder.index - 1;
+      }
+    }
+  }
+
+  /**
+   * Insert a new child and adjust placeholder indices.
+   * @param {Number} index The position at which to insert the new child.
+   * @param {Node} node The new child.
+   */
+  insertChild(index, node) {
+    super.insertChild(index, node);
+    // Adjust placeholders
+    for (const placeholder of this.placeholders) {
+      if (placeholder.index >= index) {
+        placeholder.index = placeholder.index + 1;
+      }
+    }
   }
 
   /**
@@ -144,10 +183,11 @@ export class DeltaNode extends Node {
       xmlElement.appendChild(child.toXmlDom());
     }
 
+    // Changes in text content are also modelled as updates
     if (this.updates.has('text')) {
       // Text content can only be updated, not inserted or deleted
       xmlElement.setAttribute(
-          Dsl.CHANGE_MODEL.UPDATE.label.prefix + ':data',
+          Dsl.CHANGE_MODEL.UPDATE.prefix + ':data',
           'true',
       );
     }
@@ -163,7 +203,7 @@ export class DeltaNode extends Node {
    * Create a new DeltaNode instance from an existing node.
    * @param {Node} node
    * @param {Boolean} includeChildren
-   * @return {Node}
+   * @return {DeltaNode}
    */
   static fromNode(node, includeChildren) {
     const deltaNode = new DeltaNode(node.label, node.text);

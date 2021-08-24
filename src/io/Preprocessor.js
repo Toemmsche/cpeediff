@@ -33,9 +33,7 @@ export class Preprocessor {
 
     // Skip comments and processing instructions
     const root = DomHelper.firstChildElement(
-        new xmldom.DOMParser()
-            .parseFromString(xml.replaceAll(/\n|\t|\r|\f/g, ''), 'text/xml',
-            ));
+        new xmldom.DOMParser().parseFromString(xml, 'text/xml'));
 
     let tree;
     if (root == null) {

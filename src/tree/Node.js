@@ -2,6 +2,9 @@ import {Dsl} from '../Dsl.js';
 import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
+import vkbeautify from 'vkbeautify';
+import {Config} from '../Config.js';
+import {HashExtractor} from '../extract/HashExtractor.js';
 
 /**
  * A node inside a CPEE process tree parsed from an XML document.
@@ -49,12 +52,16 @@ export class Node {
   }
 
   /**
+   * The parent of this node, if it exists.
    * @type {?Node}
    * @private
    */
   #parent;
 
-  /** @return {?Node} */
+  /**
+   * Get the parent of this node, if it exists.
+   * @return {?Node}
+   */
   get parent() {
     return this.#parent;
   }
@@ -66,9 +73,22 @@ export class Node {
    */
   #index;
 
-  /** @return {?Number} */
+  /**
+   * Get the index of this node within the parent's ordered child list.
+   * @return {?Number}
+   */
   get index() {
     return this.#index;
+  }
+
+  /**
+   * Set the child index of this node.
+   * WARNING: Use very carefully.
+   * @param {Number} index
+   */
+  set index(index) {
+    //TODO remove, too dangerous
+    this.#index = index;
   }
 
   /**
@@ -272,13 +292,23 @@ export class Node {
   }
 
   /**
-   * @param {Number} index
-   * @param {Node} node
+   * @param {Number} index The position at which to insert the new child.
+   * @param {Node} node The new child.
    */
   insertChild(index, node) {
     this.#children.splice(index, 0, node);
     node.#parent = this;
     this.#fixChildIndices();
+  }
+
+  /**
+   * Test for subtree hash equality with another subtree.
+   * @param {Node} other The root of the other subtree.
+   * @return {Boolean} True, iff their hashes equal.
+   */
+  hashEquals(other) {
+    const hashExtractor = new HashExtractor();
+    return hashExtractor.get(this) === hashExtractor.get(other);
   }
 
   /** @return {Boolean} */
@@ -520,7 +550,12 @@ export class Node {
    * @return {String} XML document of this node and its children.
    */
   toXmlString() {
-    return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    const xml = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (Config.PRETTY_XML) {
+      return vkbeautify.xml(xml);
+    } else {
+      return xml;
+    }
   }
 
   /**

@@ -26,9 +26,9 @@ export class CpeeMergeAdapter extends MergeAdapter {
   }
 
   _run(base, branch1, branch2) {
-    const baseString = XmlFactory.serialize(base);
-    const branch1String = XmlFactory.serialize(branch1);
-    const branch2String = XmlFactory.serialize(branch2);
+    const baseString = base.toXmlString();
+    const branch1String = branch1.toXmlString();
+    const branch2String = branch2.toXmlString();
 
     const baseFilePath = 'base.xml';
     const branch1Filepath = '1.xml';

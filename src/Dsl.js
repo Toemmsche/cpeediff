@@ -162,21 +162,22 @@ export const Dsl = {
   ENDPOINT_METHODS: [':get', ':post', ':put', ':patch', ':delete'],
 
   DEFAULT_NAMESPACE: 'http://cpee.org/ns/description/1.0',
+  BASENODE: 'basenode',
   CHANGE_MODEL: {
     INSERTION: {
       label: 'INSERT',
       uri: 'http://cpee.org/ns/description/1.0/insert',
-      prefix: 'ins'
+      prefix: 'ins',
     },
     DELETION: {
       label: 'DELETE',
       uri: 'http://cpee.org/ns/description/1.0/delete',
-      prefix: 'del'
+      prefix: 'del',
     },
-    MOVE_TO: {
-      label: 'MOVE_TO',
-      uri: 'http://cpee.org/ns/description/1.0/move-to',
-      prefix: 'movto',
+    MOVE: {
+      label: 'MOVE',
+      uri: 'http://cpee.org/ns/description/1.0/move',
+      prefix: 'mov',
     },
     MOVE_FROM: {
       label: 'MOVE_FROM',
@@ -186,14 +187,15 @@ export const Dsl = {
     UPDATE: {
       label: 'UPDATE',
       uri: 'http://cpee.org/ns/description/1.0/update',
-      prefix: 'upd'
+      prefix: 'upd',
     },
     NIL: {
       label: 'NIL',
       uri: 'http://cpee.org/ns/description/1.0/nil',
-      prefix: 'nil'
+      prefix: 'nil',
     }
   }
+
 };
 
 Dsl.ELEMENT_SET = new Set(

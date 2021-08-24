@@ -1,5 +1,5 @@
 import {ExtractorInterface} from './ExtractorInterface.js';
-import {PrimeGenerator} from '../lib/PrimeGenerator.js';
+import {getPrimes} from '../lib/PrimeGenerator.js';
 import {stringHash} from '../lib/StringHash.js';
 
 /**
@@ -61,7 +61,7 @@ export class HashExtractor extends ExtractorInterface {
     if (node.hasInternalOrdering()) {
       // Respect order by multiplying child hashes with distinct prime number
       // based on index
-      const primes = PrimeGenerator.primes(node.degree());
+      const primes = getPrimes(node.degree());
       childHash += node
           .children
           // Use child hash value

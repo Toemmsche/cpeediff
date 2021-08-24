@@ -63,7 +63,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
         case Dsl.CHANGE_MODEL.DELETION.label:
           deletions++;
           break;
-        case Dsl.CHANGE_MODEL.MOVE_TO.label:
+        case Dsl.CHANGE_MODEL.MOVE.label:
           moves++;
           break;
         case Dsl.CHANGE_MODEL.UPDATE.label:

@@ -31,6 +31,12 @@
 //      $$ add const where applicable
 //      $$ use fancy features like || and ??
 
+//TODO  24.8.
+//      $$$ clean up $$ merge and deltatree gen
+//      restructure evaluation in thesis (use avg always)
+//      simplify test set (no properties)
+//      remove matchNew (can just use match())
+
 //TODO maybe
 //      better commonality complexity
 //     adjust change model of DIffxml to include updates

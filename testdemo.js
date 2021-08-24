@@ -14,6 +14,10 @@ import {JNDiffAdapter} from './test/diff_adapters/JNDiffAdapter.js';
 import {GeneratedMatchEvaluation} from './test/eval/GeneratedMatchEvaluation.js';
 import {BalancedCpeeMatchAdapter} from './test/match_adapters/BalancedCpeeMatchAdapter.js';
 import {DeltaJsAdapter} from './test/diff_adapters/DeltaJsAdapter.js';
+import {XccPatchAdapter} from './test/merge_adapters/XccPatchAdapter.js';
+import {_3dmAdapter} from './test/merge_adapters/_3dmAdapter.js';
+import {MergeAlgorithmEvaluation} from './test/eval/MergeAlgorithmEvaluation.js';
+import {CpeeMergeAdapter} from './test/merge_adapters/CpeeMergeAdapter.js';
 
 /*
 const doc = xmldom.DOMImplementation.prototype.createDocument("ASDF", "s");
@@ -46,9 +50,9 @@ Config.LOG_LEVEL = 'all';
 //new MatchingAlgorithmEvaluation([new QualityCpeeMatchAdapter()]).evalAll(TestConfig.MATCH_CASES_DIR);
 //new GeneratedMatchEvaluation([new QualityCpeeMatchAdapter(), new BalancedCpeeMatchAdapter()]).standardAggregate();
 //new DiffAlgorithmEvaluation([new QualityCpeeDiffAdapter(), new JNDiffAdapter()]).evalAll(TestConfig.MATCH_CASES_DIR + "/move/interparent_move");
-new GeneratedDiffEvaluation([new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter()]).standardSingle();
+//new GeneratedDiffEvaluation([new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter()]).standardSingle();
 //DiffAlgorithmEvaluation.all().evalAll();
-//new MergeAlgorithmEvaluation([new CpeeMergeAdapter()]).evalAll();
+new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
 
 /*
 const diff = new OurDiffAdapter();

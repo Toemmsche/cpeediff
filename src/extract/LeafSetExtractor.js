@@ -1,5 +1,5 @@
 /**
- * Extractor for caching the set of leaves of a subtree.
+ * Extractor for retrieving and caching the set of leaves of a subtree.
  * @implements {ExtractorInterface<Set<Node>>}
  */
 export class LeafSetExtractor {

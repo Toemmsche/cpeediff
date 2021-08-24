@@ -66,7 +66,7 @@ export const Config = {
   VARIABLE_PREFIX: 'data.',
   ADD_INIT_SCRIPT: false,
 
-  PRETTY_XML: false
+  PRETTY_XML: false,
 };
 
 

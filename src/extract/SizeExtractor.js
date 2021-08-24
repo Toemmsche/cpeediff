@@ -1,5 +1,5 @@
 /**
- * Extractor for the size of a subtree (number of nodes).
+ * Extractor for retrieving and caching the size of a subtree.
  * @implements {ExtractorInterface<Number>}
  */
 export class SizeExtractor {

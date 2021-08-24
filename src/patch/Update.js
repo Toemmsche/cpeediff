@@ -6,20 +6,17 @@ export class Update {
   /**
    * The old value of the attribute or text content.
    * @type{String}
-   * @const
    */
   oldVal;
   /**
    * The new value of the attribute or text content.
    * @type{String}
-   * @const
    */
   newVal;
   /**
    * The ID of the branch this change belongs to.
    * Null if the update does not occur in a merge context.
    * @type {?Number}
-   * @const
    */
   origin;
 

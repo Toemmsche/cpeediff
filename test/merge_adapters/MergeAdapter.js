@@ -33,9 +33,9 @@ export class MergeAdapter {
   }
 
   _run(base, branch1, branch2) {
-    const baseString = XmlFactory.serialize(base);
-    const branch1String = XmlFactory.serialize(branch1);
-    const branch2String = XmlFactory.serialize(branch2);
+    const baseString = base.toXmlString();
+    const branch1String = branch1.toXmlString();
+    const branch2String = branch2.toXmlString();
 
     const baseFilePath = this.pathPrefix + '/base.xml';
     const branch1Filepath = this.pathPrefix + '/1.xml';

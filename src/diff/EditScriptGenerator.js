@@ -227,7 +227,7 @@ export class EditScriptGenerator {
     const newNode = this.#matching.getMatch(oldNode);
 
     // Overwrite old values
-    oldNode.attributes = new Map();
+    oldNode.attributes.clear();
     for (const [key, val] of newNode.attributes) {
       oldNode.attributes.set(key, val);
     }

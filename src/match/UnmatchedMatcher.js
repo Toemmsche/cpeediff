@@ -78,8 +78,8 @@ export class UnmatchedMatcher {
         const rightSibling = newNode.getRightSibling();
 
         // Left or right sibling must either not exist, or be matched
-        if ((leftSibling && !matching.isMatched(leftSibling)) ||
-            (rightSibling && !matching.isMatched(rightSibling))) {
+        if ((leftSibling != null && !matching.isMatched(leftSibling)) ||
+            (rightSibling != null && !matching.isMatched(rightSibling))) {
           continue;
         }
 

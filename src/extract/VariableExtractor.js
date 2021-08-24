@@ -2,8 +2,8 @@ import {Dsl} from '../Dsl.js';
 import {Config} from '../Config.js';
 
 /**
- * Extractor for the sets of read and written variables determined by a node's
- * content.
+ * Extractor for retrieving and caching the sets of read and written variables
+ * in a node's code.
  * @implements {ExtractorInterface<{writtenVariables: Set<String>,
  *     readVariables: Set<Node>}>}
  */

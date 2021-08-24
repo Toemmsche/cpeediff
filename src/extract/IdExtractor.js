@@ -1,6 +1,5 @@
 /**
- * Extractor for caching the unique ID of a node (position within pre-order
- * traversal).
+ * Extractor for retrieving and caching the unique ID of a node.
  * @implements {ExtractorInterface<Number>}
  */
 export class IdExtractor {
@@ -30,7 +29,8 @@ export class IdExtractor {
   }
 
   /**
-   * Get the cached ID for a node. If it is not cached, compute it first.
+   * Get the cached ID (index within pre-order
+   * traversal) for a node. If it is not cached, compute it first.
    * @param {Node} node
    * @return {Number}
    */

@@ -3,7 +3,7 @@ import {CallProperties} from './CallProperties.js';
 import {Logger} from '../../util/Logger.js';
 
 /**
- * Extractor class for caching the semantic properties of Calls.
+ * Extractor for retrieving and caching the semantic properties of Calls.
  * @implements {ExtractorInterface<CallProperties>}
  */
 export class CallPropertyExtractor {

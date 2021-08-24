@@ -13,30 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import {TestConfig} from '../../test/TestConfig.js';
 
-import {Node} from '../tree/Node.js';
-import {CpeeDiff} from '../diff/CpeeDiff.js';
+Config.PRETTY_XML = true;
+
 import {Preprocessor} from '../io/Preprocessor.js';
+import {CpeeMerge} from '../merge/CpeeMerge.js';
 import {Config} from '../Config.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
-import {Logger} from '../../util/Logger.js';
-import {HashExtractor} from '../extract/HashExtractor.js';
-import {DeltaNode} from '../patch/DeltaNode.js';
+import {CpeeDiff} from '../diff/CpeeDiff.js';
+import {Node} from '../tree/Node.js';
 
-console.log(null ?? "right");
-Logger.enableLogging();
-Config.LOG_LEVEL = 'all';
-
+const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
+const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
+const branch2 = new Preprocessor().parseFromFile('./src/temp/2.xml');
 
 
+const merge = new CpeeMerge().merge(base, branch1, branch2);
 
-const base = new Preprocessor().parseFromFile('old.xml');
-const newTree = new Preprocessor().parseFromFile('new.xml');
+const exp = new Preprocessor().parseFromFile(TestConfig.MERGE_CASES_DIR + "/move/move_conflict/expected_1.xml");
 
-const es = new CpeeDiff().diff(base, newTree);
-
-
-console.log(XmlFactory.serialize(es));
+console.log(new CpeeDiff().diff(merge, exp).toXmlString());
+console.log(merge.hashEquals(exp));
+console.log(merge.toXmlString());
 
 
 

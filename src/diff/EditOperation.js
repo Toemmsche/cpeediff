@@ -47,7 +47,12 @@ export class EditOperation {
    *     operation *after* it was applied.
    * @param {?Node} newContent The new content added by this edit operation.
    */
-  constructor(type, oldPath = null, newPath = null, newContent = null) {
+  constructor(
+      type,
+      oldPath = null,
+      newPath = null,
+      newContent = null,
+  ) {
     this.type = type;
     this.oldPath = oldPath;
     this.newPath = newPath;
@@ -95,7 +100,7 @@ export class EditOperation {
 
   /** @return {Boolean} */
   isMove() {
-    return this.type === Dsl.CHANGE_MODEL.MOVE_TO.label;
+    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
   }
 
   /** @return {Boolean} */

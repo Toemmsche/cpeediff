@@ -19,7 +19,8 @@ export class MatchPipeline {
   #matchers;
 
   /**
-   * @param {Array<MatcherInterface>} matchers
+   * @param {Array<MatcherInterface>} matchers The list of matchers
+   *     constituting this pipeline.
    */
   constructor(matchers) {
     const len = matchers.length;
@@ -99,12 +100,12 @@ export class MatchPipeline {
   /**
    * Construct a matching between the passed process trees by executing the
    * matching pipeline in order.
-   * @param {Node} oldTree
-   * @param {Node} newTree
+   * @param {Node} oldTree The root of the old (original) process tree.
+   * @param {Node} newTree The root of the new (changed) process tree.
+   * @param {Matching} matching An existing matching (used by the merger).
    * @return {Matching}
    */
-  execute(oldTree, newTree) {
-    const matching = new Matching();
+  execute(oldTree, newTree, matching = new Matching()) {
     const comparator = new Comparator();
     for (const matcher of this.#matchers) {
       Logger.info('Running matching module ' +

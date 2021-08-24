@@ -23,6 +23,7 @@
 //      colors in delta output
 
 //TODO tidy
+//    do not replace newlines (think of python)
 //      unmatched nodes function()
 //      change model labels
 //      reintroduce copy() and static from().
@@ -45,29 +46,20 @@
 //      make data classes read only
 
 //TODO bugs+
-//      fix performance and excessive movement
 //      fix move_to
 //      fix deltatree gen
-//      upodates are not detected at large
 //      test conversion to XML
 //      namespaces
 //      add null checks for appropriate methods
-//      edit script not applicable
 //      robustness against indentation and newlines/whitespaces
-//      unnecessary tree traversals during matching, edit script genreation, and merging
-//      make robust against missing root
-//      robust against keywrods as properties
 //      differtnt merge output trees (dt1 and dt2)
-//      multiple otherwise (or alternatives with same condition) --> matchSimilarUnmatched top down()
 //      merge produces a lot of wrong merges (e.g. disregards semantic properties)
 //          update_conflict with differnt endpoint and argument list
 //          deletion of node taht declared a variable (maybe not)
 
 //TODO REWRITE
 //      use id for mapping and matching
-//      delta instead of editscript
 //      Turn autogenearted tests into class
-//      use the change types and keywords objects instead of strings
 //      delete includes deleted tree
 
 /*

@@ -56,7 +56,14 @@ export class ActualDiff extends AbstractActual {
    * @param {Number} deletions The number of detected deletions.
    * @param {Number} cost The overall cost of the edit script.
    */
-  constructor(raw, insertions, moves, updates, deletions, cost = 0) {
+  constructor(
+      raw,
+      insertions,
+      moves,
+      updates,
+      deletions,
+      cost = 0,
+  ) {
     super(raw);
     // Total number of edit operations can be inferred
     this.editOperations = insertions + moves + updates + deletions;

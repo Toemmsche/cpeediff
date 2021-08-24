@@ -36,7 +36,13 @@ export class MergeTestCase extends AbstractTestCase {
    * @param {Node} branch2 The root of the second branch process tree
    * @param {ExpectedMerge} expected The expected merge results
    */
-  constructor(name, base, branch1, branch2, expected) {
+  constructor(
+      name,
+      base,
+      branch1,
+      branch2,
+      expected,
+  ) {
     super(name, expected);
     this.base = base;
     this.branch1 = branch1;

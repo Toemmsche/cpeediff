@@ -28,7 +28,7 @@ export class Patcher {
           this.#handleInsertion(editOp);
           break;
         }
-        case Dsl.CHANGE_MODEL.MOVE_TO.label: {
+        case Dsl.CHANGE_MODEL.MOVE.label: {
           this.#handleMove(editOp);
           break;
         }
@@ -92,7 +92,7 @@ export class Patcher {
   #handleUpdate(update) {
     const node = this.#tree.findNode(update.oldPath);
 
-    node.attributes = new Map();
+    node.attributes.clear();
     for (const [key, val] of update.newContent.attributes) {
       node.attributes.set(key, val);
     }

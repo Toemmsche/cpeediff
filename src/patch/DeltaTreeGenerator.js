@@ -1,41 +1,41 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {Dsl} from '../Dsl.js';
 import {IdExtractor} from '../extract/IdExtractor.js';
 import {Update} from './Update.js';
+import {DeltaNode} from './DeltaNode.js';
+import {Logger} from '../../util/Logger.js';
 
+/**
+ * Generator class for delta trees, i.e. process trees that are annotated with
+ * diff-related information
+ * @see {DeltaNode}
+ */
 export class DeltaTreeGenerator {
+  /** @type  {DeltaNode} */
+  #deltaTree;
+  /**
+   * A map that assigns each moved node a placeholder node at its old position.
+   * @type {Map<DeltaNode, DeltaNode>} */
+  #moveMap;
 
-  tree;
-  moveMap;
-
-  _handleInsert(change) {
-    const indexArr = change.newPath.split('/').map(str => parseInt(str));
-    const index = indexArr.pop();
-    const [parent, movfrParent] = this._findNode(indexArr.join('/'));
-    const newNode = DeltaNode.fromNode(change.newContent);
-
-    this._applyInsert(parent, newNode, index);
-    if (movfrParent != null) {
-      this._applyInsert(movfrParent, newNode, index);
+  /**
+   * @param {DeltaNode} node
+   */
+  #applyDelete(node) {
+    for (const descendant of node.toPreOrderArray()) {
+      descendant.type = Dsl.CHANGE_MODEL.DELETION.label;
     }
+
+    node.removeFromParent();
+    node.parent.placeholders.push(node);
   }
 
-  _applyInsert(parent, node, index) {
+  /**
+   * @param {DeltaNode} parent
+   * @param {DeltaNode} node
+   * @param {Number} index
+   */
+  #applyInsert(parent, node, index) {
+    // Copy the inserted node
     const child = DeltaNode.fromNode(node, true);
     parent.insertChild(index, child);
     for (const descendant of child.toPreOrderArray()) {
@@ -43,58 +43,18 @@ export class DeltaTreeGenerator {
     }
   }
 
-  _handleMove(change) {
-    //find moved node
-    let [node, movfrNode] = this._findNode(change.oldPath);
-
-    //configure move_from placeholder node
-    let movfrParent;
-    const noMovfrNode = movfrNode == null;
-    if (movfrNode == null) {
-      movfrNode = DeltaNode.fromNode(node, true);
-      movfrNode._index = node.index;
-      movfrParent = node.parent;
-    } else {
-      movfrParent = movfrNode.parent;
-      movfrNode.removeFromParent();
-    }
-
-    //detach node
-    node.removeFromParent();
-
-    //find new parent
-    const parentIndexArr = change.newPath.split('/').map(str => parseInt(str));
-    const targetIndex = parentIndexArr.pop();
-    const [parent] = this._findNode(parentIndexArr.join('/'));
-
-    //insert node
-    parent.insertChild(targetIndex, node);
-    node.type = change.type;
-
-    //Insert placeholder at old position
-    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM;
-
-    movfrParent.placeholders.push(movfrNode);
-    //create entry in move map
-    this.moveMap.set(node, movfrNode);
-  }
-
-  _handleUpdate(change) {
-    const [node, movfrNode] = this._findNode(change.oldPath);
-    const newContent = change.newContent;
-
-    this._applyUpdate(node, newContent);
-    if (movfrNode != null) {
-      this._applyUpdate(movfrNode, newContent);
-    }
-  }
-
-  _applyUpdate(node, newContent) {
+  /**
+   * @param {DeltaNode} node
+   * @param {Node} newContent
+   */
+  #applyUpdate(node, newContent) {
+    // Detect changes to text content
     if (node.text !== newContent.text) {
       node.updates.set('text', new Update(node.text, newContent.text));
       node.text = newContent.text;
     }
-    //detected updated and inserted attributes
+
+    // Detect updated and inserted attributes
     for (const [key, value] of newContent.attributes) {
       if (node.attributes.has(key)) {
         if (node.attributes.get(key) !== value) {
@@ -107,7 +67,7 @@ export class DeltaTreeGenerator {
       }
     }
 
-    //detect deleted attributes
+    // Detect deleted attributes
     for (const [key, value] of node.attributes) {
       if (!newContent.attributes.has(key)) {
         node.updates.set(key, new Update(value, null));
@@ -116,98 +76,217 @@ export class DeltaTreeGenerator {
     }
   }
 
-  _handleDelete(change) {
-    const [node, movfrNode] = this._findNode(change.oldPath);
-
-    this._applyDelete(node);
-    if (movfrNode != null) {
-      this._applyDelete(movfrNode);
-    }
-  }
-
-  _applyDelete(node) {
-    for (const descendant of node.toPreOrderArray()) {
-      descendant.type = Dsl.CHANGE_MODEL.DELETION.label;
-    }
-
-    node.removeFromParent();
-    node.parent.placeholders.push(node);
-  }
-
-  extendedDeltaTree(tree, editScript) {
-    const deltaTree = this.deltaTree(this.tree, editScript);
-    this._resolvePlaceholders(this.tree);
-  }
-
+  /**
+   * Create a standard delta tree out of a base tree and an edit script.
+   * The standard delta tree does not contain "move from" and "deleted"
+   * placeholders.
+   * @param {Node} tree The root of the tree to transform into a delta tree.
+   * @param {EditScript} editScript The delta.
+   * @return {DeltaNode} The root of the delta tree.
+   */
   deltaTree(tree, editScript) {
-    //copy this tree
-    tree = DeltaNode.fromNode(tree);
-    this.tree = tree;
-    this.moveMap = new Map();
+    // Copy the tree as a delta node
+    this.#deltaTree = DeltaNode.fromNode(tree, true);
+    this.#moveMap = new Map();
 
+    // Node IDs are equal to the index in the pre-order array
     const idExtractor = new IdExtractor();
-    for (const node of this.tree.toPreOrderArray()) {
+    for (const node of this.#deltaTree.toPreOrderArray()) {
       node.baseNode = idExtractor.get(node);
     }
 
-    for (const change of editScript) {
-      switch (change.type) {
+    for (const editOp of editScript) {
+      switch (editOp.type) {
         case Dsl.CHANGE_MODEL.INSERTION.label: {
-          this._handleInsert(change);
+          this.#handleInsertion(editOp);
           break;
         }
-        case Dsl.CHANGE_MODEL.MOVE_TO.label: {
-          this._handleMove(change);
+        case Dsl.CHANGE_MODEL.MOVE.label: {
+          this.#handleMove(editOp);
           break;
         }
         case Dsl.CHANGE_MODEL.UPDATE.label: {
-          this._handleUpdate(change);
+          this.#handleUpdate(editOp);
           break;
         }
         case Dsl.CHANGE_MODEL.DELETION.label: {
-          this._handleDelete(change);
+          this.#handleDeletion(editOp);
           break;
         }
       }
     }
-    return this.tree;
+
+    return this.#deltaTree;
   }
 
-  _findNode(indexPath) {
-    let currNode = this.tree;
-    let moveFromPlaceHolder = null;
+  /**
+   * Create an extended delta tree out of a base tree and an edit script.
+   * The extended delta tree contains "move from" and "deleted"
+   * placeholders.
+   * @param {Node} tree The root of the tree to transform into a delta tree.
+   * @param {EditScript} editScript The delta.
+   * @return {DeltaNode} The root of the delta tree.
+   */
+  extendedDeltaTree(tree, editScript) {
+    this.#deltaTree = this.deltaTree(tree, editScript);
+    this.#resolvePlaceholders(this.#deltaTree);
+    this.#trim();
+    return this.#deltaTree;
+  }
+
+  /**
+   * @param {String} indexPath
+   * @return {Array<DeltaNode>} [regular node, movfrNode].
+   */
+  #findWithMovfr(indexPath) {
+    let currNode = this.#deltaTree;
+    let movfrNode = null;
     if (indexPath !== '') {
-      //remove root path "/"
-      for (let index of indexPath.split('/').map(str => parseInt(str))) {
-        if (index >= currNode.degree()) {
-          throw new Error('Edit script not applicable to tree');
+      for (const index of indexPath
+          .split('/') // Remove root path "/"
+          .map((str) => parseInt(str))) {
+        if (this.#moveMap.has(currNode)) {
+          movfrNode = this.#moveMap.get(currNode);
         }
-        if (moveFromPlaceHolder != null) {
-          /*
-          if (index > moveFromPlaceHolder.degree()) {
-              throw new Error("Edit script not applicable to tree");
+        if (index >= currNode.degree()) {
+          const msg = 'Edit script not applicable to tree';
+          Logger.error(msg, new Error(msg), this);
+        }
+        if (movfrNode != null) {
+          if (index > movfrNode.degree()) {
+            const msg = 'Missing next move from placeholder';
+            Logger.error(msg, new Error(msg), this);
           }
-          */
-          //TODO
-          moveFromPlaceHolder = moveFromPlaceHolder.getChild(index);
+          movfrNode = movfrNode.getChild(index);
         }
         currNode = currNode.getChild(index);
-        if (this.moveMap.has(currNode)) {
-          moveFromPlaceHolder = this.moveMap.get(currNode);
-        }
       }
     }
-    return [currNode, moveFromPlaceHolder];
+    return [
+      currNode,
+      movfrNode,
+    ];
   }
 
-  _resolvePlaceholders(node, isMoveTo = false) {
-    for (const child of node) {
-      this._resolvePlaceholders(child, isMoveTo || child.isMove());
+  /**
+   * @param {EditOperation} deletion
+   */
+  #handleDeletion(deletion) {
+    const [node, movfrNode] = this.#findWithMovfr(deletion.oldPath);
+
+    this.#applyDelete(node);
+    if (movfrNode != null) {
+      this.#applyDelete(movfrNode);
+    }
+  }
+
+  /**
+   * @param {EditOperation} insertion
+   */
+  #handleInsertion(insertion) {
+    const indexArr =
+        insertion
+            .newPath
+            .split('/')
+            .map((str) => parseInt(str));
+    const index = indexArr.pop();
+    const [parent, movfrParent] = this.#findWithMovfr(indexArr.join('/'));
+
+    this.#applyInsert(parent, insertion.newContent, index);
+    if (movfrParent != null) {
+      this.#applyInsert(movfrParent, insertion.newContent, index);
+    }
+  }
+
+  /**
+   * @param {EditOperation} move
+   */
+  #handleMove(move) {
+    // Find moved node
+    let [node, movfrNode] = this.#findWithMovfr(move.oldPath);
+
+    // If movfrNode does not exist (no deep move), create a new placeholder
+    if (movfrNode == null) {
+      // Copy regular node exactly
+      movfrNode = DeltaNode.fromNode(node, true);
+      // Copy regular node index
+      movfrNode.index = node.index;
+      // Append placeholder
+      node.parent.placeholders.push(movfrNode);
+    }
+
+    // Detach regular node
+    node.removeFromParent();
+
+    // Find the new parent
+    const parentIndexArr =
+        move
+            .newPath
+            .split('/')
+            .map((str) => parseInt(str));
+    const targetIndex = parentIndexArr.pop();
+    const [parent] = this.#findWithMovfr(parentIndexArr.join('/'));
+
+    // Insert regular node
+    parent.insertChild(targetIndex, node);
+    node.type = move.type;
+
+    // Insert placeholder at old position
+    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
+
+    // Create entry in move map
+    this.#moveMap.set(node, movfrNode);
+  }
+
+  /**
+   * @param {EditOperation} update
+   */
+  #handleUpdate(update) {
+    const [node, movfrNode] = this.#findWithMovfr(update.oldPath);
+    const newContent = update.newContent;
+
+    this.#applyUpdate(node, newContent);
+    if (movfrNode != null) {
+      this.#applyUpdate(movfrNode, newContent);
+    }
+  }
+
+  /**
+   * @param {DeltaNode} node
+   */
+  #resolvePlaceholders(node) {
+    for (const child of node.children) {
+      this.#resolvePlaceholders(child);
     }
     while (node.placeholders.length > 0) {
       const placeholder = node.placeholders.pop();
-      if (!isMoveTo || !placeholder.type === Dsl.CHANGE_MODEL.MOVE_FROM) {
-        node.insertChild(placeholder.index, placeholder);
+      // Placeholders can have placeholders themselves (nested move to front)
+      this.#resolvePlaceholders(placeholder);
+      node.insertChild(placeholder.index, placeholder);
+    }
+  }
+
+  /**
+   * Trim excess nodes resulting from move operations.
+   */
+  #trim() {
+    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree) {
+      if (deltaNode.isMoved()) {
+        deltaNode
+            .toPreOrderArray()
+            .forEach((descendant) => {
+              if (descendant.isMovedFrom()) {
+                descendant.removeFromParent();
+              }
+            });
+      } else if (deltaNode.isMovedFrom()) {
+        deltaNode
+            .toPreOrderArray()
+            .forEach((descendant) => {
+              if (descendant.isMoved()) {
+                descendant.removeFromParent();
+              }
+            });
       }
     }
   }

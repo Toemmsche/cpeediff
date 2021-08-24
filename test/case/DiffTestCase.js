@@ -6,7 +6,6 @@ import {Preprocessor} from '../../src/io/Preprocessor.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {TreeGenerator} from '../gen/TreeGenerator.js';
-import {Logger} from '../../util/Logger.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
 
 /**
@@ -33,7 +32,12 @@ export class DiffTestCase extends AbstractTestCase {
    * @param {Node} newTree The root of the changed process tree.
    * @param {ExpectedDiff} expected The expected result.
    */
-  constructor(name, oldTree, newTree, expected) {
+  constructor(
+      name,
+      oldTree,
+      newTree,
+      expected,
+  ) {
     super(name, expected);
     this.oldTree = oldTree;
     this.newTree = newTree;
@@ -63,12 +67,16 @@ export class DiffTestCase extends AbstractTestCase {
         const content = fs.readFileSync(testCaseDir + '/' + file).toString();
         switch (file) {
           case TestConfig.FILENAMES.GEN_PARAMS:
-            genParams = Object.assign(new GeneratorParameters(),
-                JSON.parse(content));
+            genParams = Object.assign(
+                new GeneratorParameters(),
+                JSON.parse(content),
+            );
             break;
           case TestConfig.FILENAMES.CHANGE_PARAMS:
-            changeParams = Object.assign(changeParams,
-                JSON.parse(content));
+            changeParams = Object.assign(
+                changeParams,
+                JSON.parse(content),
+            );
             break;
         }
       },
@@ -95,8 +103,7 @@ export class DiffTestCase extends AbstractTestCase {
         } else if (file === TestConfig.FILENAMES.EXPECTED_DIFF) {
           expected = Object.assign(new ExpectedDiff(), JSON.parse(content));
         }
-      },
-      );
+      });
       // The two process trees are the bare minimum needed for a test case
       if (oldTree == null || newTree == null) {
         return null;
@@ -123,7 +130,12 @@ export class DiffTestCase extends AbstractTestCase {
    * @param {String} verdict The verdict for this test case and algorithm.
    * @return {DiffTestResult} The corresponding result.
    */
-  complete(algorithm, runtime, actual = null, verdict) {
+  complete(
+      algorithm,
+      runtime,
+      actual = null,
+      verdict,
+  ) {
     return new DiffTestResult(
         this.name,
         algorithm,

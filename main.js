@@ -30,6 +30,7 @@ import * as fs from 'fs';
 import {Logger} from './util/Logger.js';
 import {CpeeMerge} from './src/merge/CpeeMerge.js';
 import {MatchPipeline} from './src/match/MatchPipeline.js';
+import {Node} from './src/tree/Node.js';
 
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {
@@ -38,7 +39,7 @@ const argv = yargs(hideBin(process.argv))
       alias: 'l',
       type: 'string',
       choices: Object.values(Config.LOG_LEVELS),
-      default: Config.LOG_LEVELS.ERROR
+      default: Config.LOG_LEVELS.ERROR,
     })
     .command('diff <old> <new>', 'Calculcate and show the difference between two CPEE process trees', (yargs) => {
       yargs
@@ -192,7 +193,7 @@ const argv = yargs(hideBin(process.argv))
       const merged = merger.merge(base, branch1, branch2);
 
       //print normal tree (no merge or delta annotations)
-      Logger.result(XmlFactory.serialize(Node.fromNode(merged)));
+      Logger.result(Node.fromNode(merged).toXmlString());
     })
     .help()
     .demandCommand()

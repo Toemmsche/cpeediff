@@ -18,7 +18,6 @@ export class HashMatcher {
    * @param {Comparator} comparator The comparator used for comparisons.
    */
   match(oldTree, newTree, matching, comparator) {
-    // filter for unmatched nodes and sort new Nodes descending by size
     const oldNodes =
         oldTree
             .nonPropertyNodes()
@@ -27,7 +26,8 @@ export class HashMatcher {
         newTree
             .nonPropertyNodes()
             .filter((node) => !matching.isMatched(node))
-            // match subtrees in a greedy fashion to save performance
+            // Match subtrees in a greedy fashion (starting with the "heaviest")
+            // to improve performance
             .sort((a, b) => comparator.compareSize(b, a));
 
     const hashExtractor = new HashExtractor();
@@ -46,16 +46,17 @@ export class HashMatcher {
       const oldPreOrder = oldRoot.toPreOrderArray();
       if (newPreOrder.length !== oldPreOrder.length) {
         Logger.error('Matching of subtrees with different size',
-            new Error('Matching of subtrees with different size'), this);
+            new Error('Matching of subtrees with different size'), this
+        );
       }
 
       // stable sort both arrays because hash may ignore child order of
       // certain nodes
       newPreOrder.sort((a, b) =>
-        hashExtractor.get(a) - hashExtractor.get(b));
+          hashExtractor.get(a) - hashExtractor.get(b));
 
       oldPreOrder.sort((a, b) =>
-        hashExtractor.get(a) - hashExtractor.get(b));
+          hashExtractor.get(a) - hashExtractor.get(b));
 
       for (let i = 0; i < newPreOrder.length; i++) {
         if (!matching.isMatched(newPreOrder[i]) &&
@@ -67,7 +68,8 @@ export class HashMatcher {
     // every match is accepted because the hash values equal
     const threshOldFunction = (CV) => true;
     persistBestMatches(oldNodes, newNodes, matching, keyFunction,
-        compareFunction, matchFunction, threshOldFunction);
+        compareFunction, matchFunction, threshOldFunction
+    );
   }
 }
 
