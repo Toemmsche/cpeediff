@@ -23,12 +23,13 @@ import {Config} from '../Config.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Node} from '../tree/Node.js';
+import {DeltaTreeGenerator_EXP} from '../patch/DeltaTreeGenerator_EXP.js';
 
 const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
 const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
 
 
-const merge = new DeltaTreeGenerator().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
+const merge = new DeltaTreeGenerator_EXP().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
 
 console.log(merge.toXmlString());
 
