@@ -137,10 +137,12 @@ export class DeltaTreeGenerator_EXP {
 
   /**
    * @param {String} indexPath
-   * @return {DeltaNode} [regular node, movfrNode].
+   * @return {Array<DeltaNode>} [regular node, movfrNode].
    */
   #findWithMovfr(indexPath) {
     let currNode = this.#deltaTree;
+    let movfrNode = null;
+    let foundMovfrNode = false;
     if (indexPath !== '') {
       for (const index of indexPath
           .split('/') // Remove root path "/"
@@ -149,20 +151,36 @@ export class DeltaTreeGenerator_EXP {
           const msg = 'Edit script not applicable to tree';
           Logger.error(msg, new Error(msg), this);
         }
+        if (movfrNode != null) {
+          movfrNode = movfrNode.getChild(index);
+        }
         currNode = currNode.getChild(index);
+        if (this.#moveMap.has(currNode)) {
+          movfrNode = this.#moveMap.get(currNode);
+          foundMovfrNode = true;
+        }
       }
     }
-
-    return currNode;
+    if (foundMovfrNode && movfrNode == null) {
+      const msg = 'Could not find movfr node';
+      Logger.error(msg, new Error(msg), this);
+    }
+    return [
+      currNode,
+      movfrNode,
+    ];
   }
 
   /**
    * @param {EditOperation} deletion
    */
   #handleDeletion(deletion) {
-    const node = this.#findWithMovfr(deletion.oldPath);
+    const [node, movfrNode] = this.#findWithMovfr(deletion.oldPath);
 
     this.#applyDelete(node);
+    if (movfrNode != null) {
+      this.#applyDelete(movfrNode);
+    }
   }
 
   /**
@@ -175,23 +193,74 @@ export class DeltaTreeGenerator_EXP {
             .split('/')
             .map((str) => parseInt(str));
     const index = indexArr.pop();
-    const parent = this.#findWithMovfr(indexArr.join('/'));
+    const [parent, movfrParent] = this.#findWithMovfr(indexArr.join('/'));
 
     this.#applyInsert(parent, insertion.newContent, index);
+    if (movfrParent != null) {
+      this.#applyInsert(movfrParent, insertion.newContent, index);
+    }
   }
+
+  /**
+   * Copy a data node and its children and placeholders by value.
+   * Any outdated values of the move map are updated in the process.
+   * @param {DeltaNode} deltaNode The delta node to copy.
+   * @return {DeltaNode}
+   */
+  #copyAndUpdateMoveMap(deltaNode) {
+    const copy = new DeltaNode(
+        deltaNode.label,
+        deltaNode.text,
+        deltaNode.type,
+        deltaNode.baseNode,
+    );
+    const partner =
+        [...this.#moveMap.entries()]
+            .filter((e) => e[1] === deltaNode)[0];
+    if (partner != null) {
+      this.#moveMap.set(partner[0], copy);
+    }
+    for (const [key, value] of deltaNode.attributes) {
+      copy.attributes.set(key, value);
+    }
+    for (const child of deltaNode) {
+      copy.appendChild(this.#copyAndUpdateMoveMap(child));
+    }
+    for (const placeholder of deltaNode.placeholders) {
+      copy.placeholders.push(this.#copyAndUpdateMoveMap(placeholder));
+    }
+    for (const [key, update] of deltaNode.updates) {
+      copy.updates.set(key, update.copy());
+    }
+    return copy;
+  };
 
   /**
    * @param {EditOperation} move
    */
   #handleMove(move) {
     // Find moved node
-    const node = this.#findWithMovfr(move.oldPath);
+    let [node, movfrNode] = this.#findWithMovfr(move.oldPath);
+
+    // If movfrNode does not exist (no deep move), create a new placeholder
+    if (movfrNode == null) {
+      // Copy regular node exactly and update moveMap entries
+      movfrNode = this.#copyAndUpdateMoveMap(node);
+      // Copy regular node index
+      movfrNode.index = node.index;
+      // Append placeholder
+      node.parent.placeholders.push(movfrNode);
+    } else {
+      movfrNode.removeFromParent();
+      movfrNode.parent.placeholders.push(movfrNode);
+    }
+    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
+
+    // Create entry in move map
+    this.#moveMap.set(node, movfrNode);
 
     // Detach regular node
     node.removeFromParent();
-
-    const nodeParent = node.parent;
-    node.parent.placeholders.push(node);
 
     // Find the new parent
     const parentIndexArr =
@@ -200,31 +269,51 @@ export class DeltaTreeGenerator_EXP {
             .split('/')
             .map((str) => parseInt(str));
     const targetIndex = parentIndexArr.pop();
-    const parent = this.#findWithMovfr(parentIndexArr.join('/'));
+    const [parent, movfrParent] = this.#findWithMovfr(parentIndexArr.join('/'));
+
+    // Insert dummy node in movfrParent
+    if (movfrParent != null) {
+      movfrParent.insertChild(targetIndex, new DeltaNode('dummy'));
+    }
 
     // Insert regular node
     parent.insertChild(targetIndex, node);
+    node.type = move.type;
   }
 
   /**
    * @param {EditOperation} update
    */
   #handleUpdate(update) {
-    const node = this.#findWithMovfr(update.oldPath);
+    const [node, movfrNode] = this.#findWithMovfr(update.oldPath);
     const newContent = update.newContent;
 
     this.#applyUpdate(node, newContent);
+    if (movfrNode != null) {
+      this.#applyUpdate(movfrNode, newContent);
+    }
   }
 
-  #resolvePlaceholders() {
-
+  /**
+   * @param {DeltaNode} node
+   */
+  #resolvePlaceholders(node) {
+    for (const child of node.children) {
+      this.#resolvePlaceholders(child);
+    }
+    while (node.placeholders.length > 0) {
+      const placeholder = node.placeholders.pop();
+      // Placeholders can have placeholders themselves (nested move to front)
+      this.#resolvePlaceholders(placeholder);
+      node.insertChild(placeholder.index, placeholder);
+    }
   }
 
   /**
    * Trim excess nodes resulting from move operations.
    */
   #trim() {
-    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree.toPreOrderArray()) {
+    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree.toPostOrderArray()) {
       // TODO
       if (deltaNode.label === 'dummy') {
         deltaNode.removeFromParent();

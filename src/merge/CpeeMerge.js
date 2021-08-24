@@ -39,8 +39,8 @@ export class CpeeMerge {
    * Find update and move conflicts.
    * @param {MergeNode} mergeTree The root of the merge tree that should be
    *     searched for move and update conflicts.
-   * @return {Array<Set<MergeNode>>} The sets of nodes that are involved in an
-   *     update and/or move conflict.
+   * @return {[Set<MergeNode>, Set<MergeNode>]} The sets of nodes that are
+   *     involved in an update and/or move conflict.
    * @private
    */
   #findConflicts(mergeTree) {

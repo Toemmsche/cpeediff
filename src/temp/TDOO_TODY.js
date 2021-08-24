@@ -32,10 +32,10 @@
 //      $$ use fancy features like || and ??
 
 //TODO  24.8.
-//      $$$ clean up $$ merge and deltatree gen
+//      $$$ clean up $$ merge and deltatree gen --> experimental (look at notes)
 //      restructure evaluation in thesis (use avg always)
 //      $ simplify test set (no properties)
-//      remove matchNew (can just use match())
+//      $$$ remove matchNew (can just use match()) -> bad idea (path matching...)
 
 //TODO maybe
 //      better commonality complexity

@@ -25,8 +25,8 @@ import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Node} from '../tree/Node.js';
 import {DeltaTreeGenerator_EXP} from '../patch/DeltaTreeGenerator_EXP.js';
 
-const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
-const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
+const base = new Preprocessor().parseFromFile('./src/temp/old.xml');
+const branch1 = new Preprocessor().parseFromFile('./src/temp/new.xml');
 
 
 const merge = new DeltaTreeGenerator_EXP().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
@@ -34,6 +34,21 @@ const merge = new DeltaTreeGenerator_EXP().extendedDeltaTree(base, new CpeeDiff(
 console.log(merge.toXmlString());
 
 
+let count = 0;
+const preOrder = merge.toPreOrderArray();
+for (let i = 0; i < preOrder.length; i++) {
+  const node = preOrder[i];
+  if(node.isMovedFrom() || node.isDeleted()) {
+    count++;
+    node.removeFromParent();
+    i--;
+    i += node.size();
+  }
+}
+
+console.log(merge.hashEquals(branch1));
+console.log(new CpeeDiff().diff(merge, branch1).toXmlString());
+console.log(count);
 
 /*
 const n = fs.readFileSync("test/test_set/match_cases/generated/new.xml").toString();
