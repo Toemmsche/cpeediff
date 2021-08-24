@@ -21,6 +21,7 @@ import {Preprocessor} from '../../src/io/Preprocessor.js';
 import {HashExtractor} from '../../src/extract/HashExtractor.js';
 import {Logger} from '../../util/Logger.js';
 import {ActualMerge} from '../actual/ActualMerge.js';
+import {CpeeDiff} from '../../src/diff/CpeeDiff.js';
 
 export class MergeAdapter {
 
@@ -66,6 +67,7 @@ export class MergeAdapter {
     const verdict = this._verifyResult(actual, testCase.expected);
 
     if (verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
+      //console.log(new CpeeDiff().diff(actual.tree, testCase.expected.expectedTrees[0]).toXmlString());
       Logger.info(this.displayName + ' gave wrong answer for ' + testCase.name, this);
     }
     return testCase.complete(this.displayName, actual, verdict);

@@ -22,9 +22,7 @@
                     </arguments>
                 </parameters>
                 <code>
-                    <finalize output="result">data.airline = result.value('id'); data.costs +=
-                        result.value('costs').to_f; data *= 1.19;
-                    </finalize>
+                    <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f; data *= 1.19;</finalize>
                 </code>
             </call>
         </description>

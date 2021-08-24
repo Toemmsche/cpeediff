@@ -86,7 +86,10 @@ export class HashExtractor extends ExtractorInterface {
    */
   #contentHash(node) {
     // Attribute order is irrelevant
-    const sortedAttrList = new Array(...node.attributes.keys()).sort();
+    const sortedAttrList = //TODO remove
+        new Array(...node.attributes.keys())
+            .filter((key) => key !== 'xmlns')
+            .sort();
     let content = node.label;
     for (const key of sortedAttrList) {
       content += key + '=' + node.attributes.get(key);
