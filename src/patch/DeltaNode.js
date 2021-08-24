@@ -185,11 +185,24 @@ export class DeltaNode extends Node {
 
     // Changes in text content are also modelled as updates
     if (this.updates.has('text')) {
-      // Text content can only be updated, not inserted or deleted
-      xmlElement.setAttribute(
-          Dsl.CHANGE_MODEL.UPDATE.prefix + ':data',
-          'true',
-      );
+      const oldVal = this.updates.get('text').oldVal;
+      const newVal = this.updates.get('text').newVal;
+      if (oldVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.INSERTION.prefix + ':text',
+            'true',
+        );
+      } else if (newVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.DELETION.prefix + ':text',
+            'true',
+        );
+      } else {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE.prefix + ':text',
+            'true',
+        );
+      }
     }
 
     if (this.text != null && this.text !== '') {

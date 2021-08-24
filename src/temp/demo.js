@@ -25,8 +25,8 @@ import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Node} from '../tree/Node.js';
 import {DeltaTreeGenerator_EXP} from '../patch/DeltaTreeGenerator_EXP.js';
 
-const base = new Preprocessor().parseFromFile('./src/temp/old.xml');
-const branch1 = new Preprocessor().parseFromFile('./src/temp/new.xml');
+const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
+const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
 
 
 const merge = new DeltaTreeGenerator_EXP().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
