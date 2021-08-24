@@ -51,8 +51,8 @@ Config.LOG_LEVEL = 'all';
 //new GeneratedMatchEvaluation([new QualityCpeeMatchAdapter(), new BalancedCpeeMatchAdapter()]).standardAggregate();
 //new DiffAlgorithmEvaluation([new QualityCpeeDiffAdapter(), new JNDiffAdapter()]).evalAll(TestConfig.MATCH_CASES_DIR + "/move/interparent_move");
 //new GeneratedDiffEvaluation([new QualityCpeeDiffAdapter(), new BalancedCpeeDiffAdapter()]).standardSingle();
-//DiffAlgorithmEvaluation.all().evalAll();
-new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
+new DiffAlgorithmEvaluation([new QualityCpeeDiffAdapter()]).evalAll();
+//new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
 
 /*
 const diff = new OurDiffAdapter();

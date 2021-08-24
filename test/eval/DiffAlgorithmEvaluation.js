@@ -34,7 +34,7 @@ export class DiffAlgorithmEvaluation extends AbstractEvaluation {
   }
 
   static all() {
-    return new DiffAlgorithmEvaluation(this._diffAdapters());
+    return new DiffAlgorithmEvaluation(this.diffAdapters());
   }
 
   static fast() {
