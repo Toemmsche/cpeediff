@@ -20,7 +20,7 @@ Config.PRETTY_XML = true;
 import {Preprocessor} from '../io/Preprocessor.js';
 import {CpeeMerge} from '../merge/CpeeMerge.js';
 import {Config} from '../Config.js';
-import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
+import {DeltaTreeGenerator} from './DeltaTreeGenerator.js';
 import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Node} from '../tree/Node.js';
 import {DeltaTreeGenerator_EXP} from '../patch/DeltaTreeGenerator_EXP.js';

@@ -14,11 +14,11 @@
  limitations under the License.
  */
 
-import {TestConfig} from '../TestConfig.js';
-import {DiffAdapter} from './DiffAdapter.js';
+import {TestConfig} from '../../test/TestConfig.js';
+import {DiffAdapter} from '../../test/diff_adapters/DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
-import {Node} from '../../src/tree/Node.js';
+import {Node} from '../tree/Node.js';
 
 export class JNDiffAdapter extends DiffAdapter {
 
@@ -26,7 +26,7 @@ export class JNDiffAdapter extends DiffAdapter {
     super(TestConfig.DIFFS.JNDIFF.path, TestConfig.DIFFS.JNDIFF.displayName);
   }
 
-  _parseOutput(output) {
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;

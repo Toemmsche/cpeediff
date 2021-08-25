@@ -21,7 +21,7 @@ import {hideBin} from 'yargs/helpers';
 import {Config} from './src/Config.js';
 import {Preprocessor} from './src/io/Preprocessor.js';
 import {CpeeDiff} from './src/diff/CpeeDiff.js';
-import {DeltaTreeGenerator} from './src/patch/DeltaTreeGenerator.js';
+import {DeltaTreeGenerator} from './src/temp/DeltaTreeGenerator.js';
 import {DiffAlgorithmEvaluation} from './test/eval/DiffAlgorithmEvaluation.js';
 import {MergeAlgorithmEvaluation} from './test/eval/MergeAlgorithmEvaluation.js';
 import {MatchingAlgorithmEvaluation} from './test/eval/MatchingAlgorithmEvaluation.js';

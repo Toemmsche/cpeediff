@@ -20,11 +20,11 @@ export const TestConfig = {
 
   PROGRESSION: {
     EXPONENTIAL: true,
-    INTERVAL: 100,
+    INTERVAL: 10,
     FACTOR: 2,
-    LIMIT: 11,
+    LIMIT: 10,
     INITIAL_SIZE: 100,
-    REPS: 10,
+    REPS: 50,
 
     INITIAL_CHANGES: 10,
   },

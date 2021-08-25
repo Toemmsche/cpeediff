@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-import {TestConfig} from '../TestConfig.js';
-import {DiffAdapter} from './DiffAdapter.js';
+import {TestConfig} from '../../test/TestConfig.js';
+import {DiffAdapter} from '../../test/diff_adapters/DiffAdapter.js';
 import xmldom from 'xmldom';
 import {DomHelper} from '../../util/DomHelper.js';
-import {Node} from '../../src/tree/Node.js';
+import {Node} from '../tree/Node.js';
 
 export class DeltaJsAdapter extends DiffAdapter {
 
@@ -26,7 +26,7 @@ export class DeltaJsAdapter extends DiffAdapter {
     super(TestConfig.DIFFS.DELTAJS.path, TestConfig.DIFFS.DELTAJS.displayName);
   }
 
-  _parseOutput(output) {
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;

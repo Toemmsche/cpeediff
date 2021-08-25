@@ -28,7 +28,7 @@ export class CpeeMatchAdapter extends MatchAdapter {
     this.matchMode = matchMode;
   }
 
-  _run(oldTree, newTree) {
+  run(oldTree, newTree) {
     Config.MATCH_MODE = this.matchMode;
     return MatchPipeline.fromMode().execute(oldTree, newTree);
   }

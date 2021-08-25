@@ -25,7 +25,7 @@ export class CpeeMergeAdapter extends MergeAdapter {
     super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
   }
 
-  _run(base, branch1, branch2) {
+  run(base, branch1, branch2) {
     const baseString = base.toXmlString();
     const branch1String = branch1.toXmlString();
     const branch2String = branch2.toXmlString();

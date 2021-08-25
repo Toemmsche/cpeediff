@@ -1,19 +1,3 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {TestConfig} from '../TestConfig.js';
 import fs from 'fs';
 import xmldom from 'xmldom';
@@ -22,41 +6,93 @@ import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
 
+/**
+ * The superclass for all diff adapters that interface to existing XML
+ * difference algorithms.
+ */
 export class DiffAdapter {
+  /**
+   * The path to the directory containing the XML diff algorithm and the run
+   * script.
+   * @type {String}
+   */
+  path;
 
-  pathPrefix;
+  /**
+   * The name to display for the XML difference algorithm this adapter
+   * represents.
+   * @type {String}
+   */
   displayName;
 
-  constructor(pathPrefix, displayName) {
-    this.pathPrefix = pathPrefix;
+  /**
+   * Construct a new DiffAdapter instance.
+   * @param {String} path The path to the directory containing the XML diff
+   *     algorithm and the run script
+   * @param {String} displayName The name to display for the XML difference
+   *     algorithm this adapter represents.
+   */
+  constructor(path, displayName) {
+    this.path = path;
     this.displayName = displayName;
   }
 
-  _run(oldTree, newTree) {
-    const oldTreeString = oldTree.toXmlString();
-    const newTreeString = newTree.toXmlString();
-
-    const oldFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.OLD_TREE;
-    const newFilePath = this.pathPrefix + '/' + TestConfig.FILENAMES.NEW_TREE;
-
-    fs.writeFileSync(oldFilePath, oldTreeString);
-    fs.writeFileSync(newFilePath, newTreeString);
-
-    let time = new Date().getTime();
-    return {
-      output: execFileSync(this.pathPrefix + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
-      runtime: new Date().getTime() - time
-    };
-
+  /**
+   * Run a diff test case with this XML difference algortihm.
+   * @param {DiffTestCase} testCase The test case.
+   * @return {DiffTestResult} The result.
+   */
+  evalCase(testCase) {
+    let exec;
+    try {
+      exec = this.run(testCase.oldTree, testCase.newTree);
+    } catch (e) {
+      // Timeout or runtime error?
+      if (e.code === 'ETIMEDOUT') {
+        Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
+        return testCase.complete(
+            this.displayName,
+            null,
+            null,
+            TestConfig.VERDICTS.TIMEOUT,
+        );
+      } else {
+        Logger.info(this.displayName + ' crashed for ' + testCase.name +
+            ': ' + e.toString(), this);
+        return testCase.complete(
+            this.displayName,
+            null,
+            null,
+            TestConfig.VERDICTS.RUNTIME_ERROR,
+        );
+      }
+    }
+    const counters = this.parseOutput(exec.output);
+    // A non-failure result is represented by OK. This does not indicate that
+    // the algorithm performed well for the test case.
+    return testCase.complete(
+        this.displayName,
+        exec.runtime,
+        new ActualDiff(exec.output, ...counters),
+        TestConfig.VERDICTS.OK
+    );
   }
 
-  _parseOutput(output) {
+  /**
+   * Parse the output produced by this XML difference algorithm to obtain the
+   * types and amount of edit operations contained in the edit script as well
+   * as its overall cost.
+   * @param {String} output The raw output.
+   * @return {[Number ,Number, Number, Number, Number]} [#Insertions, #Moves,
+   *     #Updates, #Deletions, #Cost]
+   */
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;
     let deletions = 0;
 
-    //parse output
+    // Assume conforming change model
     const delta = DomHelper.firstChildElement(
         new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'delta');
     DomHelper.forAllChildElements(delta, (xmlOperation) => {
@@ -66,7 +102,7 @@ export class DiffAdapter {
           break;
         case 'add':
         case 'insert':
-          //map copies to insertions
+          // Map copies to insertions
         case 'copy':
           insertions++;
           break;
@@ -80,26 +116,44 @@ export class DiffAdapter {
       }
     });
     const cost = insertions + moves + updates + deletions;
-    return [insertions, moves, updates, deletions, cost];
+    return [
+      insertions,
+      moves,
+      updates,
+      deletions,
+      cost,
+    ];
   }
 
-  evalCase(testCase) {
-    let exec;
-    try {
-      exec = this._run(testCase.oldTree, testCase.newTree);
-    } catch (e) {
-      //check if timeout or runtime error
-      if (e.code === 'ETIMEDOUT') {
-        Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
-        return testCase.complete(this.displayName, null, null, TestConfig.VERDICTS.TIMEOUT);
-      } else {
-        Logger.info(this.displayName + ' crashed for ' + testCase.name + ': ' + e.toString(), this);
-        return testCase.complete(this.displayName, null, null, TestConfig.VERDICTS.RUNTIME_ERROR);
-      }
-    }
-    const counters = this._parseOutput(exec.output);
-    //An OK verdict is emitted because the diff algorithm didnt fail
-    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output, ...counters), TestConfig.VERDICTS.OK);
+  /**
+   * Run this XML difference algorithm with the provided process trees.
+   * @param {Node} oldTree The root of the old (original) process tree.
+   * @param {Node} newTree The root of the new (changed) process tree.
+   * @return {{output: String, runtime: Number}} The raw output and elapsed
+   *     time.
+   */
+  run(oldTree, newTree) {
+    const oldTreeString = oldTree.toXmlString();
+    const newTreeString = newTree.toXmlString();
+
+    const oldFilePath = this.path + '/' + TestConfig.FILENAMES.OLD_TREE;
+    const newFilePath = this.path + '/' + TestConfig.FILENAMES.NEW_TREE;
+
+    fs.writeFileSync(oldFilePath, oldTreeString);
+    fs.writeFileSync(newFilePath, newTreeString);
+
+    const time = new Date().getTime();
+    return {
+      output: execFileSync(
+          this.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT,
+          [
+            oldFilePath,
+            newFilePath,
+          ],
+          TestConfig.EXECUTION_OPTIONS,
+      ).toString(),
+      runtime: new Date().getTime() - time,
+    };
   }
 }
 

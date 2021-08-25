@@ -24,7 +24,7 @@ export class DiffXmlAdapter extends DiffAdapter {
   }
 
   /*
-  _parseOutput(output) {
+  parseOutput(output) {
       let updates = 0;
       let insertions = 0;
       let moves = 0;

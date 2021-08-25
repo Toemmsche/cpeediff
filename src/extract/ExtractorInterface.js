@@ -11,6 +11,7 @@ export class ExtractorInterface {
   /**
    * @type {Map<Node,T>}
    * @protected
+   * @abstract
    */
   _memo;
 
@@ -24,8 +25,8 @@ export class ExtractorInterface {
   /**
    * Perform the extraction for the value type cached by this extractor.
    * @param {Node} node The node for which to compute the value.
-   * @throws {Error} Because this method should be overridden in all subclasses.
    * @protected
+   * @abstract
    */
   _extract(node) {
     Logger.abstractMethodExecution();
@@ -35,11 +36,9 @@ export class ExtractorInterface {
    * Get the desired value. If it is not cached, calculate and cache it first.
    * @param {Node} node The node to which the value corresponds to.
    * @return {T} The desired value.
+   * @abstract
    */
   get(node) {
-    if (!this._memo.has(node)) {
-      this._extract(node);
-    }
-    return this._memo.get(node);
+    Logger.abstractMethodExecution();
   }
 }

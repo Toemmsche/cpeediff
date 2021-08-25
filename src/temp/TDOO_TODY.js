@@ -37,6 +37,16 @@
 //      $ simplify test set (no properties)
 //      $$$ remove matchNew (can just use match()) -> bad idea (path matching...)
 
+//TODO  25.8.
+//      $$ restructure evaluation in thesis
+//      continue refactoring eval package
+//      craete figure illustrating the merge
+//      meet with Jürgen and ask final questions
+//          discuss introduction length
+//          discuss hand-in
+//          meetings doc -->
+//      mark abstract methods and override and const
+
 //TODO maybe
 //      better commonality complexity
 //     adjust change model of DIffxml to include updates

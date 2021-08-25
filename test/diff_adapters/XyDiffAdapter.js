@@ -26,7 +26,7 @@ export class XyDiffAdapter extends DiffAdapter {
     super(TestConfig.DIFFS.XYDIFF.path, TestConfig.DIFFS.XYDIFF.displayName);
   }
 
-  _parseOutput(output) {
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;

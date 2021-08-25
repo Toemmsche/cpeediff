@@ -16,7 +16,7 @@
 
 import {TestConfig} from '../TestConfig.js';
 import * as fs from 'fs';
-import {DeltaJsAdapter} from '../diff_adapters/DeltaJsAdapter.js';
+import {DeltaJsAdapter} from '../../src/temp/DeltaJsAdapter.js';
 import {XccAdapter} from '../diff_adapters/XccAdapter.js';
 import {XyDiffAdapter} from '../diff_adapters/XyDiffAdapter.js';
 import {Logger} from '../../util/Logger.js';
@@ -24,7 +24,6 @@ import {DirectoryScraper} from '../../util/DirectoryScraper.js';
 import {DiffTestCase} from '../case/DiffTestCase.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
 import {markdownTable} from 'markdown-table';
-import {FastCpeeDiffAdapter} from '../diff_adapters/FastCpeeDiffAdapter.js';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
 
 export class DiffAlgorithmEvaluation extends AbstractEvaluation {
@@ -35,13 +34,6 @@ export class DiffAlgorithmEvaluation extends AbstractEvaluation {
 
   static all() {
     return new DiffAlgorithmEvaluation(this.diffAdapters());
-  }
-
-  static fast() {
-    let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-    adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + '/' + TestConfig.FILENAMES.RUN_SCRIPT));
-    adapters.unshift(new FastCpeeDiffAdapter());
-    return new DiffAlgorithmEvaluation(adapters);
   }
 
   evalAll(rootDir = TestConfig.DIFF_CASES_DIR) {

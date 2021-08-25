@@ -24,12 +24,18 @@ import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 import {Config} from '../../src/Config.js';
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {
+  /**
+   * The matching mode to use.
+   * @type {String}
+   * @private
+   */
+  #mode;
 
   constructor() {
     super('', TestConfig.DIFFS.CPEEDIFF.displayName + '_LOCAL');
   }
 
-  _run(oldTree, newTree) {
+  run(oldTree, newTree) {
     let time = new Date().getTime();
     Config.MATCH_MODE = Config.MATCH_MODES.QUALITY;
     const delta = new CpeeDiff(MatchPipeline.fromMode()).diff(oldTree, newTree);
@@ -40,7 +46,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
     };
   }
 
-  _parseOutput(output) {
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;
@@ -69,7 +75,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
   evalCase(testCase) {
     let exec;
     try {
-      exec = this._run(testCase.oldTree, testCase.newTree);
+      exec = this.run(testCase.oldTree, testCase.newTree);
     } catch (e) {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {
@@ -80,7 +86,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
       }
     }
-    const counters = this._parseOutput(exec.output);
+    const counters = this.parseOutput(exec.output);
     //An OK verdict is emitted because the diff algorithm didnt fail
     return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), TestConfig.VERDICTS.OK);
   }

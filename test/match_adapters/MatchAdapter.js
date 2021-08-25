@@ -22,15 +22,15 @@ import {ActualMatching} from '../actual/ActualMatching.js';
 
 export class MatchAdapter {
 
-  pathPrefix;
+  path;
   displayName;
 
-  constructor(pathPrefix, displayName) {
-    this.pathPrefix = pathPrefix;
+  constructor(path, displayName) {
+    this.path = path;
     this.displayName = displayName;
   }
 
-  _run(oldTree, newTree) {
+  run(oldTree, newTree) {
     return null;
   }
 
@@ -83,7 +83,7 @@ export class MatchAdapter {
   evalCase(testCase) {
     let matching;
     try {
-      matching = this._run(testCase.oldTree, testCase.newTree);
+      matching = this.run(testCase.oldTree, testCase.newTree);
     } catch (e) {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {

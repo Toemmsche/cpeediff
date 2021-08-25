@@ -25,34 +25,34 @@ import {CpeeDiff} from '../../src/diff/CpeeDiff.js';
 
 export class MergeAdapter {
 
-  pathPrefix;
+  path;
   displayName;
 
-  constructor(pathPrefix, displayName) {
-    this.pathPrefix = pathPrefix;
+  constructor(path, displayName) {
+    this.path = path;
     this.displayName = displayName;
   }
 
-  _run(base, branch1, branch2) {
+  run(base, branch1, branch2) {
     const baseString = base.toXmlString();
     const branch1String = branch1.toXmlString();
     const branch2String = branch2.toXmlString();
 
-    const baseFilePath = this.pathPrefix + '/base.xml';
-    const branch1Filepath = this.pathPrefix + '/1.xml';
-    const branch2FilePath = this.pathPrefix + '/2.xml';
+    const baseFilePath = this.path + '/base.xml';
+    const branch1Filepath = this.path + '/1.xml';
+    const branch2FilePath = this.path + '/2.xml';
 
     fs.writeFileSync(baseFilePath, baseString);
     fs.writeFileSync(branch1Filepath, branch1String);
     fs.writeFileSync(branch2FilePath, branch2String);
 
-    return execFileSync(this.pathPrefix + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+    return execFileSync(this.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
   }
 
   evalCase(testCase) {
     let exec;
     try {
-      exec = this._run(testCase.base, testCase.branch1, testCase.branch2);
+      exec = this.run(testCase.base, testCase.branch1, testCase.branch2);
     } catch (e) {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {

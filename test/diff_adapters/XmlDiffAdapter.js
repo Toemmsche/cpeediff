@@ -23,7 +23,7 @@ export class XmlDiffAdapter extends DiffAdapter {
     super(TestConfig.DIFFS.XMLDIFF.path, TestConfig.DIFFS.XMLDIFF.displayName);
   }
 
-  _parseOutput(output) {
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;

@@ -52,7 +52,7 @@ export const Dsl = {
     CHOOSE: {
       label: 'choose',
       isLeaf: false,
-      isOrdered: false
+      isOrdered: true
     },
     ALTERNATIVE: {
       label: 'alternative',

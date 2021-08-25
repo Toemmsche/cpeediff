@@ -1,64 +1,64 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {TestConfig} from '../TestConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
 import {Node} from '../../src/tree/Node.js';
 
+/**
+ * Adapter class for the 'XML Change Control' algorithm by S. Rönnau and U. M.
+ * Borghoff.
+ */
 export class XccAdapter extends DiffAdapter {
 
+  /**
+   * Construct a new XccAdapter instance
+   */
   constructor() {
     super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
   }
 
-  _parseOutput(output) {
+  /**
+   * @inheritDoc
+   * @override
+   */
+  parseOutput(output) {
     let updates = 0;
     let insertions = 0;
     let moves = 0;
     let deletions = 0;
-
     let cost = 0;
-    //parse output
+
+    // Enclosing tag is 'delta'
     const delta = DomHelper.firstChildElement(
         new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'delta');
     DomHelper.forAllChildElements(delta, (xmlOperation) => {
       switch (xmlOperation.localName) {
         case 'insert':
-          //moves are insertions and deletions with the same "id" attribute
+          // Moves are insertions and deletions that are linked by an 'id'
+          // attribute
           if (xmlOperation.hasAttribute('id')) {
             moves++;
           } else {
             insertions++;
-            //determine cost
-            const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'newvalue');
+            // Determine cost
+            const xmlNewValue = DomHelper.firstChildElement(
+                xmlOperation,
+                'newvalue'
+            );
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
               cost += Node.fromXmlDom(xmlElement).size();
             });
           }
           break;
         case 'delete':
-          //moves are insertions and deletions with the same "id" attribute
-          if (xmlOperation.hasAttribute('id')) {
-            moves++;
-          } else {
+          // Moves are account for in the insertion case
+          if (!xmlOperation.hasAttribute('id')) {
             deletions++;
-            //determine cost
-            const xmlNewValue = DomHelper.firstChildElement(xmlOperation, 'oldvalue');
+            // Determine cost
+            const xmlNewValue = DomHelper.firstChildElement(
+                xmlOperation,
+                'oldvalue'
+            );
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
               cost += Node.fromXmlDom(xmlElement).size();
             });
@@ -69,11 +69,15 @@ export class XccAdapter extends DiffAdapter {
           break;
       }
     });
-    moves /= 2;
-    //updates and moves have unit cost
+    // Unit cost
     cost += updates + moves;
-    //every move is counted twice
-    return [insertions, moves, updates, deletions, cost];
+    return [
+      insertions,
+      moves,
+      updates,
+      deletions,
+      cost
+    ];
   }
 }
 

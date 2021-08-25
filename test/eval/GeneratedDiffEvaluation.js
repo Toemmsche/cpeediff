@@ -24,7 +24,7 @@ import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
 import {markdownTable} from 'markdown-table';
 import {XyDiffAdapter} from '../diff_adapters/XyDiffAdapter.js';
-import {DeltaJsAdapter} from '../diff_adapters/DeltaJsAdapter.js';
+import {DeltaJsAdapter} from '../../src/temp/DeltaJsAdapter.js';
 import {XccAdapter} from '../diff_adapters/XccAdapter.js';
 import fs from 'fs';
 import {CpeeDiffAdapter} from '../diff_adapters/CpeeDiffAdapter.js';
@@ -43,7 +43,7 @@ export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
 
   static fast() {
     let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-    adapters = adapters.filter(a => fs.existsSync(a.pathPrefix + '/' + TestConfig.FILENAMES.RUN_SCRIPT));
+    adapters = adapters.filter(a => fs.existsSync(a.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT));
     adapters.unshift(new CpeeDiffAdapter());
     return new GeneratedDiffEvaluation(adapters);
   }

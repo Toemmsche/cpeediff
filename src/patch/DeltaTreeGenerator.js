@@ -202,6 +202,40 @@ export class DeltaTreeGenerator {
   }
 
   /**
+   * Copy a data node and its children and placeholders by value.
+   * Any outdated values of the move map are updated in the process.
+   * @param {DeltaNode} deltaNode The delta node to copy.
+   * @return {DeltaNode}
+   */
+  #copyAndUpdateMoveMap(deltaNode) {
+    const copy = new DeltaNode(
+        deltaNode.label,
+        deltaNode.text,
+        deltaNode.type,
+        deltaNode.baseNode,
+    );
+    const partner =
+        [...this.#moveMap.entries()]
+            .filter((e) => e[1] === deltaNode)[0];
+    if (partner != null) {
+      this.#moveMap.set(partner[0], copy);
+    }
+    for (const [key, value] of deltaNode.attributes) {
+      copy.attributes.set(key, value);
+    }
+    for (const child of deltaNode) {
+      copy.appendChild(this.#copyAndUpdateMoveMap(child));
+    }
+    for (const placeholder of deltaNode.placeholders) {
+      copy.placeholders.push(this.#copyAndUpdateMoveMap(placeholder));
+    }
+    for (const [key, update] of deltaNode.updates) {
+      copy.updates.set(key, update.copy());
+    }
+    return copy;
+  };
+
+  /**
    * @param {EditOperation} move
    */
   #handleMove(move) {
@@ -210,8 +244,8 @@ export class DeltaTreeGenerator {
 
     // If movfrNode does not exist (no deep move), create a new placeholder
     if (movfrNode == null) {
-      // Copy regular node exactly
-      movfrNode = DeltaNode.fromNode(node, true);
+      // Copy regular node exactly and update moveMap entries
+      movfrNode = this.#copyAndUpdateMoveMap(node);
       // Copy regular node index
       movfrNode.index = node.index;
       // Append placeholder
