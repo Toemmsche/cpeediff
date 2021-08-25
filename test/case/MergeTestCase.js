@@ -50,10 +50,29 @@ export class MergeTestCase extends AbstractTestCase {
   }
 
   /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case
+   * @param {?ActualMerge} actual The merge produced by the algorithm, null
+   *     indicates failure
+   * @param {String} verdict The verdict for this test case and algorithm
+   * @return {MergeTestResult} The corresponding result
+   * @override
+   */
+  complete(algorithm, actual = null, verdict) {
+    return new MergeTestResult(
+        this.name,
+        algorithm,
+        actual,
+        verdict,
+    );
+  }
+
+  /**
    * Construct a merge test case from a test case directory.
    * @param {String} testCaseDir An absolute or relative path to the test case
    *     directory
    * @return {MergeTestCase} The constructed merge test case
+   * @override
    */
   static from(testCaseDir) {
     const parser = new Preprocessor();
@@ -84,23 +103,6 @@ export class MergeTestCase extends AbstractTestCase {
         branch1,
         branch2,
         new ExpectedMerge(expected, accepted),
-    );
-  }
-
-  /**
-   * Complete this test case.
-   * @param {String} algorithm The algorithm that ran this case
-   * @param {ActualMerge|null} actual The merge produced by the algorithm, null
-   *     indicates failure
-   * @param {String} verdict The verdict for this test case and algorithm
-   * @return {MergeTestResult} The corresponding result
-   */
-  complete(algorithm, actual = null, verdict) {
-    return new MergeTestResult(
-        this.name,
-        algorithm,
-        actual,
-        verdict,
     );
   }
 }

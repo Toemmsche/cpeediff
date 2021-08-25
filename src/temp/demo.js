@@ -20,22 +20,34 @@ Config.PRETTY_XML = true;
 import {Preprocessor} from '../io/Preprocessor.js';
 import {CpeeMerge} from '../merge/CpeeMerge.js';
 import {Config} from '../Config.js';
-import {DeltaTreeGenerator} from './DeltaTreeGenerator.js';
 import {CpeeDiff} from '../diff/CpeeDiff.js';
 import {Node} from '../tree/Node.js';
-import {DeltaTreeGenerator_EXP} from '../patch/DeltaTreeGenerator_EXP.js';
+import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 
-const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
-const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
+const base = new Preprocessor().parseFromFile('./src/temp/old.xml');
+const branch1 = new Preprocessor().parseFromFile('./src/temp/new.xml');
 
 
-const merge = new DeltaTreeGenerator_EXP().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
+const merge = new DeltaTreeGenerator().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
 
 console.log(merge.toXmlString());
 
 
 let count = 0;
 const preOrder = merge.toPreOrderArray();
+for (let i = 0; i < preOrder.length; i++) {
+  /** @type {DeltaNode} */
+  const node = preOrder[i];
+  if(node.isMovedFrom()) {
+    count++;
+  } else if(node.isMoved()) {
+    count--;
+  }
+}
+
+console.log(count);
+
+ count = 0;
 for (let i = 0; i < preOrder.length; i++) {
   const node = preOrder[i];
   if(node.isMovedFrom() || node.isDeleted()) {

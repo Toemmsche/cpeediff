@@ -4,8 +4,7 @@ import xmldom from 'xmldom';
 
 /**
  * A node inside a CPEE process tree annotated with change related information.
- * This class serves as the basis for enhanced and interactive diff
- * visualization.
+ * This class serves as the basis for diff visualization as well as merging.
  *
  * @implements {XmlSerializable<DeltaNode>}
  */
@@ -69,18 +68,18 @@ export class DeltaNode extends Node {
   }
 
   /**
+   * @return {Boolean} If this node was moved.
+   */
+  isMoved() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
+  }
+
+  /**
    * @return {Boolean} If this node is a placeholder for a moved node before it
    *     was moved.
    */
   isMovedFrom() {
     return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
-  }
-
-  /**
-   * @return {Boolean} If this node was moved.
-   */
-  isMoved() {
-    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
   }
 
   /**
@@ -102,12 +101,15 @@ export class DeltaNode extends Node {
    * Remove a node from the child list of its parent. Also adjust the indices
    * of all placeholders. Note: The parent attribute is not cleared by this
    * function.
+   * @override
    */
   removeFromParent() {
     super.removeFromParent();
-    for (const placeholder of this.parent.placeholders) {
-      if (placeholder.index > this.index) {
-        placeholder.index = placeholder.index - 1;
+    if (this.parent != null) {
+      for (const placeholder of this.parent.placeholders) {
+        if (placeholder.index > this.index) {
+          placeholder.index = placeholder.index - 1;
+        }
       }
     }
   }
@@ -116,6 +118,7 @@ export class DeltaNode extends Node {
    * Insert a new child and adjust placeholder indices.
    * @param {Number} index The position at which to insert the new child.
    * @param {Node} node The new child.
+   * @override
    */
   insertChild(index, node) {
     super.insertChild(index, node);
@@ -129,6 +132,7 @@ export class DeltaNode extends Node {
 
   /**
    * @return {Object} XML DOM object for this delta node and its children.
+   * @override
    */
   toXmlDom() {
     const doc =
@@ -217,6 +221,7 @@ export class DeltaNode extends Node {
    * @param {Node} node
    * @param {Boolean} includeChildren
    * @return {DeltaNode}
+   * @override
    */
   static fromNode(node, includeChildren) {
     const deltaNode = new DeltaNode(node.label, node.text);

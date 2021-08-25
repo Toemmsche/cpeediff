@@ -9,6 +9,7 @@ import {Logger} from '../../util/Logger.js';
 export class XmlSerializable {
   /**
    * @return {Object} XML DOM object for this object.
+   * @abstract
    */
   toXmlDom() {
     Logger.abstractMethodExecution();
@@ -17,6 +18,7 @@ export class XmlSerializable {
 
   /**
    * @return {String} XML document for this object.
+   * @abstract
    */
   toXmlString() {
     Logger.abstractMethodExecution();
@@ -26,6 +28,7 @@ export class XmlSerializable {
   /**
    * @param {String} xmlElement The XML DOM object.
    * @return {T}
+   * @abstract
    */
   static fromXmlDom(xmlElement) {
     Logger.abstractMethodExecution();
@@ -33,6 +36,7 @@ export class XmlSerializable {
   }
 
   /**
+   * @abstract
    * @param {String} xml The XML document.
    * @return {T}
    */

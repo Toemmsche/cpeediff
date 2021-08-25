@@ -11,7 +11,7 @@ export class MatcherInterface {
    * @param {Node} newTree The root of the new (changed) process tree
    * @param {Matching} matching The existing matching to be extended
    * @param {Comparator} comparator The comparator used for comparisons.
-   * @throws {Error} Because this method should be overridden in all subclasses
+   * @abstract
    */
   match(oldTree, newTree, matching, comparator) {
     Logger.abstractMethodExecution();

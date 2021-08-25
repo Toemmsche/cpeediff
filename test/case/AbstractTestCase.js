@@ -1,6 +1,8 @@
 /**
  * Abstract superclass for all test cases.
  */
+import {Logger} from '../../util/Logger.js';
+
 export class AbstractTestCase {
   /**
    * The name of the this test case.
@@ -23,5 +25,28 @@ export class AbstractTestCase {
   constructor(name, expected) {
     this.name = name;
     this.expected = expected;
+  }
+
+  /**
+   * Construct a diff test case from a test case directory.
+   * @param {String} testCaseDir An absolute or relative path to the test case
+   *     directory
+   * @return {AbstractTestCase} The constructed test case
+   * @abstract
+   */
+  static from(testCaseDir) {
+    Logger.abstractMethodExecution();
+  }
+
+  /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case.
+   * @param {?AbstractActual} actual The actual output. Null indicates failure.
+   * @param {String} verdict The verdict for this test case and algorithm.
+   * @return {AbstractTestResult} The corresponding result.
+   * @abstract
+   */
+  complete(algorithm, actual, verdict) {
+    Logger.abstractMethodExecution();
   }
 }

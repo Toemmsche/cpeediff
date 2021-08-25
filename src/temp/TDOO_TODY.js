@@ -39,7 +39,7 @@
 
 //TODO  25.8.
 //      $$ restructure evaluation in thesis
-//      continue refactoring eval package
+//      $$continue refactoring eval package
 //      craete figure illustrating the merge
 //      meet with Jürgen and ask final questions
 //          discuss introduction length

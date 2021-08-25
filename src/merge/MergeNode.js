@@ -2,7 +2,7 @@ import {DeltaNode} from '../patch/DeltaNode.js';
 import {Confidence} from './Confidence.js';
 
 /**
- * A node inside a CPEE process tree that is the result of a merge.
+ * A node inside a merged process tree.
  * @implements {XmlSerializable<MergeNode>}
  */
 export class MergeNode extends DeltaNode {
@@ -47,6 +47,7 @@ export class MergeNode extends DeltaNode {
    * @param {Node} node The existing node.
    * @param {Boolean} includeChildren Whether to copy the children of the node.
    * @return {MergeNode}
+   * @override
    */
   static fromNode(node, includeChildren = true) {
     const mergeNode = new MergeNode(node.label, node.text);

@@ -41,10 +41,29 @@ export class MatchTestCase extends AbstractTestCase {
   }
 
   /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case
+   * @param {?ActualMatching} actual The matching produced by the
+   *     algorithm, null indicates failure
+   * @param {String} verdict The verdict for this test case and algorithm
+   * @return {MatchTestResult} The corresponding result
+   * @override
+   */
+  complete(algorithm, actual = null, verdict) {
+    return new MatchTestResult(
+        this.name,
+        algorithm,
+        actual,
+        verdict,
+    );
+  }
+
+  /**
    * Construct a match test case from a test case directory.
    * @param {String} testCaseDir An absolute or relative path to the test case
    *     directory
    * @return {MatchTestCase} The constructed match test case
+   * @override
    */
   static from(testCaseDir) {
     const testCaseName = testCaseDir.split('/').pop();
@@ -68,23 +87,6 @@ export class MatchTestCase extends AbstractTestCase {
         oldTree,
         newTree,
         expected,
-    );
-  }
-
-  /**
-   * Complete this test case.
-   * @param {String} algorithm The algorithm that ran this case
-   * @param {ActualMatching|null} actual The matching produced by the
-   *     algorithm, null indicates failure
-   * @param {String} verdict The verdict for this test case and algorithm
-   * @return {MatchTestResult} The corresponding result
-   */
-  complete(algorithm, actual = null, verdict) {
-    return new MatchTestResult(
-        this.name,
-        algorithm,
-        actual,
-        verdict,
     );
   }
 }

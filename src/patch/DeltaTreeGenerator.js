@@ -252,7 +252,7 @@ export class DeltaTreeGenerator {
       node.parent.placeholders.push(movfrNode);
     } else {
       movfrNode.removeFromParent();
-      movfrNode.parent.placeholders.push(movfrNode);
+      movfrNode.parent?.placeholders.push(movfrNode);
     }
     movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
 
