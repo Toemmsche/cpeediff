@@ -131,7 +131,7 @@ export class TreeGenerator {
       // Changes should be local => only change a subtree containing at least
       // max(10, treeSize/50) nodes
       newTree = newTree
-          .innerNodes()
+          .inners()
           .filter((inner) => elementSizeExtractor.get(inner) >= 20)
           .sort((a, b) => elementSizeExtractor.get(a) -
               elementSizeExtractor.get(b))[0];
@@ -263,7 +263,7 @@ export class TreeGenerator {
   #deleteSubtreeRandomly(tree) {
     // cannot delete arbitrarily sized subtrees
     const oldsize = this.#genParams.size;
-    const node = this.#randomFrom(tree.innerNodes()
+    const node = this.#randomFrom(tree.inners()
         .filter((n) => !n.isRoot() && n.size() <= Math.sqrt(oldsize)));
     node.removeFromParent();
   }
@@ -288,7 +288,7 @@ export class TreeGenerator {
    */
   #insertLeafRandomly(tree) {
     const insertedNode = this.#randomLeaf();
-    const parent = this.#pickValidParent(insertedNode, tree.innerNodes());
+    const parent = this.#pickValidParent(insertedNode, tree.inners());
     this.#appendRandomly(parent, insertedNode);
   }
 
@@ -301,7 +301,7 @@ export class TreeGenerator {
    */
   #insertSubtreeRandomly(tree) {
     const insertedTree = this.#randomInner();
-    const parent = this.#pickValidParent(insertedTree, tree.innerNodes());
+    const parent = this.#pickValidParent(insertedTree, tree.inners());
     this.#appendRandomly(parent, insertedTree);
 
     // inserted tree is much smaller
@@ -345,7 +345,7 @@ export class TreeGenerator {
       // prevent move to self
       parent = this.#pickValidParent(
           movedNode,
-          tree.innerNodes()
+          tree.inners()
               .filter((n) => !movedNode.toPreOrderArray().includes(n)),
       );
     } else {
@@ -378,21 +378,21 @@ export class TreeGenerator {
     // Some nodes are restricted in terms of their parent node
     let filterFun;
     if (node.isLeaf() && node.label === Dsl.ELEMENTS.STOP.label ||
-        node.label === Dsl.ELEMENTS.TERMINATE.label ||
-        node.label === Dsl.ELEMENTS.ESCAPE.label) {
+        node.label === Dsl.ELEMENTS.TERMINATION.label ||
+        node.label === Dsl.ELEMENTS.BREAK.label) {
       // multiple termination nodes under a single parent just do not make sense
       filterFun = (n) => n.label !== Dsl.ELEMENTS.PARALLEL.label &&
-          n.label !== Dsl.ELEMENTS.CHOOSE.label &&
+          n.label !== Dsl.ELEMENTS.CHOICE.label &&
           n.children.some((c) =>
               c.label === Dsl.ELEMENTS.STOP.label ||
-              c.label === Dsl.ELEMENTS.TERMINATE.label ||
-              c.label === Dsl.ELEMENTS.ESCAPE.label);
+              c.label === Dsl.ELEMENTS.TERMINATION.label ||
+              c.label === Dsl.ELEMENTS.BREAK.label);
     } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.ALTERNATIVE.label) {
-      filterFun = (n) => n.label === Dsl.ELEMENTS.CHOOSE.label;
+      filterFun = (n) => n.label === Dsl.ELEMENTS.CHOICE.label;
     } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.OTHERWISE.label) {
       // find a choose node with no existing otherwise branch
       filterFun = (n) => {
-        if (n.label !== Dsl.ELEMENTS.CHOOSE.label) return false;
+        if (n.label !== Dsl.ELEMENTS.CHOICE.label) return false;
         for (const child of n) {
           if (child.label === Dsl.ELEMENTS.OTHERWISE.label) return false;
         }
@@ -402,7 +402,7 @@ export class TreeGenerator {
       filterFun = (n) => n.label === Dsl.ELEMENTS.PARALLEL.label;
     } else {
       filterFun = (n) => n.label !== Dsl.ELEMENTS.PARALLEL.label &&
-          n.label !== Dsl.ELEMENTS.CHOOSE.label;
+          n.label !== Dsl.ELEMENTS.CHOICE.label;
     }
 
     // pick parent according to filter function
@@ -447,7 +447,7 @@ export class TreeGenerator {
    * @private
    */
   #randomBreak() {
-    const node = new Node(Dsl.ELEMENTS.ESCAPE.label);
+    const node = new Node(Dsl.ELEMENTS.BREAK.label);
     return node;
   }
 
@@ -526,7 +526,7 @@ export class TreeGenerator {
    * @private
    */
   #randomChoice() {
-    const node = new Node(Dsl.ELEMENTS.CHOOSE.label);
+    const node = new Node(Dsl.ELEMENTS.CHOICE.label);
     if (this.#withProbability(0.5)) {
       node.attributes.set(
           Dsl.INNER_PROPERTIES.CHOOSE_MODE.label,
@@ -572,11 +572,11 @@ export class TreeGenerator {
   #randomInner() {
     // inner nodes are evenly distributed (except root node)
     const label = this.#randomFrom(new Array(...Dsl.INNER_NODE_SET.values()).filter(
-        (n) => n !== Dsl.ELEMENTS.ROOT.label));
+        (n) => n !== Dsl.ELEMENTS.DSL_ROOT.label));
     switch (label) {
       case Dsl.ELEMENTS.LOOP.label:
         return this.#randomLoop();
-      case Dsl.ELEMENTS.CHOOSE.label:
+      case Dsl.ELEMENTS.CHOICE.label:
         return this.#randomChoice();
       case Dsl.ELEMENTS.PARALLEL.label:
         return this.#randomParallel();
@@ -681,7 +681,7 @@ export class TreeGenerator {
    * @private
    */
   #randomRoot() {
-    return new Node(Dsl.ELEMENTS.ROOT.label);
+    return new Node(Dsl.ELEMENTS.DSL_ROOT.label);
   }
 
   /**
@@ -690,7 +690,7 @@ export class TreeGenerator {
    * @private
    */
   #randomScript() {
-    const node = new Node(Dsl.ELEMENTS.MANIPULATE.label);
+    const node = new Node(Dsl.ELEMENTS.SCRIPT.label);
 
     // random written #variables
     node.text = '';
@@ -756,7 +756,7 @@ export class TreeGenerator {
    * @private
    */
   #randomTermination() {
-    const node = new Node(Dsl.ELEMENTS.TERMINATE.label);
+    const node = new Node(Dsl.ELEMENTS.TERMINATION.label);
     return node;
   }
 
@@ -799,7 +799,7 @@ export class TreeGenerator {
         this.#appendRandomly(parent, newNode);
         currSize += newNode.size();
       } catch (error) {
-
+        // TODO
       }
     }
 
@@ -841,7 +841,7 @@ export class TreeGenerator {
         case Dsl.CALL_PROPERTIES.UPDATE.label:
         case Dsl.CALL_PROPERTIES.RESCUE.label:
         case Dsl.CALL_PROPERTIES.FINALIZE.label:
-        case Dsl.ELEMENTS.MANIPULATE.label: {
+        case Dsl.ELEMENTS.SCRIPT.label: {
           // code change, split into statements
           const statements = node.text.split(';');
           // remove a random statement

@@ -1,18 +1,18 @@
 /*
-    Copyright 2021 Tom Papke
+ Copyright 2021 Tom Papke
 
-   Licensed under the Apache License, Version 2.0 (the "License"),
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License"),
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 export const Dsl = {
 
@@ -20,117 +20,100 @@ export const Dsl = {
     PROPERTIES_ROOT: 'properties',
     DSLX: 'dslx',
     DATA_ELEMENTS: 'dataelements',
-    ENDPOINTS: 'endpoints'
+    ENDPOINTS: 'endpoints',
   },
 
   ELEMENTS: {
-    ROOT: {
+    DSL_ROOT: {
       label: 'description',
       isLeaf: false,
-      isOrdered: true
     },
     CALL: {
       label: 'call',
       isLeaf: true,
-      isOrdered: false
+
     },
-    MANIPULATE: {
+    SCRIPT: {
       label: 'manipulate',
       isLeaf: true,
-      isOrdered: false
+
     },
     PARALLEL: {
       label: 'parallel',
       isLeaf: false,
-      isOrdered: false
+
     },
     PARALLEL_BRANCH: {
       label: 'parallel_branch',
       isLeaf: false,
-      isOrdered: true
+
     },
-    CHOOSE: {
+    CHOICE: {
       label: 'choose',
       isLeaf: false,
-      isOrdered: true
+
     },
     ALTERNATIVE: {
       label: 'alternative',
       isLeaf: false,
-      isOrdered: true
     },
     OTHERWISE: {
       label: 'otherwise',
       isLeaf: false,
-      isOrdered: true
     },
     LOOP: {
       label: 'loop',
       isLeaf: false,
-      isOrdered: true
     },
     CRITICAL: {
       label: 'critical',
       isLeaf: false,
-      isOrdered: true
     },
     STOP: {
       label: 'stop',
       isLeaf: true,
-      isOrdered: false
     },
-    ESCAPE: {
+    BREAK: {
       label: 'escape',
       isLeaf: true,
-      isOrdered: false
     },
-    TERMINATE: {
+    TERMINATION: {
       label: 'terminate',
       isLeaf: true,
-      isOrdered: false
-    }
+    },
   },
 
   CALL_PROPERTIES: {
     ENDPOINT: {
-      label: 'endpoint'
+      label: 'endpoint',
     },
     PARAMETERS: {
       label: 'parameters',
-      isOrdered: false,
     },
     LABEL: {
       label: 'label',
-      isOrdered: false
     },
     METHOD: {
       label: 'method',
-      isOrdered: false,
     },
     ARGUMENTS: {
       label: 'arguments',
-      isOrdered: true
     },
     CODE: {
       label: 'code',
-      isOrdered: false
     },
     PREPARE: {
       label: 'prepare',
-      isOrdered: false
     },
     FINALIZE: {
       label: 'finalize',
-      isOrdered: false
     },
     UPDATE: {
       label: 'update',
-      isOrdered: false
     },
     RESCUE: {
       label: 'rescue',
-      isOrdered: false
-    }
+    },
   },
 
   INNER_PROPERTIES: {
@@ -140,12 +123,18 @@ export const Dsl = {
     },
     LOOP_MODE: {
       label: 'mode',
-      options: ['pre_test', 'post_test'],
+      options: [
+        'pre_test',
+        'post_test'
+      ],
       default: 'pre_test'
     },
     CHOOSE_MODE: {
       label: 'mode',
-      options: ['exclusive', 'inclusive'],
+      options: [
+        'exclusive',
+        'inclusive'
+      ],
       default: 'exclusive'
     },
     PARALLEL_WAIT: {
@@ -154,12 +143,21 @@ export const Dsl = {
     },
     PARALLEL_CANCEL: {
       label: 'cancel',
-      options: ['last', 'first'],
+      options: [
+        'last',
+        'first'
+      ],
       default: 'last'
     }
   },
 
-  ENDPOINT_METHODS: [':get', ':post', ':put', ':patch', ':delete'],
+  ENDPOINT_METHODS: [
+    ':get',
+    ':post',
+    ':put',
+    ':patch',
+    ':delete'
+  ],
 
   DEFAULT_NAMESPACE: 'http://cpee.org/ns/description/1.0',
   BASENODE: 'basenode',
@@ -212,12 +210,12 @@ Dsl.INNER_NODE_SET = new Set(
         .filter(k => !k.isLeaf)
         .map(k => k.label));
 
-Dsl.INTERNAL_ORDERING_SET = new Set(
-    Object.values(Dsl.ELEMENTS)
-        .concat(Object.values(Dsl.CALL_PROPERTIES))
-        .concat(Object.values(Dsl.INNER_PROPERTIES))
-        .filter(k => k.isOrdered)
-        .map(k => k.label));
+Dsl.UNORDERED_SET = new Set(
+    Dsl.ELEMENTS.PARALLEL.label,
+    ...Object.values(Dsl.CALL_PROPERTIES)
+        // Arguments are ordered!
+        .filter((property) => property !== Dsl.CALL_PROPERTIES.ARGUMENTS)
+        .map((property) => property.label));
 
 Dsl.CHANGE_MODEL_SET = new Set(
     Object.values(Dsl.CHANGE_MODEL));

@@ -38,14 +38,14 @@ export class Preprocessor {
     let tree;
     if (root == null) {
       // Empty tree
-      return new Node(Dsl.ELEMENTS.ROOT.label);
+      return new Node(Dsl.ELEMENTS.DSL_ROOT.label);
     }
     if (root.localName === Dsl.XML_DOC.PROPERTIES_ROOT) {
       // Parse process tree
       const xmlDslx =
           DomHelper.firstChildElement(root, Dsl.XML_DOC.DSLX);
       const xmlDescription =
-          DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.ROOT.label);
+          DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.DSL_ROOT.label);
       tree = Node.fromXmlDom(xmlDescription, true);
 
       // Parse endpoints
@@ -150,7 +150,7 @@ export class Preprocessor {
 
     if (Config.ADD_INIT_SCRIPT && dataElements.size > 0) {
       // insert initializer for all declared variables at beginning of tree
-      const script = new Node(Dsl.ELEMENTS.MANIPULATE.label);
+      const script = new Node(Dsl.ELEMENTS.SCRIPT.label);
       script.text = '';
       script.attributes.set('id', 'init');
       for (const [dataElement, initialValue] of dataElements) {

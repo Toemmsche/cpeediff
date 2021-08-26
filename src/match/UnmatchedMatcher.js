@@ -31,7 +31,7 @@ export class UnmatchedMatcher {
   match(oldTree, newTree, matching, comparator) {
     const newInners =
         newTree
-            .innerNodes()
+            .inners()
             .filter((node) => !matching.isMatched(node));
     for (const newNode of newInners) {
       // TODO not sure about this one

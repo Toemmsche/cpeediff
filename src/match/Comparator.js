@@ -194,7 +194,7 @@ export class Comparator {
       case Dsl.ELEMENTS.CALL.label: {
         return this.#compareCallContent(nodeA, nodeB);
       }
-      case Dsl.ELEMENTS.MANIPULATE.label: {
+      case Dsl.ELEMENTS.SCRIPT.label: {
         return this.#compareScriptContent(nodeA, nodeB);
       }
       case Dsl.ELEMENTS.ALTERNATIVE.label: {
@@ -206,7 +206,7 @@ export class Comparator {
       case Dsl.ELEMENTS.PARALLEL.label: {
         return this.#compareParallelContent(nodeA, nodeB);
       }
-      case Dsl.ELEMENTS.CHOOSE.label: {
+      case Dsl.ELEMENTS.CHOICE.label: {
         return this.#compareChoiceContent(nodeA, nodeB);
       }
       // Label equality is sufficient for parallel_branch, critical,
