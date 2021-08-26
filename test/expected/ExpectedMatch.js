@@ -1,32 +1,53 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {AbstractExpected} from './AbstractExpected.js';
 
+/**
+ * A set of rules that define the expected result of a match test case.
+ * All nodes are addressed by their ID, i.e. their position in the pre-order
+ * traversal of a process tree.
+ */
 export class ExpectedMatch extends AbstractExpected {
-
+  /**
+   * A list of required matches.
+   * @type {Array<[Number, Number]>}
+   * @const
+   */
   matches;
+  /**
+   * A list of forbidden matches.
+   * @type {Array<[Number, Number]>}
+   * @const
+   */
   notMatches;
-
+  /**
+   * A list of old nodes that should be matched.
+   * @type {Array<Number>}
+   * @const
+   */
   oldMatched;
+  /**
+   * A list of old nodes that should not be matched.
+   * @type {Array<Number>}
+   * @const
+   */
   notOldMatched;
-
+  /**
+   * A list of new nodes that should be matched.
+   * @type {Array<Number>}
+   * @const
+   */
   newMatched;
+  /**
+   * A list of new nodes that should not be matched.
+   * @type {Array<Number>}
+   * @const
+   */
   notNewMatched;
 
+  /**
+   * Create an empty ExpectedMatch instance.
+   * The properties are are set through Object.assign() using an
+   * expected.json file found in a match test case directory.
+   */
   constructor() {
     super();
     this.matches = [];

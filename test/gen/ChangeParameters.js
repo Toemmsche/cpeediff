@@ -1,29 +1,67 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
+/**
+ * Parameters for the random changes applied in the tree generator.
+ */
 export class ChangeParameters {
-
+  /**
+   * Whether to apply changes locally, i.e. within a constrained region of the
+   * process tree.
+   * @type {Boolean}
+   * @const
+   */
   local;
+  /**
+   * The total amount of changes to apply
+   * @type {Number}
+   * @const
+   */
   totalChanges;
+  /**
+   * The weight of insertions. A higher number will lead to more insertions.
+   * @type {Number}
+   * @const
+   */
   insertionWeight;
+  /**
+   * The weight of moves. A higher number will lead to more moves.
+   * @type {Number}
+   * @const
+   */
   moveWeight;
+  /**
+   * The weight of updates. A higher number will lead to more updates.
+   * @type {Number}
+   * @const
+   */
   updateWeight;
+  /**
+   * The weight of deletions. A higher number will lead to more deletions.
+   * @type {Number}
+   * @const
+   */
   deletionWeight;
 
-  constructor(totalChanges = 0, local = false, insertionWeight = 1, moveWeight = 1, updateWeight = 1, deletionWeight = 1) {
+  /**
+   * Construct a new ChangeParameters instance.
+   * @param {Number} totalChanges The total amount of changes to apply
+   * @param {Boolean} local Whether to apply changes locally, i.e. within a
+   *     constrained region of the process tree.
+   * @param {Number} insertionWeight The weight of insertions. A higher number
+   *     will lead to more insertions.
+   * @param {Number} moveWeight The weight of moves. A higher number will lead
+   *     to more moves.
+   * @param {Number} updateWeight The weight of updates. A higher number will
+   *     lead to more updates.
+   * @param {Number} deletionWeight The weight of deletions. A higher number
+   *     will lead to more deletions.
+   */
+  constructor(
+      totalChanges = 0,
+      local = false,
+      insertionWeight = 1,
+      moveWeight = 1,
+      updateWeight = 1,
+      deletionWeight = 1,
+  ) {
     this.totalChanges = totalChanges;
     this.local = local;
     this.insertionWeight = insertionWeight;
@@ -32,8 +70,10 @@ export class ChangeParameters {
     this.deletionWeight = deletionWeight;
   }
 
+  /**
+   * @return {String} A string representation of the change parameters.
+   */
   toString() {
     return JSON.stringify(this);
   }
-
 }

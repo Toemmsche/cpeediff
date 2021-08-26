@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 import {MatchAdapter} from './MatchAdapter.js';
 import {Config} from '../../src/Config.js';
@@ -24,7 +24,7 @@ export class CpeeMatchAdapter extends MatchAdapter {
   matchMode;
 
   constructor(matchMode = Config.MATCH_MODES.QUALITY) {
-    super(TestConfig.MATCHINGS.CPEEMATCH.path, TestConfig.MATCHINGS.CPEEMATCH.displayName + '_' + matchMode);
+    super(EvalConfig.MATCHINGS.CPEEMATCH.path, EvalConfig.MATCHINGS.CPEEMATCH.displayName + '_' + matchMode);
     this.matchMode = matchMode;
   }
 

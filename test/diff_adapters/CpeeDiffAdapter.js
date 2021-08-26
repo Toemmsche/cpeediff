@@ -1,7 +1,7 @@
 import {Config} from '../../src/Config.js';
 import {Dsl} from '../../src/Dsl.js';
 import {DiffAdapter} from './DiffAdapter.js';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
 import {EditScript} from '../../src/diff/EditScript.js';
@@ -23,8 +23,8 @@ export class CpeeDiffAdapter extends DiffAdapter {
    */
   constructor(mode = Config.MATCH_MODES.QUALITY) {
     super(
-        TestConfig.DIFFS.CPEEDIFF.path,
-        TestConfig.DIFFS.CPEEDIFF.displayName + '_' + mode,
+        EvalConfig.DIFFS.CPEEDIFF.path,
+        EvalConfig.DIFFS.CPEEDIFF.displayName + '_' + mode,
     );
     this.#mode = mode;
   }
@@ -73,8 +73,8 @@ export class CpeeDiffAdapter extends DiffAdapter {
     const oldTreeString = oldTree.toXmlString();
     const newTreeString = newTree.toXmlString();
 
-    const oldFilePath = TestConfig.FILENAMES.OLD_TREE;
-    const newFilePath = TestConfig.FILENAMES.NEW_TREE;
+    const oldFilePath = EvalConfig.FILENAMES.OLD_TREE;
+    const newFilePath = EvalConfig.FILENAMES.NEW_TREE;
 
     fs.writeFileSync(oldFilePath, oldTreeString);
     fs.writeFileSync(newFilePath, newTreeString);
@@ -90,7 +90,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
             oldFilePath,
             newFilePath,
           ],
-          TestConfig.EXECUTION_OPTIONS,
+          EvalConfig.EXECUTION_OPTIONS,
       ).toString(),
       runtime: new Date().getTime() - time,
     };

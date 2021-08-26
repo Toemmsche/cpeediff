@@ -1,36 +1,34 @@
-/*
- Copyright 2021 Tom Papke
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
-
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 
 import {Logger} from '../../util/Logger.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
 import {TreeGenerator} from '../gen/TreeGenerator.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
-import {AbstractEvaluation} from './AbstractEvaluation.js';
+import {MatchingEvaluation} from './MatchingEvaluation.js';
 
-export class GeneratedMatchEvaluation extends AbstractEvaluation {
+/**
+ * An evaluation for matching algorithms that uses generated process trees and
+ * computes the overlap between the expected and actual matching.
+ */
+export class GeneratedMatchingEvaluation extends MatchingEvaluation {
 
+  /**
+   * Construct a new GeneratedMatchingEvaluation instance.
+   * @param {Array<MatchAdapter>} adapters The adapters of the matching
+   *     algorithms to be evaluated.
+   */
   constructor(adapters = []) {
     super(adapters);
   }
 
+  /**
+   * Create a new GeneratedMatchingEvaluation instance with all available matching
+   * algorithms.
+   * @return {GeneratedMatchingEvaluation}
+   */
   static all() {
-    return new GeneratedMatchEvaluation(this.matchAdapters());
+    return new GeneratedMatchingEvaluation(super.all()._adapters);
   }
 
   evalAll() {
@@ -91,36 +89,49 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
     return 1 - (common / (Math.max(expected.size(), actual.size())));
   }
 
-  avg(arr) {
-    return arr.reduce((a, b) => a + b, 0) / arr.length;
-  }
+  /**
+   * Evaluate matching algorithms using random process trees of increasing
+   * size. The results indicate how well a matching algorithm approximates the
+   * 'optimal' matching.
+   * @param {Boolean} flat If the number of changes should remain constant.
+   * @param {Boolean} local If the changes should be applied locally, i.e. to a
+   *     small region of the process tree. If set to false, changes are
+   *     randomly distributed within the tree.
+   */
+  average(flat = false, local = false) {
+    Logger.section('Matching evaluation with Generated Trees', this);
 
-  standardAggregate() {
-    Logger.info(
-        'Evaluation of matching algorithms with standard size progression',
-        this
-    );
-    const resultsPerAdapter = new Map();
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-
-      //choose sensible generator and change parameters
+    // TODO LATEX REMOVE
+    /** @type {Map<String, Array<Object>>} */
+    const aResultsPerAdapter = new Map(this._adapters.map((adapter) => [
+      adapter.displayName,
+      [],
+    ]));
+    // TODO remove latex
+    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
+      // Init results with empty array for each adapter
+      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
+        adapter,
+        [],
+      ]));
+      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
+          (EvalConfig.PROGRESSION.FACTOR ** i);
       const genParams = new GeneratorParameters(
           size,
           size,
           Math.ceil(Math.log2(size)),
-          Math.ceil(Math.log10(size))
+          Math.ceil(Math.log10(size)),
       );
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * (TestConfig.PROGRESSION.FACTOR ** i));
-
-      const testId = [
-        size,
-        changeParams.totalChanges
-      ].join('_');
-
       const treeGen = new TreeGenerator(genParams);
-      let results = new Map();
-      for (let j = 0; j < TestConfig.PROGRESSION.REPS; j++) {
+      const changeParams =
+          new ChangeParameters(
+              EvalConfig.PROGRESSION.INITIAL_CHANGES *
+              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              local,
+          );
+      const testId = '[Size: ' + size +
+          ', Changes: ' + changeParams.totalChanges + ']';
+      for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
 
         const oldTree = treeGen.randomTree();
         const changedInfo = treeGen.changeTree(oldTree, changeParams);
@@ -128,7 +139,7 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
         const newTree = changedInfo.testCase.newTree;
         const expectedMatching = changedInfo.matching;
 
-        //Run test case for each matching pipeline and compute number of
+        // Run test case for each matching pipeline and compute number of
         // mismatched nodes
         for (const adapter of this.adapters) {
           if (!results.has(adapter)) {
@@ -160,9 +171,12 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
       }
 
       const aggregateResults = [];
-      for(const [adapter, resultsList] of results) {
-        const aggregateResult = [adapter.displayName, resultsList[0][1]];
-        for (let j = 2; j < resultsList[0].length ; j++) {
+      for (const [adapter, resultsList] of results) {
+        const aggregateResult = [
+          adapter.displayName,
+          resultsList[0][1]
+        ];
+        for (let j = 2; j < resultsList[0].length; j++) {
           aggregateResult.push(this.avg(resultsList.map(r => r[j])));
         }
         aggregateResults.push(aggregateResult);
@@ -212,6 +226,10 @@ export class GeneratedMatchEvaluation extends AbstractEvaluation {
     Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ')
         .replaceAll('_', '\\_') + '}');
 
+  }
+
+  avg(arr) {
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
   }
 }
 

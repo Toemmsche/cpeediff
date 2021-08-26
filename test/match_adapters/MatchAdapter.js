@@ -17,7 +17,7 @@
 import {IdExtractor} from '../../src/extract/IdExtractor.js';
 import assert from 'assert';
 import {Logger} from '../../util/Logger.js';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {ActualMatching} from '../actual/ActualMatching.js';
 
 export class MatchAdapter {
@@ -88,19 +88,19 @@ export class MatchAdapter {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {
         Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
-        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.TIMEOUT);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.TIMEOUT);
       } else {
         Logger.info(this.displayName + ' crashed on ' + testCase.name + ': ' + e.toString(), this);
-        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.RUNTIME_ERROR);
       }
     }
     try {
       this._verifyResult(matching, testCase.expected);
     } catch (e) {
       Logger.info(this.displayName + ' gave wrong answer for ' + testCase.name + ': ' + e.toString(), this);
-      return testCase.complete(this.displayName, new ActualMatching(null, matching), TestConfig.VERDICTS.WRONG_ANSWER);
+      return testCase.complete(this.displayName, new ActualMatching(null, matching), EvalConfig.VERDICTS.WRONG_ANSWER);
     }
-    return testCase.complete(this.displayName, new ActualMatching(null, matching), TestConfig.VERDICTS.OK);
+    return testCase.complete(this.displayName, new ActualMatching(null, matching), EvalConfig.VERDICTS.OK);
   }
 }
 

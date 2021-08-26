@@ -24,18 +24,10 @@
 
 //TODO today
 //      eval weight boost ?????
-//      $$$ find solution to "with equation" and citeyear in section title
-//      $ apply rules from Jürgen
-//      $$$ test base content similarity --> no restriction in similarity
-//      $$$ add jsdoc to properties and extend to test
-//      $$ add const where applicable
-//      $$ use fancy features like || and ??
 
 //TODO  24.8.
-//      $$$ clean up $$ merge and deltatree gen --> experimental (look at notes)
 //      restructure evaluation in thesis (use avg always)
 //      $ simplify test set (no properties)
-//      $$$ remove matchNew (can just use match()) -> bad idea (path matching...)
 
 //TODO  25.8.
 //      $$ restructure evaluation in thesis
@@ -47,6 +39,20 @@
 //          meetings doc -->
 //      mark abstract methods and override and const
 
+//TODO  26.8.
+//      continue refactoring eval package
+//      craete figure illustrating the merge
+//      meet with Jürgen and ask final questions
+//          discuss introduction length
+//          discuss hand-in
+//          meetings doc -->
+//      add loggign to merger and other main threads of exeuction
+//      use destructuring in tree gen
+//      class for generated match evaluation
+//      move verdicts to ABstractTestCase
+//      move statics  from config
+//      use betteer names for DSL elements
+
 //TODO maybe
 //      better commonality complexity
 //     adjust change model of DIffxml to include updates
@@ -54,7 +60,6 @@
 //      try guaranteed inner match again, that must be better...
 //      selkow and tai in thesis
 //      compress edit script gen phase in thesis
-//      add persistbestmatches in thesis as pseudocode
 
 /*
 TO BEAT for benchmark

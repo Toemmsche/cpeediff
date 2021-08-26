@@ -17,7 +17,7 @@
 import {CpeeDiff} from '../../src/diff/CpeeDiff.js';
 import {Dsl} from '../../src/Dsl.js';
 import {DiffAdapter} from './DiffAdapter.js';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {Logger} from '../../util/Logger.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
@@ -32,7 +32,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
   #mode;
 
   constructor() {
-    super('', TestConfig.DIFFS.CPEEDIFF.displayName + '_LOCAL');
+    super('', EvalConfig.DIFFS.CPEEDIFF.displayName + '_LOCAL');
   }
 
   run(oldTree, newTree) {
@@ -80,15 +80,15 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {
         Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
-        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.TIMEOUT);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.TIMEOUT);
       } else {
         Logger.info(this.displayName + ' crashed for ' + testCase.name + ': ' + e.toString(), this);
-        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.RUNTIME_ERROR);
       }
     }
     const counters = this.parseOutput(exec.output);
     //An OK verdict is emitted because the diff algorithm didnt fail
-    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), TestConfig.VERDICTS.OK);
+    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), EvalConfig.VERDICTS.OK);
   }
 }
 

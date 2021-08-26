@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 
 export class AbstractTestResult {
 
@@ -31,7 +31,7 @@ export class AbstractTestResult {
   }
 
   isOk() {
-    return this.verdict === TestConfig.VERDICTS.OK;
+    return this.verdict === EvalConfig.VERDICTS.OK;
   }
 }
 

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {MergeAdapter} from './MergeAdapter.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
@@ -22,7 +22,7 @@ import {execFileSync} from 'child_process';
 export class CpeeMergeAdapter extends MergeAdapter {
 
   constructor() {
-    super(TestConfig.MERGES.CPEEMERGE.path, TestConfig.MERGES.CPEEMERGE.displayName);
+    super(EvalConfig.MERGES.CPEEMERGE.path, EvalConfig.MERGES.CPEEMERGE.displayName);
   }
 
   run(base, branch1, branch2) {
@@ -38,7 +38,7 @@ export class CpeeMergeAdapter extends MergeAdapter {
     fs.writeFileSync(branch1Filepath, branch1String);
     fs.writeFileSync(branch2FilePath, branch2String);
 
-    return execFileSync('./main.js', ['merge', baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+    return execFileSync('./main.js', ['merge', baseFilePath, branch1Filepath, branch2FilePath], EvalConfig.EXECUTION_OPTIONS).toString();
   }
 }
 

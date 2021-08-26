@@ -1,6 +1,6 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
 import fs from 'fs';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {ExpectedDiff} from '../expected/ExpectedDiff.js';
 import {Preprocessor} from '../../src/io/Preprocessor.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
@@ -83,11 +83,11 @@ export class DiffTestCase extends AbstractTestCase {
     const parser = new Preprocessor();
     fs.readdirSync(testCaseDir).forEach((file) => {
       const content = fs.readFileSync(testCaseDir + '/' + file).toString();
-      if (file === TestConfig.FILENAMES.NEW_TREE) {
+      if (file === EvalConfig.FILENAMES.NEW_TREE) {
         newTree = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.OLD_TREE) {
+      } else if (file === EvalConfig.FILENAMES.OLD_TREE) {
         oldTree = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.EXPECTED_DIFF) {
+      } else if (file === EvalConfig.FILENAMES.EXPECTED_DIFF) {
         expected = Object.assign(new ExpectedDiff(), JSON.parse(content));
       }
     });

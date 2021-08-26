@@ -61,9 +61,14 @@ export class AverageDiffResult {
   }
 
   static of(diffResults) {
-    //only consider test case executions that didnt result in an error or
+    // Only consider test case executions that didnt result in an error or
     // timeout
     diffResults = diffResults.filter(r => r.isOk());
+
+    if(diffResults.length === 0) {
+      // Cannot produce averages
+      return null;
+    }
 
     const algorithm = diffResults[0].algorithm;
     const caseName = diffResults[0].caseName;

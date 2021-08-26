@@ -1,30 +1,17 @@
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import fs from 'fs';
 import xmldom from 'xmldom';
 import {execFileSync} from 'child_process';
 import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
+import {AbstractAdapter} from '../eval/AbstractAdapter.js';
 
 /**
  * The superclass for all diff adapters that interface to existing XML
  * difference algorithms.
  */
-export class DiffAdapter {
-  /**
-   * The path to the directory containing the XML diff algorithm and the run
-   * script.
-   * @type {String}
-   */
-  path;
-
-  /**
-   * The name to display for the XML difference algorithm this adapter
-   * represents.
-   * @type {String}
-   */
-  displayName;
-
+export class DiffAdapter extends AbstractAdapter {
   /**
    * Construct a new DiffAdapter instance.
    * @param {String} path The path to the directory containing the XML diff
@@ -33,13 +20,12 @@ export class DiffAdapter {
    *     algorithm this adapter represents.
    */
   constructor(path, displayName) {
-    this.path = path;
-    this.displayName = displayName;
+    super(path, displayName);
   }
 
   /**
-   * Run a diff test case with this XML difference algortihm.
-   * @param {DiffTestCase} testCase The test case.
+   * @inheritDoc
+   * @param {DiffTestCase} testCase The diff test case to run.
    * @return {DiffTestResult} The result.
    */
   evalCase(testCase) {
@@ -54,7 +40,7 @@ export class DiffAdapter {
             this.displayName,
             null,
             null,
-            TestConfig.VERDICTS.TIMEOUT,
+            EvalConfig.VERDICTS.TIMEOUT,
         );
       } else {
         Logger.info(this.displayName + ' crashed for ' + testCase.name +
@@ -63,7 +49,7 @@ export class DiffAdapter {
             this.displayName,
             null,
             null,
-            TestConfig.VERDICTS.RUNTIME_ERROR,
+            EvalConfig.VERDICTS.RUNTIME_ERROR,
         );
       }
     }
@@ -74,7 +60,7 @@ export class DiffAdapter {
         this.displayName,
         exec.runtime,
         new ActualDiff(exec.output, ...counters),
-        TestConfig.VERDICTS.OK
+        EvalConfig.VERDICTS.OK
     );
   }
 
@@ -136,8 +122,8 @@ export class DiffAdapter {
     const oldTreeString = oldTree.toXmlString();
     const newTreeString = newTree.toXmlString();
 
-    const oldFilePath = this.path + '/' + TestConfig.FILENAMES.OLD_TREE;
-    const newFilePath = this.path + '/' + TestConfig.FILENAMES.NEW_TREE;
+    const oldFilePath = this.path + '/' + EvalConfig.FILENAMES.OLD_TREE;
+    const newFilePath = this.path + '/' + EvalConfig.FILENAMES.NEW_TREE;
 
     fs.writeFileSync(oldFilePath, oldTreeString);
     fs.writeFileSync(newFilePath, newTreeString);
@@ -145,12 +131,12 @@ export class DiffAdapter {
     const time = new Date().getTime();
     return {
       output: execFileSync(
-          this.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT,
+          this.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT,
           [
             oldFilePath,
             newFilePath,
           ],
-          TestConfig.EXECUTION_OPTIONS,
+          EvalConfig.EXECUTION_OPTIONS,
       ).toString(),
       runtime: new Date().getTime() - time,
     };

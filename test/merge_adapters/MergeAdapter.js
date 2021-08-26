@@ -15,7 +15,7 @@
 */
 
 import {execFileSync} from 'child_process';
-import {TestConfig as Testconfig, TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import fs from 'fs';
 import {Preprocessor} from '../../src/io/Preprocessor.js';
 import {HashExtractor} from '../../src/extract/HashExtractor.js';
@@ -46,7 +46,7 @@ export class MergeAdapter {
     fs.writeFileSync(branch1Filepath, branch1String);
     fs.writeFileSync(branch2FilePath, branch2String);
 
-    return execFileSync(this.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], TestConfig.EXECUTION_OPTIONS).toString();
+    return execFileSync(this.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT, [baseFilePath, branch1Filepath, branch2FilePath], EvalConfig.EXECUTION_OPTIONS).toString();
   }
 
   evalCase(testCase) {
@@ -57,16 +57,16 @@ export class MergeAdapter {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {
         Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
-        return testCase.complete(this.displayName, null, Testconfig.VERDICTS.TIMEOUT);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.TIMEOUT);
       } else {
         Logger.info(this.displayName + ' crashed on ' + testCase.name + ': ' + e.toString(), this);
-        return testCase.complete(this.displayName, null, TestConfig.VERDICTS.RUNTIME_ERROR);
+        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.RUNTIME_ERROR);
       }
     }
     const actual = new ActualMerge(exec, new Preprocessor().parseWithMetadata(exec));
     const verdict = this._verifyResult(actual, testCase.expected);
 
-    if (verdict === Testconfig.VERDICTS.WRONG_ANSWER) {
+    if (verdict === EvalConfig.VERDICTS.WRONG_ANSWER) {
       //console.log(new CpeeDiff().diff(actual.tree, testCase.expected.expectedTrees[0]).toXmlString());
       Logger.info(this.displayName + ' gave wrong answer for ' + testCase.name, this);
     }
@@ -77,11 +77,11 @@ export class MergeAdapter {
     const actualTree = actualMerge.tree;
     const hashExtractor = new HashExtractor();
     if (expectedMerge.expectedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
-      return TestConfig.VERDICTS.OK;
+      return EvalConfig.VERDICTS.OK;
     } else if (expectedMerge.acceptedTrees.some(t => hashExtractor.get(t) === hashExtractor.get(actualTree))) {
-      return TestConfig.VERDICTS.ACCEPTABLE;
+      return EvalConfig.VERDICTS.ACCEPTABLE;
     } else {
-      return TestConfig.VERDICTS.WRONG_ANSWER;
+      return EvalConfig.VERDICTS.WRONG_ANSWER;
     }
   }
 }

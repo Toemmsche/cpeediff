@@ -1,33 +1,57 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
+/**
+ * Parameters for the random process tree generator.
+ */
 export class GeneratorParameters {
 
-  maxSize;
+  /**
+   * The desired size of the process tree.
+   * @type {Number}
+   */
+  size;
+  /**
+   * The maximum depth of the process tree
+   * @type {Number}
+   * @const
+   */
   maxDepth;
+  /**
+   * The maximum width of the process tree. Effectively limits the number of
+   * children a node can have.
+   * @type {Number}
+   * @const
+   */
   maxDegree;
+  /**
+   * The maximum amount of read and written vars that appear in code snippets.
+   * Also limits the number of call arguments.
+   * @type {Number}
+   * @const
+   */
   maxVars;
 
-  constructor(maxSize, maxDepth, maxDegree, maxVars) {
-    this.maxSize = maxSize;
+  /**
+   * @param {Number} size The desired size of the process tree.
+   * @param {Number} maxDepth The maximum depth of the process tree
+   * @param {Number} maxDegree The maximum width of the process tree.
+   *     Effectively limits the number of children a node can have.
+   * @param {Number} maxVars The maximum amount of read and written vars that
+   *     appear in code snippets. Also limits the number of call arguments.
+   */
+  constructor(
+      size,
+      maxDepth,
+      maxDegree,
+      maxVars,
+  ) {
+    this.size = size;
     this.maxDepth = maxDepth;
     this.maxDegree = maxDegree;
     this.maxVars = maxVars;
   }
 
+  /**
+   * @return {String} A string representation of the generator parameters.
+   */
   toString() {
     return JSON.stringify(this);
   }

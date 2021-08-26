@@ -1,5 +1,5 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {MergeTestResult} from '../result/MergeTestResult.js';
 import fs from 'fs';
 import {Preprocessor} from '../../src/io/Preprocessor.js';
@@ -85,15 +85,15 @@ export class MergeTestCase extends AbstractTestCase {
 
     fs.readdirSync(testCaseDir).forEach((file) => {
       const content = fs.readFileSync(testCaseDir + '/' + file).toString();
-      if (file === TestConfig.FILENAMES.BASE) {
+      if (file === EvalConfig.FILENAMES.BASE) {
         base = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.BRANCH_1) {
+      } else if (file === EvalConfig.FILENAMES.BRANCH_1) {
         branch1 = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.BRANCH_2) {
+      } else if (file === EvalConfig.FILENAMES.BRANCH_2) {
         branch2 = parser.parseWithMetadata(content);
-      } else if (file.startsWith(TestConfig.FILENAMES.EXPECTED_MERGE_PREFIX)) {
+      } else if (file.startsWith(EvalConfig.FILENAMES.EXPECTED_MERGE_PREFIX)) {
         expected.push(parser.parseWithMetadata(content));
-      } else if (file.startsWith(TestConfig.FILENAMES.ACCEPTED_MERGE_PREFIX)) {
+      } else if (file.startsWith(EvalConfig.FILENAMES.ACCEPTED_MERGE_PREFIX)) {
         accepted.push(parser.parseWithMetadata(content));
       }
     });

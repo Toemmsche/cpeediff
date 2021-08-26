@@ -1,4 +1,4 @@
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
@@ -7,6 +7,8 @@ import {Node} from '../../src/tree/Node.js';
 /**
  * Adapter class for the 'XML Change Control' algorithm by S. Rönnau and U. M.
  * Borghoff.
+ *
+ * @see https://launchpad.net/xcc
  */
 export class XccAdapter extends DiffAdapter {
 
@@ -14,7 +16,7 @@ export class XccAdapter extends DiffAdapter {
    * Construct a new XccAdapter instance
    */
   constructor() {
-    super(TestConfig.DIFFS.XCC.path, TestConfig.DIFFS.XCC.displayName);
+    super(EvalConfig.DIFFS.XCC.path, EvalConfig.DIFFS.XCC.displayName);
   }
 
   /**
@@ -30,7 +32,9 @@ export class XccAdapter extends DiffAdapter {
 
     // Enclosing tag is 'delta'
     const delta = DomHelper.firstChildElement(
-        new xmldom.DOMParser().parseFromString(output, 'text/xml'), 'delta');
+        new xmldom.DOMParser().parseFromString(output, 'text/xml'),
+        'delta',
+    );
     DomHelper.forAllChildElements(delta, (xmlOperation) => {
       switch (xmlOperation.localName) {
         case 'insert':
@@ -43,7 +47,7 @@ export class XccAdapter extends DiffAdapter {
             // Determine cost
             const xmlNewValue = DomHelper.firstChildElement(
                 xmlOperation,
-                'newvalue'
+                'newvalue',
             );
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
               cost += Node.fromXmlDom(xmlElement).size();
@@ -57,7 +61,7 @@ export class XccAdapter extends DiffAdapter {
             // Determine cost
             const xmlNewValue = DomHelper.firstChildElement(
                 xmlOperation,
-                'oldvalue'
+                'oldvalue',
             );
             DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
               cost += Node.fromXmlDom(xmlElement).size();
@@ -76,7 +80,7 @@ export class XccAdapter extends DiffAdapter {
       moves,
       updates,
       deletions,
-      cost
+      cost,
     ];
   }
 }

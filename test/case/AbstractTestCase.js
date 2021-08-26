@@ -1,8 +1,10 @@
-/**
- * Abstract superclass for all test cases.
- */
+
 import {Logger} from '../../util/Logger.js';
 
+/**
+ * Abstract superclass for all test cases.
+ * @abstract
+ */
 export class AbstractTestCase {
   /**
    * The name of the this test case.

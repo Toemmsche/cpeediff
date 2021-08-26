@@ -1,45 +1,41 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {AbstractExpected} from './AbstractExpected.js';
 
+/**
+ * Expected result for a diff test case.
+ */
 export class ExpectedDiff extends AbstractExpected {
-
+  /**
+   * The propsed edit script.
+   * @type {?EditScript}
+   * @const
+   */
   editScript;
 
+  /**
+   * Construct a new ExpectedDiff instance.
+   * @param {?EditScript } editScript The proposed edit script.
+   */
   constructor(editScript = null) {
     super();
     this.editScript = editScript;
   }
 
-  toString() {
-    return 'Cost: ' + this.editScript?.cost + '\n' +
-        'Diff Size: ' + (this.editScript != null ? this.editScript.toXmlString().length : undefined) + '\n' +
-        'Total changes: ' + +this.editScript?.size() + '\n' +
-        'Insertions: ' + this.editScript?.insertions() + '\n' +
-        'Moves: ' + this.editScript?.moves() + '\n' +
-        'Updates: ' + this.editScript?.updates() + '\n' +
-        'Deletions: ' + this.editScript?.deletions();
-  }
-
+  /**
+   * Return an array of values to be inserted in the table containing the diff
+   * evaluation results.
+   * @return {(string|(function(): Number)|number|Number)[]}
+   */
   values() {
-    return ['Expected', '-', this.editScript?.cost, (this.editScript != null ? this.editScript.toXmlString().length : undefined), this.editScript?.size(),
-      this.editScript?.insertions(), this.editScript?.moves(), this.editScript?.updates(), this.editScript?.deletions()];
+    return [
+      'Expected', // algorithm
+      '-', // runtime
+      this.editScript?.cost, // cost
+      this.editScript?.toXmlString().length, // diff size
+      this.editScript?.size(), // edit operations
+      this.editScript?.insertions(), // insertions
+      this.editScript?.moves(), // moves
+      this.editScript?.updates(), // updates
+      this.editScript?.deletions(), // deletions
+    ];
   }
-
 }
-
-

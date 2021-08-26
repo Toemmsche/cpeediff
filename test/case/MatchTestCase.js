@@ -1,5 +1,5 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
-import {TestConfig} from '../TestConfig.js';
+import {EvalConfig} from '../EvalConfig.js';
 import {MatchTestResult} from '../result/MatchTestResult.js';
 import fs from 'fs';
 import {ExpectedMatch} from '../expected/ExpectedMatch.js';
@@ -74,11 +74,11 @@ export class MatchTestCase extends AbstractTestCase {
     let expected;
     fs.readdirSync(testCaseDir).forEach((file) => {
       const content = fs.readFileSync(testCaseDir + '/' + file).toString();
-      if (file === TestConfig.FILENAMES.NEW_TREE) {
+      if (file === EvalConfig.FILENAMES.NEW_TREE) {
         newTree = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.OLD_TREE) {
+      } else if (file === EvalConfig.FILENAMES.OLD_TREE) {
         oldTree = parser.parseWithMetadata(content);
-      } else if (file === TestConfig.FILENAMES.EXPECTED_MATCHES) {
+      } else if (file === EvalConfig.FILENAMES.EXPECTED_MATCHES) {
         expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
       }
     });

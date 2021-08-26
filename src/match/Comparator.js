@@ -405,15 +405,15 @@ export class Comparator {
    * @return {?Number} The comparison value from the range [0;1]
    */
   compareSet(setA, setB, defaultValue = null) {
-    const maxSize = Math.max(setA.size, setB.size);
-    if (maxSize === 0) return defaultValue;
+    const size = Math.max(setA.size, setB.size);
+    if (size === 0) return defaultValue;
     let commonCounter = 0;
     for (const element of setA) {
       if (setB.has(element)) {
         commonCounter++;
       }
     }
-    return 1 - (commonCounter / maxSize);
+    return 1 - (commonCounter / size);
   }
 
   /**

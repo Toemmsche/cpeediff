@@ -1,414 +1,194 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-import {TestConfig} from '../TestConfig.js';
-
+import {EvalConfig} from '../EvalConfig.js';
 import {Logger} from '../../util/Logger.js';
-import {DiffAlgorithmEvaluation} from './DiffAlgorithmEvaluation.js';
+import {DiffEvaluation} from './DiffEvaluation.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
 import {TreeGenerator} from '../gen/TreeGenerator.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
 import {markdownTable} from 'markdown-table';
-import {XyDiffAdapter} from '../diff_adapters/XyDiffAdapter.js';
-import {DeltaJsAdapter} from '../../src/temp/DeltaJsAdapter.js';
-import {XccAdapter} from '../diff_adapters/XccAdapter.js';
-import fs from 'fs';
-import {CpeeDiffAdapter} from '../diff_adapters/CpeeDiffAdapter.js';
 import {AverageDiffResult} from '../result/AverageDiffResult.js';
 
-export class GeneratedDiffEvaluation extends DiffAlgorithmEvaluation {
+/**
+ * An evaluation of diff algorithms using generated test cases.
+ */
+export class GeneratedDiffEvaluation extends DiffEvaluation {
 
-  //TODO init with default value
+  /**
+   * Construct a new GeneratedDiffEvaluation instance.
+   * @param {Array<DiffAdapter>} adapters The adapters of the algorithms to
+   *     use for the evaluation.
+   */
   constructor(adapters = []) {
     super(adapters);
   }
 
+  /**
+   * Create a new GeneratedDiffEvaluation instance using all algorithms.
+   * @return {GeneratedDiffEvaluation}
+   */
   static all() {
-    return new GeneratedDiffEvaluation(this.diffAdapters());
+    return new GeneratedDiffEvaluation(super.all()._adapters);
   }
 
-  static fast() {
-    let adapters = [new XyDiffAdapter(), new DeltaJsAdapter(), new XccAdapter()];
-    adapters = adapters.filter(a => fs.existsSync(a.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT));
-    adapters.unshift(new CpeeDiffAdapter());
-    return new GeneratedDiffEvaluation(adapters);
-  }
-
+  /**
+   * @inheritDoc
+   * @override
+   */
   evalAll() {
-    Logger.info('Evaluating diff algorithms with generated process trees', this);
+    Logger.info(
+        'Evaluating diff algorithms with generated process trees',
+        this,
+    );
 
-    //Simply run all functions...
+    // Simply run all functions...
     this.flatSingle();
     this.standardSingle();
     this.standardAggregate();
   }
 
-  standardSingle() {
-    Logger.info('Evaluation of diff algorithms with standard progression', this);
-    const resultsPerAdapter = new Map();
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      let size;
-      if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-      } else {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
-      }
-      //choose sensible generator and change parameters
-      const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES * (TestConfig.PROGRESSION.FACTOR ** i));
-
+  /**
+   * Evaluate diff algorithms using random process trees of increasing size.The
+   * results are relative to a proposed edit script and represent the average
+   * of multiple runs with trees of similar size.
+   * @param {Boolean} flat If the number of changes should remain constant.
+   * @param {Boolean} local If the changes should be applied locally, i.e. to a
+   *     small region of the process tree. If set to false, changes are
+   *     randomly distributed within the tree.
+   */
+  average(flat = false, local = false) {
+    Logger.section('Diff Evaluation with Generated Trees', this);
+    // TODO LATEX REMOVE
+    /** @type {Map<String, Array<AverageDiffResult>>} */
+    const aResultsPerAdapter = new Map(this._adapters.map((adapter) => [
+      adapter.displayName,
+      [],
+    ]));
+    // TODO remove latex
+    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
+      // Init results with empty array for each adapter
+      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
+        adapter,
+        [],
+      ]));
+      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
+          (EvalConfig.PROGRESSION.FACTOR ** i);
+      const genParams = new GeneratorParameters(
+          size,
+          size,
+          Math.ceil(Math.log2(size)),
+          Math.ceil(Math.log10(size)),
+      );
       const treeGen = new TreeGenerator(genParams);
+      const changeParams =
+          new ChangeParameters(
+              EvalConfig.PROGRESSION.INITIAL_CHANGES *
+              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              local,
+          );
+      const testId = '[Size: ' + size +
+          ', Changes: ' + changeParams.totalChanges + ']';
 
-      const oldTree = treeGen.randomTree();
-
-      const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
-
-      //Run test case for each diff algorithm
-      const results = [];
-      for (const adapter of this.adapters) {
-        Logger.info('Running case ' + testCase.name + ' for adapter ' + adapter.displayName, this);
-        const result = adapter.evalCase(testCase);
-        results.push(result);
-
-        //make relative
-        if (result.isOk()) {
-          result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.size();
-
-          if (!resultsPerAdapter.has(adapter)) {
-            resultsPerAdapter.set(adapter, []);
-          }
-          resultsPerAdapter.get(adapter).push({
-            size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
-            result: result
-          });
-        }
-      }
-
-      //Add expected values to table
-      const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
-      Logger.result('Results for case ' + testCase.name);
-      Logger.result(markdownTable(table));
-    }
-
-    //Produce runtime plots
-
-    const colors = 'black, blue, green, magenta, orange, red, yellow, teal, violet, white'.split(', ');
-    let i = 0;
-    Logger.section('RUNTIME LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.runtime + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('COST LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.cost + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('EDIT OPS LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.editOperations + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-  }
-
-  flatLocal() {
-    Logger.info('Evaluation of diff algorithms with no change progression and local changes', this);
-
-    const resultsPerAdapter = new Map();
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      let size;
-      if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-      } else {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
-      }
-      //choose sensible generator and change parameters
-      const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES, true, 4, 2, 3, 1);
-
-      const treeGen = new TreeGenerator(genParams);
-
-      const oldTree = treeGen.randomTree();
-
-      const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
-
-      //Run test case for each diff algorithm
-      const results = [];
-      for (const adapter of this.adapters) {
-        Logger.info('Running case ' + testCase.name + ' for adapter ' + adapter.displayName, this);
-        const result = adapter.evalCase(testCase);
-        results.push(result);
-
-        //make relative
-        if (result.isOk()) {
-          result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.size();
-
-          if (!resultsPerAdapter.has(adapter)) {
-            resultsPerAdapter.set(adapter, []);
-          }
-          resultsPerAdapter.get(adapter).push({
-            size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
-            result: result
-          });
-        }
-      }
-
-      //Add expected values to table
-      const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
-      Logger.result('Results for case ' + testCase.name);
-      Logger.result(markdownTable(table));
-    }
-
-    //Produce runtime plots
-
-    const colors = 'black, blue, green, magenta, orange, red, yellow, teal, violet, white'.split(', ');
-    let i = 0;
-    Logger.section('RUNTIME LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.runtime + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('COST LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.cost + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('EDIT OPS LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.editOperations + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-  }
-
-  flatSingle() {
-    Logger.info('Evaluation of diff algorithms with no change progression', this);
-
-    const resultsPerAdapter = new Map();
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      let size;
-      if (TestConfig.PROGRESSION.EXPONENTIAL) {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-      } else {
-        size = TestConfig.PROGRESSION.INITIAL_SIZE += i * TestConfig.PROGRESSION.INTERVAL;
-      }
-      //choose sensible generator and change parameters
-      const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES);
-
-      const treeGen = new TreeGenerator(genParams);
-
-      const oldTree = treeGen.randomTree();
-
-      const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
-
-      //Run test case for each diff algorithm
-      const results = [];
-      for (const adapter of this.adapters) {
-        Logger.info('Running case ' + testCase.name + ' for adapter ' + adapter.displayName, this);
-        const result = adapter.evalCase(testCase);
-        results.push(result);
-
-        //make relative
-        if (result.isOk()) {
-          result.actual.cost /= testCase.expected.editScript.cost;
-          result.actual.editOperations /= testCase.expected.editScript.size();
-
-          if (!resultsPerAdapter.has(adapter)) {
-            resultsPerAdapter.set(adapter, []);
-          }
-          resultsPerAdapter.get(adapter).push({
-            size: Math.max(testCase.oldTree.size(), testCase.newTree.size()),
-            result: result
-          });
-        }
-      }
-
-      //Add expected values to table
-      const table = [DiffTestResult.header(), testCase.expected.values(), ...results.map(r => r.values())];
-      Logger.result('Results for case ' + testCase.name);
-      Logger.result(markdownTable(table));
-    }
-
-    //Produce runtime plots
-
-    const colors = 'black, blue, green, magenta, orange, red, yellow, teal, violet, white'.split(', ');
-    let i = 0;
-    Logger.section('RUNTIME LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.runtime + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('COST LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.cost + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-
-    i = 0;
-    Logger.section('EDIT OPS LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace('{1}', tests.map(t => '(' + t.size + ',' + t.result.actual.editOperations + ')').join('')), this);
-    }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ').replaceAll('_', '\\_') + '}');
-  }
-
-  standardAggregate() {
-    Logger.info('Aggregate evaluation of diff algorithms with standard progression', this);
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-      const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
-
-      const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES *(TestConfig.PROGRESSION.FACTOR ** i));
-
-      const testId = [size, changeParams.totalChanges].join('_');
-
-      const treeGen = new TreeGenerator(genParams);
-      for (let j = 0; j < TestConfig.PROGRESSION.REPS; j++) {
+      // Take the average of multiple runs
+      for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
         const oldTree = treeGen.randomTree();
-
         const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
 
-        for (const adapter of this.adapters) {
-          Logger.info('Running rep ' + j + ' for adapter ' + adapter.displayName, this);
+        for (const adapter of this._adapters) {
+          Logger.info(
+              'Running rep ' + j + ' for adapter ' + adapter.displayName,
+              this,
+          );
           const result = adapter.evalCase(testCase);
           if (result.isOk()) {
+            // Make relative to proposed edit script
             result.actual.cost /= testCase.expected.editScript.cost;
             result.actual.editOperations /= testCase.expected.editScript.size();
           }
           resultsPerAdapter.get(adapter).push(result);
         }
       }
-      const aggregateResults = [...resultsPerAdapter.entries()].map(e => AverageDiffResult.of(e[1]));
-      const table = [AverageDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
-      Logger.result('Results for cases ' + testId);
-      Logger.result(markdownTable(table));
-    }
-  }
-
-  flatAggregate() {
-    Logger.info('Aggregate evaluation of diff algorithms no change progression', this);
-    for (let i = 0; i <= TestConfig.PROGRESSION.LIMIT; i++) {
-      const size = TestConfig.PROGRESSION.INITIAL_SIZE * (TestConfig.PROGRESSION.FACTOR ** i);
-      const resultsPerAdapter = new Map(this.adapters.map((a) => [a, []]));
-
-      const genParams = new GeneratorParameters(size, size, Math.ceil(Math.log2(size)), Math.ceil(Math.log10(size)));
-      const changeParams = new ChangeParameters(TestConfig.PROGRESSION.INITIAL_CHANGES);
-
-      const testId = [size, changeParams.totalChanges].join('_');
-
-      const treeGen = new TreeGenerator(genParams);
-      for (let j = 0; j < TestConfig.PROGRESSION.REPS; j++) {
-        const oldTree = treeGen.randomTree();
-        const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
-
-        for (const adapter of this.adapters) {
-          Logger.info('Running rep ' + j + ' for adapter ' + adapter.displayName, this);
-          const result = adapter.evalCase(testCase);
-          if (result.isOk()) {
-            result.actual.cost /= testCase.expected.editScript.cost;
-            result.actual.editOperations /= testCase.expected.editScript.size();
-          }
-          resultsPerAdapter.get(adapter).push(result);
-        }
+      const aggregateResults = [...resultsPerAdapter.entries()]
+          .map((entry) => AverageDiffResult.of(entry[1]))
+          .filter((aggregateResult) => aggregateResult != null);
+      // TODO remove latex
+      for (const aResult of aggregateResults) {
+        aResult.size = size;
+        aResultsPerAdapter.get(aResult.algorithm).push(aResult);
       }
-      const aggregateResults = [...resultsPerAdapter.entries()].map(e => AverageDiffResult.of(e[1]));
-      const table = [AverageDiffResult.header(), ...(aggregateResults.map(r => r.values()))];
+      // TODO remove latex
+      const table = [
+        AverageDiffResult.header(),
+        ...(aggregateResults.map((result) => result.values())),
+      ];
       Logger.result('Results for cases ' + testId);
       Logger.result(markdownTable(table));
     }
 
+    // TODO remove latex
+    //Produce runtime plots
+    const colors = 'black, red, blue, magenta, orange, violet, teal'.split(
+        ', ');
+    const markers = 'square*, triangle*, *, diamond*, square, triangle, o, diamond'.split(
+        ', ');
+    let i = 0;
+    Logger.section('RUNTIME LATEX', this);
+    for (const [algorithm, tests] of aResultsPerAdapter) {
+      Logger.result(('\\addplot[\n' +
+          '    color={0},\n' +
+          '    mark={2},\n' +
+          '    ]\n' +
+          '    coordinates {\n' +
+          '    {1}\n' +
+          '    };')
+          .replace('{0}', colors[i])
+          .replace('{2}', markers[i++])
+          .replace(
+              '{1}',
+              tests.map(t => '(' + t.size + ',' + t.avgRuntime + ')')
+                  .join('')
+          ), this);
+    }
+    Logger.result('\\legend{' + this._adapters.map(a => a.displayName)
+        .join(', ')
+        .replaceAll('_', '\\_') + '}');
+
+    i = 0;
+    Logger.section('COST LATEX', this);
+    for (const [adapter, tests] of aResultsPerAdapter) {
+      Logger.result(('\\addplot[\n' +
+          '    color={0},\n' +
+          '    mark={2},\n' +
+          '    ]\n' +
+          '    coordinates {\n' +
+          '    {1}\n' +
+          '    };')
+          .replace('{0}', colors[i])
+          .replace('{2}', markers[i++])
+          .replace(
+              '{1}',
+              tests.map(t => '(' + t.size + ',' + t.avgCost + ')')
+                  .join(''),
+          ), this);
+    }
+
+    i = 0;
+    Logger.section('EDIT OPS LATEX', this);
+    for (const [adapter, tests] of aResultsPerAdapter) {
+      Logger.result(('\\addplot[\n' +
+          '    color={0},\n' +
+          '    mark={2},\n' +
+          '    ]\n' +
+          '    coordinates {\n' +
+          '    {1}\n' +
+          '    };')
+          .replace('{0}', colors[i])
+          .replace('{2}', markers[i++])
+          .replace(
+              '{1}',
+              tests.map(t => '(' + t.size + ',' + t.avgEditOperations + ')')
+                  .join(''),
+          ), this);
+    }
+    // TODO remove latex
   }
 }
-

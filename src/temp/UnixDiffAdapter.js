@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-import {TestConfig} from '../../test/TestConfig.js';
+import {EvalConfig} from '../../test/EvalConfig.js';
 import {DiffAdapter} from '../../test/diff_adapters/DiffAdapter.js';
 import vkbeautify from 'vkbeautify';
 import fs from 'fs';
@@ -23,15 +23,15 @@ import {execFileSync} from 'child_process';
 export class UnixDiffAdapter extends DiffAdapter {
 
   constructor() {
-    super(TestConfig.DIFFS.UNIXDIFF.path, TestConfig.DIFFS.UNIXDIFF.displayName);
+    super(EvalConfig.DIFFS.UNIXDIFF.path, EvalConfig.DIFFS.UNIXDIFF.displayName);
   }
 
   run(oldTree, newTree) {
     const oldTreeString = oldTree.toXmlString();
     const newTreeString = newTree.toXmlString();
 
-    const oldFilePath = this.path + '/' + TestConfig.FILENAMES.OLD_TREE;
-    const newFilePath = this.path + '/' + TestConfig.FILENAMES.NEW_TREE;
+    const oldFilePath = this.path + '/' + EvalConfig.FILENAMES.OLD_TREE;
+    const newFilePath = this.path + '/' + EvalConfig.FILENAMES.NEW_TREE;
 
     //always beautify XML for unix diff, otherwise the entire XML document is contained in a single line...
     fs.writeFileSync(oldFilePath, vkbeautify.xml(oldTreeString));
@@ -39,7 +39,7 @@ export class UnixDiffAdapter extends DiffAdapter {
 
     let time = new Date().getTime();
     return {
-      output: execFileSync(this.path + '/' + TestConfig.FILENAMES.RUN_SCRIPT, [oldFilePath, newFilePath], TestConfig.EXECUTION_OPTIONS).toString(),
+      output: execFileSync(this.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT, [oldFilePath, newFilePath], EvalConfig.EXECUTION_OPTIONS).toString(),
       runtime: new Date().getTime() - time
     };
   }

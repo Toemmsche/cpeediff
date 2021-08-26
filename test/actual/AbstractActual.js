@@ -1,5 +1,6 @@
 /**
  * Abstract superclass for actual output produced by an algorithm.
+ * @abstract
  */
 export class AbstractActual {
   /**
