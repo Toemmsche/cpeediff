@@ -223,7 +223,7 @@ export class Node {
       for (const index of indexPath.split('/').map((str) => parseInt(str))) {
         if (index >= currNode.degree()) {
           const msg = 'Invalid index path';
-          Logger.error(msg, new Error(msg), this);
+          Logger.error(msg, this);
         }
         currNode = currNode.getChild(index);
       }
@@ -282,6 +282,11 @@ export class Node {
    */
   hasInternalOrdering() {
     return !Dsl.UNORDERED_SET.has(this.label);
+  }
+
+  /** @return {Boolean} */
+  hasText() {
+    return this.text != null && this.text !== '';
   }
 
   /**
@@ -503,9 +508,7 @@ export class Node {
    * @return {number} The size of the subtree rooted at this node.
    */
   size() {
-    return this
-        .#children
-        .reduce((acc, child) => acc + child.size(), 1);
+    return this.toPreOrderArray().length;
   }
 
   /**

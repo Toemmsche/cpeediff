@@ -23,8 +23,8 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
   }
 
   /**
-   * Create a new GeneratedMatchingEvaluation instance with all available matching
-   * algorithms.
+   * Create a new GeneratedMatchingEvaluation instance with all available
+   * matching algorithms.
    * @return {GeneratedMatchingEvaluation}
    */
   static all() {
@@ -74,7 +74,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       mismatchedLeaves,
       mismatchedInners,
       unmatchedLeaves,
-      unmatchedInners
+      unmatchedInners,
     ];
   }
 
@@ -132,12 +132,11 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
       for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
-
         const oldTree = treeGen.randomTree();
-        const changedInfo = treeGen.changeTree(oldTree, changeParams);
+        const [testCase, expectedMatching] =
+            treeGen.changeTree(oldTree, changeParams);
 
-        const newTree = changedInfo.testCase.newTree;
-        const expectedMatching = changedInfo.matching;
+        const newTree = testCase.newTree;
 
         // Run test case for each matching pipeline and compute number of
         // mismatched nodes

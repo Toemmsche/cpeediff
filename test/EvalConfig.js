@@ -24,7 +24,7 @@ export const EvalConfig = {
     FACTOR: 2,
     LIMIT: 10,
     INITIAL_SIZE: 100,
-    REPS: 3,
+    REPS: 10,
 
     INITIAL_CHANGES: 5,
   },

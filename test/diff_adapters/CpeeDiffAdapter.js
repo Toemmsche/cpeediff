@@ -14,6 +14,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
    * The matching mode to use.
    * @type {String}
    * @private
+   * @const
    */
   #mode;
 

@@ -149,7 +149,7 @@ export class DeltaTreeGenerator {
           .map((str) => parseInt(str))) {
         if (index >= currNode.degree()) {
           const msg = 'Edit script not applicable to tree';
-          Logger.error(msg, new Error(msg), this);
+          Logger.error(msg, this);
         }
         if (movfrNode != null) {
           movfrNode = movfrNode.getChild(index);
@@ -163,7 +163,7 @@ export class DeltaTreeGenerator {
     }
     if (foundMovfrNode && movfrNode == null) {
       const msg = 'Could not find movfr node';
-      Logger.error(msg, new Error(msg), this);
+      Logger.error(msg, this);
     }
     return [
       currNode,

@@ -91,7 +91,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       // Take the average of multiple runs
       for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
         const oldTree = treeGen.randomTree();
-        const testCase = treeGen.changeTree(oldTree, changeParams).testCase;
+        const testCase = treeGen.changeTree(oldTree, changeParams)[0];
 
         for (const adapter of this._adapters) {
           Logger.info(

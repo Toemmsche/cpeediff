@@ -40,9 +40,9 @@
 //      mark abstract methods and override and const
 
 //TODO  26.8.
-//      continue refactoring eval package
+//      $$$ continue refactoring eval package
 //      craete figure illustrating the merge
-//      meet with Jürgen and ask final questions
+//      $$$ meet with Jürgen and ask final questions
 //          discuss introduction length
 //          discuss hand-in
 //          meetings doc -->
@@ -51,7 +51,17 @@
 //      class for generated match evaluation
 //      move verdicts to ABstractTestCase
 //      move statics  from config
-//      use betteer names for DSL elements
+//      $$$ use betteer names for DSL elements
+
+//TODO  27.8.
+//      craete figure illustrating the merge
+//      add loggign to merger and other main threads of exeuction
+//      use destructuring in tree gen
+//      class for generated match evaluation
+//      move verdicts to ABstractTestCase
+//      move statics  from config
+//      missing method/label in comparator
+//      endponit only case
 
 //TODO maybe
 //      better commonality complexity

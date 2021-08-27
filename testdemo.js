@@ -1,6 +1,7 @@
 import {EvalConfig} from './test/EvalConfig.js';
 import {Config} from './src/Config.js';
 import {GeneratedDiffEvaluation} from './test/eval/GeneratedDiffEvaluation.js';
+import {CpeeDiffAdapter} from './test/diff_adapters/CpeeDiffAdapter.js';
 
 /*
 const doc = xmldom.DOMImplementation.prototype.createDocument("ASDF", "s");
@@ -33,7 +34,7 @@ Config.LOG_LEVEL = 'all';
 //new MatchingEvaluation([new QualityCpeeMatchAdapter()]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new GeneratedMatchEvaluation([new QualityCpeeMatchAdapter(), new BalancedCpeeMatchAdapter(), new FastCpeeMatchAdapter()]).standardAggregate();
 //new DiffEvaluation([new QualityCpeeDiffAdapter(), new JNDiffAdapter()]).evalAll(EvalConfig.MATCH_CASES_DIR + "/move/interparent_move");
-GeneratedDiffEvaluation.all().average(false, false);
+new GeneratedDiffEvaluation([new CpeeDiffAdapter("quality")]).average(false, false);
 //new DiffEvaluation([new QualityCpeeDiffAdapter()]).evalAll();
 //new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
 

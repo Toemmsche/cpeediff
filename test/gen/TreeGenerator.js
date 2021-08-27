@@ -46,6 +46,20 @@ export class TreeGenerator {
    * @private
    */
   #variables;
+  /**
+   * The distribution of inner nodes.
+   * @type {Array<String>}
+   * @private
+   * @const
+   */
+  #innerDistribution;
+  /**
+   * The distribution of leaf nodes.
+   * @type {Array<String>}
+   * @private
+   * @const
+   */
+  #leafDistribution;
 
   /**
    * Construct a new TreeGenerator instance.
@@ -60,9 +74,10 @@ export class TreeGenerator {
 
     // TODO refine label construction
 
-    // About 2*log_2(n) (at least 5) variables, labels, and endpoints to choose
-    // from
+    // About 2*log_2(n) (at least 5 or maxVars) variables, labels, and
+    // endpoints to choose from
     for (let i = 0; i < Math.max(
+        this.#genParams.maxVars,
         2 * Math.log2(this.#genParams.size),
         5,
     ); i++) {
@@ -70,6 +85,64 @@ export class TreeGenerator {
       this.#labels.push(this.#randomString(this.#randInt(30) + 10));
       this.#variables.push(this.#randomString(this.#randInt(10) + 5));
     }
+
+    // Set up inner and leaf node distribution
+    this.#leafDistribution = this.#distribution(
+        [
+          [
+            Dsl.ELEMENTS.CALL.label,
+            20,
+          ],
+          [
+            Dsl.ELEMENTS.SCRIPT.label,
+            10,
+          ],
+          [
+            Dsl.ELEMENTS.BREAK.label,
+            1,
+          ],
+          [
+            Dsl.ELEMENTS.TERMINATION.label,
+            1,
+          ],
+          [
+            Dsl.ELEMENTS.STOP.label,
+            1,
+          ],
+        ],
+    );
+    this.#innerDistribution = this.#distribution(
+        [
+          [
+            Dsl.ELEMENTS.LOOP.label,
+            2,
+          ],
+          [
+            Dsl.ELEMENTS.CHOICE.label,
+            1,
+          ],
+          [
+            Dsl.ELEMENTS.ALTERNATIVE.label,
+            2,
+          ],
+          [
+            Dsl.ELEMENTS.OTHERWISE.label,
+            1,
+          ],
+          [
+            Dsl.ELEMENTS.PARALLEL.label,
+            1,
+          ],
+          [
+            Dsl.ELEMENTS.PARALLEL_BRANCH.label,
+            2,
+          ],
+          [
+            Dsl.ELEMENTS.CRITICAL.label,
+            1,
+          ],
+        ],
+    );
   }
 
   /**
@@ -92,8 +165,8 @@ export class TreeGenerator {
    * @param {Node} tree The root node of the tree to be changed.
    * @param {ChangeParameters} changeParams A set of parameters for the
    *     changes.
-   * @return {{testCase: DiffTestCase, matching: Matching}} An object
-   *     containing the corresponding diff test case and the expected matching.
+   * @return {[DiffTestCase, Matching]}} An array containing the corresponding
+   *     diff test case and the expected matching.
    */
   changeTree(tree, changeParams) {
     Logger.info(
@@ -109,11 +182,26 @@ export class TreeGenerator {
     let newTree = Node.fromNode(tree);
 
     // set up random distribution of changes according to parameters
-    const distributionString =
-        'i'.repeat(changeParams.insertionWeight) +
-        'm'.repeat(changeParams.moveWeight) +
-        'u'.repeat(changeParams.updateWeight) +
-        'd'.repeat(changeParams.deletionWeight);
+    const distribution = this.#distribution(
+        [
+          [
+            Dsl.CHANGE_MODEL.INSERTION.label,
+            changeParams.insertionWeight,
+          ],
+          [
+            Dsl.CHANGE_MODEL.MOVE.label,
+            changeParams.moveWeight,
+          ],
+          [
+            Dsl.CHANGE_MODEL.UPDATE.label,
+            changeParams.updateWeight,
+          ],
+          [
+            Dsl.CHANGE_MODEL.DELETION.label,
+            changeParams.deletionWeight,
+          ],
+        ],
+    );
 
     // A mapping between the original and changed tree
     const oldToNewMap = new Map();
@@ -136,12 +224,12 @@ export class TreeGenerator {
           .sort((a, b) => elementSizeExtractor.get(a) -
               elementSizeExtractor.get(b))[0];
     }
-    let skippedOpCounter = 0;
+    let skipped = 0;
     for (let i = 0; i < changeParams.totalChanges; i++) {
-      const opChar = this.#randomFrom(distributionString.split(''));
+      const opType = this.#randomFrom(distribution);
       try {
-        switch (opChar) {
-          case 'i': {
+        switch (opType) {
+          case Dsl.CHANGE_MODEL.INSERTION.label: {
             // we can insert a subtree, a leaf node, or a property node (only
             // call arguments are supported)
             if (this.#withProbability(0.2)) {
@@ -153,7 +241,7 @@ export class TreeGenerator {
             }
             break;
           }
-          case 'd': {
+          case Dsl.CHANGE_MODEL.DELETION.label: {
             if (this.#withProbability(0.2)) {
               this.#deleteSubtreeRandomly(newTree);
             } else {
@@ -161,27 +249,27 @@ export class TreeGenerator {
             }
             break;
           }
-          case 'm': {
+          case Dsl.CHANGE_MODEL.MOVE.label: {
             this.#moveRandomly(newTree);
             break;
           }
-          case 'u': {
+          case Dsl.CHANGE_MODEL.UPDATE.label: {
             this.#updateRandomly(newTree);
             break;
           }
         }
       } catch (e) {
-        skippedOpCounter++;
+        skipped++;
       }
     }
-    if (skippedOpCounter > 0) {
+    if (skipped > 0) {
       Logger.warn(
-          skippedOpCounter + ' edit operation(s) could not be applied',
+          skipped + ' edit operation(s) could not be applied',
           this,
       );
     }
     if (changeParams.local) {
-      // reset newTree
+      // reset newTree if changes were local
       newTree = temp;
     }
 
@@ -229,20 +317,20 @@ export class TreeGenerator {
     }
 
     const testCase = new DiffTestCase(
-        Math.max(
+        '[Size: ' + Math.max(
             original.size(),
             newTree.size(),
-        ) + '_' + proposedEditScript.size(),
+        ) + ', Changes: ' + proposedEditScript.size() + ']',
         original,
         newTree,
         new ExpectedDiff(proposedEditScript),
     );
 
     Logger.stat('Changing tree took ' + Logger.endTimed() + 'ms', this);
-    return {
-      testCase: testCase,
-      matching: returnMatching,
-    };
+    return [
+      testCase,
+      returnMatching,
+    ];
   }
 
   /**
@@ -269,13 +357,29 @@ export class TreeGenerator {
   }
 
   /**
+   * Set up a distribution that respects the weight of each item.
+   * The probability to randomly choose x is w_x / sum(w_*).
+   * @param {Array<[Object, Number]>} weightedItems The items their weights.
+   * @return {Array<Object>} The desired distribution array.
+   * @private
+   */
+  #distribution(weightedItems) {
+    let distribution = [];
+    for (const weightedItem of weightedItems) {
+      distribution = distribution.concat(
+          new Array(weightedItem[1]).fill(weightedItem[0]));
+    }
+    return distribution;
+  }
+
+  /**
    * Change a tree by adding a random argument to an existing service call node.
    * @param {Node} tree The tree to be changed.
    * @private
    */
   #insertArgRandomly(tree) {
     const parent = this.#randomFrom(tree.toPreOrderArray()
-        .filter((n) => n.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label));
+        .filter((node) => node.isCallArguments()));
     let insertedArg = this.#randomFrom(this.#variables);
     insertedArg = new Node(insertedArg, Config.VARIABLE_PREFIX + insertedArg);
     this.#appendRandomly(parent, insertedArg);
@@ -333,8 +437,8 @@ export class TreeGenerator {
   #moveRandomly(tree) {
     // It does not make sense to move a termination node
     const movedNode = this.#randomFrom(tree.nonPropertyNodes().filter((n) =>
-      // Moves on some nodes do not make sense
-      !n.isInnterruptLeafNode() &&
+        // Moves on some nodes do not make sense
+        !n.isInnterruptLeafNode() &&
         !n.isRoot() &&
         !n.isParallelBranch() &&
         !n.isAlternative() &&
@@ -343,10 +447,11 @@ export class TreeGenerator {
     // chance for an interparent move
     if (this.#withProbability(0.8)) {
       // prevent move to self
+      const descendantSet = new Set(movedNode.toPreOrderArray());
       parent = this.#pickValidParent(
           movedNode,
           tree.inners()
-              .filter((n) => !movedNode.toPreOrderArray().includes(n)),
+              .filter((inner) => !descendantSet.includes(inner)),
       );
     } else {
       parent = movedNode.parent;
@@ -361,15 +466,16 @@ export class TreeGenerator {
   /**
    * Picks a valid parent node among a collection of inner nodes.
    * @param {Node} node The node for which a parent should be found.
-   * @param {[Node]} inners The array of inner nodes from which the parent
+   * @param {Array<Node>} inners The array of inner nodes from which the parent
    *     should be picked.
-   * @return {Node|null} The parent node, if a suitable node could be found
+   * @return {?Node} The parent node, if a suitable node could be found
    *     among the inner node array.
    * @private
    */
   #pickValidParent(node, inners) {
     // honor max width parameters as good as possible
-    const filteredInners = inners.filter((n) => n.degree() < this.#genParams.maxDegree);
+    const filteredInners = inners.filter((inner) =>
+        inner.degree() < this.#genParams.maxDegree);
     if (filteredInners.length > 0) {
       // this would block
       inners = filteredInners;
@@ -377,32 +483,20 @@ export class TreeGenerator {
 
     // Some nodes are restricted in terms of their parent node
     let filterFun;
-    if (node.isLeaf() && node.label === Dsl.ELEMENTS.STOP.label ||
-        node.label === Dsl.ELEMENTS.TERMINATION.label ||
-        node.label === Dsl.ELEMENTS.BREAK.label) {
+    if (node.isInnterruptLeafNode()) {
       // multiple termination nodes under a single parent just do not make sense
-      filterFun = (n) => n.label !== Dsl.ELEMENTS.PARALLEL.label &&
-          n.label !== Dsl.ELEMENTS.CHOICE.label &&
-          n.children.some((c) =>
-              c.label === Dsl.ELEMENTS.STOP.label ||
-              c.label === Dsl.ELEMENTS.TERMINATION.label ||
-              c.label === Dsl.ELEMENTS.BREAK.label);
-    } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.ALTERNATIVE.label) {
-      filterFun = (n) => n.label === Dsl.ELEMENTS.CHOICE.label;
-    } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.OTHERWISE.label) {
+      filterFun = (inner) => !inner.isParallel() && !inner.isChoice() &&
+          !inner.children.some((child) => child.isInnterruptLeafNode());
+    } else if (node.isAlternative()) {
+      filterFun = (inner) => inner.isChoice();
+    } else if (node.isOtherwise()) {
       // find a choose node with no existing otherwise branch
-      filterFun = (n) => {
-        if (n.label !== Dsl.ELEMENTS.CHOICE.label) return false;
-        for (const child of n) {
-          if (child.label === Dsl.ELEMENTS.OTHERWISE.label) return false;
-        }
-        return true;
-      };
-    } else if (node.isInnerNode() && node.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label) {
-      filterFun = (n) => n.label === Dsl.ELEMENTS.PARALLEL.label;
+      filterFun = (inner) => inner.isChoice() &&
+          !inner.children.some((child) => child.isOtherwise());
+    } else if (node.isParallelBranch()) {
+      filterFun = (inner) => inner.isParallel();
     } else {
-      filterFun = (n) => n.label !== Dsl.ELEMENTS.PARALLEL.label &&
-          n.label !== Dsl.ELEMENTS.CHOICE.label;
+      filterFun = (inner) => !inner.isParallel() && !inner.isChoice();
     }
 
     // pick parent according to filter function
@@ -416,7 +510,7 @@ export class TreeGenerator {
 
   /**
    * @param {Number} max The (exclusive) ceiling for the random integer.
-   * @return {number} A random integer from 0 (inclusive) up to a max value
+   * @return {Number} A random integer from 0 (inclusive) up to a max value
    *     (exclusive).
    * @private
    */
@@ -436,7 +530,7 @@ export class TreeGenerator {
     const readVariable = this.#randomFrom(this.#variables);
     node.attributes.set(
         Dsl.INNER_PROPERTIES.CONDITION.label,
-        Config.VARIABLE_PREFIX + readVariable + ' < 69',
+        Config.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
     );
 
     return node;
@@ -459,6 +553,8 @@ export class TreeGenerator {
    */
   #randomCall() {
     const node = new Node(Dsl.ELEMENTS.CALL.label);
+
+    // Random endpoint
     node.attributes.set(
         Dsl.CALL_PROPERTIES.ENDPOINT.label,
         this.#randomFrom(this.#endpoints),
@@ -466,18 +562,20 @@ export class TreeGenerator {
 
     const parameters = new Node(Dsl.CALL_PROPERTIES.PARAMETERS.label);
 
-    // random label
-    const label = new Node(Dsl.CALL_PROPERTIES.LABEL.label);
-    // TODO label shouldnt be random
-    label.text = this.#randomFrom(this.#labels);
-    parameters.appendChild(label);
+    // Not all calls are guaranteed to have a label
+    if (this.#withProbability(0.75)) {
+      const label = new Node(Dsl.CALL_PROPERTIES.LABEL.label);
+      // TODO label shouldnt be random
+      label.text = this.#randomFrom(this.#labels);
+      parameters.appendChild(label);
+    }
 
-    // random method
+    // Random method
     const method = new Node(Dsl.CALL_PROPERTIES.METHOD.label);
     method.text = this.#randomFrom(Dsl.ENDPOINT_METHODS);
     parameters.appendChild(method);
 
-    // random service call arguments
+    // Random service call arguments
     const args = new Node(Dsl.CALL_PROPERTIES.ARGUMENTS.label);
     for (const readVariable of this.#randomSubSet(
         this.#variables,
@@ -500,7 +598,8 @@ export class TreeGenerator {
         this.#variables,
         this.#randInt(this.#genParams.maxVars),
     )) {
-      finalize.text += Config.VARIABLE_PREFIX + writtenVariable + ' = 420;';
+      finalize.text += Config.VARIABLE_PREFIX + writtenVariable + ' = ' +
+          this.#randInt(1000) + ';';
     }
 
     // random read variables in code
@@ -510,7 +609,7 @@ export class TreeGenerator {
     )) {
       finalize.text += 'fun(data.' + readVariable + ');';
     }
-    if (finalize.text !== '') {
+    if (finalize.hasText()) {
       code.appendChild(finalize);
     }
     if (code.hasChildren()) {
@@ -527,6 +626,8 @@ export class TreeGenerator {
    */
   #randomChoice() {
     const node = new Node(Dsl.ELEMENTS.CHOICE.label);
+
+    // Chance to explicitly set the mode
     if (this.#withProbability(0.5)) {
       node.attributes.set(
           Dsl.INNER_PROPERTIES.CHOOSE_MODE.label,
@@ -571,8 +672,7 @@ export class TreeGenerator {
    */
   #randomInner() {
     // inner nodes are evenly distributed (except root node)
-    const label = this.#randomFrom(new Array(...Dsl.INNER_NODE_SET.values()).filter(
-        (n) => n !== Dsl.ELEMENTS.DSL_ROOT.label));
+    const label = this.#randomFrom(this.#innerDistribution);
     switch (label) {
       case Dsl.ELEMENTS.LOOP.label:
         return this.#randomLoop();
@@ -598,20 +698,21 @@ export class TreeGenerator {
    * @private
    */
   #randomLeaf() {
-    let node;
-    // about two-third chance to add a call
-    if (this.#withProbability(0.7)) {
-      node = this.#randomCall();
-    } else if (this.#withProbability(0.9)) {
-      node = this.#randomScript();
-    } else if (this.#withProbability(0.3)) {
-      node = this.#randomStop();
-    } else if (this.#withProbability(0.3)) {
-      node = this.#randomBreak();
-    } else {
-      node = this.#randomTermination();
+    const label = this.#randomFrom(this.#leafDistribution);
+    switch (label) {
+      case Dsl.ELEMENTS.CALL.label:
+        return this.#randomCall();
+      case Dsl.ELEMENTS.SCRIPT.label:
+        return this.#randomScript();
+      case Dsl.ELEMENTS.TERMINATION.label:
+        return this.#randomTermination();
+      case Dsl.ELEMENTS.STOP.label:
+        return this.#randomStop();
+      case Dsl.ELEMENTS.BREAK.label:
+        return this.#randomBreak();
+      default:
+        throw new Error('Unknown leaf node label');
     }
-    return node;
   }
 
   /**
@@ -625,7 +726,7 @@ export class TreeGenerator {
     const readVariable = this.#randomFrom(this.#variables);
     node.attributes.set(
         Dsl.INNER_PROPERTIES.CONDITION.label,
-        Config.VARIABLE_PREFIX + readVariable + ' < 69',
+        Config.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
     );
 
     if (this.#withProbability(0.5)) {
@@ -698,7 +799,8 @@ export class TreeGenerator {
         this.#variables,
         this.#randInt(this.#genParams.maxVars),
     )) {
-      node.text += Config.VARIABLE_PREFIX + writtenVariable + ' = 420;';
+      node.text += Config.VARIABLE_PREFIX + writtenVariable + ' = ' +
+          this.#randInt(1000) + ';';
     }
     for (const readVariable of this.#randomSubSet(
         this.#variables,
@@ -770,7 +872,8 @@ export class TreeGenerator {
    */
   randomTree(root = this.#randomRoot()) {
     Logger.info(
-        'Generating random process tree with parameters ' + this.#genParams.toString() + '...',
+        'Generating random process tree with parameters ' +
+        this.#genParams.toString() + '...',
         this,
     );
     Logger.startTimed();
@@ -778,35 +881,42 @@ export class TreeGenerator {
     // step
     const inners = [root];
     let currSize = 1;
-    while (currSize < this.#genParams.size) {
-      let newNode;
-      // TODO export probabilities to generator params
-      // Pick a leaf node or inner node with a certain probability
-      if (this.#withProbability(0.6)) {
-        newNode = this.#randomLeaf();
-      } else {
-        newNode = this.#randomInner();
-      }
-
-      try {
-        // Find a valid parent node from the current inner node set
-        const parent = this.#pickValidParent(newNode, inners);
-
-        if (newNode.isInnerNode()) {
-          inners.push(newNode);
+    while (currSize < 0.98 * this.#genParams.size) {
+      while (currSize <= this.#genParams.size) {
+        let newNode;
+        // TODO export probabilities to generator params
+        // Pick a leaf node or inner node with a certain probability
+        if (this.#withProbability(0.5)) {
+          newNode = this.#randomLeaf();
+        } else {
+          newNode = this.#randomInner();
         }
 
-        this.#appendRandomly(parent, newNode);
-        currSize += newNode.size();
-      } catch (error) {
-        // TODO
+        try {
+          // Find a valid parent node from the current inner node set
+          const parent = this.#pickValidParent(newNode, inners);
+
+          if (newNode.isInnerNode()) {
+            inners.push(newNode);
+          }
+
+          this.#appendRandomly(parent, newNode);
+          currSize += newNode.size();
+        } catch (error) {
+          //
+        }
+      }
+      // Preprocess to obtain a well-formed tree
+      const loggingEnabled = Logger.disableLogging();
+      root = new Preprocessor().preprocess(root);
+      currSize = root.size();
+      if (loggingEnabled) {
+        Logger.enableLogging();
       }
     }
-
-    // preprocess and prune empty nodes
-    const preparedTree = new Preprocessor().preprocess(root);
-    Logger.stat('Tree generation took ' + Logger.endTimed() + 'ms', this);
-    return preparedTree;
+    Logger.stat('Tree generation for size ' + currSize +
+        ' took ' + Logger.endTimed() + 'ms', this);
+    return root;
   }
 
   /**
@@ -955,7 +1065,7 @@ export class TreeGenerator {
 
   /**
    * @param {Number} prob A probability value from [0,1].
-   * @return {boolean} True with a chance equal to the probability value.
+   * @return {Boolean} True with a chance equal to the probability value.
    * @private
    */
   #withProbability(prob) {

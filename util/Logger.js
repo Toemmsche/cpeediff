@@ -111,18 +111,15 @@ export class Logger {
    * Error logs indicate a faulty state of the system that, if not addressed immediately,
    * will lead to the termination of the application.
    * The log is printed to stderr if logging is enabled.
-   * The supplied error object is thrown and will cause the termination of the application
-   * if not handled by a caller in the stack.
    * @param {String} message The message to log as ERROR
-   * @param {Error} error The underlying error object
    * @param {Object} source The caller object
    */
-  static error(message, error, source = null) {
+  static error(message, source = null) {
     if (this._enabled) {
       const logMessage = new LogMessage(this.LOG_LEVELS.ERROR, message, source);
       console.error(logMessage.toString());
     }
-    throw error;
+    throw new Error(message);
   }
 
   /**
@@ -131,8 +128,7 @@ export class Logger {
    * @param {Object} source The caller object
    */
   static abstractMethodExecution(source = null) {
-    const msg = 'Execuction of an abstract method';
-    this.error(msg, new Error('msg'), source);
+    this.error('Execution of an abstract method', source);
   }
 
   /**

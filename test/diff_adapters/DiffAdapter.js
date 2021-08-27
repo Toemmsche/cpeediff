@@ -60,7 +60,7 @@ export class DiffAdapter extends AbstractAdapter {
         this.displayName,
         exec.runtime,
         new ActualDiff(exec.output, ...counters),
-        EvalConfig.VERDICTS.OK
+        EvalConfig.VERDICTS.OK,
     );
   }
 

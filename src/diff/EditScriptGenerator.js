@@ -164,7 +164,7 @@ export class EditScriptGenerator {
     // Verify the validity of the edit script
     if (!this.#editScript.isValid(copyOfOld, newTree)) {
       const msg = 'Generated edit script is not valid';
-      Logger.error(msg, new Error(msg), this);
+      Logger.error(msg, this);
     }
 
     Logger.stat('Edit script generation took ' +

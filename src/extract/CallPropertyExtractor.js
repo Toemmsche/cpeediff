@@ -21,7 +21,7 @@ export class CallPropertyExtractor {
   _extract(call) {
     if (!call.isCall()) {
       const msg = 'Cannot compute call properties for non-call node';
-      Logger.error(msg, new Error(msg), this);
+      Logger.error(msg, this);
     }
     const endpoint = call.attributes.get(Dsl.CALL_PROPERTIES.ENDPOINT.label);
 

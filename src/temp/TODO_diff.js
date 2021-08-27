@@ -61,7 +61,9 @@
 //      use id for mapping and matching
 //      Turn autogenearted tests into class
 //      delete includes deleted tree
-//    rename to DSL-root
+//      use multi array in weighted averager
+//      no try catch in treegen
+
 
 /*
 Problems with examined matching algorithms:

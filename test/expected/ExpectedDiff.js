@@ -5,7 +5,7 @@ import {AbstractExpected} from './AbstractExpected.js';
  */
 export class ExpectedDiff extends AbstractExpected {
   /**
-   * The propsed edit script.
+   * The proposed edit script.
    * @type {?EditScript}
    * @const
    */

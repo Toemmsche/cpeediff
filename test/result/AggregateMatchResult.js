@@ -1,28 +1,46 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {EvalConfig} from '../EvalConfig.js';
 
+/**
+ * An aggregate result of multiple match test results.
+ *
+ * @see {MatchTestResult}
+ */
 export class AggregateMatchResult {
-
+  /**
+   * The matching algorithm that produced the match results.
+   * @type {String}
+   * @const
+   */
   algorithm;
+  /**
+   * The amount of test results with the 'OK' verdict.
+   * @type {Number}
+   * @const
+   */
   ok;
+  /**
+   * The amount of test results with the 'WRONG ANSWER' verdict.
+   * @type {Number}
+   * @const
+   */
   wrongAnswer;
+  /**
+   * The amount of test results with the 'RUNTIME ERROR' verdict.
+   * @type {Number}
+   * @const
+   */
   runtimeError;
 
+  /**
+   * Construct a new AggregateMatchResult instance.
+   * @param {String} algorithm The matching algorithm that produced the match
+   *     results.
+   * @param {Number} ok The amount of test results with the 'OK' verdict.
+   * @param {Number} wrongAnswer The amount of test results with the 'WRONG
+   *     ANSWER' verdict.
+   * @param {Number} runtimeError The amount of test results with the 'RUNTIME
+   *     ERROR' verdict.
+   */
   constructor(algorithm, ok, wrongAnswer, runtimeError) {
     this.algorithm = algorithm;
     this.ok = ok;
@@ -30,6 +48,25 @@ export class AggregateMatchResult {
     this.runtimeError = runtimeError;
   }
 
+  /**
+   * @return {Array<String>} The header row for a list of aggregate match
+   *     results to use in tables.
+   */
+  static header() {
+    return [
+      'Algorithm',
+      '#OK',
+      '#Wrong Answer',
+      '#Runtime Error',
+    ];
+  }
+
+  /**
+   * Create an AggregateMatchResult instance from a list of individual match
+   * test results.
+   * @param {Array<MatchTestResult>} results The list of results.
+   * @return {AggregateMatchResult}
+   */
   static of(results) {
     let ok = 0;
     let wrongAnswer = 0;
@@ -43,15 +80,24 @@ export class AggregateMatchResult {
         runtimeError++;
       }
     }
-    return new AggregateMatchResult(results[0].algorithm, ok, wrongAnswer, runtimeError);
+    return new AggregateMatchResult(
+        results[0].algorithm,
+        ok,
+        wrongAnswer,
+        runtimeError,
+    );
   }
 
-  static header() {
-    return ['Algorithm', '#OK', '#Wrong Answer', '#Runtime Error'];
-  }
-
+  /**
+   * @return {Array<String>} The row of values of this result for use in tables.
+   */
   values() {
-    return [this.algorithm, this.ok, this.wrongAnswer, this.runtimeError];
+    return [
+      this.algorithm,
+      this.ok,
+      this.wrongAnswer,
+      this.runtimeError,
+    ];
   }
 }
 
