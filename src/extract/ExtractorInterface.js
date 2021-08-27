@@ -9,6 +9,7 @@ import {Logger} from '../../util/Logger.js';
  */
 export class ExtractorInterface {
   /**
+   * The cached values.
    * @type {Map<Node,T>}
    * @protected
    * @abstract

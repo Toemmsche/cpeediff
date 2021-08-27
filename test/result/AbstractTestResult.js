@@ -6,6 +6,19 @@ import {EvalConfig} from '../EvalConfig.js';
  */
 export class AbstractTestResult {
   /**
+   * Enum for all possible test case verdicts.
+   * @type {Object}
+   */
+  static VERDICTS = {
+    OK: 'OK',
+    ACCEPTABLE: 'ACCEPTABLE',
+    WRONG_ANSWER: 'WRONG ANSWER',
+    RUNTIME_ERROR: 'RUNTIME ERROR',
+    FAILED: 'FAILED',
+    TIMEOUT: 'TIMEOUT'
+  };
+
+  /**
    * The name (or ID) of the test case.
    * @type {String}
    * @const
@@ -55,7 +68,7 @@ export class AbstractTestResult {
    * @return {Boolean} If this test result indicates success.
    */
   isOk() {
-    return this.verdict === EvalConfig.VERDICTS.OK;
+    return this.verdict === AbstractTestResult.VERDICTS.OK;
   }
 }
 

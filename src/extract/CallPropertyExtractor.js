@@ -8,6 +8,7 @@ import {Logger} from '../../util/Logger.js';
  */
 export class CallPropertyExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,CallProperties>}
    * @protected
    */

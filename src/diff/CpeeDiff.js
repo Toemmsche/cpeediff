@@ -1,12 +1,25 @@
 import {EditScriptGenerator} from './EditScriptGenerator.js';
 import {MatchPipeline} from '../match/MatchPipeline.js';
 import {Node} from '../tree/Node.js';
+import {Logger} from '../../util/Logger.js';
 
 /**
  * A coordinator class for the CPEE process tree difference algorithm.
  */
 export class CpeeDiff {
+  /**
+   * The match pipeline to use for the diff.
+   * @type {MatchPipeline}
+   * @private
+   * @const
+   */
   #matchPipeline;
+  /**
+   * The edit script generator to use for the diff.
+   * @type {EditScriptGenerator}
+   * @private
+   * @const
+   */
   #editScriptGenerator;
 
   /**
@@ -27,6 +40,7 @@ export class CpeeDiff {
    * @return {EditScript}
    */
   diff(oldTree, newTree) {
+    Logger.section('CpeeDiff', this);
     // Edit script generation modifies the old tree, hence a copy is used
     const oldTreeCopy = Node.fromNode(oldTree);
     const matching = this.#matchPipeline.execute(oldTreeCopy, newTree);

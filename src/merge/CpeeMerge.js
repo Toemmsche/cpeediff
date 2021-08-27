@@ -5,6 +5,7 @@ import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 import {Preprocessor} from '../io/Preprocessor.js';
 import {Update} from '../patch/Update.js';
 import {MergeNode} from './MergeNode.js';
+import {Logger} from '../../util/Logger.js';
 
 /**
  * A simple matching-based three way merger for process trees.
@@ -226,14 +227,25 @@ export class CpeeMerge {
   merge(base, branch1, branch2) {
     const differ = new CpeeDiff();
 
+    Logger.section('CpeeMerge', this);
+
     // Construct the merge tree for each process tree.
     // It is annotated with difference-related information.
+
+    Logger.info('Diffing base and branch 1...', this);
+    let loggingEnabled = Logger.disableLogging();
     const delta1 = differ.diff(base, branch1);
+
+    Logger.info('Diffing base and branch 2...', this);
+    loggingEnabled = Logger.disableLogging();
     const delta2 = differ.diff(base, branch2);
+    Logger.enableLogging(loggingEnabled);
 
     const deltaTreeFactory = new DeltaTreeGenerator();
     // Transform into merge trees which can hold additional information
+    Logger.info('Constructing delta tree for branch 1...', this);
     const mt1 = MergeNode.fromNode(deltaTreeFactory.deltaTree(base, delta1));
+    Logger.info('Constructing delta tree for branch 2...', this);
     const mt2 = MergeNode.fromNode(deltaTreeFactory.deltaTree(base, delta2));
 
     // Get the matching between the merge trees.
@@ -243,20 +255,26 @@ export class CpeeMerge {
     this.#setChangeOrigin(mt2, 2);
 
     // Delete all unmatched nodes
+    Logger.info('Processing deletions...', this);
     this.#handleDeletions(mt1);
     this.#handleDeletions(mt2);
     this.#handleDeletions(mt1);
 
+    Logger.info('Finding conflicts...', this);
     const [updateConflicts, moveConflicts] = this.#findConflicts(mt1);
 
     // Moves and insertions that only appear in one branch
+    Logger.info('Processing moves and insertions...', this);
     this.#handleMovesAndInsertions(mt1);
     this.#handleMovesAndInsertions(mt2);
 
+    Logger.info('Resolving move conflicts...', this);
     this.#resolveMoveConflicts(moveConflicts);
+    Logger.info('Resolving update conflicts...', this);
     this.#resolveUpdateConflicts(updateConflicts);
 
     // Find (unresolvable) order conflicts in the child list of nodes.
+    Logger.info('Finding order conflicts...', this);
     this.#findOrderConflicts(mt1);
     this.#findOrderConflicts(mt2);
 

@@ -56,9 +56,9 @@
 //TODO  27.8.
 //      craete figure illustrating the merge
 //      add loggign to merger and other main threads of exeuction
-//      use destructuring in tree gen
+//      $$$ use destructuring in tree gen
 //      class for generated match evaluation
-//      move verdicts to ABstractTestCase
+//      $$$ move verdicts to ABstractTestCase
 //      move statics  from config
 //      missing method/label in comparator
 //      endponit only case

@@ -72,11 +72,11 @@ export class AggregateMatchResult {
     let wrongAnswer = 0;
     let runtimeError = 0;
     for (const result of results) {
-      if (result.verdict === EvalConfig.VERDICTS.OK) {
+      if (result.verdict === AbstractTestResult.VERDICTS.OK) {
         ok++;
-      } else if (result.verdict === EvalConfig.VERDICTS.WRONG_ANSWER) {
+      } else if (result.verdict === AbstractTestResult.VERDICTS.WRONG_ANSWER) {
         wrongAnswer++;
-      } else if (result.verdict === EvalConfig.VERDICTS.RUNTIME_ERROR) {
+      } else if (result.verdict === AbstractTestResult.VERDICTS.RUNTIME_ERROR) {
         runtimeError++;
       }
     }

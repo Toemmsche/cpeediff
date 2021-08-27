@@ -57,20 +57,12 @@ export const EvalConfig = {
     timeout: 30000, //30s
     maxBuffer: 100 * 1024 * 1024 //100 MiB
   },
-  VERDICTS: {
-    OK: 'OK',
-    ACCEPTABLE: 'ACCEPTABLE',
-    WRONG_ANSWER: 'WRONG ANSWER',
-    RUNTIME_ERROR: 'RUNTIME ERROR',
-    FAILED: 'FAILED',
-    TIMEOUT: 'TIMEOUT'
-  },
 
   MATCHINGS: {
     CPEEMATCH: {
       displayName: 'CpeeMatch',
-      path: ''
-    }
+      path: '',
+    },
   },
   DIFFS: {
     CPEEDIFF: {
@@ -79,27 +71,27 @@ export const EvalConfig = {
     },
     XMLDIFF: {
       displayName: 'xmldiff',
-      path: '../xml_diff_algos/xmldiff'
+      path: '../xml_diff_algos/xmldiff',
     },
     DIFFXML: {
       displayName: 'DiffXml',
-      path: '../xml_diff_algos/diffxml'
+      path: '../xml_diff_algos/diffxml',
     },
     DELTAJS: {
       displayName: 'Delta.js',
-      path: '../xml_diff_algos/deltajs'
+      path: '../xml_diff_algos/deltajs',
     },
     XCC: {
       displayName: 'XCC',
-      path: '../xml_diff_algos/xcc'
+      path: '../xml_diff_algos/xcc',
     },
     XYDIFF: {
       displayName: 'XyDiff',
-      path: '../xml_diff_algos/xydiff'
+      path: '../xml_diff_algos/xydiff',
     },
     JNDIFF: {
       displayName: 'JNDiff',
-      path: '../xml_diff_algos/jndiff'
+      path: '../xml_diff_algos/jndiff',
     }
   },
 

@@ -8,7 +8,7 @@ import {EditScript} from '../diff/EditScript.js';
 import {Logger} from '../../util/Logger.js';
 
 /**
- * A parser and preprocessor for process trees.
+ * A parser and preprocessor for CPEE process trees.
  */
 export class Preprocessor {
   /**

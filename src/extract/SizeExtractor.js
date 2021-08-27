@@ -4,6 +4,7 @@
  */
 export class SizeExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,Number>}
    * @protected
    */

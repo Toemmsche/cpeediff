@@ -38,7 +38,7 @@ export class MergeAdapter extends AbstractAdapter {
         return testCase.complete(
             this.displayName,
             null,
-            EvalConfig.VERDICTS.TIMEOUT,
+            AbstractTestResult.VERDICTS.TIMEOUT,
         );
       } else {
         Logger.info(
@@ -49,7 +49,7 @@ export class MergeAdapter extends AbstractAdapter {
         return testCase.complete(
             this.displayName,
             null,
-            EvalConfig.VERDICTS.RUNTIME_ERROR,
+            AbstractTestResult.VERDICTS.RUNTIME_ERROR,
         );
       }
     }
@@ -59,7 +59,7 @@ export class MergeAdapter extends AbstractAdapter {
     );
     const verdict = this._verifyResult(actual, testCase.expected);
 
-    if (verdict === EvalConfig.VERDICTS.WRONG_ANSWER) {
+    if (verdict === AbstractTestResult.VERDICTS.WRONG_ANSWER) {
       Logger.info(
           this.displayName + ' gave wrong answer for ' + testCase.name,
           this,
@@ -110,12 +110,12 @@ export class MergeAdapter extends AbstractAdapter {
     const hashExtractor = new HashExtractor();
     if (expectedMerge.expectedTrees.some((tree) =>
       hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
-      return EvalConfig.VERDICTS.OK;
+      return AbstractTestResult.VERDICTS.OK;
     } else if (expectedMerge.acceptedTrees.some((tree) =>
       hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
-      return EvalConfig.VERDICTS.ACCEPTABLE;
+      return AbstractTestResult.VERDICTS.ACCEPTABLE;
     } else {
-      return EvalConfig.VERDICTS.WRONG_ANSWER;
+      return AbstractTestResult.VERDICTS.WRONG_ANSWER;
     }
   }
 }

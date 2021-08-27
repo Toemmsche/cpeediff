@@ -4,6 +4,7 @@
  */
 export class LeafSetExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,Set<Node>>}
    * @protected
    */

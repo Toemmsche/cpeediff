@@ -80,15 +80,15 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
       //check if timeout or runtime error
       if (e.code === 'ETIMEDOUT') {
         Logger.info(this.displayName + ' timed out for ' + testCase.name, this);
-        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.TIMEOUT);
+        return testCase.complete(this.displayName, null, AbstractTestResult.VERDICTS.TIMEOUT);
       } else {
         Logger.info(this.displayName + ' crashed for ' + testCase.name + ': ' + e.toString(), this);
-        return testCase.complete(this.displayName, null, EvalConfig.VERDICTS.RUNTIME_ERROR);
+        return testCase.complete(this.displayName, null, AbstractTestResult.VERDICTS.RUNTIME_ERROR);
       }
     }
     const counters = this.parseOutput(exec.output);
     //An OK verdict is emitted because the diff algorithm didnt fail
-    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), EvalConfig.VERDICTS.OK);
+    return testCase.complete(this.displayName, exec.runtime, new ActualDiff(exec.output.toXmlString(), ...counters), AbstractTestResult.VERDICTS.OK);
   }
 }
 

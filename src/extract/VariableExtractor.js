@@ -9,6 +9,7 @@ import {Config} from '../Config.js';
  */
 export class VariableExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,{writtenVariables: Set<String>,
    *     readVariables: Set<Node>}>}
    * @protected

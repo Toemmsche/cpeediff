@@ -151,10 +151,11 @@ export class Logger {
   }
 
   /**
-   * Enable logging. Result logs are not affected.
+   * Enable logging conditionally. Result logs are not affected.
+   * @param {Boolean} enable If logging should be enabled.
    */
-  static enableLogging() {
-    this._enabled = true;
+  static enableLogging(enable = true) {
+    this._enabled = enable;
   }
 
   /**

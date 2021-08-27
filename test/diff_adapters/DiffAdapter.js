@@ -6,6 +6,7 @@ import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
 import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**
  * The superclass for all diff adapters that interface to existing XML
@@ -40,7 +41,7 @@ export class DiffAdapter extends AbstractAdapter {
             this.displayName,
             null,
             null,
-            EvalConfig.VERDICTS.TIMEOUT,
+            AbstractTestResult.VERDICTS.TIMEOUT,
         );
       } else {
         Logger.info(this.displayName + ' crashed for ' + testCase.name +
@@ -49,7 +50,7 @@ export class DiffAdapter extends AbstractAdapter {
             this.displayName,
             null,
             null,
-            EvalConfig.VERDICTS.RUNTIME_ERROR,
+            AbstractTestResult.VERDICTS.RUNTIME_ERROR,
         );
       }
     }
@@ -60,7 +61,7 @@ export class DiffAdapter extends AbstractAdapter {
         this.displayName,
         exec.runtime,
         new ActualDiff(exec.output, ...counters),
-        EvalConfig.VERDICTS.OK,
+        AbstractTestResult.VERDICTS.OK,
     );
   }
 

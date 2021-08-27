@@ -8,6 +8,7 @@ import {stringHash} from '../lib/StringHash.js';
  */
 export class HashExtractor extends ExtractorInterface {
   /**
+   * @inheritDoc
    * @type {Map<Node,Number>}
    * @protected
    */

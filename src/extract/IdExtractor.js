@@ -4,6 +4,7 @@
  */
 export class IdExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,Number>}
    * @protected
    */

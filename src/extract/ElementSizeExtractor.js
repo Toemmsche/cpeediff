@@ -5,6 +5,7 @@
  */
 export class ElementSizeExtractor {
   /**
+   * @inheritDoc
    * @type {Map<Node,Number>}
    * @protected
    */

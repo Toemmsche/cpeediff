@@ -161,7 +161,8 @@ export class TreeGenerator {
 
   /**
    * Apply edit operations to an existing tree. The distribution and
-   * amount of changes can be specified.
+   * amount of changes can be specified. Returns a diff test case containing
+   * the old and changed tree.
    * @param {Node} tree The root node of the tree to be changed.
    * @param {ChangeParameters} changeParams A set of parameters for the
    *     changes.

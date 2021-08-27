@@ -23,8 +23,10 @@ export class EditScript {
   }
 
   /**
+   * The edit operations contained in this edit script.
    * @type {Array<EditOperation>}
    * @private
+   * @const
    */
   #editOperations;
 
@@ -36,6 +38,7 @@ export class EditScript {
   }
 
   /**
+   * The total cost of this edit script.
    * @type {Number}
    * @private
    */

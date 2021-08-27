@@ -4,6 +4,7 @@ import {Logger} from '../../util/Logger.js';
 import {EvalConfig} from '../EvalConfig.js';
 import {ActualMatching} from '../actual/ActualMatching.js';
 import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**
  * The superclass for all adapters to matching algorithms.
@@ -36,7 +37,7 @@ export class MatchAdapter extends AbstractAdapter {
         return testCase.complete(
             this.displayName,
             null,
-            EvalConfig.VERDICTS.TIMEOUT,
+            AbstractTestResult.VERDICTS.TIMEOUT,
         );
       } else {
         Logger.info(
@@ -47,7 +48,7 @@ export class MatchAdapter extends AbstractAdapter {
         return testCase.complete(
             this.displayName,
             null,
-            EvalConfig.VERDICTS.RUNTIME_ERROR,
+            AbstractTestResult.VERDICTS.RUNTIME_ERROR,
         );
       }
     }
@@ -62,13 +63,13 @@ export class MatchAdapter extends AbstractAdapter {
       return testCase.complete(
           this.displayName,
           new ActualMatching(null, matching),
-          EvalConfig.VERDICTS.WRONG_ANSWER,
+          AbstractTestResult.VERDICTS.WRONG_ANSWER,
       );
     }
     return testCase.complete(
         this.displayName,
         new ActualMatching(null, matching),
-        EvalConfig.VERDICTS.OK,
+        AbstractTestResult.VERDICTS.OK,
     );
   }
 
