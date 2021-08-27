@@ -1,27 +1,16 @@
-<properties xmlns="http://cpee.org/ns/properties/2.0">
-    <dataelements>
-        <costs>0</costs>
-        <persons>3</persons>
-    </dataelements>
-    <endpoints>
-        <reject>rejectURL</reject>
-    </endpoints>
-    <dslx>
-        <description xmlns="http://cpee.org/ns/description/1.0">
-            <choose mode="inclusive">
-                <alternative condition="data.costs > 700">
-                    <call id="a1" endpoint="reject">
-                        <parameters>
-                            <label>Reject Hotel</label>
-                            <method>:put</method>
-                            <arguments>
-                                <costs>data.persons</costs>
-                            </arguments>
-                        </parameters>
-                    </call>
-                </alternative>
-            </choose>
-            <manipulate id="a2">data.costs += 1</manipulate>
-        </description>
-    </dslx>
-</properties>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <choose mode="inclusive">
+        <alternative condition="data.costs > 700">
+            <call id="a1" endpoint="reject">
+                <parameters>
+                    <label>Reject Hotel</label>
+                    <method>:put</method>
+                    <arguments>
+                        <costs>data.persons</costs>
+                    </arguments>
+                </parameters>
+            </call>
+        </alternative>
+    </choose>
+    <manipulate id="a2">data.costs += 1</manipulate>
+</description>

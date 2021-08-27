@@ -20,7 +20,6 @@
 //      element of children(v) notation
 //      figure short description argument??
 //      which children are unordered?
-//      add JNDiff
 
 //TODO today
 //      eval weight boost ?????
@@ -55,13 +54,20 @@
 
 //TODO  27.8.
 //      craete figure illustrating the merge
-//      add loggign to merger and other main threads of exeuction
+//      $$$ add loggign to merger and other main threads of exeuction
 //      $$$ use destructuring in tree gen
 //      class for generated match evaluation
 //      $$$ move verdicts to ABstractTestCase
-//      move statics  from config
-//      missing method/label in comparator
-//      endponit only case
+//      $$$ move statics  from config
+//      $$$ missing method/label in comparator
+//      $$$ endponit only case
+//      $$$ test perfect service call shortcut --> keep for now (not documented in thesis)
+//      $$$ unmatched matcher matches (remotely similar) leaf nodes --> SUCCESS! Very good improvement :)
+
+//TODO  27.8.
+//      craete figure illustrating the merge
+//      class for generated match evaluation
+
 
 //TODO maybe
 //      better commonality complexity

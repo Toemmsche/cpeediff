@@ -28,7 +28,7 @@ export class MatchingEvaluation extends AbstractEvaluation {
    */
   static all() {
     const adapters = [];
-    for (const matchMode of Object.values(Config.MATCH_MODES)) {
+    for (const matchMode of Object.values(MatchPipeline.MATCH_MODES)) {
       adapters.unshift(new CpeeDiffAdapter(matchMode));
     }
     return new MatchingEvaluation(adapters);

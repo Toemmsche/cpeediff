@@ -38,8 +38,8 @@ const argv = yargs(hideBin(process.argv))
       description: 'Choose the desired log level. "all" includes INFO, DEBUG, and STAT messages.',
       alias: 'l',
       type: 'string',
-      choices: Object.values(Config.LOG_LEVELS),
-      default: Config.LOG_LEVELS.ERROR,
+      choices: Object.values(Logger.LOG_LEVELS),
+      default: Logger.LOG_LEVELS.ERROR,
     })
     .command('diff <old> <new>', 'Calculcate and show the difference between two CPEE process trees', (yargs) => {
       yargs
@@ -55,8 +55,8 @@ const argv = yargs(hideBin(process.argv))
             description: 'The matching mode to be used. This affects the performance and quality of the diff algorithm.',
             alias: 'm',
             type: 'string',
-            choices: Object.values(Config.MATCH_MODES),
-            default: Config.MATCH_MODES.QUALITY
+            choices: Object.values(MatchPipeline.MATCH_MODES),
+            default: MatchPipeline.MATCH_MODES.QUALITY
           })
           .option('threshold', {
             description: 'Similarity threshold for matching nodes',

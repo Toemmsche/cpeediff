@@ -452,7 +452,7 @@ export class TreeGenerator {
       parent = this.#pickValidParent(
           movedNode,
           tree.inners()
-              .filter((inner) => !descendantSet.includes(inner)),
+              .filter((inner) => !descendantSet.has(inner)),
       );
     } else {
       parent = movedNode.parent;
@@ -887,7 +887,7 @@ export class TreeGenerator {
         let newNode;
         // TODO export probabilities to generator params
         // Pick a leaf node or inner node with a certain probability
-        if (this.#withProbability(0.5)) {
+        if (this.#withProbability(0.6)) {
           newNode = this.#randomLeaf();
         } else {
           newNode = this.#randomInner();

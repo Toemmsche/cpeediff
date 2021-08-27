@@ -19,7 +19,7 @@ export class CpeeMatchAdapter extends MatchAdapter {
    * Construct a new CpeeMatchAdapter instance.
    * @param {String} matchMode The matching mode to use.
    */
-  constructor(matchMode) {
+  constructor(matchMode = MatchPipeline.MATCH_MODES.QUALITY) {
     super(
         EvalConfig.MATCHINGS.CPEEMATCH.path,
         EvalConfig.MATCHINGS.CPEEMATCH.displayName + '_' + matchMode,

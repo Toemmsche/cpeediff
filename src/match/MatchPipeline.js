@@ -15,6 +15,16 @@ import {Comparator} from './Comparator.js';
  * Wrapper for an ordered sequence of matching modules (matchers for short).
  */
 export class MatchPipeline {
+  /**
+   * Enum for the possible match modes.
+   * @type {Object}
+   */
+  static MATCH_MODES = {
+    FAST: 'fast',
+    BALANCED: 'balanced',
+    QUALITY: 'quality',
+  };
+
   /** @type {Array<MatcherInterface>} */
   #matchers;
 
@@ -59,7 +69,7 @@ export class MatchPipeline {
    */
   static fromMode() {
     switch (Config.MATCH_MODE) {
-      case Config.MATCH_MODES.FAST:
+      case MatchPipeline.MATCH_MODES.FAST:
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -70,7 +80,7 @@ export class MatchPipeline {
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
-      case Config.MATCH_MODES.BALANCED:
+      case MatchPipeline.MATCH_MODES.BALANCED:
         Config.EXP = true;
         return new MatchPipeline(
             [
@@ -82,7 +92,7 @@ export class MatchPipeline {
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
-      case Config.MATCH_MODES.QUALITY:
+      case MatchPipeline.MATCH_MODES.QUALITY:
         Config.EXP = false;
         return new MatchPipeline(
             [

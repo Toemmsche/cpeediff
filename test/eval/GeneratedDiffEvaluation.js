@@ -4,9 +4,9 @@ import {DiffEvaluation} from './DiffEvaluation.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
 import {TreeGenerator} from '../gen/TreeGenerator.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
-import {DiffTestResult} from '../result/DiffTestResult.js';
 import {markdownTable} from 'markdown-table';
 import {AverageDiffResult} from '../result/AverageDiffResult.js';
+import {DiffTestResult} from '../result/DiffTestResult.js';
 
 /**
  * An evaluation of diff algorithms using generated test cases.
@@ -190,5 +190,54 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
           ), this);
     }
     // TODO remove latex
+  }
+
+  /**
+   * Evaluate diff algorithms using random process trees of increasing size.
+   * @param {Boolean} flat If the number of changes should remain constant.
+   * @param {Boolean} local If the changes should be applied locally, i.e. to a
+   *     small region of the process tree. If set to false, changes are
+   *     randomly distributed within the tree.
+   */
+  single(flat = false, local = false) {
+    Logger.section('Diff Evaluation with Generated Trees', this);
+    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
+      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
+          (EvalConfig.PROGRESSION.FACTOR ** i);
+      const genParams = new GeneratorParameters(
+          size,
+          size,
+          Math.ceil(Math.log2(size)),
+          Math.ceil(Math.log10(size)),
+      );
+      const treeGen = new TreeGenerator(genParams);
+      const changeParams =
+          new ChangeParameters(
+              EvalConfig.PROGRESSION.INITIAL_CHANGES *
+              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              local,
+          );
+      const testId = '[Size: ' + size +
+          ', Changes: ' + changeParams.totalChanges + ']';
+
+      const oldTree = treeGen.randomTree();
+      const testCase = treeGen.changeTree(oldTree, changeParams)[0];
+
+      const results = [];
+      for (const adapter of this._adapters) {
+        const result = adapter.evalCase(testCase);
+        results.push(result);
+      }
+
+      const table =
+          [
+            DiffTestResult.header(),
+            testCase.expected.values(),
+            ...results.map((result) => result.values()),
+          ];
+
+      Logger.result('Results for cases ' + testId);
+      Logger.result(markdownTable(table));
+    }
   }
 }

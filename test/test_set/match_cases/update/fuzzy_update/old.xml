@@ -1,10 +1,10 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a1" endpoint="reject">
+    <call id="a1" endpoint="approve">
         <parameters>
-            <label>Reject Hotel</label>
-            <method>::put</method>
+            <label>Approve Hotel</label>
+            <method>:post</method>
             <arguments>
-                <persons>data.persons</persons>
+                <costs>data.costs</costs>
             </arguments>
         </parameters>
     </call>

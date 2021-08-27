@@ -37,11 +37,9 @@
 //      differtnt merge output trees (dt1 and dt2)
 
 //TODO REWRITE
-//      use id for mapping and matching
-//      Turn autogenearted tests into class
-//      delete includes deleted tree
 //      use multi array in weighted averager
 //      no try catch in treegen
+//      split up into finalize/update/etc. comparison
 
 
 /*

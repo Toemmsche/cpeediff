@@ -40,7 +40,7 @@ export class DiffEvaluation extends AbstractEvaluation {
     ];
     adapters = adapters.filter((adapter) =>
         fs.existsSync(adapter.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT));
-    for (const matchMode of Object.values(Config.MATCH_MODES)) {
+    for (const matchMode of Object.values(MatchPipeline.MATCH_MODES)) {
       adapters.unshift(new CpeeDiffAdapter(matchMode));
     }
     return new DiffEvaluation(adapters);

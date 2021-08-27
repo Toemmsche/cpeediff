@@ -1,4 +1,5 @@
 import {Logger} from '../../util/Logger.js';
+import {Config} from '../Config.js';
 
 /**
  * A matching module that reconsiders unmatched nodes for a match
@@ -7,22 +8,10 @@ import {Logger} from '../../util/Logger.js';
  */
 export class UnmatchedMatcher {
   /**
-   * @param {Node} node The input node
-   * @param {Function} boolFunc A boolean function taking a single node as an
-   *     argument.
-   * @return {Boolean} True if the input node is null (soft equality)
-   *     or the boolean function evaluates to true.
-   * @private
-   */
-  _nullOrTrue(node, boolFunc) {
-    if (node == null) return true;
-    return boolFunc(node);
-  }
-
-  /**
    * Extend the matching with matches that can be inferred from the matching
    * of surrounding nodes, e.g., if a node is vertically or horizontally
-   * sandwiched between matches.
+   * sandwiched between matches. To detect fuzzy matches, the comparison
+   * threshold is raised for this matching module only.
    * @param {Node} oldTree The root of the old (original) process tree
    * @param {Node} newTree The root of the new (changed) process tree
    * @param {Matching} matching The existing matching to be extended
@@ -30,8 +19,7 @@ export class UnmatchedMatcher {
    */
   match(oldTree, newTree, matching, comparator) {
     const newInners =
-        newTree
-            .inners()
+        newTree.nonPropertyNodes()
             .filter((node) => !matching.isMatched(node));
     for (const newNode of newInners) {
       // TODO not sure about this one
@@ -133,7 +121,9 @@ export class UnmatchedMatcher {
 
         // Potential match must be unmatched and have the same label
         if (potentialMatch.label === newNode.label &&
-            !matching.isMatched(potentialMatch)) {
+            !matching.isMatched(potentialMatch) &&
+            (!newNode.isLeaf() || comparator.compare(newNode, potentialMatch) <=
+                Config.RELAXED_THRESHOLD)) {
           matching.matchNew(newNode, potentialMatch);
         }
       }

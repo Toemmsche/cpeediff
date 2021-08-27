@@ -2,6 +2,7 @@
  * Extractor for retrieving and caching the set of leaves of a subtree.
  * @implements {ExtractorInterface<Set<Node>>}
  */
+
 export class LeafSetExtractor {
   /**
    * @inheritDoc
@@ -16,8 +17,7 @@ export class LeafSetExtractor {
    * @protected
    */
   _extract(node) {
-    const leafSet = new Set(node.leaves());
-    this._memo.set(node, leafSet);
+    this._memo.set(node, new Set(node.leaves()));
   }
 
   /**

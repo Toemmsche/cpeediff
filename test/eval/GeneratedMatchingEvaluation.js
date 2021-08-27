@@ -6,6 +6,7 @@ import {TreeGenerator} from '../gen/TreeGenerator.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
 import {MatchingEvaluation} from './MatchingEvaluation.js';
+import {Comparator} from '../../src/match/Comparator.js';
 
 /**
  * An evaluation for matching algorithms that uses generated process trees and
@@ -65,6 +66,8 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
         if (newNode.isInnerNode()) {
           unmatchedInners++;
         } else if (newNode.isLeaf()) {
+          const cv = new Comparator().compare(newNode, oldNode);
+          const other = new Comparator().compare(oldNode ,newNode);
           unmatchedLeaves++;
         }
       }
@@ -131,6 +134,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
+      const results = new Map();
       for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
         const oldTree = treeGen.randomTree();
         const [testCase, expectedMatching] =
@@ -140,7 +144,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
 
         // Run test case for each matching pipeline and compute number of
         // mismatched nodes
-        for (const adapter of this.adapters) {
+        for (const adapter of this._adapters) {
           if (!results.has(adapter)) {
             results.set(adapter, []);
           }
@@ -173,7 +177,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       for (const [adapter, resultsList] of results) {
         const aggregateResult = [
           adapter.displayName,
-          resultsList[0][1]
+          '--'
         ];
         for (let j = 2; j < resultsList[0].length; j++) {
           aggregateResult.push(this.avg(resultsList.map(r => r[j])));

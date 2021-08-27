@@ -78,6 +78,8 @@ export class Comparator {
       readVariablesCV = conditionA === conditionB ? 0 : 1;
     }
     // readVariablesCV may be null
+    // A default value makes sense since a missing condition is usually
+    // interpreted as "true"
     const contentCV = this.weightedAverage([readVariablesCV],
         [Config.COMPARATOR.CONDITION_WEIGHT], 0,
     );
@@ -96,10 +98,10 @@ export class Comparator {
     const propsA = this.#callPropertyExtractor.get(callA);
     const propsB = this.#callPropertyExtractor.get(callB);
 
-    // The endpoint URL has to match exactly for a perfect comparison value
+    // The endpoint URL has to match exactly
     const endPointCV = propsA.endpoint === propsB.endpoint ? 0 : 1;
     const labelCV = this.compareString(propsA.label, propsB.label);
-    const methodCV = propsA.method === propsB.method ? 0 : 1;
+    const methodCV = this.compareString(propsA.method, propsB.method);
     const argCV = this.compareLcs(propsA.args, propsB.args);
 
     const serviceCallCV = this.weightedAverage(
@@ -118,12 +120,12 @@ export class Comparator {
     );
     // If the endpoint (including method, label and arguments) of two calls
     // perfectly matches, we can assume they fulfill the same semantic purpose
+    // TODO think about this again
     if (serviceCallCV === 0) {
       return serviceCallCV;
     }
 
     let codeCV = null;
-
     // Compare written and read variables
     const writtenVariablesCV = this.#compareWrittenVariables(callA, callB);
     const readVariablesCV = this.#compareReadVariables(callA, callB);
@@ -139,7 +141,7 @@ export class Comparator {
           Config.COMPARATOR.READ_VAR_WEIGHT,
         ],
     );
-    if (codeCV !== null && propsA.code !== propsB.code) {
+    if (codeCV != null && propsA.code !== propsB.code) {
       // Small penalty for code string inequality
       codeCV += Config.COMPARATOR.EPSILON_PENALTY;
     } else if (propsA.hasCode() || propsB.hasCode()) {
@@ -190,6 +192,11 @@ export class Comparator {
   compareContent(nodeA, nodeB) {
     // different labels cannot be matched
     if (nodeA.label !== nodeB.label) return 1.0;
+
+    if (nodeA.isInnterruptLeafNode()) {
+      // Content comparison value is missing by default
+      return null;
+    }
     switch (nodeA.label) {
       case Dsl.ELEMENTS.CALL.label: {
         return this.#compareCallContent(nodeA, nodeB);
@@ -209,8 +216,8 @@ export class Comparator {
       case Dsl.ELEMENTS.CHOICE.label: {
         return this.#compareChoiceContent(nodeA, nodeB);
       }
-      // Label equality is sufficient for parallel_branch, critical,
-      // otherwise, and root...
+        // Label equality is sufficient for parallel_branch, critical,
+        // otherwise, and root...
       default: {
         return 0;
       }
@@ -434,7 +441,7 @@ export class Comparator {
    * @return {?Number} The comparison value from the range [0;1]
    */
   compareString(strA, strB, defaultValue = null) {
-    if (strA == null || strB == null) return defaultValue;
+    if (strA == null && strB == null) return defaultValue;
     // For now, this is an all-or-nothing comparison
     return strA === strB ? 0 : 1;
   }

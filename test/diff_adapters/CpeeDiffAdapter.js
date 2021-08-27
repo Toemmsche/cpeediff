@@ -5,6 +5,7 @@ import {EvalConfig} from '../EvalConfig.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
 import {EditScript} from '../../src/diff/EditScript.js';
+import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 
 /**
  * Diff adapter for CpeeDiff.
@@ -22,7 +23,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
    * Construct a new CpeeDiffAdapter instance.
    * @param {String} mode The matching mode to use. "quality" by default.
    */
-  constructor(mode = Config.MATCH_MODES.QUALITY) {
+  constructor(mode = MatchPipeline.MATCH_MODES.QUALITY) {
     super(
         EvalConfig.DIFFS.CPEEDIFF.path,
         EvalConfig.DIFFS.CPEEDIFF.displayName + '_' + mode,

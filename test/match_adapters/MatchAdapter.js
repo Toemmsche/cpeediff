@@ -53,7 +53,7 @@ export class MatchAdapter extends AbstractAdapter {
       }
     }
     try {
-      this._verifyResult(matching, testCase.expected);
+      this.verifyResult(matching, testCase.expected);
     } catch (e) {
       Logger.info(
           this.displayName + ' gave wrong answer for ' +

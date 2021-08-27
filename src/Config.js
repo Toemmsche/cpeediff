@@ -17,18 +17,8 @@
 export const Config = {
 
   MATCH_MODE: 'quality',
-  MATCH_MODES: {
-    FAST: 'fast',
-    BALANCED: 'balanced',
-    QUALITY: 'quality',
-  },
 
   LOG_LEVEL: 'error',
-  LOG_LEVELS: {
-    ERROR: 'error',
-    WARN: 'warn',
-    ALL: 'all',
-  },
 
   COMPARATOR: {
     PATH_COMPARE_RANGE: 5,
@@ -60,6 +50,7 @@ export const Config = {
   },
 
   COMPARISON_THRESHOLD: 0.4,
+  RELAXED_THRESHOLD: 0.6,
 
   EXACT_EDIT_SCRIPT: false,
 
@@ -67,6 +58,7 @@ export const Config = {
   ADD_INIT_SCRIPT: false,
 
   PRETTY_XML: false,
+
 };
 
 

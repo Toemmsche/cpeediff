@@ -1,4 +1,5 @@
 import {EvalConfig} from '../EvalConfig.js';
+import {AbstractTestResult} from './AbstractTestResult.js';
 
 /**
  * An aggregate result of multiple match test results.
