@@ -22,6 +22,7 @@ import {Logger} from '../../util/Logger.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 import {Config} from '../../src/Config.js';
+import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {
   /**
@@ -31,13 +32,14 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
    */
   #mode;
 
-  constructor() {
+  constructor(mode = MatchPipeline.MATCH_MODES.QUALITY) {
     super('', EvalConfig.DIFFS.CPEEDIFF.displayName + '_LOCAL');
+    this.#mode = mode;
   }
 
   run(oldTree, newTree) {
     let time = new Date().getTime();
-    Config.MATCH_MODE = MatchPipeline.MATCH_MODES.QUALITY;
+    Config.MATCH_MODE = this.#mode;
     const delta = new CpeeDiff(MatchPipeline.fromMode()).diff(oldTree, newTree);
     time = new Date().getTime() - time;
     return {

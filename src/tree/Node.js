@@ -87,7 +87,7 @@ export class Node {
    * @param {Number} index
    */
   set index(index) {
-    //TODO remove, too dangerous
+    // TODO remove, too dangerous
     this.#index = index;
   }
 
@@ -337,7 +337,7 @@ export class Node {
   /** @return {Boolean} */
   isCallArguments() {
     return this.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label &&
-        this.#parent?.label !== Dsl.CALL_PROPERTIES.ARGUMENTS.label;
+        this.#parent.label !== Dsl.CALL_PROPERTIES.ARGUMENTS.label;
   }
 
   /** @return {Boolean} */
@@ -355,13 +355,13 @@ export class Node {
   /** @return {Boolean} */
   isChoice() {
     return this.label === Dsl.ELEMENTS.CHOICE.label &&
-        this.#parent?.isCallArguments();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isCritical() {
     return this.label === Dsl.ELEMENTS.CRITICAL.label &&
-        this.#parent?.isCallArguments();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
@@ -381,7 +381,8 @@ export class Node {
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isInnerNode() {
-    return !this.isPropertyNode() && Dsl.INNER_NODE_SET.has(this.label);
+    return Dsl.INNER_NODE_SET.has(this.label) &&
+        !this.#parent?.isCallArguments(); // root may be checked
   }
 
   /** @return {Boolean} */
@@ -394,31 +395,32 @@ export class Node {
    * in terms of the CPEE DSL {@see Dsl}.
    */
   isLeaf() {
-    return !this.isPropertyNode() && Dsl.LEAF_NODE_SET.has(this.label);
+    return Dsl.LEAF_NODE_SET.has(this.label) &&
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isLoop() {
     return this.label === Dsl.ELEMENTS.LOOP.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isOtherwise() {
     return this.label === Dsl.ELEMENTS.OTHERWISE.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isParallel() {
     return this.label === Dsl.ELEMENTS.PARALLEL.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isParallelBranch() {
     return this.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /**
@@ -440,19 +442,19 @@ export class Node {
   /** @return {Boolean} */
   isScript() {
     return this.label === Dsl.ELEMENTS.SCRIPT.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isStop() {
     return this.label === Dsl.ELEMENTS.STOP.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isTermination() {
     return this.label === Dsl.ELEMENTS.TERMINATION.label &&
-        !this.#parent?.isPropertyNode();
+        !this.#parent?.isCallArguments();
   }
 
   /** @return {Array<Node>} All leaf nodes of this subtree in pre-order */

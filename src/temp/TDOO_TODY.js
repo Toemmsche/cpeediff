@@ -3,7 +3,6 @@
 //      eval with tons of variables and lots of documentation
 //      evaluate update only, no update
 //      place more weight on calls in commonality
-//      figure out hwo to deal with licenses in paper and code (ASK JÜRGEN)
 //      diff eval for match cases
 //      add JNDiff
 //      formatting match case
@@ -12,8 +11,9 @@
 //TODO
 //      in thesis:
 //      edit script is not invertible or commutative
+//      minimality of edit script representation --> talk with jürgen
 //      remove constant change comparison
-//      compress match comparison
+//      $$$ compress match comparison
 //      not possible to regenerate a matching
 //      cpeediff is only one to detect moves to inserted subtrees
 //      decision to omit deleted node in edit script ? maybe reconsider
@@ -45,8 +45,8 @@
 //          discuss introduction length
 //          discuss hand-in
 //          meetings doc -->
-//      add loggign to merger and other main threads of exeuction
-//      use destructuring in tree gen
+//      $$$ add loggign to merger and other main threads of exeuction
+//      $$$ use destructuring in tree gen
 //      class for generated match evaluation
 //      move verdicts to ABstractTestCase
 //      move statics  from config
@@ -67,6 +67,13 @@
 //TODO  27.8.
 //      craete figure illustrating the merge
 //      class for generated match evaluation
+
+
+//TODO 29.8.
+//      craete figure illustrating the merge
+//      Begin implementation overview
+//      Begin conclusion and future work
+//      add tinkering refinements to thesis
 
 
 //TODO maybe

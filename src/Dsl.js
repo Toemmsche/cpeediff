@@ -51,7 +51,6 @@ export const Dsl = {
     CHOICE: {
       label: 'choose',
       isLeaf: false,
-
     },
     ALTERNATIVE: {
       label: 'alternative',
@@ -129,7 +128,7 @@ export const Dsl = {
       ],
       default: 'pre_test'
     },
-    CHOOSE_MODE: {
+    CHOICE_MODE: {
       label: 'mode',
       options: [
         'exclusive',

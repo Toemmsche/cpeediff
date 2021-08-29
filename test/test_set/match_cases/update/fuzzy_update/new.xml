@@ -1,12 +1,15 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <call id="a1" endpoint="approveHotels">
+    <call id="a1" endpoint="approveHotel">
         <parameters>
             <label>Approve Hotels</label>
-            <method>:post</method>
+            <method>:put</method>
             <arguments>
                 <costs>data.costs</costs>
-                <persons>data.persons</persons>
             </arguments>
         </parameters>
+        <code>
+            <prepare>data.hotels=['trivago'];</prepare>
+            <finalize output="result">data.costs = result.value('cost');</finalize>
+        </code>
     </call>
 </description>

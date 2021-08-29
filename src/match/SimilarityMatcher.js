@@ -22,11 +22,13 @@ export class SimilarityMatcher {
     const oldLeaves =
         oldTree
             .leaves()
-            .filter((leaf) => !matching.isMatched(leaf));
+            .filter((leaf) => !matching.isMatched(leaf) &&
+                !leaf.isInnterruptLeafNode());
     const newLeaves =
         newTree
             .leaves()
-            .filter((leaf) => !matching.isMatched(leaf));
+            .filter((leaf) => !matching.isMatched(leaf) &&
+                !leaf.isInnterruptLeafNode());
 
     // Only matches between nodes with the same label are allowed
     const keyFunction = (node) => node.label;
@@ -38,6 +40,7 @@ export class SimilarityMatcher {
     const thresholdFunction = (CV) => CV <= Config.COMPARISON_THRESHOLD;
 
     persistBestMatches(oldLeaves, newLeaves, matching,
-        keyFunction, compareFunction, matchFunction, thresholdFunction);
+        keyFunction, compareFunction, matchFunction, thresholdFunction
+    );
   }
 }

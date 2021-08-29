@@ -82,18 +82,20 @@ export class MatchPipeline {
             ]);
       case MatchPipeline.MATCH_MODES.BALANCED:
         Config.EXP = true;
+
         return new MatchPipeline(
             [
               new FixedMatcher(),
               new HashMatcher(),
               new SimilarityMatcher(),
-              new PathMatcher(),
+              new CommonalityPathMatcher(),
               new PathMatcher(),
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.QUALITY:
         Config.EXP = false;
+
         return new MatchPipeline(
             [
               new FixedMatcher(),

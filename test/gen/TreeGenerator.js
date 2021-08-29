@@ -79,7 +79,7 @@ export class TreeGenerator {
     for (let i = 0; i < Math.max(
         this.#genParams.maxVars,
         2 * Math.log2(this.#genParams.size),
-        5,
+        1000,
     ); i++) {
       this.#endpoints.push(this.#randomString(this.#randInt(20) + 10));
       this.#labels.push(this.#randomString(this.#randInt(30) + 10));
@@ -91,11 +91,11 @@ export class TreeGenerator {
         [
           [
             Dsl.ELEMENTS.CALL.label,
-            20,
+            30,
           ],
           [
             Dsl.ELEMENTS.SCRIPT.label,
-            10,
+            20,
           ],
           [
             Dsl.ELEMENTS.BREAK.label,
@@ -438,8 +438,8 @@ export class TreeGenerator {
   #moveRandomly(tree) {
     // It does not make sense to move a termination node
     const movedNode = this.#randomFrom(tree.nonPropertyNodes().filter((n) =>
-        // Moves on some nodes do not make sense
-        !n.isInnterruptLeafNode() &&
+    // Moves on some nodes do not make sense
+      !n.isInnterruptLeafNode() &&
         !n.isRoot() &&
         !n.isParallelBranch() &&
         !n.isAlternative() &&
@@ -476,7 +476,7 @@ export class TreeGenerator {
   #pickValidParent(node, inners) {
     // honor max width parameters as good as possible
     const filteredInners = inners.filter((inner) =>
-        inner.degree() < this.#genParams.maxDegree);
+      inner.degree() < this.#genParams.maxDegree);
     if (filteredInners.length > 0) {
       // this would block
       inners = filteredInners;
@@ -631,8 +631,8 @@ export class TreeGenerator {
     // Chance to explicitly set the mode
     if (this.#withProbability(0.5)) {
       node.attributes.set(
-          Dsl.INNER_PROPERTIES.CHOOSE_MODE.label,
-          this.#randomFrom(Dsl.INNER_PROPERTIES.CHOOSE_MODE.options),
+          Dsl.INNER_PROPERTIES.CHOICE_MODE.label,
+          this.#randomFrom(Dsl.INNER_PROPERTIES.CHOICE_MODE.options),
       );
     }
     return node;
@@ -996,12 +996,12 @@ export class TreeGenerator {
           );
           break;
         }
-        case Dsl.INNER_PROPERTIES.CHOOSE_MODE.label: {
+        case Dsl.INNER_PROPERTIES.CHOICE_MODE.label: {
           // change choose mode
           const chooseMode = node.attributes.get(key);
           node.attributes.set(
               key,
-              this.#randomFrom(Dsl.INNER_PROPERTIES.CHOOSE_MODE.options
+              this.#randomFrom(Dsl.INNER_PROPERTIES.CHOICE_MODE.options
                   .filter((option) => option !== chooseMode)),
           );
           break;

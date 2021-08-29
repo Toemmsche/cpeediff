@@ -1,4 +1,3 @@
-import {Logger} from '../../util/Logger.js';
 import {Config} from '../Config.js';
 
 /**
@@ -18,27 +17,10 @@ export class UnmatchedMatcher {
    * @param {Comparator} comparator The comparator used for comparisons.
    */
   match(oldTree, newTree, matching, comparator) {
-    const newInners =
-        newTree.nonPropertyNodes()
-            .filter((node) => !matching.isMatched(node));
+    const newInners = newTree
+        .nonPropertyNodes()
+        .filter((node) => !matching.isMatched(node));
     for (const newNode of newInners) {
-      // TODO not sure about this one
-      if (newNode.isOtherwise() && matching.isMatched(newNode.parent)) {
-        const parentMatch = matching.getMatch(newNode.parent);
-        const potentialMatches =
-            parentMatch.children.filter((node) => node.isOtherwise());
-        if (potentialMatches.length > 1) {
-          Logger.warn(
-              'Choose node with multiple \'otherwise\' branches',
-              this,
-          );
-        } else if (potentialMatches.length === 1 &&
-            !matching.isMatched(potentialMatches[0])) {
-          matching.matchNew(newNode, potentialMatches[0]);
-          continue;
-        }
-      }
-
       const parentMatch = matching.getMatch(newNode.parent);
       let minCV = 1;
       let minCVNode = null;
@@ -122,7 +104,8 @@ export class UnmatchedMatcher {
         // Potential match must be unmatched and have the same label
         if (potentialMatch.label === newNode.label &&
             !matching.isMatched(potentialMatch) &&
-            (!newNode.isLeaf() || comparator.compare(newNode, potentialMatch) <=
+            (!(newNode.isCall() || newNode.isScript()) ||
+                comparator.compareContent(newNode, potentialMatch) <=
                 Config.RELAXED_THRESHOLD)) {
           matching.matchNew(newNode, potentialMatch);
         }

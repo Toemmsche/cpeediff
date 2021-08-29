@@ -169,11 +169,11 @@ export class Comparator {
    */
   #compareChoiceContent(choiceA, choiceB) {
     const modeA =
-        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ??
-        Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOICE_MODE.label) ??
+        Dsl.INNER_PROPERTIES.CHOICE_MODE.default;
     const modeB =
-        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOOSE_MODE.label) ??
-        Dsl.INNER_PROPERTIES.CHOOSE_MODE.default;
+        choiceB.attributes.get(Dsl.INNER_PROPERTIES.CHOICE_MODE.label) ??
+        Dsl.INNER_PROPERTIES.CHOICE_MODE.default;
 
     // all or nothing
     const modeCV = modeA === modeB ? 0 : 1;
