@@ -43,7 +43,7 @@ Config.LOG_LEVEL = 'error';
 //new MatchingEvaluation([ new CpeeMatchAdapter("quality"), new CpeeMatchAdapter('balanced'), new CpeeMatchAdapter('fast')]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new GeneratedMatchingEvaluation([new CpeeMatchAdapter('quality'), new CpeeMatchAdapter('balanced')]).average(false, false);
 //new DiffEvaluation([new QualityCpeeDiffAdapter(), new JNDiffAdapter()]).evalAll(EvalConfig.MATCH_CASES_DIR + "/move/interparent_move");
-new GeneratedDiffEvaluation([new CpeeDiffAdapter("quality"), new CpeeDiffAdapter('balanced'), new XccAdapter()]).average(false, false);
+new GeneratedDiffEvaluation([new CpeeDiffAdapter("quality"), new CpeeDiffAdapter('balanced'), new XccAdapter()]).single(false, false);
 //new DiffEvaluation([new DiffXmlAdapter(), new CpeeDiffAdapter(('quality'))]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
 

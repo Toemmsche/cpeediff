@@ -79,7 +79,7 @@ export class TreeGenerator {
     for (let i = 0; i < Math.max(
         this.#genParams.maxVars,
         2 * Math.log2(this.#genParams.size),
-        1000,
+        5,
     ); i++) {
       this.#endpoints.push(this.#randomString(this.#randInt(20) + 10));
       this.#labels.push(this.#randomString(this.#randInt(30) + 10));
@@ -235,7 +235,7 @@ export class TreeGenerator {
             // call arguments are supported)
             if (this.#withProbability(0.2)) {
               this.#insertSubtreeRandomly(newTree);
-            } else if (this.#withProbability(0.9)) {
+            } else if (this.#withProbability(0.75)) {
               this.#insertLeafRandomly(newTree);
             } else {
               this.#insertArgRandomly(newTree);
@@ -245,8 +245,10 @@ export class TreeGenerator {
           case Dsl.CHANGE_MODEL.DELETION.label: {
             if (this.#withProbability(0.2)) {
               this.#deleteSubtreeRandomly(newTree);
-            } else {
+            } else if (this.#withProbability(0.75)) {
               this.#deleteLeafRandomly(newTree);
+            } else {
+              this.#deleteArgRandomly(newTree);
             }
             break;
           }
@@ -332,6 +334,17 @@ export class TreeGenerator {
       testCase,
       returnMatching,
     ];
+  }
+
+  /**
+   * Change a process tree by randomly deleting the argument of a <call> node.
+   * @param {Node} tree The root the process tree to change.
+   */
+  #deleteArgRandomly(tree) {
+    const arg = tree
+        .toPreOrderArray()
+        .filter((node) => node.parent.isCallArguments());
+    arg.removeFromParent();
   }
 
   /**
@@ -438,8 +451,8 @@ export class TreeGenerator {
   #moveRandomly(tree) {
     // It does not make sense to move a termination node
     const movedNode = this.#randomFrom(tree.nonPropertyNodes().filter((n) =>
-    // Moves on some nodes do not make sense
-      !n.isInnterruptLeafNode() &&
+        // Moves on some nodes do not make sense
+        !n.isInnterruptLeafNode() &&
         !n.isRoot() &&
         !n.isParallelBranch() &&
         !n.isAlternative() &&
@@ -476,7 +489,7 @@ export class TreeGenerator {
   #pickValidParent(node, inners) {
     // honor max width parameters as good as possible
     const filteredInners = inners.filter((inner) =>
-      inner.degree() < this.#genParams.maxDegree);
+        inner.degree() < this.#genParams.maxDegree);
     if (filteredInners.length > 0) {
       // this would block
       inners = filteredInners;
@@ -578,12 +591,22 @@ export class TreeGenerator {
 
     // Random service call arguments
     const args = new Node(Dsl.CALL_PROPERTIES.ARGUMENTS.label);
-    for (const readVariable of this.#randomSubSet(
+    const argKeySet = this.#randomSubSet(
         this.#variables,
         this.#randInt(this.#genParams.maxVars),
-    )) {
-      const arg = new Node(readVariable);
-      arg.text = Config.VARIABLE_PREFIX + readVariable;
+    );
+    // Chance to have arg that is not a variable
+    if (this.#withProbability(0.2)) {
+      argKeySet.add(this.#randomString(20));
+    }
+    for (const argKey of argKeySet) {
+      const arg = new Node(argKey);
+      // Chance for constant arg value (
+      if (this.#withProbability(0.2) || !this.#variables.includes(argKey)) {
+        arg.text = this.#randomString(20);
+      } else {
+        arg.text = Config.VARIABLE_PREFIX + argKey;
+      }
       args.appendChild(arg);
     }
     if (args.hasChildren()) {

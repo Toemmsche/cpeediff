@@ -69,7 +69,9 @@ export class VariableExtractor {
     } else if (node.isScript()) {
       code = node.text;
     } else if (node.isCall()) {
-      code = this.callPropertyExtractor.get(node).code;
+      // Also consider text content of call arguments as code
+      const argsCode = this.callPropertyExtractor.get(node).argVals.join(' ');
+      code = argsCode + ' ' + this.callPropertyExtractor.get(node).code;
     }
     const readVariables = new Set();
     if (code != null) {

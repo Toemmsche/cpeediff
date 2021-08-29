@@ -32,43 +32,40 @@ export class Preprocessor {
     const dataElements = new Map();
 
     // Skip comments and processing instructions
-    const root = DomHelper.firstChildElement(
+    const xmlRoot = DomHelper.firstChildElement(
         new xmldom.DOMParser().parseFromString(xml, 'text/xml'));
 
     let tree;
-    if (root == null) {
+    if (xmlRoot == null) {
       // Empty tree
       return new Node(Dsl.ELEMENTS.DSL_ROOT.label);
-    }
-    if (root.localName === Dsl.XML_DOC.PROPERTIES_ROOT) {
-      // Parse process tree
-      const xmlDslx =
-          DomHelper.firstChildElement(root, Dsl.XML_DOC.DSLX);
+    } else if (xmlRoot.localName === Dsl.ELEMENTS.DSL_ROOT.label) {
+      // Hop straight into tree parsing
+      tree = Node.fromXmlDom(xmlRoot, true);
+    } else {
+      // Parse process tree with metadata
       const xmlDescription =
-          DomHelper.firstChildElement(xmlDslx, Dsl.ELEMENTS.DSL_ROOT.label);
+          DomHelper.firstChildElement(xmlRoot, Dsl.ELEMENTS.DSL_ROOT.label);
       tree = Node.fromXmlDom(xmlDescription, true);
 
       // Parse endpoints
       const xmlEndpoints =
-          DomHelper.firstChildElement(root, Dsl.XML_DOC.ENDPOINTS);
+          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.ENDPOINTS);
       DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
         endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
       });
 
       // Parse initial values for data elements
       const xmlDataElements =
-          DomHelper.firstChildElement(root, Dsl.XML_DOC.DATA_ELEMENTS);
+          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.DATA_ELEMENTS);
       DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
         dataElements.set(
             xmlDataElement.localName,
             xmlDataElement.firstChild.data,
         );
       });
-    } else {
-      // Hop straight into tree parsing
-      tree = Node.fromXmlDom(root, true);
     }
-
+    // Preprocess in any case
     return this.preprocess(tree, endpointToUrl, dataElements);
   }
 
@@ -84,7 +81,7 @@ export class Preprocessor {
    * @return {Node} The root of the preprocessed tree
    */
   preprocess(tree, endpointToUrl = new Map(),
-      dataElements = new Map(), editScript = new EditScript()) {
+             dataElements = new Map(), editScript = new EditScript()) {
     // traverse tree in post-order (bottom-up)
     for (const node of tree.toPostOrderArray()) {
       let updated = false;

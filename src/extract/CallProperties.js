@@ -21,11 +21,17 @@ export class CallProperties {
    */
   label;
   /**
-   * The arguments of the call.
+   * The descriptors (keys) of the call arguments.
    * @type {Array<String>}
    * @const
    */
-  args;
+  argKeys;
+  /**
+   * The passed value for each call argument.
+   * @type {Array<String>}
+   * @const
+   */
+  argVals;
   /**
    * A concatenation of all code snippets contained in the call.
    * @type {String}
@@ -39,7 +45,9 @@ export class CallProperties {
    *     handler.
    * @param {String} method The HTTP method used for the call.
    * @param {String} label The arguments of the call
-   * @param {Array<String>} args The arguments of the call
+   * @param {Array<String>} argKeys The descriptors (keys) of the call
+   *     arguments.
+   * @param {Array<String>} argVals The passed value for each call argument.
    * @param {String} code A concatenation of all code snippets contained in the
    *     call.
    */
@@ -47,13 +55,15 @@ export class CallProperties {
       endpoint,
       method,
       label,
-      args,
+      argKeys,
+      argVals,
       code,
   ) {
     this.endpoint = endpoint;
     this.method = method;
     this.label = label;
-    this.args = args;
+    this.argKeys = argKeys;
+    this.argVals = argVals;
     this.code = code;
   }
 

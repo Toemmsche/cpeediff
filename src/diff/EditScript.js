@@ -5,6 +5,8 @@ import {Patcher} from '../patch/Patcher.js';
 import {Node} from '../tree/Node.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
+import vkbeautify from 'vkbeautify';
+import {Config} from '../Config.js';
 
 /**
  * A wrapper class for an ordered sequence of edit operations, commonly
@@ -15,20 +17,20 @@ import xmldom from 'xmldom';
  */
 export class EditScript {
   /**
-   * Construct a new EditScript instance.
-   */
-  constructor() {
-    this.#editOperations = [];
-    this.#cost = 0;
-  }
-
-  /**
    * The edit operations contained in this edit script.
    * @type {Array<EditOperation>}
    * @private
    * @const
    */
   #editOperations;
+
+  /**
+   * Construct a new EditScript instance.
+   */
+  constructor() {
+    this.#editOperations = [];
+    this.#cost = 0;
+  }
 
   /**
    * @return {Array<EditOperation>}
@@ -214,7 +216,12 @@ export class EditScript {
    * @return {String} The XML document for this edit script.
    */
   toXmlString() {
-    return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (Config.PRETTY_XML) {
+      return vkbeautify.xml(str);
+    } else {
+      return str;
+    }
   }
 
   /**

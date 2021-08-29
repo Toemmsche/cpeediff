@@ -102,7 +102,7 @@ export class Comparator {
     const endPointCV = propsA.endpoint === propsB.endpoint ? 0 : 1;
     const labelCV = this.compareString(propsA.label, propsB.label);
     const methodCV = this.compareString(propsA.method, propsB.method);
-    const argCV = this.compareLcs(propsA.args, propsB.args);
+    const argCV = this.compareLcs(propsA.argKeys, propsB.argKeys);
 
     const serviceCallCV = this.weightedAverage(
         [
@@ -118,8 +118,8 @@ export class Comparator {
           Config.COMPARATOR.CALL_ARGS_WEIGHT,
         ],
     );
-    // If the endpoint (including method, label and arguments) of two calls
-    // perfectly matches, we can assume they fulfill the same semantic purpose
+    // If the service call has the exact same signature (!), we can rather sure
+    // they must match.
     // TODO think about this again
     if (serviceCallCV === 0) {
       return serviceCallCV;

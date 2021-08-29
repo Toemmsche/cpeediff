@@ -8,24 +8,6 @@ import {Logger} from '../../util/Logger.js';
  */
 export class XmlSerializable {
   /**
-   * @return {Object} XML DOM object for this object.
-   * @abstract
-   */
-  toXmlDom() {
-    Logger.abstractMethodExecution();
-    return null;
-  }
-
-  /**
-   * @return {String} XML document for this object.
-   * @abstract
-   */
-  toXmlString() {
-    Logger.abstractMethodExecution();
-    return '';
-  }
-
-  /**
    * @param {String} xmlElement The XML DOM object.
    * @return {T}
    * @abstract
@@ -43,5 +25,24 @@ export class XmlSerializable {
   static fromXmlString(xml) {
     Logger.abstractMethodExecution();
     return null;
+  }
+
+  /**
+   * @return {Object} XML DOM object for this object.
+   * @abstract
+   */
+  toXmlDom() {
+    Logger.abstractMethodExecution();
+    return null;
+  }
+
+  /**
+   * @return {String} XML document for this object. Must honor PRETTY_XML
+   *     config.
+   * @abstract
+   */
+  toXmlString() {
+    Logger.abstractMethodExecution();
+    return '';
   }
 }

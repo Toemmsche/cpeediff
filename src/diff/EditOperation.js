@@ -2,6 +2,8 @@ import {DomHelper} from '../../util/DomHelper.js';
 import {Node} from '../tree/Node.js';
 import xmldom from 'xmldom';
 import {Dsl} from '../Dsl.js';
+import {Config} from '../Config.js';
+import vkbeautify from 'vkbeautify';
 
 /**
  * Data class for a single edit operation. Every edit operation in the CpeeDiff
@@ -149,6 +151,11 @@ export class EditOperation {
    * @return {String} The XML document for this edit operation.
    */
   toXmlString() {
-    return new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (Config.PRETTY_XML) {
+      return vkbeautify.xml(str);
+    } else {
+      return str;
+    }
   }
 }

@@ -28,7 +28,8 @@ export class CallPropertyExtractor {
 
     let method;
     let label;
-    let args;
+    let argKeys;
+    let argVals;
     const parameters =
         call
             .children
@@ -46,14 +47,19 @@ export class CallPropertyExtractor {
               .find((property) =>
                 property.label === Dsl.CALL_PROPERTIES.LABEL.label)
               ?.text;
-      args = parameters
+      const argsParent = parameters
           .children
           .find((property) =>
-            property.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label)
+            property.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label);
+      argKeys = argsParent
           ?.children
           .map((arg) => arg.label);
-      if (args == null) {
-        args = [];
+      argVals = argsParent
+          ?.children
+          .map((arg) => arg.text);
+      if (argKeys == null) {
+        argKeys = [];
+        argVals = [];
       }
     }
     const code =
@@ -69,7 +75,7 @@ export class CallPropertyExtractor {
             .join('');
     this._memo.set(
         call,
-        new CallProperties(endpoint, method, label, args, code),
+        new CallProperties(endpoint, method, label, argKeys, argVals, code),
     );
   }
 

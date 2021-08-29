@@ -87,7 +87,7 @@ const argv = yargs(hideBin(process.argv))
             description: 'Pretty-print the output XML document.',
             alias: 'p',
             type: 'boolean',
-            default: false
+            default: false,
           })
 
           .check(argv => {

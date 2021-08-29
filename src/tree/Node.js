@@ -371,8 +371,8 @@ export class Node {
     } else if (this.isLeaf()) {
       return this.isScript() && (this.text === '' || this.text == null);
     } else {
-      return !this.hasChildren() && (this.text === '' || this.text == null) &&
-          !this.hasAttributes();
+      // Property node
+      return !this.hasChildren() && (this.text === '' || this.text == null);
     }
   }
 

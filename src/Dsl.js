@@ -17,8 +17,6 @@
 export const Dsl = {
 
   XML_DOC: {
-    PROPERTIES_ROOT: 'properties',
-    DSLX: 'dslx',
     DATA_ELEMENTS: 'dataelements',
     ENDPOINTS: 'endpoints',
   },
@@ -118,36 +116,36 @@ export const Dsl = {
   INNER_PROPERTIES: {
     CONDITION: {
       label: 'condition',
-      default: 'true'
+      default: 'true',
     },
     LOOP_MODE: {
       label: 'mode',
       options: [
         'pre_test',
-        'post_test'
+        'post_test',
       ],
-      default: 'pre_test'
+      default: 'pre_test',
     },
     CHOICE_MODE: {
       label: 'mode',
       options: [
         'exclusive',
-        'inclusive'
+        'inclusive',
       ],
-      default: 'exclusive'
+      default: 'exclusive',
     },
     PARALLEL_WAIT: {
       label: 'wait',
-      default: '-1'
+      default: '-1',
     },
     PARALLEL_CANCEL: {
       label: 'cancel',
       options: [
         'last',
-        'first'
+        'first',
       ],
-      default: 'last'
-    }
+      default: 'last',
+    },
   },
 
   ENDPOINT_METHODS: [
@@ -155,7 +153,7 @@ export const Dsl = {
     ':post',
     ':put',
     ':patch',
-    ':delete'
+    ':delete',
   ],
 
   DEFAULT_NAMESPACE: 'http://cpee.org/ns/description/1.0',
@@ -190,31 +188,31 @@ export const Dsl = {
       label: 'NIL',
       uri: 'http://cpee.org/ns/description/1.0/nil',
       prefix: 'nil',
-    }
-  }
+    },
+  },
 
 };
 
 Dsl.ELEMENT_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-        .map(k => k.label));
+        .map((k) => k.label));
 
 Dsl.LEAF_NODE_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-        .filter(k => k.isLeaf)
-        .map(k => k.label));
+        .filter((k) => k.isLeaf)
+        .map((k) => k.label));
 
 Dsl.INNER_NODE_SET = new Set(
     Object.values(Dsl.ELEMENTS)
-        .filter(k => !k.isLeaf)
-        .map(k => k.label));
+        .filter((k) => !k.isLeaf)
+        .map((k) => k.label));
 
-Dsl.UNORDERED_SET = new Set(
-    Dsl.ELEMENTS.PARALLEL.label,
-    ...Object.values(Dsl.CALL_PROPERTIES)
-        // Arguments are ordered!
-        .filter((property) => property !== Dsl.CALL_PROPERTIES.ARGUMENTS)
-        .map((property) => property.label));
+Dsl.UNORDERED_SET = new Set([
+  Dsl.ELEMENTS.PARALLEL.label,
+  ...Object.values(Dsl.CALL_PROPERTIES)
+  // Arguments are ordered!
+      .filter((property) => property !== Dsl.CALL_PROPERTIES.ARGUMENTS)
+      .map((property) => property.label)]);
 
 Dsl.CHANGE_MODEL_SET = new Set(
     Object.values(Dsl.CHANGE_MODEL));
