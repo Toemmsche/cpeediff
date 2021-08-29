@@ -2,7 +2,7 @@ import {EvalConfig} from '../EvalConfig.js';
 import {AbstractTestResult} from './AbstractTestResult.js';
 
 /**
- * An aggregate result of multiple match test results.
+ * An aggregate result summarizing multiple match test results.
  *
  * @see {MatchTestResult}
  */
@@ -65,7 +65,7 @@ export class AggregateMatchResult {
   /**
    * Create an AggregateMatchResult instance from a list of individual match
    * test results.
-   * @param {Array<MatchTestResult>} results The list of results.
+   * @param {Array<MatchTestResult>} results The list of match test results.
    * @return {AggregateMatchResult}
    */
   static of(results) {

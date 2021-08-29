@@ -1,13 +1,54 @@
-import {EvalConfig} from '../EvalConfig.js';
+/**
+ * An aggregate result summarizing multiple merge test results.
+ *
+ * @see {MergeTestResult}
+ */
+import {AbstractTestResult} from './AbstractTestResult.js';
 
 export class AggregateMergeResult {
-
+  /**
+   * The matching algorithm that produced the match results.
+   * @type {String}
+   * @const
+   */
   algorithm;
+  /**
+   * The amount of test results with the 'OK' verdict.
+   * @type {Number}
+   * @const
+   */
   ok;
+  /**
+   * The amount of test results with the 'ACCEPTABLE' verdict.
+   * @type {Number}
+   * @const
+   */
   acceptable;
+  /**
+   * The amount of test results with the 'WRONG ANSWER' verdict.
+   * @type {Number}
+   * @const
+   */
   wrongAnswer;
+  /**
+   * The amount of test results with the 'RUNTIME ERROR' verdict.
+   * @type {Number}
+   * @const
+   */
   runtimeError;
 
+  /**
+   * Construct a new AggregateMergeResult instance.
+   * @param {String} algorithm The matching algorithm that produced the match
+   *     results.
+   * @param {Number} ok The amount of test results with the 'OK' verdict.
+   * @param {Number} acceptable The amount of test results with the
+   *     'ACCEPTABLE' verdict.
+   * @param {Number} wrongAnswer The amount of test results with the 'WRONG
+   *     ANSWER' verdict.
+   * @param {Number} runtimeError The amount of test results with the 'RUNTIME
+   *     ERROR' verdict.
+   */
   constructor(algorithm, ok, acceptable, wrongAnswer, runtimeError) {
     this.algorithm = algorithm;
     this.ok = ok;
@@ -16,6 +57,12 @@ export class AggregateMergeResult {
     this.runtimeError = runtimeError;
   }
 
+  /**
+   * Create an AggregateMergeResult instance from a list of individual merge
+   * test results.
+   * @param {Array<MergeTestResult>} results The list of merge test results.
+   * @return {AggregateMergeResult}
+   */
   static of(results) {
     const algorithm = results[0].algorithm;
     let ok = 0;
