@@ -193,10 +193,6 @@ export class Comparator {
     // different labels cannot be matched
     if (nodeA.label !== nodeB.label) return 1.0;
 
-    if (nodeA.isInnterruptLeafNode()) {
-      // Content comparison value is missing by default
-      return null;
-    }
     switch (nodeA.label) {
       case Dsl.ELEMENTS.CALL.label: {
         return this.#compareCallContent(nodeA, nodeB);
@@ -216,8 +212,8 @@ export class Comparator {
       case Dsl.ELEMENTS.CHOICE.label: {
         return this.#compareChoiceContent(nodeA, nodeB);
       }
-        // Label equality is sufficient for parallel_branch, critical,
-        // otherwise, and root...
+      // Label equality is sufficient for stop, break, termination,
+      // parallel_branch, critical, otherwise, and root...
       default: {
         return 0;
       }

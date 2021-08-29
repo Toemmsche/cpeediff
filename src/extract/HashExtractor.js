@@ -5,6 +5,7 @@ import {stringHash} from '../lib/StringHash.js';
 /**
  * Extractor for retrieving and caching the hash (and content hash) value
  * for a subtree.
+ * @implements{ExtractorInterface<Number>}
  */
 export class HashExtractor extends ExtractorInterface {
   /**

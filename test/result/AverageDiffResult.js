@@ -176,8 +176,8 @@ export class AverageDiffResult {
       Math.max(...costs),
     ];
     const [avgEditOperations, maxEditOperations] = [
-      editOperations.reduce((a, b) => a + b, 0) / changes.length,
-      Math.max(...changes),
+      editOperations.reduce((a, b) => a + b, 0) / editOperations.length,
+      Math.max(...editOperations),
     ];
 
     const stdDevRuntime = Math.sqrt(runtimes

@@ -46,17 +46,17 @@ export class HashMatcher {
       const oldPreOrder = oldRoot.toPreOrderArray();
       if (newPreOrder.length !== oldPreOrder.length) {
         Logger.error('Matching of subtrees with different size',
-            new Error('Matching of subtrees with different size'), this
+            new Error('Matching of subtrees with different size'), this,
         );
       }
 
       // stable sort both arrays because hash may ignore child order of
       // certain nodes
       newPreOrder.sort((a, b) =>
-          hashExtractor.get(a) - hashExtractor.get(b));
+        hashExtractor.get(a) - hashExtractor.get(b));
 
       oldPreOrder.sort((a, b) =>
-          hashExtractor.get(a) - hashExtractor.get(b));
+        hashExtractor.get(a) - hashExtractor.get(b));
 
       for (let i = 0; i < newPreOrder.length; i++) {
         if (!matching.isMatched(newPreOrder[i]) &&
@@ -65,10 +65,16 @@ export class HashMatcher {
         }
       }
     };
-    // every match is accepted because the hash values equal
+    // every match is accepted when the hash values equal
     const threshOldFunction = (CV) => true;
-    persistBestMatches(oldNodes, newNodes, matching, keyFunction,
-        compareFunction, matchFunction, threshOldFunction
+    persistBestMatches(
+        oldNodes,
+        newNodes,
+        matching,
+        keyFunction,
+        compareFunction,
+        matchFunction,
+        threshOldFunction,
     );
   }
 }

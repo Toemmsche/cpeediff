@@ -82,7 +82,6 @@ export class MatchPipeline {
             ]);
       case MatchPipeline.MATCH_MODES.BALANCED:
         Config.EXP = true;
-
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -95,7 +94,6 @@ export class MatchPipeline {
             ]);
       case MatchPipeline.MATCH_MODES.QUALITY:
         Config.EXP = false;
-
         return new MatchPipeline(
             [
               new FixedMatcher(),

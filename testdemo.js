@@ -8,6 +8,8 @@ import {GeneratedDiffEvaluation} from './test/eval/GeneratedDiffEvaluation.js';
 import {XyDiffAdapter} from './test/diff_adapters/XyDiffAdapter.js';
 import {XccAdapter} from './test/diff_adapters/XccAdapter.js';
 import {CpeeDiffLocalAdapter} from './test/diff_adapters/CpeeDiffLocalAdapter.js';
+import {DiffEvaluation} from './test/eval/DiffEvaluation.js';
+import {DiffXmlAdapter} from './test/diff_adapters/DiffXmlAdapter.js';
 
 /*
 const doc = xmldom.DOMImplementation.prototype.createDocument("ASDF", "s");
@@ -42,7 +44,7 @@ Config.LOG_LEVEL = 'error';
 //new GeneratedMatchingEvaluation([new CpeeMatchAdapter('quality'), new CpeeMatchAdapter('balanced')]).average(false, false);
 //new DiffEvaluation([new QualityCpeeDiffAdapter(), new JNDiffAdapter()]).evalAll(EvalConfig.MATCH_CASES_DIR + "/move/interparent_move");
 new GeneratedDiffEvaluation([new CpeeDiffAdapter("quality"), new CpeeDiffAdapter('balanced'), new XccAdapter()]).average(false, false);
-//new DiffEvaluation([new QualityCpeeDiffAdapter()]).evalAll();
+//new DiffEvaluation([new DiffXmlAdapter(), new CpeeDiffAdapter(('quality'))]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new MergeAlgorithmEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll();
 
 /*

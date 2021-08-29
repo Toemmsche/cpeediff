@@ -39,8 +39,14 @@ export class SimilarityMatcher {
     // Only sufficiently similar matches are accepted.
     const thresholdFunction = (CV) => CV <= Config.COMPARISON_THRESHOLD;
 
-    persistBestMatches(oldLeaves, newLeaves, matching,
-        keyFunction, compareFunction, matchFunction, thresholdFunction
+    persistBestMatches(
+        oldLeaves,
+        newLeaves,
+        matching,
+        keyFunction,
+        compareFunction,
+        matchFunction,
+        thresholdFunction,
     );
   }
 }
