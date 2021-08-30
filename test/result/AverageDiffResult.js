@@ -165,7 +165,7 @@ export class AverageDiffResult {
     const runtimes = diffResults.map((result) => result.runtime);
     const costs = diffResults.map((result) => result.actual.cost);
     const editOperations = diffResults.map((result) =>
-      result.actual.editOperations);
+        result.actual.editOperations);
 
     const [avgRuntime, maxRuntime] = [
       runtimes.reduce((a, b) => a + b, 0) / runtimes.length,
@@ -211,15 +211,17 @@ export class AverageDiffResult {
   values() {
     return [
       this.algorithm,
-      this.avgRuntime,
-      this.maxRuntime,
-      this.stdDevRuntime,
-      this.avgCost,
-      this.maxCost,
-      this.stdDevCost,
-      this.avgEditOperations,
-      this.maxEditOperations,
-      this.stdDevEditOperations,
+      ...[
+        this.avgRuntime,
+        this.maxRuntime,
+        this.stdDevRuntime,
+        this.avgCost,
+        this.maxCost,
+        this.stdDevCost,
+        this.avgEditOperations,
+        this.maxEditOperations,
+        this.stdDevEditOperations,
+      ].map((val) => val.toFixed(2)),
     ];
   }
 }

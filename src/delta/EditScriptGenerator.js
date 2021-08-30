@@ -1,5 +1,5 @@
 import {EditScript} from './EditScript.js';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {getLis} from '../lib/Lis.js';
 import {Logger} from '../../util/Logger.js';
 import {Node} from '../tree/Node.js';
@@ -156,7 +156,7 @@ export class EditScriptGenerator {
     // relationships. However, the children of a node might still be misaligned.
     // This can occur if a node as moved within its parent.
     for (const oldNode of oldTree.toPreOrderArray()) {
-      if (Config.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
+      if (DiffConfig.EXACT_EDIT_SCRIPT || oldNode.hasInternalOrdering()) {
         this.#alignChildren(oldNode);
       }
     }

@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-import {EvalConfig} from '../../test/EvalConfig.js';
+import {EvalConfig} from '../config/EvalConfig.js';
 import {DiffAdapter} from '../../test/diff_adapters/DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';

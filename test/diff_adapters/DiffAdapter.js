@@ -1,4 +1,4 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import fs from 'fs';
 import xmldom from 'xmldom';
 import {execFileSync} from 'child_process';

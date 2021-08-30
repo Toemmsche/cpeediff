@@ -1,4 +1,4 @@
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import {IdExtractor} from '../extract/IdExtractor.js';
 import {Update} from '../patch/Update.js';
 import {DeltaNode} from '../patch/DeltaNode.js';

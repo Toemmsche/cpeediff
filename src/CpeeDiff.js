@@ -1,7 +1,7 @@
-import {EditScriptGenerator} from './EditScriptGenerator.js';
-import {MatchPipeline} from '../match/MatchPipeline.js';
-import {Node} from '../tree/Node.js';
-import {Logger} from '../../util/Logger.js';
+import {EditScriptGenerator} from './delta/EditScriptGenerator.js';
+import {MatchPipeline} from './match/MatchPipeline.js';
+import {Node} from './tree/Node.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * A coordinator class for the CPEE process tree difference algorithm.

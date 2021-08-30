@@ -1,5 +1,5 @@
-import {Dsl} from '../Dsl.js';
-import {Config} from '../Config.js';
+import {Dsl} from '../config/Dsl.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * Extractor for retrieving and caching the sets of read and written variables
@@ -109,7 +109,7 @@ export class VariableExtractor {
    */
   #readVarsFromString(str) {
     // Cannot keep raw dots in variable prefix
-    const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
+    const prefix = DiffConfig.VARIABLE_PREFIX.replaceAll('.', '\\.');
     // Negative lookahead for assignment operators and positive lookbehind for
     // Data element prefix. Also, a positive lookahead for any non-word
     // character is necessary to avoid matching a partial variable descriptor.
@@ -126,7 +126,7 @@ export class VariableExtractor {
    */
   #writtenVarsFromString(str) {
     // Cannot keep raw dots in variable prefix
-    const prefix = Config.VARIABLE_PREFIX.replaceAll('.', '\\.');
+    const prefix = DiffConfig.VARIABLE_PREFIX.replaceAll('.', '\\.');
     // Positive lookahead for assignment operators and positive lookbehind for
     // data element prefix.
     const regex = new RegExp('(?<=' + prefix + ')' +

@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-export const Config = {
+export const DiffConfig = {
 
   MATCH_MODE: 'quality',
 

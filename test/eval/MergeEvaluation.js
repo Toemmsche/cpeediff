@@ -1,4 +1,4 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import * as fs from 'fs';
 import {AggregateMergeResult} from '../result/AggregateMergeResult.js';
 import {_3dmAdapter} from '../merge_adapters/_3dmAdapter.js';

@@ -1,10 +1,10 @@
-import {Config} from '../../src/Config.js';
-import {Dsl} from '../../src/Dsl.js';
+import {DiffConfig} from '../../src/config/DiffConfig.js';
+import {Dsl} from '../../src/config/Dsl.js';
 import {DiffAdapter} from './DiffAdapter.js';
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';
-import {EditScript} from '../../src/diff/EditScript.js';
+import {EditScript} from '../../src/delta/EditScript.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 
 /**

@@ -15,7 +15,7 @@
  */
 
 import {LogMessage} from './LogMessage.js';
-import {Config} from '../src/Config.js';
+import {DiffConfig} from '../src/config/DiffConfig.js';
 
 /**
  * A simple logging class.
@@ -77,7 +77,7 @@ export class Logger {
    * @param {Object} source The caller object.
    */
   static debug(message, source = null) {
-    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.DEBUG, message, source);
       console.error(logMessage.toString());
     }
@@ -143,7 +143,7 @@ export class Logger {
    * @param {Object} source The caller object.
    */
   static info(message, source = null) {
-    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.INFO, message, source);
       console.log(logMessage.toString());
     }
@@ -187,7 +187,7 @@ export class Logger {
    * @param {Object} source The caller object.
    */
   static stat(message, source = null) {
-    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.STAT, message, source);
       console.log(logMessage.toString());
     }
@@ -203,8 +203,8 @@ export class Logger {
    */
   static warn(message, source = null) {
     if (this.#enabled &&
-        (Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL ||
-            Config.LOG_LEVEL === Logger.LOG_LEVELS.WARN)) {
+        (DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL ||
+            DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.WARN)) {
       const logMessage = new LogMessage(this.LOG_TYPES.WARN, message, source);
       console.log(logMessage.toString());
     }

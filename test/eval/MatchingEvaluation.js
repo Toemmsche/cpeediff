@@ -1,11 +1,11 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {AggregateMatchResult} from '../result/AggregateMatchResult.js';
 import {Logger} from '../../util/Logger.js';
 import {DirectoryScraper} from '../case/DirectoryScraper.js';
 import {MatchTestCase} from '../case/MatchTestCase.js';
 import {markdownTable} from 'markdown-table';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
-import {Config} from '../../src/Config.js';
+import {DiffConfig} from '../../src/config/DiffConfig.js';
 import {CpeeDiffAdapter} from '../diff_adapters/CpeeDiffAdapter.js';
 
 /**

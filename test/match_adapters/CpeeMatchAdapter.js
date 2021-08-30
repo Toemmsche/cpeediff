@@ -1,7 +1,7 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 import {MatchAdapter} from './MatchAdapter.js';
-import {Config} from '../../src/Config.js';
+import {DiffConfig} from '../../src/config/DiffConfig.js';
 
 /**
  * An adapter to the CpeeDiff matching algorithm.
@@ -32,7 +32,7 @@ export class CpeeMatchAdapter extends MatchAdapter {
    * @override
    */
   run(oldTree, newTree) {
-    Config.MATCH_MODE = this.#matchMode;
+    DiffConfig.MATCH_MODE = this.#matchMode;
     return MatchPipeline.fromMode().execute(oldTree, newTree);
   }
 }

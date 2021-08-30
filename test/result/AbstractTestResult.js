@@ -1,5 +1,3 @@
-import {EvalConfig} from '../EvalConfig.js';
-
 /**
  * Abstract superclass for all individual test results.
  * @abstract

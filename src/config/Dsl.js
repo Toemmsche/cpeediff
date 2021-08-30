@@ -185,6 +185,11 @@ export const Dsl = {
       uri: 'http://cpee.org/ns/description/1.0/update',
       prefix: 'upd',
     },
+    UPDATE_FROM: {
+      label: 'UPDATE_FROM',
+      uri: 'http://cpee.org/ns/description/1.0/update-from',
+      prefix: 'updfr',
+    },
     NIL: {
       label: 'NIL',
       uri: 'http://cpee.org/ns/description/1.0/nil',

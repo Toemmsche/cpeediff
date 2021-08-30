@@ -1,4 +1,4 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {MergeAdapter} from './MergeAdapter.js';
 import fs from 'fs';
 import {execFileSync} from 'child_process';

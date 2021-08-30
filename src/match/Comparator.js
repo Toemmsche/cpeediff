@@ -1,8 +1,8 @@
 import {CallPropertyExtractor} from '../extract/CallPropertyExtractor.js';
 import {VariableExtractor} from '../extract/VariableExtractor.js';
 import {SizeExtractor} from '../extract/SizeExtractor.js';
-import {Dsl} from '../Dsl.js';
-import {Config} from '../Config.js';
+import {Dsl} from '../config/Dsl.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {ElementSizeExtractor} from '../extract/ElementSizeExtractor.js';
 import {getLcs} from '../lib/Lcs.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
@@ -47,8 +47,8 @@ export class Comparator {
           this.comparePosition(nodeA, nodeB),
         ],
         [
-          Config.COMPARATOR.CONTENT_WEIGHT,
-          Config.COMPARATOR.POSITION_WEIGHT,
+          DiffConfig.COMPARATOR.CONTENT_WEIGHT,
+          DiffConfig.COMPARATOR.POSITION_WEIGHT,
         ],
     );
     return compareValue;
@@ -72,7 +72,7 @@ export class Comparator {
         Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
-      readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
+      readVariablesCV += DiffConfig.COMPARATOR.EPSILON_PENALTY;
     } else if (conditionA != null || conditionB != null) {
       // All-or-nothing comparison if code doesn't access any variables
       readVariablesCV = conditionA === conditionB ? 0 : 1;
@@ -81,7 +81,7 @@ export class Comparator {
     // A default value makes sense since a missing condition is usually
     // interpreted as "true"
     const contentCV = this.weightedAverage([readVariablesCV],
-        [Config.COMPARATOR.CONDITION_WEIGHT], 0,
+        [DiffConfig.COMPARATOR.CONDITION_WEIGHT], 0,
     );
 
     return contentCV;
@@ -112,10 +112,10 @@ export class Comparator {
           argCV,
         ],
         [
-          Config.COMPARATOR.CALL_ENDPOINT_WEIGHT,
-          Config.COMPARATOR.CALL_LABEL_WEIGHT,
-          Config.COMPARATOR.CALL_METHOD_WEIGHT,
-          Config.COMPARATOR.CALL_ARGS_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_ENDPOINT_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_LABEL_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_METHOD_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_ARGS_WEIGHT,
         ],
     );
     // If the service call has the exact same signature (!), we can rather sure
@@ -137,13 +137,13 @@ export class Comparator {
           readVariablesCV,
         ],
         [
-          Config.COMPARATOR.WRITTEN_VAR_WEIGHT,
-          Config.COMPARATOR.READ_VAR_WEIGHT,
+          DiffConfig.COMPARATOR.WRITTEN_VAR_WEIGHT,
+          DiffConfig.COMPARATOR.READ_VAR_WEIGHT,
         ],
     );
     if (codeCV != null && propsA.code !== propsB.code) {
       // Small penalty for code string inequality
-      codeCV += Config.COMPARATOR.EPSILON_PENALTY;
+      codeCV += DiffConfig.COMPARATOR.EPSILON_PENALTY;
     } else if (propsA.hasCode() || propsB.hasCode()) {
       // All-or-nothing comparison if code doesn't access any variables
       codeCV = propsA.code === propsB.code ? 0 : 1;
@@ -154,8 +154,8 @@ export class Comparator {
           codeCV,
         ],
         [
-          Config.COMPARATOR.CALL_SERVICE_WEIGHT,
-          Config.COMPARATOR.CALL_CODE_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_SERVICE_WEIGHT,
+          DiffConfig.COMPARATOR.CALL_CODE_WEIGHT,
         ],
     );
     return contentCV;
@@ -263,7 +263,7 @@ export class Comparator {
         Dsl.INNER_PROPERTIES.CONDITION.default;
     if (readVariablesCV != null && conditionA !== conditionB) {
       // small penalty for code string inequality
-      readVariablesCV += Config.COMPARATOR.EPSILON_PENALTY;
+      readVariablesCV += DiffConfig.COMPARATOR.EPSILON_PENALTY;
     } else if (conditionA != null || conditionB != null) {
       // All-or-nothing comparison if code doesn't access any variables
       readVariablesCV = conditionA === conditionB ? 0 : 1;
@@ -275,8 +275,8 @@ export class Comparator {
           readVariablesCV,
         ],
         [
-          Config.COMPARATOR.MODE_WEIGHT,
-          Config.COMPARATOR.CONDITION_WEIGHT,
+          DiffConfig.COMPARATOR.MODE_WEIGHT,
+          DiffConfig.COMPARATOR.CONDITION_WEIGHT,
         ], 0,
     );
 
@@ -321,7 +321,7 @@ export class Comparator {
    * @return {Number} The positional comparison value from the range [0;1]
    */
   comparePosition(nodeA, nodeB) {
-    const radius = Config.COMPARATOR.PATH_COMPARE_RANGE;
+    const radius = DiffConfig.COMPARATOR.PATH_COMPARE_RANGE;
 
     /*
      const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radiu
@@ -385,14 +385,14 @@ export class Comparator {
           readVariablesCV,
         ],
         [
-          Config.COMPARATOR.WRITTEN_VAR_WEIGHT,
-          Config.COMPARATOR.READ_VAR_WEIGHT,
+          DiffConfig.COMPARATOR.WRITTEN_VAR_WEIGHT,
+          DiffConfig.COMPARATOR.READ_VAR_WEIGHT,
         ],
     );
 
     if (contentCV != null && scriptA.text !== scriptB.text) {
       // Small penalty for code string inequality
-      contentCV += Config.COMPARATOR.EPSILON_PENALTY;
+      contentCV += DiffConfig.COMPARATOR.EPSILON_PENALTY;
     } else if (scriptA.text != null || scriptB.text != null) {
       // All-or-nothing comparison if code doesn't access any variables
       contentCV = scriptA.text === scriptB.text ? 0 : 1;
@@ -470,7 +470,7 @@ export class Comparator {
       if (items[i] != null) {
         // Perfect matches receive a boost for their weight.
         const adjustedWeight =
-            (items[i] === 0 ? Config.COMPARATOR.WEIGHT_BOOST_MULTIPLIER : 1) *
+            (items[i] === 0 ? DiffConfig.COMPARATOR.WEIGHT_BOOST_MULTIPLIER : 1) *
             weights[i];
         itemSum += items[i] * adjustedWeight;
         weightSum += adjustedWeight;

@@ -1,28 +1,24 @@
 /*
-Copyright 2021 Tom Papke
+ Copyright 2021 Tom Papke
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-import {EvalConfig} from '../../test/EvalConfig.js';
-
-Config.PRETTY_XML = true;
-
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 import {Preprocessor} from '../io/Preprocessor.js';
-import {CpeeMerge} from '../merge/CpeeMerge.js';
-import {Config} from '../Config.js';
-import {CpeeDiff} from '../diff/CpeeDiff.js';
-import {Node} from '../tree/Node.js';
+import {DiffConfig} from '../config/DiffConfig.js';
+import {CpeeDiff} from '../CpeeDiff.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
+
+DiffConfig.PRETTY_XML = true;
 
 const base = new Preprocessor().parseFromFile('./src/temp/old.xml');
 const branch1 = new Preprocessor().parseFromFile('./src/temp/new.xml');

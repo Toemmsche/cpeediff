@@ -1,5 +1,5 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {MatchTestResult} from '../result/MatchTestResult.js';
 import fs from 'fs';
 import {ExpectedMatch} from '../expected/ExpectedMatch.js';

@@ -1,4 +1,4 @@
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * A matching module that reconsiders unmatched nodes for a match
@@ -106,7 +106,7 @@ export class UnmatchedMatcher {
             !matching.isMatched(potentialMatch) &&
             (!(newNode.isCall() || newNode.isScript()) ||
                 comparator.compareContent(newNode, potentialMatch) <=
-                Config.RELAXED_THRESHOLD)) {
+                DiffConfig.RELAXED_THRESHOLD)) {
           matching.matchNew(newNode, potentialMatch);
         }
       }

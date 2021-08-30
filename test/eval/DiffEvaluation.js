@@ -1,4 +1,4 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {XccAdapter} from '../diff_adapters/XccAdapter.js';
 import {XyDiffAdapter} from '../diff_adapters/XyDiffAdapter.js';
 import {Logger} from '../../util/Logger.js';
@@ -11,7 +11,7 @@ import {XmlDiffAdapter} from '../diff_adapters/XmlDiffAdapter.js';
 import {DiffXmlAdapter} from '../diff_adapters/DiffXmlAdapter.js';
 import * as fs from 'fs';
 import {CpeeDiffAdapter} from '../diff_adapters/CpeeDiffAdapter.js';
-import {Config} from '../../src/Config.js';
+import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 
 /**
  * An evaluation of diff algorithms using predefined test cases.

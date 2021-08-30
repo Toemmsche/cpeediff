@@ -14,14 +14,14 @@
    limitations under the License.
 */
 
-import {CpeeDiff} from '../../src/diff/CpeeDiff.js';
-import {Dsl} from '../../src/Dsl.js';
+import {CpeeDiff} from '../../src/CpeeDiff.js';
+import {Dsl} from '../../src/config/Dsl.js';
 import {DiffAdapter} from './DiffAdapter.js';
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {Logger} from '../../util/Logger.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
-import {Config} from '../../src/Config.js';
+import {DiffConfig} from '../../src/config/DiffConfig.js';
 import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 export class CpeeDiffLocalAdapter extends DiffAdapter {
@@ -39,7 +39,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
 
   run(oldTree, newTree) {
     let time = new Date().getTime();
-    Config.MATCH_MODE = this.#mode;
+    DiffConfig.MATCH_MODE = this.#mode;
     const delta = new CpeeDiff(MatchPipeline.fromMode()).diff(oldTree, newTree);
     time = new Date().getTime() - time;
     return {

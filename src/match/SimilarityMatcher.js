@@ -1,6 +1,6 @@
 import {MatcherInterface} from './MatcherInterface.js';
 import {persistBestMatches} from './BestMatchPersister.js';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * A matching module that matches similar leaf nodes.
@@ -37,7 +37,7 @@ export class SimilarityMatcher {
     const matchFunction =
         (oldNode, newNode) => matching.matchNew(newNode, oldNode);
     // Only sufficiently similar matches are accepted.
-    const thresholdFunction = (CV) => CV <= Config.COMPARISON_THRESHOLD;
+    const thresholdFunction = (CV) => CV <= DiffConfig.COMPARISON_THRESHOLD;
 
     persistBestMatches(
         oldLeaves,

@@ -1,4 +1,4 @@
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 
 import {Logger} from '../../util/Logger.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
@@ -135,7 +135,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           size,
           size,
           Math.ceil(Math.log2(size)),
-          5*Math.ceil(Math.log10(size)),
+          Math.ceil(Math.log10(size)),
       );
       const treeGen = new TreeGenerator(genParams);
       const changeParams =

@@ -5,7 +5,7 @@ import {HashMatcher} from './HashMatcher.js';
 import {SimilarityMatcher} from './SimilarityMatcher.js';
 import {UnmatchedMatcher} from './UnmatchedMatcher.js';
 import {Logger} from '../../util/Logger.js';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {CommonalityPathMatcher} from './CommonalityPathMatcher.js';
 import {FastSimilarityMatcher} from './FastSimilarityMatcher.js';
 import {PathMatcher} from './PathMatcher.js';
@@ -68,7 +68,7 @@ export class MatchPipeline {
    * @return {MatchPipeline}
    */
   static fromMode() {
-    switch (Config.MATCH_MODE) {
+    switch (DiffConfig.MATCH_MODE) {
       case MatchPipeline.MATCH_MODES.FAST:
         return new MatchPipeline(
             [
@@ -81,7 +81,7 @@ export class MatchPipeline {
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.BALANCED:
-        Config.EXP = true;
+        DiffConfig.EXP = true;
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -93,7 +93,7 @@ export class MatchPipeline {
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.QUALITY:
-        Config.EXP = false;
+        DiffConfig.EXP = false;
         return new MatchPipeline(
             [
               new FixedMatcher(),

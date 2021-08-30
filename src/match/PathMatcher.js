@@ -1,4 +1,4 @@
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * A matching module that uses the existing matches to find good matches
@@ -87,7 +87,7 @@ export class PathMatcher {
           matching.matchNew(newNode, oldNode);
           oldToNewMap.delete(oldNode);
           continue mapLoop;
-        } else if (CV <= Config.COMPARISON_THRESHOLD && CV < minCV &&
+        } else if (CV <= DiffConfig.COMPARISON_THRESHOLD && CV < minCV &&
             (!oldToNewMap.has(oldNode) ||
                 CV < oldToNewMap.get(oldNode).compareValue)) {
           minCV = CV;

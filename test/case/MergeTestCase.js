@@ -1,5 +1,5 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {MergeTestResult} from '../result/MergeTestResult.js';
 import fs from 'fs';
 import {Preprocessor} from '../../src/io/Preprocessor.js';

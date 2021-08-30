@@ -1,9 +1,9 @@
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
 import vkbeautify from 'vkbeautify';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 
 /**
@@ -574,7 +574,7 @@ export class Node {
    */
   toXmlString() {
     const xml = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
-    if (Config.PRETTY_XML) {
+    if (DiffConfig.PRETTY_XML) {
       return vkbeautify.xml(xml);
     } else {
       return xml;

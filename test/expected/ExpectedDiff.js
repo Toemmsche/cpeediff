@@ -13,7 +13,7 @@ export class ExpectedDiff extends AbstractExpected {
 
   /**
    * Construct a new ExpectedDiff instance.
-   * @param {?EditScript } editScript The proposed edit script.
+   * @param {?EditScript} editScript The proposed edit script.
    */
   constructor(editScript = null) {
     super();
@@ -23,7 +23,7 @@ export class ExpectedDiff extends AbstractExpected {
   /**
    * Return an array of values to be inserted in the table containing the diff
    * evaluation results.
-   * @return {(string|(function(): Number)|number|Number)[]}
+   * @return {Array<String>}
    */
   values() {
     return [

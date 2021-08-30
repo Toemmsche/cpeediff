@@ -1,5 +1,5 @@
 import {Node} from '../tree/Node.js';
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import xmldom from 'xmldom';
 
 /**
@@ -28,7 +28,7 @@ export class DeltaNode extends Node {
   placeholders;
   /**
    * The ID of the node in the base tree, if it exists, that this node
-   * corresponds to.
+   * corresponds to. Null indicates an inserted node
    * @type {?Number}
    */
   baseNode;
@@ -54,47 +54,19 @@ export class DeltaNode extends Node {
   }
 
   /**
-   * @return {Boolean} If this node was deleted.
+   * Insert a new child and adjust placeholder indices.
+   * @param {Number} index The position at which to insert the new child.
+   * @param {Node} node The new child.
+   * @override
    */
-  isDeleted() {
-    return this.type === Dsl.CHANGE_MODEL.DELETION.label;
-  }
-
-  /**
-   * @return {Boolean} If this node was inserted.
-   */
-  isInserted() {
-    return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
-  }
-
-  /**
-   * @return {Boolean} If this node was moved.
-   */
-  isMoved() {
-    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
-  }
-
-  /**
-   * @return {Boolean} If this node is a placeholder for a moved node before it
-   *     was moved.
-   */
-  isMovedFrom() {
-    return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
-  }
-
-  /**
-   * @return {Boolean} If this node was not changed in any way regarding
-   *     position or content.
-   */
-  isUnchanged() {
-    return this.type === Dsl.CHANGE_MODEL.NIL.label && !this.isUpdated();
-  }
-
-  /**
-   * @return {Boolean} If this node was updated.
-   */
-  isUpdated() {
-    return this.updates.size > 0;
+  insertChild(index, node) {
+    super.insertChild(index, node);
+    // Adjust placeholders
+    for (const placeholder of this.placeholders) {
+      if (placeholder.index >= index) {
+        placeholder.index = placeholder.index + 1;
+      }
+    }
   }
 
   /**
@@ -110,22 +82,6 @@ export class DeltaNode extends Node {
         if (placeholder.index > this.index) {
           placeholder.index = placeholder.index - 1;
         }
-      }
-    }
-  }
-
-  /**
-   * Insert a new child and adjust placeholder indices.
-   * @param {Number} index The position at which to insert the new child.
-   * @param {Node} node The new child.
-   * @override
-   */
-  insertChild(index, node) {
-    super.insertChild(index, node);
-    // Adjust placeholders
-    for (const placeholder of this.placeholders) {
-      if (placeholder.index >= index) {
-        placeholder.index = placeholder.index + 1;
       }
     }
   }
@@ -174,6 +130,10 @@ export class DeltaNode extends Node {
           );
         } else {
           xmlElement.setAttribute(
+              Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + key,
+              oldVal,
+          );
+          xmlElement.setAttribute(
               Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + key,
               newVal,
           );
@@ -202,6 +162,10 @@ export class DeltaNode extends Node {
             'true',
         );
       } else {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':text',
+            oldVal,
+        );
         xmlElement.setAttribute(
             Dsl.CHANGE_MODEL.UPDATE.prefix + ':text',
             'true',
@@ -244,6 +208,50 @@ export class DeltaNode extends Node {
       }
     }
     return deltaNode;
+  }
+
+  /**
+   * @return {Boolean} If this node was deleted.
+   */
+  isDeleted() {
+    return this.type === Dsl.CHANGE_MODEL.DELETION.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was inserted.
+   */
+  isInserted() {
+    return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was moved.
+   */
+  isMoved() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
+  }
+
+  /**
+   * @return {Boolean} If this node is a placeholder for a moved node before it
+   *     was moved.
+   */
+  isMovedFrom() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was not changed in any way regarding
+   *     position or content.
+   */
+  isUnchanged() {
+    return this.type === Dsl.CHANGE_MODEL.NIL.label && !this.isUpdated();
+  }
+
+  /**
+   * @return {Boolean} If this node was updated.
+   */
+  isUpdated() {
+    return this.updates.size > 0;
   }
 }
 

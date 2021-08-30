@@ -1,6 +1,6 @@
 import {MatchPipeline} from '../match/MatchPipeline.js';
 import {Matching} from '../match/Matching.js';
-import {CpeeDiff} from '../diff/CpeeDiff.js';
+import {CpeeDiff} from '../CpeeDiff.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 import {Preprocessor} from '../io/Preprocessor.js';
 import {Update} from '../patch/Update.js';

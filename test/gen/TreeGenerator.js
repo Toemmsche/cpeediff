@@ -1,12 +1,12 @@
 import {Node} from '../../src/tree/Node.js';
 import {Preprocessor} from '../../src/io/Preprocessor.js';
-import {Dsl} from '../../src/Dsl.js';
+import {Dsl} from '../../src/config/Dsl.js';
 import {ExpectedDiff} from '../expected/ExpectedDiff.js';
-import {Config} from '../../src/Config.js';
+import {DiffConfig} from '../../src/config/DiffConfig.js';
 import {Logger} from '../../util/Logger.js';
 import {GeneratorParameters} from './GeneratorParameters.js';
 import {Matching} from '../../src/match/Matching.js';
-import {EditScriptGenerator} from '../../src/diff/EditScriptGenerator.js';
+import {EditScriptGenerator} from '../../src/delta/EditScriptGenerator.js';
 import {DiffTestCase} from '../case/DiffTestCase.js';
 import {IdExtractor} from '../../src/extract/IdExtractor.js';
 import {ElementSizeExtractor} from '../../src/extract/ElementSizeExtractor.js';
@@ -395,7 +395,7 @@ export class TreeGenerator {
     const parent = this.#randomFrom(tree.toPreOrderArray()
         .filter((node) => node.isCallArguments()));
     let insertedArg = this.#randomFrom(this.#variables);
-    insertedArg = new Node(insertedArg, Config.VARIABLE_PREFIX + insertedArg);
+    insertedArg = new Node(insertedArg, DiffConfig.VARIABLE_PREFIX + insertedArg);
     this.#appendRandomly(parent, insertedArg);
   }
 
@@ -544,7 +544,7 @@ export class TreeGenerator {
     const readVariable = this.#randomFrom(this.#variables);
     node.attributes.set(
         Dsl.INNER_PROPERTIES.CONDITION.label,
-        Config.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
+        DiffConfig.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
     );
 
     return node;
@@ -605,7 +605,7 @@ export class TreeGenerator {
       if (this.#withProbability(0.2) || !this.#variables.includes(argKey)) {
         arg.text = this.#randomString(20);
       } else {
-        arg.text = Config.VARIABLE_PREFIX + argKey;
+        arg.text = DiffConfig.VARIABLE_PREFIX + argKey;
       }
       args.appendChild(arg);
     }
@@ -622,7 +622,7 @@ export class TreeGenerator {
         this.#variables,
         this.#randInt(this.#genParams.maxVars),
     )) {
-      finalize.text += Config.VARIABLE_PREFIX + writtenVariable + ' = ' +
+      finalize.text += DiffConfig.VARIABLE_PREFIX + writtenVariable + ' = ' +
           this.#randInt(1000) + ';';
     }
 
@@ -750,7 +750,7 @@ export class TreeGenerator {
     const readVariable = this.#randomFrom(this.#variables);
     node.attributes.set(
         Dsl.INNER_PROPERTIES.CONDITION.label,
-        Config.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
+        DiffConfig.VARIABLE_PREFIX + readVariable + ' < ' + this.#randInt(1000),
     );
 
     if (this.#withProbability(0.5)) {
@@ -823,7 +823,7 @@ export class TreeGenerator {
         this.#variables,
         this.#randInt(this.#genParams.maxVars),
     )) {
-      node.text += Config.VARIABLE_PREFIX + writtenVariable + ' = ' +
+      node.text += DiffConfig.VARIABLE_PREFIX + writtenVariable + ' = ' +
           this.#randInt(1000) + ';';
     }
     for (const readVariable of this.#randomSubSet(
@@ -986,17 +986,17 @@ export class TreeGenerator {
           if (this.#withProbability(0.33)) {
             // modify new variable
             const newModVariable = this.#randomFrom(this.#variables);
-            statements.push(Config.VARIABLE_PREFIX + newModVariable +
+            statements.push(DiffConfig.VARIABLE_PREFIX + newModVariable +
                 ' = ' + this.#randInt(1000));
           } else if (this.#withProbability(0.5)) {
             // read new variable
             const newReadVariable = this.#randomFrom(this.#variables);
-            statements.push('fun(' + Config.VARIABLE_PREFIX +
+            statements.push('fun(' + DiffConfig.VARIABLE_PREFIX +
                 newReadVariable + ')');
           } else {
             // read and write to new variable
             const newVariable = this.#randomFrom(this.#variables);
-            statements.push(Config.VARIABLE_PREFIX + newVariable + '++');
+            statements.push(DiffConfig.VARIABLE_PREFIX + newVariable + '++');
           }
           node.text = statements.join(';') + ';';
           break;

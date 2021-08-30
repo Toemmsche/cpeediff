@@ -1,4 +1,4 @@
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import {Node} from '../tree/Node.js';
 
 /**

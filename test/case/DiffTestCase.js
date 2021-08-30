@@ -1,6 +1,6 @@
 import {AbstractTestCase} from './AbstractTestCase.js';
 import fs from 'fs';
-import {EvalConfig} from '../EvalConfig.js';
+import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {ExpectedDiff} from '../expected/ExpectedDiff.js';
 import {Preprocessor} from '../../src/io/Preprocessor.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';

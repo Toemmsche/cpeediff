@@ -1,8 +1,5 @@
 import {GeneratorParameters} from '../../test/gen/GeneratorParameters.js';
-import {ChangeParameters} from '../../test/gen/ChangeParameters.js';
 import {TreeGenerator} from '../../test/gen/TreeGenerator.js';
-import {CpeeMerge} from '../merge/CpeeMerge.js';
-import {Config} from '../Config.js';
 
 const genParams = new GeneratorParameters(20000, 1000, 25, 8);
 const treeGen = new TreeGenerator(genParams);

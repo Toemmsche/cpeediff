@@ -83,6 +83,8 @@
 //      extended edit script
 //      test delta tree for triple extract moves
 //      improve cli
+//      old val in delta tree
+//      merge confidence
 
 
 
@@ -92,6 +94,7 @@
 //      shorten evaluation
 //      selkow and tai in thesis
 //      $$$ compress edit script gen phase in thesis
+//
 
 /*
 TO BEAT for benchmark

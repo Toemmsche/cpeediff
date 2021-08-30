@@ -1,12 +1,12 @@
 import {EditOperation} from './EditOperation.js';
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 import {Patcher} from '../patch/Patcher.js';
 import {Node} from '../tree/Node.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
 import vkbeautify from 'vkbeautify';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * A wrapper class for an ordered sequence of edit operations, commonly
@@ -217,7 +217,7 @@ export class EditScript {
    */
   toXmlString() {
     const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
-    if (Config.PRETTY_XML) {
+    if (DiffConfig.PRETTY_XML) {
       return vkbeautify.xml(str);
     } else {
       return str;

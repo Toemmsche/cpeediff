@@ -16,7 +16,7 @@
 
 const {Comparator} = require('../match/Comparator');
 const {Lcs} = require('../lib/Lcs');
-const {Config} = require('../Config');
+const {DiffConfig} = require('../config/DiffConfig.js');
 const {MatcherInterface} = require('../match/MatcherInterface');
 const {Matching} = require('../match/Matching');
 const {CpeeTree} = require('../tree/CpeeTree');
@@ -77,7 +77,7 @@ export class PathMatching extends MatcherInterface {
               minCompareNode = oldLeaf;
             }
           }
-          if (minCompareValue < Config.COMPARISON_THRESHOLD) {
+          if (minCompareValue < DiffConfig.COMPARISON_THRESHOLD) {
             if (!oldToNewLeafMap.has(minCompareNode)) {
               oldToNewLeafMap.set(minCompareNode, []);
             }
@@ -132,7 +132,7 @@ export class PathMatching extends MatcherInterface {
           if (matching.isMatched(newPath[k]) && oldPath.includes(matching.getMatch(newPath[k]))) {
             //If so, we terminate to preserve ancestor order within the path
             return;
-          } else if (comparator.compare(newPath[k], oldPath[i]) < Config.COMPARISON_THRESHOLD) {
+          } else if (comparator.compare(newPath[k], oldPath[i]) < DiffConfig.COMPARISON_THRESHOLD) {
             matching.matchNew(newPath[k], oldPath[i]);
             //update last matching index to avoid a false positive of the first if branch in subsequent iterations
             j = k + 1;
@@ -173,7 +173,7 @@ export class PathMatching extends MatcherInterface {
 
       //index in newPath where last matching occurred
       for (let i = 0; i < newLcs.length; i++) {
-        if (comparator.compare(newLcs[i], oldLcs[i]) <= Config.COMPARISON_THRESHOLD && !(matching.isMatched(newLcs[i] && oldPath.includes(matching.getMatch(newLcs[i]))))) {
+        if (comparator.compare(newLcs[i], oldLcs[i]) <= DiffConfig.COMPARISON_THRESHOLD && !(matching.isMatched(newLcs[i] && oldPath.includes(matching.getMatch(newLcs[i]))))) {
           matching.matchNew(newLcs[i], oldLcs[i]);
         }
       }

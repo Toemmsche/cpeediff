@@ -1,7 +1,7 @@
 import {MatcherInterface} from './MatcherInterface.js';
 import {persistBestMatches} from './BestMatchPersister.js';
-import {Config} from '../Config.js';
-import {Dsl} from '../Dsl.js';
+import {DiffConfig} from '../config/DiffConfig.js';
+import {Dsl} from '../config/Dsl.js';
 
 /**
  * A matching module that matches similar leaf nodes while enforcing
@@ -40,7 +40,7 @@ export class FastSimilarityMatcher {
     const matchFunction = (oldNode, newNode) =>
       matching.matchNew(newNode, oldNode);
     // Only sufficiently similar matches are accepted.
-    const thresholdFunction = (CV) => CV <= Config.COMPARISON_THRESHOLD;
+    const thresholdFunction = (CV) => CV <= DiffConfig.COMPARISON_THRESHOLD;
 
     persistBestMatches(oldLeaves, newLeaves, matching,
         keyFunction, compareFunction, matchFunction, thresholdFunction);

@@ -1,4 +1,4 @@
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {LeafSetExtractor} from '../extract/LeafSetExtractor.js';
 
 /**
@@ -117,9 +117,9 @@ export class CommonalityPathMatcher {
               this.#commonality(oldNode, newNode, matching),
             ],
             [
-              Config.COMPARATOR.CONTENT_WEIGHT,
-              Config.COMPARATOR.POSITION_WEIGHT,
-              Config.COMPARATOR.COMMONALITY_WEIGHT,
+              DiffConfig.COMPARATOR.CONTENT_WEIGHT,
+              DiffConfig.COMPARATOR.POSITION_WEIGHT,
+              DiffConfig.COMPARATOR.COMMONALITY_WEIGHT,
             ],
         );
 
@@ -128,7 +128,7 @@ export class CommonalityPathMatcher {
           matching.matchNew(newNode, oldNode);
           oldToNewMap.delete(oldNode);
           continue mapLoop;
-        } else if (CV <= Config.COMPARISON_THRESHOLD && CV < minCV &&
+        } else if (CV <= DiffConfig.COMPARISON_THRESHOLD && CV < minCV &&
             (!oldToNewMap.has(oldNode) ||
                 CV < oldToNewMap.get(oldNode).compareValue)) {
           minCV = CV;

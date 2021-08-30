@@ -1,4 +1,4 @@
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import {CallProperties} from './CallProperties.js';
 import {Logger} from '../../util/Logger.js';
 

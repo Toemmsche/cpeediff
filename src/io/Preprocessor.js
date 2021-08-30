@@ -1,10 +1,10 @@
 import {Node} from '../tree/Node.js';
 import fs from 'fs';
-import {Dsl} from '../Dsl.js';
+import {Dsl} from '../config/Dsl.js';
 import xmldom from 'xmldom';
-import {Config} from '../Config.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import {DomHelper} from '../../util/DomHelper.js';
-import {EditScript} from '../diff/EditScript.js';
+import {EditScript} from '../delta/EditScript.js';
 import {Logger} from '../../util/Logger.js';
 
 /**
@@ -153,13 +153,13 @@ export class Preprocessor {
       }
     }
 
-    if (Config.ADD_INIT_SCRIPT && dataElements.size > 0) {
+    if (DiffConfig.ADD_INIT_SCRIPT && dataElements.size > 0) {
       // insert initializer for all declared variables at beginning of tree
       const script = new Node(Dsl.ELEMENTS.SCRIPT.label);
       script.text = '';
       script.attributes.set('id', 'init');
       for (const [dataElement, initialValue] of dataElements) {
-        script.text += Config.VARIABLE_PREFIX + dataElement +
+        script.text += DiffConfig.VARIABLE_PREFIX + dataElement +
             ' = ' + initialValue + ';';
       }
       tree.insertChild(0, script);

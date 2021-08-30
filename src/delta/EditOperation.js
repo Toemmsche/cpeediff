@@ -1,8 +1,8 @@
 import {DomHelper} from '../../util/DomHelper.js';
 import {Node} from '../tree/Node.js';
 import xmldom from 'xmldom';
-import {Dsl} from '../Dsl.js';
-import {Config} from '../Config.js';
+import {Dsl} from '../config/Dsl.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 import vkbeautify from 'vkbeautify';
 
 /**
@@ -152,7 +152,7 @@ export class EditOperation {
    */
   toXmlString() {
     const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
-    if (Config.PRETTY_XML) {
+    if (DiffConfig.PRETTY_XML) {
       return vkbeautify.xml(str);
     } else {
       return str;
