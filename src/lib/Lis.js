@@ -1,12 +1,9 @@
 /**
  * Compute the longest increasing subsequence (LIS) within an array of integers.
- * @param {Array<Number>} arr
- * @param {Function} compare The comparator function used to identify equal
- *     elements between the sequences. Defaults to the built-in strict equality
- *     operator ("===").
+ * @param {Array<Number>} arr The array.
  * @return {Array<Number>} The indices of all elements belonging to the LIS.
  */
-export function getLis(arr, compare = (a, b) => a - b) {
+export function getLis(arr) {
   // The problem of finding the longest increasing subsequence within an array
   // of totally ordered can be solved in O(n*log(n)) using binary search.
   const len = arr.length;
@@ -53,7 +50,7 @@ export function getLis(arr, compare = (a, b) => a - b) {
     let high = maxLength;
     while (low !== high) {
       const mid = Math.ceil((low + high) / 2);
-      if (compare(arr[m[mid]], arr[i]) >= 0) {
+      if (arr[m[mid]] >= arr[i]) {
         // We cannot extend the sequence of length mid, adjust upper bound
         high = mid - 1;
       } else {

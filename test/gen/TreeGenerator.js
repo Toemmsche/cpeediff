@@ -395,7 +395,10 @@ export class TreeGenerator {
     const parent = this.#randomFrom(tree.toPreOrderArray()
         .filter((node) => node.isCallArguments()));
     let insertedArg = this.#randomFrom(this.#variables);
-    insertedArg = new Node(insertedArg, DiffConfig.VARIABLE_PREFIX + insertedArg);
+    insertedArg = new Node(
+        insertedArg,
+        DiffConfig.VARIABLE_PREFIX + insertedArg,
+    );
     this.#appendRandomly(parent, insertedArg);
   }
 
@@ -998,7 +1001,7 @@ export class TreeGenerator {
             const newVariable = this.#randomFrom(this.#variables);
             statements.push(DiffConfig.VARIABLE_PREFIX + newVariable + '++');
           }
-          node.text = statements.join(';') + ';';
+          node.text = (statements.join(';') + ';').replaceAll(/;*/, ';');
           break;
         }
         default: {

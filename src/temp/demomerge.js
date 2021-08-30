@@ -1,19 +1,19 @@
 import {GeneratorParameters} from '../../test/gen/GeneratorParameters.js';
 import {TreeGenerator} from '../../test/gen/TreeGenerator.js';
+import {ChangeParameters} from '../../test/gen/ChangeParameters.js';
+import {CpeeDiffAdapter} from '../../test/diff_adapters/CpeeDiffAdapter.js';
+import {CpeeDiff} from '../CpeeDiff.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
-const genParams = new GeneratorParameters(20000, 1000, 25, 8);
+DiffConfig.LOG_LEVEL = 'all';
+const genParams = new GeneratorParameters(50000, 1000, 25, 8);
 const treeGen = new TreeGenerator(genParams);
 
 const base = treeGen.randomTree();
 
+const c = treeGen.changeTree(base, new ChangeParameters(5000, false))[0].newTree;
 
-for(const node of base.toPreOrderArray()) {
-  if( node.label==='choose') {
-    console.log(node.isChoice());
-    const val = node.isChoice();
-    console.log(node.children.map(n => n.label));
-  }
-}
+console.log(new CpeeDiff().diff(base, c));
 
 /*
 const changeParams = new ChangeParameters(5);

@@ -4,7 +4,7 @@ import {SizeExtractor} from '../extract/SizeExtractor.js';
 import {Dsl} from '../config/Dsl.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 import {ElementSizeExtractor} from '../extract/ElementSizeExtractor.js';
-import {getLcs} from '../lib/Lcs.js';
+import {getLcsLength} from '../lib/Lcs.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 
 /**
@@ -233,7 +233,7 @@ export class Comparator {
     }
     const maxLength = Math.max(seqA.length, seqB.length);
     if (maxLength === 0) return defaultValue;
-    return 1 - getLcs(seqA, seqB) / maxLength;
+    return 1 - getLcsLength(seqA, seqB) / maxLength;
   }
 
   /**
@@ -470,7 +470,8 @@ export class Comparator {
       if (items[i] != null) {
         // Perfect matches receive a boost for their weight.
         const adjustedWeight =
-            (items[i] === 0 ? DiffConfig.COMPARATOR.WEIGHT_BOOST_MULTIPLIER : 1) *
+            (items[i] === 0 ? DiffConfig.COMPARATOR.WEIGHT_BOOST_MULTIPLIER
+                            : 1) *
             weights[i];
         itemSum += items[i] * adjustedWeight;
         weightSum += adjustedWeight;

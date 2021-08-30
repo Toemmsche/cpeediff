@@ -72,7 +72,7 @@ export class PathMatching extends MatcherInterface {
             let longestLCS = -1;
             if (compareValue < minCompareValue) {
               minCompareValue = compareValue;
-              // longestLCS = getLcs(oldLeaf.path(), newLeaf.path(), (a,b) => a.label === b.label);
+              // longestLCS = getLcsLength(oldLeaf.path(), newLeaf.path(), (a,b) => a.label === b.label);
               //Discard all matching with a higher comparison value
               minCompareNode = oldLeaf;
             }
@@ -166,7 +166,7 @@ export class PathMatching extends MatcherInterface {
       const newPath = newLeaf.path().slice().reverse().slice(1);
       const oldPath = oldLeaf.path().slice().reverse().slice(1);
 
-      const lcs = getLcs(newPath, oldPath, (a, b) => a.label === b.label, true);
+      const lcs = getLcsLength(newPath, oldPath, (a, b) => a.label === b.label, true);
 
       const newLcs = lcs.get(0);
       const oldLcs = lcs.get(1);

@@ -84,6 +84,9 @@
 //      improve cli
 //      $$$ old val in delta tree
 //      $ merge confidence and xml output
+//      option to output matching
+
+//IDEA: remove intterup matching in hash, mvoe to sim matching with threshold, reduce path compare range
 
 
 
