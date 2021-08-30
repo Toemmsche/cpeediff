@@ -105,7 +105,6 @@ export class DeltaNode extends Node {
     const xmlElement = doc.createElement(prefix + this.label);
     xmlElement.localName = this.label;
 
-    // TODO delta variables
     if (this.isRoot()) {
       xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
       for (const type of Object.values(Dsl.CHANGE_MODEL)) {
@@ -113,38 +112,37 @@ export class DeltaNode extends Node {
       }
     }
 
-    // TODO include oldval
+    // Append regular attributes
     for (const [key, value] of this.attributes) {
-      if (this.updates.has(key)) {
-        const oldVal = this.updates.get(key).oldVal;
-        const newVal = this.updates.get(key).newVal;
-        if (oldVal == null) {
-          xmlElement.setAttribute(
-              Dsl.CHANGE_MODEL.INSERTION.prefix + ':' + key,
-              newVal,
-          );
-        } else if (newVal == null) {
-          xmlElement.setAttribute(
-              Dsl.CHANGE_MODEL.DELETION.prefix + ':' + key,
-              oldVal,
-          );
-        } else {
-          xmlElement.setAttribute(
-              Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + key,
-              oldVal,
-          );
-          xmlElement.setAttribute(
-              Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + key,
-              newVal,
-          );
-        }
-      } else {
+      if (!this.updates.has(key)) {
         xmlElement.setAttribute(key, value);
       }
     }
 
-    for (const child of this) {
-      xmlElement.appendChild(child.toXmlDom());
+    // Append updated attributes
+    for (const [key, update] of this.updates) {
+      const oldVal = update.oldVal;
+      const newVal = update.newVal;
+      if (oldVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.INSERTION.prefix + ':' + key,
+            newVal,
+        );
+      } else if (newVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.DELETION.prefix + ':' + key,
+            oldVal,
+        );
+      } else {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + key,
+            oldVal,
+        );
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + key,
+            newVal,
+        );
+      }
     }
 
     // Changes in text content are also modelled as updates
@@ -173,8 +171,12 @@ export class DeltaNode extends Node {
       }
     }
 
-    if (this.text != null && this.text !== '') {
+    if (this.hasText()) {
       xmlElement.appendChild(doc.createTextNode(this.text));
+    }
+
+    for (const child of this) {
+      xmlElement.appendChild(child.toXmlDom());
     }
 
     return xmlElement;

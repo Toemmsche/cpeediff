@@ -313,7 +313,7 @@ export class DeltaTreeGenerator {
    * Trim excess nodes resulting from move operations.
    */
   #trim() {
-    for (const /** @type {DeltaNode} */ deltaNode of this.#deltaTree.toPostOrderArray()) {
+    for (const deltaNode of this.#deltaTree.toPostOrderArray()) {
       // TODO
       if (deltaNode.label === 'dummy') {
         deltaNode.removeFromParent();

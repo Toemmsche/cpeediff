@@ -7,6 +7,7 @@ import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from 'xmldom';
 import vkbeautify from 'vkbeautify';
 import {DiffConfig} from '../config/DiffConfig.js';
+import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 
 /**
  * A wrapper class for an ordered sequence of edit operations, commonly
@@ -173,7 +174,8 @@ export class EditScript {
    * @return {Boolean} True, iff this edit script is valid.
    */
   isValid(oldTree, newTree) {
-    const patchedTree = new Patcher().patch(oldTree, this);
+    const patchedTree = new DeltaTreeGenerator().deltaTree(oldTree, this);
+    //const patchedTree = new Patcher().patch(oldTree, this);
     const hashExtractor = new HashExtractor();
     return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);
   }

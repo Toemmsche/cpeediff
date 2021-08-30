@@ -31,6 +31,7 @@ import {Logger} from './util/Logger.js';
 import {CpeeMerge} from './src/merge/CpeeMerge.js';
 import {MatchPipeline} from './src/match/MatchPipeline.js';
 import {Node} from './src/tree/Node.js';
+import {AbstractEvaluation as MatchEvaluation} from './test/eval/AbstractEvaluation.js';
 
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {

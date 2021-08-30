@@ -1,11 +1,16 @@
 <description xmlns="http://cpee.org/ns/description/1.0">
-    <loop condition="data.costs = 0">
+    <loop condition="data.costs == 0">
         <terminate/>
-        <critical>
-            <parallel_branch>
-                <manipulate sdfa="asdfsadf">data.persons -= 1</manipulate>
-                <manipulate>data.A++;</manipulate>
-            </parallel_branch>
-        </critical>
     </loop>
+    <stop></stop>
+    <critical>
+        <parallel_branch>
+            <manipulate>data.A++;</manipulate>
+        </parallel_branch>
+    </critical>
+
+    <escape>
+    </escape>
+    <manipulate>data.AAA=1;</manipulate>
+    <manipulate id="a3">data.persons -= 1</manipulate>
 </description>

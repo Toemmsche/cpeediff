@@ -140,18 +140,6 @@ export class EditScriptGenerator {
       }
     }
 
-    // TODO remove soon
-    for (const newNode of newTree.toPreOrderArray()) {
-      if (!matching.isMatched(newNode)) {
-        throw new Error();
-      }
-    }
-    for (const oldNode of oldTree.toPreOrderArray()) {
-      if (!matching.isMatched(oldNode)) {
-        throw new Error();
-      }
-    }
-
     // The matching and old tree are well-formed in terms of parent-child
     // relationships. However, the children of a node might still be misaligned.
     // This can occur if a node as moved within its parent.

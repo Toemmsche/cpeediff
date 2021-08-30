@@ -75,4 +75,15 @@ export class MergeNode extends DeltaNode {
     }
     return mergeNode;
   }
+
+  /**
+   * @return {Object} XML DOM object for this merge node and its children.
+   * @override
+   */
+  toXmlDom() {
+    const deltaXmlRoot = super.toXmlDom();
+
+    // TODO
+    return deltaXmlRoot;
+  }
 }

@@ -44,11 +44,6 @@ export class HashMatcher {
       // found a perfect match, match entire subtrees
       const newPreOrder = newRoot.toPreOrderArray();
       const oldPreOrder = oldRoot.toPreOrderArray();
-      if (newPreOrder.length !== oldPreOrder.length) {
-        Logger.error('Matching of subtrees with different size',
-            new Error('Matching of subtrees with different size'), this,
-        );
-      }
 
       // stable sort both arrays because hash may ignore child order of
       // certain nodes

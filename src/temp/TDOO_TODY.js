@@ -76,15 +76,14 @@
 //      $$$ add tinkering refinements to thesis
 //      $$$ reorder call comparison in matching thesis
 
-//TODO 29.8.
-//      $$ craete figure illustrating the merge
+//TODO 30.8.
+//      $$ change figure illustrating the merge
 //      Begin implementation overview
 //      Begin conclusion and future work
-//      extended edit script
-//      test delta tree for triple extract moves
+//      $$$ test delta tree for triple extract moves
 //      improve cli
-//      old val in delta tree
-//      merge confidence
+//      $$$ old val in delta tree
+//      $ merge confidence and xml output
 
 
 

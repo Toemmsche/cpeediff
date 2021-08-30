@@ -2,10 +2,17 @@
     <loop condition="data.costs == 0">
         <terminate/>
     </loop>
+    <manipulate>data.AAA=1;</manipulate>
+    <manipulate>data.AAA=1;</manipulate>
+    <manipulate>data.AAA=1;</manipulate>
+
     <critical>
         <parallel_branch>
             <manipulate>data.A++;</manipulate>
         </parallel_branch>
     </critical>
     <manipulate id="a3">data.persons -= 1</manipulate>
+    <escape>
+    </escape>
+    <stop></stop>
 </description>

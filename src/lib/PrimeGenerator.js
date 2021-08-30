@@ -4,9 +4,6 @@
  * @return {Number[]}
  */
 export function getPrimes(amount) {
-  if (amount > primeList.length) {
-    throw new Error('Too many primes requested');
-  }
   return primeList.slice(0, amount);
 }
 
