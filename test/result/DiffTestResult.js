@@ -1,47 +1,85 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {AbstractTestResult} from './AbstractTestResult.js';
 
+/**
+ * The result for a diff test case.
+ */
 export class DiffTestResult extends AbstractTestResult {
 
+  /**
+   * The time (in ms) it took to produced the result. Null indicates failure.
+   * @type {?Number}
+   * @const
+   */
   runtime;
 
-  constructor(caseName, algorithm, runtime, actual, verdict) {
-    super(caseName, algorithm, actual, verdict);
+  /**
+   * Construct a new DiffTestResult instance.
+   @param {String} caseName The name of the corresponding diff test case.
+   * @param {String} algorithm The name of the algorithm that produced the
+   *     diff.
+   * @param {Number} runtime The time (in ms) it took to produced the result.
+   *     Null indicates failure.
+   * @param {?ActualDiff} actual The actual diff produced by the
+   *     algorithm. Null indicates failure.
+   * @param {String} verdict The verdict for this diff result.
+   */
+  constructor(
+      caseName,
+      algorithm,
+      runtime,
+      actual,
+      verdict,
+  ) {
+    super(
+        caseName,
+        algorithm,
+        actual,
+        verdict,
+    );
     this.runtime = runtime;
   }
 
   /**
-   * @return any[] An array of all values that should appear in the evaluation table.
+   * @return {Array<String>} The header row for a list of diff test results to
+   *     use in tables.
    */
-  values() {
-    //A non-OK verdict indicates failure, fill array with it
-    if (!this.isOk()) {
-      return [this.algorithm, ...(new Array(8).fill(this.verdict))];
-    }
-    return [this.algorithm, this.runtime, this.actual.cost, this.actual.diffSize, this.actual.editOperations,
-      this.actual.insertions, this.actual.moves, this.actual.updates, this.actual.deletions];
+  static header() {
+    return [
+      'Algorithm',
+      'Runtime',
+      'Cost',
+      'Diff Size',
+      'Edit Operations',
+      'Insertions',
+      'Moves',
+      'Updates',
+      'Deletions',
+    ];
   }
 
   /**
-   * @return String[] An array containing the descriptors of all values that should appear in the evaluation table.
+   * @return {Array<String>} The row of values of this result for use in tables.
    */
-  static header() {
-    return ['Algorithm', 'Runtime', 'Cost', 'Diff Size', 'Edit Operations', 'Insertions', 'Moves', 'Updates', 'Deletions'];
+  values() {
+    // A non-OK verdict indicates failure, fill the  array with it
+    if (!this.isOk()) {
+      return [
+        this.algorithm,
+        ...(new Array(DiffTestResult.header().length - 1)
+            .fill(this.verdict)),
+      ];
+    }
+    return [
+      this.algorithm,
+      this.runtime,
+      this.actual.cost,
+      this.actual.diffSize,
+      this.actual.editOperations,
+      this.actual.insertions,
+      this.actual.moves,
+      this.actual.updates,
+      this.actual.deletions,
+    ];
   }
 }
 

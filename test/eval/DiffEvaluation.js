@@ -2,7 +2,7 @@ import {EvalConfig} from '../EvalConfig.js';
 import {XccAdapter} from '../diff_adapters/XccAdapter.js';
 import {XyDiffAdapter} from '../diff_adapters/XyDiffAdapter.js';
 import {Logger} from '../../util/Logger.js';
-import {DirectoryScraper} from '../../util/DirectoryScraper.js';
+import {DirectoryScraper} from '../case/DirectoryScraper.js';
 import {DiffTestCase} from '../case/DiffTestCase.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
 import {markdownTable} from 'markdown-table';
@@ -39,7 +39,7 @@ export class DiffEvaluation extends AbstractEvaluation {
       new DiffXmlAdapter(),
     ];
     adapters = adapters.filter((adapter) =>
-        fs.existsSync(adapter.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT));
+      fs.existsSync(adapter.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT));
     for (const matchMode of Object.values(MatchPipeline.MATCH_MODES)) {
       adapters.unshift(new CpeeDiffAdapter(matchMode));
     }

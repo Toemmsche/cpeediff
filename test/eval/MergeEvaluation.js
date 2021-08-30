@@ -1,14 +1,14 @@
 import {EvalConfig} from '../EvalConfig.js';
 import * as fs from 'fs';
 import {AggregateMergeResult} from '../result/AggregateMergeResult.js';
-import {MarkDownFactory} from '../../util/MarkDownFactory.js';
 import {_3dmAdapter} from '../merge_adapters/_3dmAdapter.js';
 import {CpeeMergeAdapter} from '../merge_adapters/CpeeMergeAdapter.js';
 import {XccPatchAdapter} from '../merge_adapters/XccPatchAdapter.js';
 import {Logger} from '../../util/Logger.js';
-import {DirectoryScraper} from '../../util/DirectoryScraper.js';
+import {DirectoryScraper} from '../case/DirectoryScraper.js';
 import {MergeTestCase} from '../case/MergeTestCase.js';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
+import {markdownTable} from 'markdown-table';
 
 /**
  * An evaluation of three-way merging algorithms using predefined test cases.
@@ -34,7 +34,7 @@ export class MergeEvaluation extends AbstractEvaluation {
       new XccPatchAdapter(),
     ];
     adapters = adapters.filter((adapter) =>
-      fs.existsSync(adapter.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT));
+        fs.existsSync(adapter.path + '/' + EvalConfig.FILENAMES.RUN_SCRIPT));
     adapters.unshift(new CpeeMergeAdapter());
     return new MergeEvaluation(adapters);
   }
@@ -80,7 +80,11 @@ export class MergeEvaluation extends AbstractEvaluation {
     for (const [, resultsList] of resultsPerAdapter) {
       aggregateResults.push(AggregateMergeResult.of(resultsList));
     }
-    Logger.result('Results of the mere evaluation:\n' +
-        MarkDownFactory.tabularize(aggregateResults), this);
+    const table = [
+      AggregateMergeResult.header(),
+      ...aggregateResults.map((result) => result.values),
+    ];
+    Logger.result('Results of the merge evaluation:\n' +
+        markdownTable(table), this);
   }
 }

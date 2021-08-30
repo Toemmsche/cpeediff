@@ -15,7 +15,7 @@ export class AbstractTestResult {
     WRONG_ANSWER: 'WRONG ANSWER',
     RUNTIME_ERROR: 'RUNTIME ERROR',
     FAILED: 'FAILED',
-    TIMEOUT: 'TIMEOUT'
+    TIMEOUT: 'TIMEOUT',
   };
 
   /**
@@ -31,8 +31,8 @@ export class AbstractTestResult {
    */
   algorithm;
   /**
-   * The actual result produced by the algorithm.
-   * @type {AbstractActual}
+   * The actual result produced by the algorithm. Null indicates failure.
+   * @type {?AbstractActual}
    * @const
    */
   actual;
@@ -48,8 +48,8 @@ export class AbstractTestResult {
    * @param {String} caseName The name (or ID) of the test case.
    * @param {String} algorithm The name of the algorithm that produced this
    *     result.
-   * @param {AbstractActual} actual The actual result produced by the
-   *     algorithm.
+   * @param {?AbstractActual} actual The actual result produced by the
+   *     algorithm. Null indicates failure.
    * @param {String} verdict The verdict for this test case.
    */
   constructor(

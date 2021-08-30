@@ -1,37 +1,40 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 /**
- * Helper class to navigate DOM objects.
+ * Helper class to navigate XML DOM objects.
  */
 export class DomHelper {
 
+  /**
+   * Enum for possible XML DOM node types.
+   * @type {Object}
+   */
   static XML_NODE_TYPES = {
     ELEMENT: 1,
-    TEXT: 3
+    TEXT: 3,
   };
 
+  /**
+   * Get the first child of an XML element that is also an element.
+   * Can also filter for a specific tag name.
+   * @param {Object} xmlParent The parent XML element.
+   * @param {?String} localName The required name of the child element. If
+   *     null, no tag name restrictions apply.
+   * @return {Object} The first child node that is an XML element.
+   */
   static firstChildElement(xmlParent, localName = null) {
     let xmlChild = xmlParent?.firstChild;
-    while (xmlChild != null && (xmlChild.nodeType !== this.XML_NODE_TYPES.ELEMENT || (localName != null && xmlChild.localName !== localName))) {
+    while (xmlChild != null &&
+    (xmlChild.nodeType !== this.XML_NODE_TYPES.ELEMENT ||
+        (localName != null && xmlChild.localName !== localName))) {
       xmlChild = xmlChild.nextSibling;
     }
     return xmlChild;
   }
 
+  /**
+   * Execute a function for all element children of an XML element.
+   * @param {Object} xmlParent The parent XML element.
+   * @param {Function} func The function to execute.
+   */
   static forAllChildElements(xmlParent, func) {
     if (xmlParent == null) return;
     for (let i = 0; i < xmlParent.childNodes.length; i++) {

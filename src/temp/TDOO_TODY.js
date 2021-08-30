@@ -70,19 +70,28 @@
 
 
 //TODO 29.8.
-//      craete figure illustrating the merge
+//      $$ craete figure illustrating the merge
 //      Begin implementation overview
 //      Begin conclusion and future work
 //      $$$ add tinkering refinements to thesis
+//      $$$ reorder call comparison in matching thesis
+
+//TODO 29.8.
+//      $$ craete figure illustrating the merge
+//      Begin implementation overview
+//      Begin conclusion and future work
+//      extended edit script
+//      test delta tree for triple extract moves
+//      improve cli
+
 
 
 //TODO maybe
 //      better commonality complexity
-//     adjust change model of DIffxml to include updates
 //      remove adjustmenets to change model
-//      try guaranteed inner match again, that must be better...
+//      shorten evaluation
 //      selkow and tai in thesis
-//      compress edit script gen phase in thesis
+//      $$$ compress edit script gen phase in thesis
 
 /*
 TO BEAT for benchmark

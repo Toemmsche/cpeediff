@@ -42,7 +42,12 @@ export class AggregateMatchResult {
    * @param {Number} runtimeError The amount of test results with the 'RUNTIME
    *     ERROR' verdict.
    */
-  constructor(algorithm, ok, wrongAnswer, runtimeError) {
+  constructor(
+      algorithm,
+      ok,
+      wrongAnswer,
+      runtimeError,
+  ) {
     this.algorithm = algorithm;
     this.ok = ok;
     this.wrongAnswer = wrongAnswer;

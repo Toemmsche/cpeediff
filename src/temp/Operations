@@ -44,3 +44,4 @@ Future work:
 - count occurence of endpoint or var in tree
 - presist the comparison value for matches
 - rely on stronger matches (calls, hash matching, etc.) as structure roots
+- perform more sematnic code analysis

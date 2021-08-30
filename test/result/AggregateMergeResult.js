@@ -49,12 +49,32 @@ export class AggregateMergeResult {
    * @param {Number} runtimeError The amount of test results with the 'RUNTIME
    *     ERROR' verdict.
    */
-  constructor(algorithm, ok, acceptable, wrongAnswer, runtimeError) {
+  constructor(
+      algorithm,
+      ok,
+      acceptable,
+      wrongAnswer,
+      runtimeError,
+  ) {
     this.algorithm = algorithm;
     this.ok = ok;
     this.acceptable = acceptable;
     this.wrongAnswer = wrongAnswer;
     this.runtimeError = runtimeError;
+  }
+
+  /**
+   * @return {Array<String>} The header row for a list of aggregate merge
+   *     results to use in tables.
+   */
+  static header() {
+    return [
+      'Algorithm',
+      '#OK',
+      '#Acceptable',
+      '#Wrong Answer',
+      '#Runtime Error',
+    ];
   }
 
   /**
@@ -88,6 +108,19 @@ export class AggregateMergeResult {
         wrongAnswer,
         runtimeError,
     );
+  }
+
+  /**
+   * @return {Array<String>} The row of values of this result for use in tables.
+   */
+  values() {
+    return [
+      this.algorithm,
+      this.ok,
+      this.acceptable,
+      this.wrongAnswer,
+      this.runtimeError,
+    ];
   }
 }
 

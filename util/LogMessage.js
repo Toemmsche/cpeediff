@@ -1,31 +1,52 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
+/**
+ * Represents a single log #message. Helper class for the Logger.
+ *
+ * @see {Logger}
+ */
 export class LogMessage {
-  level;
-  message;
-  source;
+  /**
+   * The log type.
+   * @type {String}
+   * @private
+   * @const
+   */
+  #type;
+  /**
+   * The contained message.
+   * @type {String}
+   * @private
+   * @const
+   */
+  #message;
+  /**
+   * The object that published the log.
+   * @type {?Object}
+   * @private
+   * @const
+   */
+  #source;
 
-  constructor(level, message, source) {
-    this.level = level;
-    this.message = message;
-    this.source = source;
+  /**
+   * Construct a new LogMessage instance.
+   * @param {String} type The log type.
+   * @param {String} message The contained message.
+   * @param {?Object} source The object that published the log.
+   */
+  constructor(type, message, source) {
+    this.#type = type;
+    this.#message = message;
+    this.#source = source;
   }
 
+  /**
+   * @return {String} A String representation of this log message that can (and
+   *     should) be printed to the console.
+   */
   toString() {
-    return '[' + this.level + ']' + (this.source !== null ? '<' + this.source.constructor.name + '>' : '') + ': ' + this.message;
+    return '[' + this.#type + ']' +
+        (this.#source != null ?
+         '<' + this.#source.constructor.name + '>' :
+         '') +
+        ': ' + this.#message;
   }
 }

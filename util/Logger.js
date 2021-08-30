@@ -19,11 +19,15 @@ import {Config} from '../src/Config.js';
 
 /**
  * A simple logging class.
- * @property {Object} LOG_LEVELS The available log levels.
  * Their intended usage is described in more detail in the respective functions.
  */
 export class Logger {
 
+  /**
+   * The available log types.
+   * @type {Object}
+   * @const
+   */
   static LOG_TYPES = {
     STAT: 'STAT',
     INFO: 'INFO',
@@ -33,17 +37,22 @@ export class Logger {
   };
   /**
    * Wether logging is enabled.
-   * @type {boolean}
+   * @type {Boolean}
    * @private
    */
-  static _enabled = true;
+  static #enabled = true;
   /**
-   * Helper variable for {@see startTimed} and {@see endTimed}
-   * @type Number
+   * Helper variable for timed logs.
+   * @type {?Number}
    * @private
    */
-  static _startTime;
+  static #startTime;
 
+  /**
+   * The available log levels that can be passed as command-line arguments.
+   * @type {Object}
+   * @const
+   */
   static LOG_LEVELS = {
     ERROR: 'error',
     WARN: 'warn',
@@ -51,24 +60,24 @@ export class Logger {
   };
 
   /**
-   * Create a log with log level ERROR that signals the execution of an
+   * Create a log with log type ERROR that signals the execution of an
    * abstract method.
-   * @param {Object} source The caller object
+   * @param {Object} source The caller object.
    */
   static abstractMethodExecution(source = null) {
     this.error('Execution of an abstract method', source);
   }
 
   /**
-   * Create a log with log level DEBUG.
+   * Create a log with log type DEBUG.
    * Debug logs provide a way for developers to gain insight into the internals
    * of the application during runtime. The log is printed to stderr if logging
    * is enabled and the application log level is set to ALL.
-   * @param {String} message The message to log as DEBUG
-   * @param {Object} source The caller object
+   * @param {String} message The message to log as DEBUG.
+   * @param {Object} source The caller object.
    */
   static debug(message, source = null) {
-    if (this._enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.DEBUG, message, source);
       console.error(logMessage.toString());
     }
@@ -76,11 +85,11 @@ export class Logger {
 
   /**
    * Disable logging. Result logs are not affected.
-   * @return boolean If logging was previously enabled
+   * @return {Boolean} If logging was previously enabled.
    */
   static disableLogging() {
-    const wasEnabled = this._enabled;
-    this._enabled = false;
+    const wasEnabled = this.#enabled;
+    this.#enabled = false;
     return wasEnabled;
   }
 
@@ -89,36 +98,36 @@ export class Logger {
    * @param {Boolean} enable If logging should be enabled.
    */
   static enableLogging(enable = true) {
-    this._enabled = enable;
+    this.#enabled = enable;
   }
 
   /**
    * End the timer if logging is enabled and return the elapsed time.
-   * @returns {Number} The elapsed time in milliseconds.
+   * @return {Number} The elapsed time in milliseconds.
    */
   static endTimed() {
-    if (this._enabled) {
-      if (this._startTime == null) {
-        //Timer was reset by someone else in the meantime. This is not fatal
+    if (this.#enabled) {
+      if (this.#startTime == null) {
+        // Timer was reset by someone else in the meantime. This is not fatal
         // but may invalidate stats.
         this.warn('Bad timer', this);
       }
-      const elapsedTime = new Date().getTime() - this._startTime;
-      this._startTime = null;
+      const elapsedTime = new Date().getTime() - this.#startTime;
+      this.#startTime = null;
       return elapsedTime;
     }
   }
 
   /**
-   * Create a log with log level ERROR.
+   * Create a log with log type ERROR.
    * Error logs indicate a faulty state of the system that, if not addressed
    * immediately, will lead to the termination of the application. The log is
    * printed to stderr if logging is enabled.
    * @param {String} message The message to log as ERROR
-   * @param {Object} source The caller object
+   * @param {Object} source The caller object.
    */
   static error(message, source = null) {
-    if (this._enabled) {
+    if (this.#enabled) {
       const logMessage = new LogMessage(this.LOG_TYPES.ERROR, message, source);
       console.error(logMessage.toString());
     }
@@ -126,15 +135,15 @@ export class Logger {
   }
 
   /**
-   * Create a log with log level INFO.
+   * Create a log with log type INFO.
    * Info logs provide information about the state of an application and
    * represent expected behaviour. The log is printed to stdout if logging is
    * enabled and the application log level is set to ALL.
    * @param {String} message The message to log as INFO.
-   * @param {Object} source The caller object
+   * @param {Object} source The caller object.
    */
   static info(message, source = null) {
-    if (this._enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.INFO, message, source);
       console.log(logMessage.toString());
     }
@@ -144,54 +153,60 @@ export class Logger {
    * Publish a result to stdout without any additional information like log
    * level or caller class.
    * @param {String} message The result to log.
-   * @param {Object} source The caller object
+   * @param {Object} source The caller object.
    */
   static result(message, source = null) {
     console.log(message);
   }
 
-  static section(message, source = null) {
-    this.info('============' + message + '=============', source);
+  /**
+   * Log the beginning of a major section in the execution flow of a component
+   * as an INFO log.
+   * @param {String} title The title of the section.
+   * @param {Object} source The caller object.
+   */
+  static section(title, source = null) {
+    this.info('============' + title + '=============', source);
   }
 
   /**
    *  Start a timer if logging is enabled.
    */
   static startTimed() {
-    if (this._enabled) {
-      this._startTime = new Date().getTime();
+    if (this.#enabled) {
+      this.#startTime = new Date().getTime();
     }
   }
 
   /**
-   * Create a log with log level STAT.
+   * Create a log with log type STAT.
    * Statistical logs provide quantitative information and metrics about the
    * execution of a module. The log is printed to stdout if logging is enabled
    * and the application log level is set to ALL.
    * @param {String} message The message to log as STAT.
-   * @param {Object} source The caller object
+   * @param {Object} source The caller object.
    */
   static stat(message, source = null) {
-    if (this._enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+    if (this.#enabled && Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.STAT, message, source);
       console.log(logMessage.toString());
     }
   }
 
   /**
-   * Create a log with log level WARN.
+   * Create a log with log type WARN.
    * Warning logs indicate a dangerous state or potentially unwanted behaviour
    * of the application. The log is printed to stdout if logging is enabled and
    * the application log level is at least set to WARN.
-   * @param {String} message The message to log as WARN
-   * @param {Object} source The caller object
+   * @param {String} message The message to log as WARN.
+   * @param {Object} source The caller object.
    */
   static warn(message, source = null) {
-    if (this._enabled &&
-        (Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL || Config.LOG_LEVEL === Logger.LOG_LEVELS.WARN)) {
+    if (this.#enabled &&
+        (Config.LOG_LEVEL === Logger.LOG_LEVELS.ALL ||
+            Config.LOG_LEVEL === Logger.LOG_LEVELS.WARN)) {
       const logMessage = new LogMessage(this.LOG_TYPES.WARN, message, source);
       console.log(logMessage.toString());
     }
   }
-
 }

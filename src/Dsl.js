@@ -19,6 +19,7 @@ export const Dsl = {
   XML_DOC: {
     DATA_ELEMENTS: 'dataelements',
     ENDPOINTS: 'endpoints',
+    WRAPPER: 'dslx',
   },
 
   ELEMENTS: {

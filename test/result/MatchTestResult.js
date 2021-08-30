@@ -1,25 +1,31 @@
-/*
-    Copyright 2021 Tom Papke
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
 import {AbstractTestResult} from './AbstractTestResult.js';
 
+/**
+ * The result for a match test case.
+ */
 export class MatchTestResult extends AbstractTestResult {
 
-  constructor(caseName, algorithm, actual, verdict) {
-    super(caseName, algorithm, actual, verdict);
+  /**
+   * Construct a new MatchTestResult instance.
+   * @param {String} caseName The name of the corresponding match test case.
+   * @param {String} algorithm The name of the algorithm that produced the
+   *     matching.
+   * @param {?ActualMatching} actual The actual matching produced by the
+   *     algorithm. Null indicates failure.
+   * @param {String} verdict The verdict for this match result.
+   */
+  constructor(
+      caseName,
+      algorithm,
+      actual,
+      verdict,
+  ) {
+    super(
+        caseName,
+        algorithm,
+        actual,
+        verdict,
+    );
   }
 }
 

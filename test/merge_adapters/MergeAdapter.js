@@ -6,6 +6,7 @@ import {HashExtractor} from '../../src/extract/HashExtractor.js';
 import {Logger} from '../../util/Logger.js';
 import {ActualMerge} from '../actual/ActualMerge.js';
 import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**
  * Superclass for all adapters to merging algorithms.
@@ -57,7 +58,7 @@ export class MergeAdapter extends AbstractAdapter {
         exec,
         new Preprocessor().parseWithMetadata(exec),
     );
-    const verdict = this._verifyResult(actual, testCase.expected);
+    const verdict = this.verifyResult(actual, testCase.expected);
 
     if (verdict === AbstractTestResult.VERDICTS.WRONG_ANSWER) {
       Logger.info(
