@@ -78,6 +78,40 @@ export class DeltaTreeGenerator {
   }
 
   /**
+   * Copy a data node and its children and placeholders by value.
+   * Any outdated values of the move map are updated in the process.
+   * @param {DeltaNode} deltaNode The delta node to copy.
+   * @return {DeltaNode}
+   */
+  #copyAndUpdateMoveMap(deltaNode) {
+    const copy = new DeltaNode(
+        deltaNode.label,
+        deltaNode.text,
+        deltaNode.type,
+        deltaNode.baseNode,
+    );
+    const partner =
+        [...this.#moveMap.entries()]
+            .filter((e) => e[1] === deltaNode)[0];
+    if (partner != null) {
+      this.#moveMap.set(partner[0], copy);
+    }
+    for (const [key, value] of deltaNode.attributes) {
+      copy.attributes.set(key, value);
+    }
+    for (const child of deltaNode) {
+      copy.appendChild(this.#copyAndUpdateMoveMap(child));
+    }
+    for (const placeholder of deltaNode.placeholders) {
+      copy.placeholders.push(this.#copyAndUpdateMoveMap(placeholder));
+    }
+    for (const [key, update] of deltaNode.updates) {
+      copy.updates.set(key, update.copy());
+    }
+    return copy;
+  };
+
+  /**
    * Create a standard delta tree out of a base tree and an edit script.
    * The standard delta tree does not contain "move from" and "deleted"
    * placeholders.
@@ -116,20 +150,6 @@ export class DeltaTreeGenerator {
         }
       }
     }
-
-    return this.#deltaTree;
-  }
-
-  /**
-   * Create an extended delta tree out of a base tree and an edit script.
-   * The extended delta tree contains "move from" and "deleted"
-   * placeholders.
-   * @param {Node} tree The root of the tree to transform into a delta tree.
-   * @param {EditScript} editScript The delta.
-   * @return {DeltaNode} The root of the delta tree.
-   */
-  extendedDeltaTree(tree, editScript) {
-    this.#deltaTree = this.deltaTree(tree, editScript);
     this.#resolvePlaceholders(this.#deltaTree);
     this.#trim();
     return this.#deltaTree;
@@ -200,40 +220,6 @@ export class DeltaTreeGenerator {
       this.#applyInsert(movfrParent, insertion.newContent, index);
     }
   }
-
-  /**
-   * Copy a data node and its children and placeholders by value.
-   * Any outdated values of the move map are updated in the process.
-   * @param {DeltaNode} deltaNode The delta node to copy.
-   * @return {DeltaNode}
-   */
-  #copyAndUpdateMoveMap(deltaNode) {
-    const copy = new DeltaNode(
-        deltaNode.label,
-        deltaNode.text,
-        deltaNode.type,
-        deltaNode.baseNode,
-    );
-    const partner =
-        [...this.#moveMap.entries()]
-            .filter((e) => e[1] === deltaNode)[0];
-    if (partner != null) {
-      this.#moveMap.set(partner[0], copy);
-    }
-    for (const [key, value] of deltaNode.attributes) {
-      copy.attributes.set(key, value);
-    }
-    for (const child of deltaNode) {
-      copy.appendChild(this.#copyAndUpdateMoveMap(child));
-    }
-    for (const placeholder of deltaNode.placeholders) {
-      copy.placeholders.push(this.#copyAndUpdateMoveMap(placeholder));
-    }
-    for (const [key, update] of deltaNode.updates) {
-      copy.updates.set(key, update.copy());
-    }
-    return copy;
-  };
 
   /**
    * @param {EditOperation} move
@@ -337,6 +323,25 @@ export class DeltaTreeGenerator {
             });
       }
     }
+  }
+
+  /**
+   * Create a trimmed version of the delta tree that does not contain
+   * "move-from" or "deleted" placeholders.
+   * @param {Node} tree The root of the tree to transform into a delta tree.
+   * @param {EditScript} editScript The delta.
+   * @return {DeltaNode} The root of the delta tree.
+   */
+  trimmedDeltaTree(tree, editScript) {
+    const deltaTree = this.deltaTree(tree, editScript);
+    deltaTree
+        .toPreOrderArray()
+        .forEach((node) => {
+          if (node.isPlaceholder()) {
+            node.removeFromParent();
+          }
+        });
+    return deltaTree;
   }
 }
 

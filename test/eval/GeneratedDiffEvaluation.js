@@ -35,15 +35,9 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    * @override
    */
   evalAll() {
-    Logger.info(
-        'Evaluating diff algorithms with generated process trees',
-        this,
-    );
-
     // Simply run all functions...
-    this.flatSingle();
-    this.standardSingle();
-    this.standardAggregate();
+    this.single();
+    this.average();
   }
 
   /**

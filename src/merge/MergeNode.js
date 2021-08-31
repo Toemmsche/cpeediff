@@ -1,5 +1,6 @@
 import {DeltaNode} from '../patch/DeltaNode.js';
 import {Confidence} from './Confidence.js';
+import {Dsl} from '../config/Dsl.js';
 
 /**
  * A node inside a merged process tree.
@@ -81,9 +82,56 @@ export class MergeNode extends DeltaNode {
    * @override
    */
   toXmlDom() {
-    const deltaXmlRoot = super.toXmlDom();
+    const deltaXmlRoot = DeltaNode.fromNode(this, true).toXmlDom();
 
-    // TODO
+    deltaXmlRoot.setAttribute('xmlns:' + Dsl.MERGE_TREE.NAMESPACE_PREFIX +
+        Dsl.MERGE_TREE.NAMESPACE_URI);
+
+    const annotate = (mergeNode, xmlElement) => {
+      if (!mergeNode.isUnchanged()) {
+        for (const [key, update] of mergeNode.updates) {
+          xmlElement.setAttribute(
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' + key,
+              update.origin,
+          );
+        }
+        if (mergeNode.isDeleted() ||
+            mergeNode.isMoved() ||
+            mergeNode.isInserted()) {
+          xmlElement.setAttribute(
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
+              Dsl.MERGE_TREE.NODE_CHANGE_ORIGIN_KEY,
+              mergeNode.changeOrigin,
+          );
+        }
+        if (!mergeNode.confidence.contentConfident) {
+          xmlElement.setAttribute(
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
+              Dsl.MERGE_TREE.CONTENT_CONFIDENCE_KEY,
+              'false',
+          );
+        }
+        if (!mergeNode.confidence.parentConfident) {
+          xmlElement.setAttribute(
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
+              Dsl.MERGE_TREE.PARENT_CONFIDENCE_KEY,
+              'false',
+          );
+        }
+        if (!mergeNode.confidence.positionConfident) {
+          xmlElement.setAttribute(
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
+              Dsl.MERGE_TREE.POSITION_CONFIDENCE_KEY,
+              'false',
+          );
+        }
+      }
+      for (let i = 0; i < mergeNode.degree(); i++) {
+        annotate(mergeNode.getChild(i), xmlElement.childNodes.item(i));
+      }
+    };
+
+    annotate(this, deltaXmlRoot);
     return deltaXmlRoot;
   }
 }

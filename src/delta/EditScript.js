@@ -174,8 +174,7 @@ export class EditScript {
    * @return {Boolean} True, iff this edit script is valid.
    */
   isValid(oldTree, newTree) {
-    const patchedTree = new DeltaTreeGenerator().deltaTree(oldTree, this);
-    //const patchedTree = new Patcher().patch(oldTree, this);
+    const patchedTree = new Patcher().patch(oldTree, this);
     const hashExtractor = new HashExtractor();
     return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);
   }

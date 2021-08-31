@@ -82,7 +82,7 @@ export class MergeEvaluation extends AbstractEvaluation {
     }
     const table = [
       AggregateMergeResult.header(),
-      ...aggregateResults.map((result) => result.values),
+      ...aggregateResults.map((result) => result.values()),
     ];
     Logger.result('Results of the merge evaluation:\n' +
         markdownTable(table), this);

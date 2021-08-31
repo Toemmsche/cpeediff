@@ -5,8 +5,8 @@ import {DirectoryScraper} from '../case/DirectoryScraper.js';
 import {MatchTestCase} from '../case/MatchTestCase.js';
 import {markdownTable} from 'markdown-table';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
-import {DiffConfig} from '../../src/config/DiffConfig.js';
-import {CpeeDiffAdapter} from '../diff_adapters/CpeeDiffAdapter.js';
+import {MatchPipeline} from '../../src/match/MatchPipeline.js';
+import {CpeeMatchAdapter} from '../match_adapters/CpeeMatchAdapter.js';
 
 /**
  * An evaluation of matching algorithms using predefined test cases.
@@ -29,7 +29,7 @@ export class MatchingEvaluation extends AbstractEvaluation {
   static all() {
     const adapters = [];
     for (const matchMode of Object.values(MatchPipeline.MATCH_MODES)) {
-      adapters.unshift(new CpeeDiffAdapter(matchMode));
+      adapters.unshift(new CpeeMatchAdapter(matchMode));
     }
     return new MatchingEvaluation(adapters);
   }

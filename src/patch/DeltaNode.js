@@ -54,6 +54,36 @@ export class DeltaNode extends Node {
   }
 
   /**
+   * Create a new DeltaNode instance from an existing node.
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {DeltaNode}
+   * @override
+   */
+  static fromNode(node, includeChildren) {
+    const deltaNode = new DeltaNode(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      deltaNode.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        deltaNode.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    if (node instanceof DeltaNode) {
+      deltaNode.type = node.type;
+      deltaNode.baseNode = node.baseNode;
+      for (const placeholder of node.placeholders) {
+        deltaNode.placeholders.push(this.fromNode(placeholder, true));
+      }
+      for (const [key, update] of node.updates) {
+        deltaNode.updates.set(key, update.copy());
+      }
+    }
+    return deltaNode;
+  }
+
+  /**
    * Insert a new child and adjust placeholder indices.
    * @param {Number} index The position at which to insert the new child.
    * @param {Node} node The new child.
@@ -105,6 +135,10 @@ export class DeltaNode extends Node {
     const xmlElement = doc.createElement(prefix + this.label);
     xmlElement.localName = this.label;
 
+    if (this.isMoved() || this.isMovedFrom()) {
+      xmlElement.setAttribute(prefix + Dsl.DELTA_TREE.MOVE_KEY, this.baseNode);
+    }
+
     if (this.isRoot()) {
       xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
       for (const type of Object.values(Dsl.CHANGE_MODEL)) {
@@ -145,27 +179,28 @@ export class DeltaNode extends Node {
       }
     }
 
+    const textKey = Dsl.DELTA_TREE.TEXT_UPDATE_KEY;
     // Changes in text content are also modelled as updates
-    if (this.updates.has('text')) {
-      const oldVal = this.updates.get('text').oldVal;
-      const newVal = this.updates.get('text').newVal;
+    if (this.updates.has(textKey)) {
+      const oldVal = this.updates.get(textKey).oldVal;
+      const newVal = this.updates.get(textKey).newVal;
       if (oldVal == null) {
         xmlElement.setAttribute(
-            Dsl.CHANGE_MODEL.INSERTION.prefix + ':text',
+            Dsl.CHANGE_MODEL.INSERTION.prefix + ':' + textKey,
             'true',
         );
       } else if (newVal == null) {
         xmlElement.setAttribute(
-            Dsl.CHANGE_MODEL.DELETION.prefix + ':text',
+            Dsl.CHANGE_MODEL.DELETION.prefix + ':' + textKey,
             'true',
         );
       } else {
         xmlElement.setAttribute(
-            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':text',
+            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + textKey,
             oldVal,
         );
         xmlElement.setAttribute(
-            Dsl.CHANGE_MODEL.UPDATE.prefix + ':text',
+            Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + textKey,
             'true',
         );
       }
@@ -180,36 +215,6 @@ export class DeltaNode extends Node {
     }
 
     return xmlElement;
-  }
-
-  /**
-   * Create a new DeltaNode instance from an existing node.
-   * @param {Node} node
-   * @param {Boolean} includeChildren
-   * @return {DeltaNode}
-   * @override
-   */
-  static fromNode(node, includeChildren) {
-    const deltaNode = new DeltaNode(node.label, node.text);
-    for (const [key, value] of node.attributes) {
-      deltaNode.attributes.set(key, value);
-    }
-    if (includeChildren) {
-      for (const child of node) {
-        deltaNode.appendChild(this.fromNode(child, includeChildren));
-      }
-    }
-    if (node instanceof DeltaNode) {
-      deltaNode.type = node.type;
-      deltaNode.baseNode = node.baseNode;
-      for (const placeholder of node.placeholders) {
-        deltaNode.placeholders.push(this.fromNode(placeholder, true));
-      }
-      for (const [key, update] of node.updates) {
-        deltaNode.updates.set(key, update.copy());
-      }
-    }
-    return deltaNode;
   }
 
   /**
@@ -239,6 +244,13 @@ export class DeltaNode extends Node {
    */
   isMovedFrom() {
     return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was deleted or moved away
+   */
+  isPlaceholder() {
+    return this.isMovedFrom() || this.isDeleted();
   }
 
   /**

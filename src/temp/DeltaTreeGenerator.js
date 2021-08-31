@@ -10,7 +10,7 @@ import {Node} from '../tree/Node.js';
  * diff-related information
  * @see {DeltaNode}
  */
-export class DeltaTreeGenerator {
+export class DeltaTreeGenerator__SDFSDFSDFSDFF {
   /** @type  {DeltaNode} */
   #deltaTree;
   /**
@@ -78,8 +78,8 @@ export class DeltaTreeGenerator {
   }
 
   /**
-   * Create a standard delta tree out of a base tree and an edit script.
-   * The standard delta tree does not contain "move from" and "deleted"
+   * Create an extended delta tree out of a base tree and an edit script.
+   * The extended delta tree contains "move from" and "deleted"
    * placeholders.
    * @param {Node} tree The root of the tree to transform into a delta tree.
    * @param {EditScript} editScript The delta.
@@ -116,20 +116,6 @@ export class DeltaTreeGenerator {
         }
       }
     }
-
-    return this.#deltaTree;
-  }
-
-  /**
-   * Create an extended delta tree out of a base tree and an edit script.
-   * The extended delta tree contains "move from" and "deleted"
-   * placeholders.
-   * @param {Node} tree The root of the tree to transform into a delta tree.
-   * @param {EditScript} editScript The delta.
-   * @return {DeltaNode} The root of the delta tree.
-   */
-  extendedDeltaTree(tree, editScript) {
-    this.#deltaTree = this.deltaTree(tree, editScript);
     this.#resolvePlaceholders(this.#deltaTree);
     this.#trim();
     return this.#deltaTree;

@@ -8,7 +8,7 @@ import {EditScript} from '../../src/delta/EditScript.js';
 import {MatchPipeline} from '../../src/match/MatchPipeline.js';
 
 /**
- * Diff adapter for CpeeDiff.
+ * Diff adapter for CpeeDiff that starts the algorithm in a separate process.
  */
 export class CpeeDiffAdapter extends DiffAdapter {
   /**

@@ -32,14 +32,14 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
     return new GeneratedMatchingEvaluation(super.all()._adapters);
   }
 
+  /**
+   * @inheritDoc
+   * @override
+   */
   evalAll() {
-    Logger.info(
-        'Evaluating matching algorithms with generated process trees',
-        this
-    );
-
-    //Simply run all functions...
-    this.standardSingle();
+    // Simply run all functions...
+    this.single();
+    this.average();
   }
 
   _getMismatchedNodes(expected, actual) {

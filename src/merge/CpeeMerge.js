@@ -244,9 +244,12 @@ export class CpeeMerge {
     const deltaTreeFactory = new DeltaTreeGenerator();
     // Transform into merge trees which can hold additional information
     Logger.info('Constructing delta tree for branch 1...', this);
-    const mt1 = MergeNode.fromNode(deltaTreeFactory.deltaTree(base, delta1));
+    const mt1 =
+        MergeNode.fromNode(deltaTreeFactory.trimmedDeltaTree(base, delta1));
+
     Logger.info('Constructing delta tree for branch 2...', this);
-    const mt2 = MergeNode.fromNode(deltaTreeFactory.deltaTree(base, delta2));
+    const mt2 =
+        MergeNode.fromNode(deltaTreeFactory.trimmedDeltaTree(base, delta2));
 
     // Get the matching between the merge trees.
     this.#matching = this.#getMatching(mt1, mt2);
