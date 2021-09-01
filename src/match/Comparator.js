@@ -4,23 +4,43 @@ import {SizeExtractor} from '../extract/SizeExtractor.js';
 import {Dsl} from '../config/Dsl.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 import {ElementSizeExtractor} from '../extract/ElementSizeExtractor.js';
-import {getLcsLength} from '../lib/Lcs.js';
+import {getLcsLength, getLcsLengthFast} from '../lib/Lcs.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
 
 /**
  * Wrapper class for the computation of various comparison values.
  */
 export class Comparator {
-  /** @type {CallPropertyExtractor} */
+  /**
+   * @type {CallPropertyExtractor}
+   * @private
+   * @const
+   */
   #callPropertyExtractor;
-  /** @type {VariableExtractor} */
+  /**
+   * @type {VariableExtractor}
+   * @private
+   * @const
+   */
   #variableExtractor;
-  /** @type {SizeExtractor} */
+  /**
+   * @type {SizeExtractor}
+   * @private
+   * @const
+   */
   #sizeExtractor;
-  /** @type {ElementSizeExtractor} */
+  /**
+   *  @type {ElementSizeExtractor}
+   *  @private
+   *  @const
+   */
   #elementSizeExtractor;
-  /** @type {HashExtractor} */
-  #hashExtractor;
+  /**
+   * A hash extractor for use by the comparator and matching algorithms.
+   * @type {HashExtractor}
+   * @const
+   */
+  hashExtractor;
 
   /**
    * Create a new Comparator instance.
@@ -31,7 +51,7 @@ export class Comparator {
         new VariableExtractor(this.#callPropertyExtractor);
     this.#sizeExtractor = new SizeExtractor();
     this.#elementSizeExtractor = new ElementSizeExtractor();
-    this.#hashExtractor = new HashExtractor();
+    this.hashExtractor = new HashExtractor();
   }
 
   /**
@@ -192,7 +212,6 @@ export class Comparator {
   compareContent(nodeA, nodeB) {
     // different labels cannot be matched
     if (nodeA.label !== nodeB.label) return 1.0;
-
     switch (nodeA.label) {
       case Dsl.ELEMENTS.CALL.label: {
         return this.#compareCallContent(nodeA, nodeB);
@@ -212,8 +231,8 @@ export class Comparator {
       case Dsl.ELEMENTS.CHOICE.label: {
         return this.#compareChoiceContent(nodeA, nodeB);
       }
-      // Label equality is sufficient for stop, break, termination,
-      // parallel_branch, critical, otherwise, and root...
+        // Label equality is sufficient for stop, break, termination,
+        // parallel_branch, critical, otherwise, and root...
       default: {
         return 0;
       }
@@ -228,12 +247,26 @@ export class Comparator {
    * @return {?Number} The comparison value from the range [0;1]
    */
   compareLcs(seqA, seqB, defaultValue = null) {
+    // TODO TODO TOD
     if (seqA == null || seqB == null) {
       return defaultValue;
     }
     const maxLength = Math.max(seqA.length, seqB.length);
     if (maxLength === 0) return defaultValue;
     return 1 - getLcsLength(seqA, seqB) / maxLength;
+  }
+
+  /**
+   * Because the path compare range is constant, the corresponding LCS
+   * computation can be accelerated.
+   * @param {Array<Number>} pathA
+   * @param {Array<Number>} pathB
+   * @return {?Number} The comparison value from the range [0;1]
+   */
+  #comparePathLcs(pathA, pathB) {
+    const maxLength = Math.max(pathA.length, pathB.length);
+    if (maxLength === 0) return 0;
+    return 1 - getLcsLengthFast(pathA, pathB) / maxLength;
   }
 
   /**
@@ -323,37 +356,57 @@ export class Comparator {
   comparePosition(nodeA, nodeB) {
     const radius = DiffConfig.COMPARATOR.PATH_COMPARE_RANGE;
 
-    /*
-     const nodeLeftSlice = node.getSiblings().slice(Math.max(node.index - radiu
-     s, 0), node.index).map(n => this.#hashExtractor.get(n));
-     const otherLeftSlice = other.getSiblings().slice(Math.max(other.index - ra
-     dius, 0), other.index).map(n => this.#hashExtractor.get(n));
-     const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+    if (DiffConfig.EXP) {
+      /*
+       const nodeLeftSlice = nodeA.getSiblings()
+       .slice(Math.max(nodeA.index - radius, 0), nodeA.index)
+       .map(n => this.hashExtractor.get(n));
+       const otherLeftSlice = nodeB.getSiblings()
+       .slice(Math.max(nodeB.index - radius, 0), nodeB.index)
+       .map(n => this.hashExtractor.get(n));
+       const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
 
-     const nodeRightSlice = node.getSiblings().slice(node.index + 1, node.inde
-     x + radius + 1).map(n => this.#hashExtractor.get(n));
-     const otherRightSlice = other.getSiblings().slice(other.index + 1, other.
-     index + radius + 1).map(n => this.#hashExtractor.get(n));
-     const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
-     */
+       const nodeRightSlice = nodeA.getSiblings()
+       .slice(nodeA.index + 1, nodeA.index + radius + 1)
+       .map(n => this.hashExtractor.get(n));
+       const otherRightSlice = nodeB.getSiblings()
+       .slice(nodeB.index + 1, nodeB.index + radius + 1)
+       .map(n => this.hashExtractor.get(n));
+       const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
 
+       */
+      const nodePathSlice =
+          nodeA
+              .path(radius + 1)
+              .reverse()
+              .slice(1)
+              .map((n) => this.hashExtractor.getContentHash(n));
+      const otherPathSlice =
+          nodeB
+              .path(radius + 1)
+              .reverse()
+              .slice(1)
+              .map((n) => this.hashExtractor.getContentHash(n));
+      const pathCV = this.compareLcs(nodePathSlice, otherPathSlice);
+
+      return pathCV;
+    }
     // exclude the compared nodes
+
     const nodePathSlice =
         nodeA
             .path(radius + 1)
             .reverse()
             .slice(1)
-            .map((n) => this.#hashExtractor.getContentHash(n));
+            .map((n) => this.hashExtractor.getContentHash(n));
     const otherPathSlice =
         nodeB
             .path(radius + 1)
             .reverse()
             .slice(1)
-            .map((n) => this.#hashExtractor.getContentHash(n));
-    const pathCV = this.compareLcs(nodePathSlice, otherPathSlice, 0);
-    const posCV = pathCV;
-    // TODO weight differently
-    return posCV;
+            .map((n) => this.hashExtractor.getContentHash(n));
+    const pathCV = this.#comparePathLcs(nodePathSlice, otherPathSlice);
+    return pathCV;
   }
 
   /**
@@ -470,8 +523,8 @@ export class Comparator {
       if (items[i] != null) {
         // Perfect matches receive a boost for their weight.
         const adjustedWeight =
-            (items[i] === 0 ? DiffConfig.COMPARATOR.WEIGHT_BOOST_MULTIPLIER
-                            : 1) *
+            (items[i] === 0 ? DiffConfig.COMPARATOR.WEIGHT_BOOST_MULTIPLIER :
+             1) *
             weights[i];
         itemSum += items[i] * adjustedWeight;
         weightSum += adjustedWeight;

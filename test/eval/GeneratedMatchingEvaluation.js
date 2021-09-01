@@ -142,7 +142,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           new ChangeParameters(
               EvalConfig.PROGRESSION.INITIAL_CHANGES *
               (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
-              local,
+              local
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';

@@ -4,8 +4,11 @@ import {ChangeParameters} from '../../test/gen/ChangeParameters.js';
 import {CpeeDiffAdapter} from '../../test/diff_adapters/CpeeDiffAdapter.js';
 import {CpeeDiff} from '../CpeeDiff.js';
 import {DiffConfig} from '../config/DiffConfig.js';
+import * as fs from 'fs';
+import {Preprocessor} from '../io/Preprocessor.js';
 
 DiffConfig.LOG_LEVEL = 'all';
+/*
 const genParams = new GeneratorParameters(50000, 1000, 25, 8);
 const treeGen = new TreeGenerator(genParams);
 
@@ -13,8 +16,16 @@ const base = treeGen.randomTree();
 
 const c = treeGen.changeTree(base, new ChangeParameters(5000, false))[0].newTree;
 
-console.log(new CpeeDiff().diff(base, c));
 
+fs.writeFileSync('old.xml', base.toXmlString());
+fs.writeFileSync('new.xml', c.toXmlString());
+
+ */
+
+const oldT = new Preprocessor().fromFile('old.xml');
+const newT = new Preprocessor().fromFile('new.xml');
+
+const es = new CpeeDiff().diff(oldT, newT);
 /*
 const changeParams = new ChangeParameters(5);
 const b1 = treeGen.changeTree(base, changeParams)[0].newTree;

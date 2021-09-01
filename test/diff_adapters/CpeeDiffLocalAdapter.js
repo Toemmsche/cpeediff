@@ -23,7 +23,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
    * @param {String} mode The matching mode to use. "quality" by default.
    */
   constructor(mode = MatchPipeline.MATCH_MODES.QUALITY) {
-    super('', EvalConfig.DIFFS.CPEEDIFF.displayName + '_LOCAL');
+    super('', EvalConfig.DIFFS.CPEEDIFF.displayName + '_local_' + mode);
     this.#mode = mode;
   }
 
@@ -43,6 +43,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         return testCase.complete(
             this.displayName,
             null,
+            null,
             AbstractTestResult.VERDICTS.TIMEOUT,
         );
       } else {
@@ -53,6 +54,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
         );
         return testCase.complete(
             this.displayName,
+            null,
             null,
             AbstractTestResult.VERDICTS.RUNTIME_ERROR,
         );

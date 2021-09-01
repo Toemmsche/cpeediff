@@ -75,9 +75,9 @@ export class MatchTestCase extends AbstractTestCase {
     fs.readdirSync(testCaseDir).forEach((file) => {
       const content = fs.readFileSync(testCaseDir + '/' + file).toString();
       if (file === EvalConfig.FILENAMES.NEW_TREE) {
-        newTree = parser.parseWithMetadata(content);
+        newTree = parser.withMetadata(content);
       } else if (file === EvalConfig.FILENAMES.OLD_TREE) {
-        oldTree = parser.parseWithMetadata(content);
+        oldTree = parser.withMetadata(content);
       } else if (file === EvalConfig.FILENAMES.EXPECTED_MATCHES) {
         expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
       }

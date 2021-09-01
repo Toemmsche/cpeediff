@@ -97,6 +97,10 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
             // Make relative to proposed edit script
             result.actual.cost /= testCase.expected.editScript.cost;
             result.actual.editOperations /= testCase.expected.editScript.size();
+          } else if (result.isTimeOut()) {
+            // Do not use in future runs
+            const adapterIndex = this._adapters.indexOf(adapter);
+            this._adapters.splice(adapterIndex, 1);
           }
           resultsPerAdapter.get(adapter).push(result);
         }

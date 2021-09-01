@@ -16,8 +16,12 @@ export class Preprocessor {
    * @param {String} path A path to the file containing the XML document.
    * @return {Node} The root of the process tree.
    */
-  parseFromFile(path) {
-    return this.parseWithMetadata(fs.readFileSync(path).toString());
+  fromFile(path) {
+    Logger.startTimed();
+    const root = this.withMetadata(fs.readFileSync(path).toString());
+    Logger.stat('Parsing and preprocessing of ' + path +
+        ' took ' + Logger.endTimed() + 'ms', this);
+    return root;
   }
 
   /**
@@ -27,7 +31,7 @@ export class Preprocessor {
    * @param {String} xml The XML document as a String.
    * @return {Node} The root of the process tree
    */
-  parseWithMetadata(xml) {
+  withMetadata(xml) {
     const endpointToUrl = new Map();
     const dataElements = new Map();
 

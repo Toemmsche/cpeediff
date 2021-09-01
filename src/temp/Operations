@@ -45,3 +45,6 @@ Future work:
 - presist the comparison value for matches
 - rely on stronger matches (calls, hash matching, etc.) as structure roots
 - perform more sematnic code analysis
+- semantic model (what jürgen said)
+- unified tree diff model
+- visualization in browswer

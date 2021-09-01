@@ -115,8 +115,8 @@ const argv = yargs(hideBin(process.argv))
           DiffConfig.PRETTY_XML = argv.pretty;
 
           const parser = new Preprocessor();
-          const oldTree = parser.parseFromFile(argv.old);
-          const newTree = parser.parseFromFile(argv.new);
+          const oldTree = parser.fromFile(argv.old);
+          const newTree = parser.fromFile(argv.new);
 
           const editScript = new CpeeDiff(MatchPipeline.fromMode()).diff(
               oldTree,
@@ -248,9 +248,9 @@ const argv = yargs(hideBin(process.argv))
           DiffConfig.PRETTY_XML = argv.pretty;
           // Parse
           const parser = new Preprocessor();
-          const base = parser.parseFromFile(argv.base);
-          const branch1 = parser.parseFromFile(argv.branch1);
-          const branch2 = parser.parseFromFile(argv.branch2);
+          const base = parser.fromFile(argv.base);
+          const branch1 = parser.fromFile(argv.branch1);
+          const branch2 = parser.fromFile(argv.branch2);
 
           // Merge
           const merger = new CpeeMerge();
@@ -310,7 +310,7 @@ const argv = yargs(hideBin(process.argv))
           DiffConfig.LOG_LEVEL = argv.logLevel;
           // Parse
           const parser = new Preprocessor();
-          const oldTree = parser.parseFromFile(argv.old);
+          const oldTree = parser.fromFile(argv.old);
 
           const editScriptContent = fs.readFileSync(argv.editScript).toString();
           const editScript = EditScript.fromXmlString(editScriptContent);

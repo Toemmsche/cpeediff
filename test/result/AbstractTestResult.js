@@ -68,6 +68,20 @@ export class AbstractTestResult {
   isOk() {
     return this.verdict === AbstractTestResult.VERDICTS.OK;
   }
+
+  /**
+   * @return {Boolean} If this test result indicates a timeout.
+   */
+  isTimeOut() {
+    return this.verdict === AbstractTestResult.VERDICTS.TIMEOUT;
+  }
+
+  /**
+   * @return {Boolean} If this test result indicates a wrong answer.
+   */
+  isWrongAnswer() {
+    return this.verdict === AbstractTestResult.VERDICTS.WRONG_ANSWER;
+  }
 }
 
 

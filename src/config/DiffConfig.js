@@ -17,13 +17,11 @@
 export const DiffConfig = {
 
   MATCH_MODE: 'quality',
-
   LOG_LEVEL: 'error',
 
   COMPARATOR: {
     PATH_COMPARE_RANGE: 5,
 
-    //TODO
     WEIGHT_BOOST_MULTIPLIER: 1,
 
     //General weights
@@ -45,7 +43,6 @@ export const DiffConfig = {
 
     CONTENT_WEIGHT: 5,
     POSITION_WEIGHT: 1,
-
     COMMONALITY_WEIGHT: 6,
   },
 

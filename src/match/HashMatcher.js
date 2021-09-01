@@ -1,7 +1,7 @@
 import {MatcherInterface} from './MatcherInterface.js';
 import {HashExtractor} from '../extract/HashExtractor.js';
-import {Logger} from '../../util/Logger.js';
 import {persistBestMatches} from './BestMatchPersister.js';
+import {DiffConfig} from '../config/DiffConfig.js';
 
 /**
  * A matching module that employs hashing to find robust matches efficiently.
@@ -30,7 +30,7 @@ export class HashMatcher {
             // to improve performance
             .sort((a, b) => comparator.compareSize(b, a));
 
-    const hashExtractor = new HashExtractor();
+    const hashExtractor = comparator.hashExtractor;
 
     const keyFunction = (node) => hashExtractor.get(node);
     const compareFunction =
@@ -41,6 +41,11 @@ export class HashMatcher {
      * @param {Node} newRoot
      */
     const matchFunction = (oldRoot, newRoot) => {
+      // Don't match positionally dissimilar interrupt nodes
+      if (oldRoot.isInnterruptLeafNode() &&
+          compareFunction(oldRoot, newRoot) > DiffConfig.COMPARISON_THRESHOLD) {
+        return;
+      }
       // found a perfect match, match entire subtrees
       const newPreOrder = newRoot.toPreOrderArray();
       const oldPreOrder = oldRoot.toPreOrderArray();

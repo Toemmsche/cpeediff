@@ -56,7 +56,7 @@ export class MergeAdapter extends AbstractAdapter {
     }
     const actual = new ActualMerge(
         exec,
-        new Preprocessor().parseWithMetadata(exec),
+        new Preprocessor().withMetadata(exec),
     );
     const verdict = this.verifyResult(actual, testCase.expected);
 

@@ -18,7 +18,7 @@ import {Preprocessor} from '../src/io/Preprocessor.js';
 
 export class TestRepository {
 
-  static _bookingTree = new Preprocessor().parseWithMetadata(fs.readFileSync('test/test_set/examples/booking.xml').toString());
+  static _bookingTree = new Preprocessor().withMetadata(fs.readFileSync('test/test_set/examples/booking.xml').toString());
 
   static bookingTree() {
     return this._bookingTree.copy(true);

@@ -27,6 +27,7 @@
 //      use simultenous init syntax ( [var1, var2,..] = ) wherever necessary
 //      generator function
 //      make data classes read only (const)
+//    make parent protected and index
 
 //TODO bugs+
 //      fix move_to

@@ -22,8 +22,8 @@ import {TreeGenerator} from '../../test/gen/TreeGenerator.js';
 
 DiffConfig.PRETTY_XML = true;
 
-const base = new Preprocessor().parseFromFile('./src/temp/base.xml');
-const branch1 = new Preprocessor().parseFromFile('./src/temp/1.xml');
+const base = new Preprocessor().fromFile('./src/temp/base.xml');
+const branch1 = new Preprocessor().fromFile('./src/temp/1.xml');
 
 const merge = new DeltaTreeGenerator().extendedDeltaTree(base, new CpeeDiff().diff(base, branch1));
 
@@ -37,14 +37,14 @@ console.log(count);
 /*
 const n = fs.readFileSync("test/test_set/match_cases/generated/new.xml").toString();
 const o = fs.readFileSync("test/test_set/match_cases/generated/old.xml").toString();
-const nT = new Preprocessor().parseWithMetadata(n);
-const oT = new Preprocessor().parseWithMetadata(o);
+const nT = new Preprocessor().withMetadata(n);
+const oT = new Preprocessor().withMetadata(o);
 */
 
 /*
-let tree1 = new Preprocessor().parseWithMetadata(xmlA);
-let tree2 =  new Preprocessor().parseWithMetadata(xmlB);
-let tree3 =  new Preprocessor().parseWithMetadata(xmlC);
+let tree1 = new Preprocessor().withMetadata(xmlA);
+let tree2 =  new Preprocessor().withMetadata(xmlB);
+let tree3 =  new Preprocessor().withMetadata(xmlC);
 
 
 console.log(TreeStringSerializer.serializeTree(tree1));

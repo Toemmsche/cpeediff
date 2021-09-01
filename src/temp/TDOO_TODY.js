@@ -77,23 +77,28 @@
 //      $$$ reorder call comparison in matching thesis
 
 //TODO 30.8.
-//      change figure illustrating the merge
+//      $$$ change figure illustrating the merge
 //      $$$ Begin implementation overview
-//      Begin conclusion and future work
 //      $$$ test delta tree for triple extract moves
 //      $$$ improve cli
 //      $$$ old val in delta tree
 //      $$$ merge confidence and xml output
-//      option to output matching
 //      $$$ patch command
 //      $$$ refine commands, remove unnecessary options
-//     test variable prefix
-//      refactor all test cases -> add init script per default
 //    $$$ move ids in delta tree
 //      ??? inquire about conditio ndefault val
 
-//IDEA: remove intterup matching in hash, mvoe to sim matching with threshold, reduce path compare range
-// eval no threshold for inner AGAIN and try path label comp and try for balanced only
+//TODO 1.9
+//      performance of parser eval and log
+//      refactor all test cases -> add init script per default
+//      Begin conclusion and future work
+//      option to output matching
+
+
+//TODO finish
+//     verify runtime
+//    fix EDIT SCRIPT INVALID!!!
+//     test variable prefix
 
 
 
