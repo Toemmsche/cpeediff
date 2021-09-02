@@ -6,6 +6,9 @@ import {CpeeDiff} from '../CpeeDiff.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 import * as fs from 'fs';
 import {Preprocessor} from '../io/Preprocessor.js';
+import {Node} from '../tree/Node.js';
+import xmldom from 'xmldom';
+import xmlshim from 'xmlshim';
 
 DiffConfig.LOG_LEVEL = 'all';
 /*
@@ -22,9 +25,16 @@ fs.writeFileSync('new.xml', c.toXmlString());
 
  */
 
+const time = new Date().getTime();
+const file = fs.readFileSync('old.xml').toString();
+const sfds = new xmlshim.DOMParser().parseFromString( file,'text/xml');
+console.log(new Date().getTime() - time);
+
 const oldT = new Preprocessor().fromFile('old.xml');
 const newT = new Preprocessor().fromFile('new.xml');
 
+
+DiffConfig.MATCH_MODE = 'fast';
 const es = new CpeeDiff().diff(oldT, newT);
 /*
 const changeParams = new ChangeParameters(5);

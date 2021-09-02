@@ -26,7 +26,7 @@ export const EvalConfig = {
     INITIAL_SIZE: 100,
     REPS: 5,
 
-    INITIAL_CHANGES: 5,
+    INITIAL_CHANGES: 10,
   },
 
   //TODO option to store genearted models in test case folder

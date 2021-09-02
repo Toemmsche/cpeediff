@@ -257,19 +257,6 @@ export class Comparator {
   }
 
   /**
-   * Because the path compare range is constant, the corresponding LCS
-   * computation can be accelerated.
-   * @param {Array<Number>} pathA
-   * @param {Array<Number>} pathB
-   * @return {?Number} The comparison value from the range [0;1]
-   */
-  #comparePathLcs(pathA, pathB) {
-    const maxLength = Math.max(pathA.length, pathB.length);
-    if (maxLength === 0) return 0;
-    return 1 - getLcsLengthFast(pathA, pathB) / maxLength;
-  }
-
-  /**
    * Compare the content of two Loops.
    * @param {Node} loopA
    * @param {Node} loopB
@@ -348,6 +335,19 @@ export class Comparator {
   }
 
   /**
+   * Because the path compare range is constant, the corresponding LCS
+   * computation can be accelerated.
+   * @param {Array<Number>} pathA
+   * @param {Array<Number>} pathB
+   * @return {?Number} The comparison value from the range [0;1]
+   */
+  #comparePathLcs(pathA, pathB) {
+    const maxLength = Math.max(pathA.length, pathB.length);
+    if (maxLength === 0) return 0;
+    return 1 - getLcsLengthFast(pathA, pathB) / maxLength;
+  }
+
+  /**
    * Compare the position of two nodes, determined by their paths.
    * @param {Node} nodeA
    * @param {Node} nodeB
@@ -356,43 +356,26 @@ export class Comparator {
   comparePosition(nodeA, nodeB) {
     const radius = DiffConfig.COMPARATOR.PATH_COMPARE_RANGE;
 
-    if (DiffConfig.EXP) {
-      /*
-       const nodeLeftSlice = nodeA.getSiblings()
-       .slice(Math.max(nodeA.index - radius, 0), nodeA.index)
-       .map(n => this.hashExtractor.get(n));
-       const otherLeftSlice = nodeB.getSiblings()
-       .slice(Math.max(nodeB.index - radius, 0), nodeB.index)
-       .map(n => this.hashExtractor.get(n));
-       const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
+    /*
+     const nodeLeftSlice = nodeA.getSiblings()
+     .slice(Math.max(nodeA.index - radius, 0), nodeA.index)
+     .map(n => this.hashExtractor.get(n));
+     const otherLeftSlice = nodeB.getSiblings()
+     .slice(Math.max(nodeB.index - radius, 0), nodeB.index)
+     .map(n => this.hashExtractor.get(n));
+     const leftCV = this.compareLcs(nodeLeftSlice, otherLeftSlice, 0);
 
-       const nodeRightSlice = nodeA.getSiblings()
-       .slice(nodeA.index + 1, nodeA.index + radius + 1)
-       .map(n => this.hashExtractor.get(n));
-       const otherRightSlice = nodeB.getSiblings()
-       .slice(nodeB.index + 1, nodeB.index + radius + 1)
-       .map(n => this.hashExtractor.get(n));
-       const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
+     const nodeRightSlice = nodeA.getSiblings()
+     .slice(nodeA.index + 1, nodeA.index + radius + 1)
+     .map(n => this.hashExtractor.get(n));
+     const otherRightSlice = nodeB.getSiblings()
+     .slice(nodeB.index + 1, nodeB.index + radius + 1)
+     .map(n => this.hashExtractor.get(n));
+     const rightCV = this.compareLcs(nodeRightSlice, otherRightSlice, 0);
 
-       */
-      const nodePathSlice =
-          nodeA
-              .path(radius + 1)
-              .reverse()
-              .slice(1)
-              .map((n) => this.hashExtractor.getContentHash(n));
-      const otherPathSlice =
-          nodeB
-              .path(radius + 1)
-              .reverse()
-              .slice(1)
-              .map((n) => this.hashExtractor.getContentHash(n));
-      const pathCV = this.compareLcs(nodePathSlice, otherPathSlice);
+     */
 
-      return pathCV;
-    }
     // exclude the compared nodes
-
     const nodePathSlice =
         nodeA
             .path(radius + 1)

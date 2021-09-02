@@ -49,7 +49,7 @@ DiffConfig.LOG_LEVEL = 'all';
 //new MatchingEvaluation([ new CpeeMatchAdapter("quality"), new CpeeMatchAdapter('balanced'), new CpeeMatchAdapter('fast')]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new GeneratedMatchingEvaluation([new CpeeMatchAdapter('quality'), new CpeeMatchAdapter('balanced')]).average(false, false);
 //new DiffEvaluation([new QualityCpeeDiffAdapter(), new XccAdapter()]).evalAll();
-GeneratedDiffEvaluation.all().average(false, false);
+GeneratedDiffEvaluation.all().average(true, false);
 //GeneratedDiffEvaluation.all().single(false, false);
 //new DiffEvaluation([new CpeeDiffAdapter(('quality'))]).evalAll(EvalConfig.MATCH_CASES_DIR);
 

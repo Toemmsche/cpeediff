@@ -81,19 +81,19 @@ export class MatchPipeline {
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.BALANCED:
-        DiffConfig.EXP = true;
+        //DiffConfig.EXP = true;
         return new MatchPipeline(
             [
               new FixedMatcher(),
               new HashMatcher(),
               new SimilarityMatcher(),
-              new CommonalityPathMatcher(),
+              new PathMatcher(),
               new PathMatcher(),
               new UnmatchedMatcher(),
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.QUALITY:
-        DiffConfig.EXP = false;
+        //DiffConfig.EXP = false;
         return new MatchPipeline(
             [
               new FixedMatcher(),

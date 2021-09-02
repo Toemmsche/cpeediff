@@ -89,15 +89,28 @@
 //      ??? inquire about conditio ndefault val
 
 //TODO 1.9
-//      performance of parser eval and log
-//      refactor all test cases -> add init script per default
-//      Begin conclusion and future work
-//      option to output matching
+//      $$$ performance of parser eval and log
+//
+//      $$$ Begin conclusion and future work
+//
+
+//TODO 2.9
+//    rewrite evaluation
+//      run evaluation
+//    check if you missed anything in XCC change model
+//     XCC no moveö-update
+//    option to output matching
+//    incremental tree size increase
+//   refactor all test cases -> add init script per default
+//    fix EDIT SCRIPT INVALID!!!
+//    proofread once
+//    test with lots of variables and every node text update
+
 
 
 //TODO finish
 //     verify runtime
-//    fix EDIT SCRIPT INVALID!!!
+//
 //     test variable prefix
 
 

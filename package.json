@@ -8,10 +8,18 @@
     "run": "node main.js"
   },
   "type": "module",
-  "keywords": ["CPEE", "Process trees", "Diff", "Tree Diff", "XML", "Semantic Diff"],
+  "keywords": [
+    "CPEE",
+    "Process trees",
+    "Diff",
+    "Tree Diff",
+    "XML",
+    "Semantic Diff"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bindings": "^1.3.1",
     "markdown-table": "^3.0.1",
     "murmur-32": "^0.2.0",
     "node": "^16.4.0",
@@ -26,7 +34,8 @@
     "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/preset-env": "^7.15.0",
     "eslint": "^7.32.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint-config-google": "^0.14.0",
+    "xmlshim": "^0.2.7"
   },
   "eslintConfig": {
     "env": {
