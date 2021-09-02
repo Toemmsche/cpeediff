@@ -17,7 +17,7 @@
 import {EvalConfig} from '../config/EvalConfig.js';
 import {DiffAdapter} from '../../test/diff_adapters/DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import {Node} from '../tree/Node.js';
 
 export class JNDiffAdapter extends DiffAdapter {

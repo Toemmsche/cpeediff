@@ -95,27 +95,30 @@
 //
 
 //TODO 2.9
-//    rewrite evaluation
-//      run evaluation
-//    check if you missed anything in XCC change model
-//     XCC no moveö-update
-//    option to output matching
+//    $$$ rewrite evaluation
+//      $$$ run evaluation
+//    $$$ check if you missed anything in XCC change model
+//     $$$ XCC no move-update
 //    incremental tree size increase
 //   refactor all test cases -> add init script per default
 //    fix EDIT SCRIPT INVALID!!!
-//    proofread once
+//    $$ proofread once
 //    test with lots of variables and every node text update
+//    ??? slow xmldom??? rollback to previous version
+//    Logs for output in main.js
 
 
 
 //TODO finish
 //     verify runtime
-//
+//    option to output matching
 //     test variable prefix
+//    option output summary
 
 
 
 //TODO maybe
+//      chnage operation weight?
 //      better commonality complexity
 //      remove adjustmenets to change model
 //      shorten evaluation

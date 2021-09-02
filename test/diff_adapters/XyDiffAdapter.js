@@ -1,5 +1,5 @@
 import {EvalConfig} from '../../src/config/EvalConfig.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import {Node} from '../../src/tree/Node.js';

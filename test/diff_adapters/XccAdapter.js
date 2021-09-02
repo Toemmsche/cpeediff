@@ -1,7 +1,7 @@
 import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import {Node} from '../../src/tree/Node.js';
 
 /**
@@ -71,6 +71,9 @@ export class XccAdapter extends DiffAdapter {
         case 'update':
           updates++;
           break;
+        default: {
+          console.log("other");
+        }
       }
     });
     // Unit cost

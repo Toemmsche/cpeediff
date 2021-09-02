@@ -1,7 +1,7 @@
 import {EvalConfig} from '../../src/config/EvalConfig.js';
 import {DiffAdapter} from './DiffAdapter.js';
 import {DomHelper} from '../../util/DomHelper.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 
 /**
  * Adapter class for the 'DiffXml' algorithm by A. Mouat.

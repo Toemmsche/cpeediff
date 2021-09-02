@@ -1,6 +1,6 @@
 import {EvalConfig} from '../../src/config/EvalConfig.js';
 import fs from 'fs';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import {execFileSync} from 'child_process';
 import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';

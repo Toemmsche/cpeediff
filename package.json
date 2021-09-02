@@ -24,7 +24,7 @@
     "murmur-32": "^0.2.0",
     "node": "^16.4.0",
     "vkbeautify": "^0.99.3",
-    "xmldom": "^0.6.0",
+    "@xmldom/xmldom": "^0.7.4",
     "yargs": "^17.0.1"
   },
   "devDependencies": {

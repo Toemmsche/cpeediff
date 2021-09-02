@@ -1,6 +1,6 @@
 import {Node} from '../tree/Node.js';
 import {Dsl} from '../config/Dsl.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 
 /**
  * A node inside a CPEE process tree annotated with change related information.

@@ -4,7 +4,7 @@ import {HashExtractor} from '../extract/HashExtractor.js';
 import {Patcher} from '../patch/Patcher.js';
 import {Node} from '../tree/Node.js';
 import {DomHelper} from '../../util/DomHelper.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import vkbeautify from 'vkbeautify';
 import {DiffConfig} from '../config/DiffConfig.js';
 import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';

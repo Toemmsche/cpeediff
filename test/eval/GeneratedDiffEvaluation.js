@@ -215,14 +215,17 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
               (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
               local,
           );
-      const testId = '[Size: ' + size +
-          ', Changes: ' + changeParams.totalChanges + ']';
 
       const oldTree = treeGen.randomTree();
       const testCase = treeGen.changeTree(oldTree, changeParams)[0];
 
       const results = [];
       for (const adapter of this._adapters) {
+        Logger.info(
+            'Running case ' + testCase.name +
+            ' for adapter ' + adapter.displayName,
+            this,
+        );
         const result = adapter.evalCase(testCase);
         results.push(result);
       }
@@ -234,7 +237,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
             ...results.map((result) => result.values()),
           ];
 
-      Logger.result('Results for cases ' + testId);
+      Logger.result('Results for case ' + testCase.name);
       Logger.result(markdownTable(table));
     }
   }

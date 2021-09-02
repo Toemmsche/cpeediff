@@ -1,6 +1,6 @@
 import {DomHelper} from '../../util/DomHelper.js';
 import {Node} from '../tree/Node.js';
-import xmldom from 'xmldom';
+import xmldom from '@xmldom/xmldom';
 import {Dsl} from '../config/Dsl.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 import vkbeautify from 'vkbeautify';

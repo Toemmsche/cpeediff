@@ -41,32 +41,6 @@ export class DiffTestCase extends AbstractTestCase {
   }
 
   /**
-   * Complete this test case.
-   * @param {String} algorithm The algorithm that ran this case.
-   * @param {Number} runtime The time (in ms) the algorithm took to complete
-   *     the case.
-   * @param {?ActualDiff} actual The diff produced by the algorithm, null
-   *     indicates failure.
-   * @param {String} verdict The verdict for this test case and algorithm.
-   * @return {DiffTestResult} The corresponding result.
-   * @override
-   */
-  complete(
-      algorithm,
-      runtime,
-      actual = null,
-      verdict,
-  ) {
-    return new DiffTestResult(
-        this.name,
-        algorithm,
-        runtime,
-        actual,
-        verdict,
-    );
-  }
-
-  /**
    * Construct a diff test case from a test case directory.
    * @param {String} testCaseDir An absolute or relative path to the test case
    *     directory
@@ -105,6 +79,30 @@ export class DiffTestCase extends AbstractTestCase {
         expected,
     );
   }
+
+  /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case.
+   * @param {Number} runtime The time (in ms) the algorithm took to complete
+   *     the case.
+   * @param {?ActualDiff} actual The diff produced by the algorithm, null
+   *     indicates failure.
+   * @param {String} verdict The verdict for this test case and algorithm.
+   * @return {DiffTestResult} The corresponding result.
+   * @override
+   */
+  complete(
+      algorithm,
+      runtime,
+      actual = null,
+      verdict,
+  ) {
+    return new DiffTestResult(
+        this.name,
+        algorithm,
+        runtime,
+        actual,
+        verdict,
+    );
+  }
 }
-
-
