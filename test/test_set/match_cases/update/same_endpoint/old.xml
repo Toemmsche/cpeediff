@@ -1,28 +1,16 @@
-<properties xmlns="http://cpee.org/ns/properties/2.0">
-    <dataelements>
-        <costs>0</costs>
-        <hotels>[]</hotels>
-        <to>Prague</to>
-    </dataelements>
-    <endpoints>
-        <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
-    </endpoints>
-    <dslx>
-        <description xmlns="http://cpee.org/ns/description/1.0">
-            <call id="a2" endpoint="bookHotel">
-                <parameters>
-                    <label>Book Hotel</label>
-                    <method>:post</method>
-                    <arguments>
-                        <to>data.to</to>
-                    </arguments>
-                </parameters>
-                <code>
-                    <finalize output="result">data.hotels.push(result.value('id')); data.costs +=
-                        result.value('costs').to_f;
-                    </finalize>
-                </code>
-            </call>
-        </description>
-    </dslx>
-</properties>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <call id="a2" endpoint="bookHotel">
+        <parameters>
+            <label>Book Hotel</label>
+            <method>:post</method>
+            <arguments>
+                <to>data.to</to>
+            </arguments>
+        </parameters>
+        <code>
+            <finalize output="result">data.hotels.push(result.value('id')); data.costs +=
+                result.value('costs').to_f;
+            </finalize>
+        </code>
+    </call>
+</description>

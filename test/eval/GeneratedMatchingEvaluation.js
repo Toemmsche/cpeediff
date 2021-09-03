@@ -124,11 +124,6 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
     ]));
     // TODO remove latex
     for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
-      // Init results with empty array for each adapter
-      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
-        adapter,
-        [],
-      ]));
       const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
           (EvalConfig.PROGRESSION.FACTOR ** i);
       const genParams = new GeneratorParameters(
@@ -162,7 +157,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           }
           Logger.info(
               'Running rep ' + j + ' for adapter ' + adapter.displayName,
-              this
+              this,
           );
           const time = new Date().getTime();
           const actualMatching = adapter.run(oldTree, newTree);
@@ -189,7 +184,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       for (const [adapter, resultsList] of results) {
         const aggregateResult = [
           adapter.displayName,
-          '--'
+          size,
         ];
         for (let j = 2; j < resultsList[0].length; j++) {
           aggregateResult.push(this.avg(resultsList.map(r => r[j])));
@@ -198,10 +193,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       }
 
       for (const result of aggregateResults) {
-        if (!resultsPerAdapter.has(result[0])) {
-          resultsPerAdapter.set(result[0], []);
-        }
-        resultsPerAdapter.get(result[0]).push(result);
+        aResultsPerAdapter.get(result[0]).push(result);
       }
       Logger.result('Results for case ' + testId, this);
       Logger.result(markdownTable([
@@ -225,7 +217,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
         ', ');
     let i = 0;
     Logger.section('RUNTIME LATEX', this);
-    for (const [adapter, tests] of resultsPerAdapter) {
+    for (const [adapter, tests] of aResultsPerAdapter) {
       const nextColor = colors[i++];
       Logger.result(('\\addplot[\n' +
           '    color={0},\n' +
@@ -235,10 +227,10 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           '    {1}\n' +
           '    };').replace('{0}', nextColor).replace(
           '{1}',
-          tests.map(t => '(' + t[1].split('_')[0] + ',' + t[3] + ')').join('')
+          tests.map(t => '(' + t[1] + ',' + t[3] + ')').join('')
       ), this);
     }
-    Logger.result('\\legend{' + this.adapters.map(a => a.displayName).join(', ')
+    Logger.result('\\legend{' + this._adapters.map(a => a.displayName).join(', ')
         .replaceAll('_', '\\_') + '}');
 
   }

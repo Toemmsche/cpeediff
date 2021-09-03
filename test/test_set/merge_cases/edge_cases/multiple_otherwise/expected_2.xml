@@ -1,29 +1,19 @@
-<properties xmlns="http://cpee.org/ns/properties/2.0">
-    <dataelements>
-        <costs>0</costs>
-    </dataelements>
-    <endpoints>
-        <approve>http://gruppe.wst.univie.ac.at/~mangler/services/approval.php</approve>
-    </endpoints>
-    <dslx>
-        <description xmlns="http://cpee.org/ns/description/1.0">
-            <choose mode="inclusive">
-                <alternative condition="data.costs > 700">
-                    <call id="a1" endpoint="approve">
-                        <parameters>
-                            <label>Approve Hotel</label>
-                            <method>:post</method>
-                            <arguments>
-                                <costs>data.costs</costs>
-                            </arguments>
-                        </parameters>
-                    </call>
-                </alternative>
-                <otherwise>
-                    <terminate/>
-                    <manipulate>data.costs -= 10;</manipulate>
-                </otherwise>
-            </choose>
-        </description>
-    </dslx>
-</properties>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <choose mode="inclusive">
+        <alternative condition="data.costs > 700">
+            <call id="a1" endpoint="approve">
+                <parameters>
+                    <label>Approve Hotel</label>
+                    <method>:post</method>
+                    <arguments>
+                        <costs>data.costs</costs>
+                    </arguments>
+                </parameters>
+            </call>
+        </alternative>
+        <otherwise>
+            <terminate/>
+            <manipulate>data.costs -= 10;</manipulate>
+        </otherwise>
+    </choose>
+</description>

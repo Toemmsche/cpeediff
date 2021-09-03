@@ -43,36 +43,44 @@ export class XccAdapter extends DiffAdapter {
           if (xmlOperation.hasAttribute('id')) {
             moves++;
           } else {
-            insertions++;
             // Determine cost
             const xmlNewValue = DomHelper.firstChildElement(
                 xmlOperation,
                 'newvalue',
             );
-            DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromXmlDom(xmlElement).size();
-            });
+            if (DomHelper.firstChildElement(xmlNewValue) == null) {
+              updates++;
+            } else {
+              insertions++;
+              DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
+                cost += Node.fromXmlDom(xmlElement).size();
+              });
+            }
           }
           break;
         case 'delete':
-          // Moves are account for in the insertion case
+          // Moves are accounted for in the insertion case
           if (!xmlOperation.hasAttribute('id')) {
-            deletions++;
             // Determine cost
-            const xmlNewValue = DomHelper.firstChildElement(
+            const xmlOldValue = DomHelper.firstChildElement(
                 xmlOperation,
                 'oldvalue',
             );
-            DomHelper.forAllChildElements(xmlNewValue, (xmlElement) => {
-              cost += Node.fromXmlDom(xmlElement).size();
-            });
+            if (DomHelper.firstChildElement(xmlOldValue) == null) {
+              updates++;
+            } else {
+              deletions++;
+              DomHelper.forAllChildElements(xmlOldValue, (xmlElement) => {
+                cost += Node.fromXmlDom(xmlElement).size();
+              });
+            }
           }
           break;
         case 'update':
           updates++;
           break;
         default: {
-          console.log("other");
+          console.log('other');
         }
       }
     });

@@ -99,23 +99,29 @@
 //      $$$ run evaluation
 //    $$$ check if you missed anything in XCC change model
 //     $$$ XCC no move-update
-//    incremental tree size increase
-//   refactor all test cases -> add init script per default
-//    fix EDIT SCRIPT INVALID!!!
 //    $$ proofread once
-//    test with lots of variables and every node text update
 //    ??? slow xmldom??? rollback to previous version
-//    Logs for output in main.js
+
+
+
+//TODO 3.9
+//     incremental tree size increase
+//  refactor all test cases -> add init script per default
+//   fix EDIT SCRIPT INVALID!!!
+//      $$ test with lots of variables and every node text update
+//    logs in output main.js
+
 
 
 
 //TODO finish
+//    publish to npm
+//    publish documentation
+//    speed up tree genreation
 //     verify runtime
 //    option to output matching
 //     test variable prefix
 //    option output summary
-
-
 
 //TODO maybe
 //      chnage operation weight?

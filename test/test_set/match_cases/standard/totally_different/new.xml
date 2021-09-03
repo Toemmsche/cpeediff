@@ -1,30 +1,17 @@
-<properties xmlns="http://cpee.org/ns/properties/2.0">
-    <dataelements>
-        <costs>0</costs>
-        <persons>3</persons>
-        <hotels>[]</hotels>
-        <to>Prague</to>
-    </dataelements>
-    <endpoints>
-        <bookHotel>http://gruppe.wst.univie.ac.at/~mangler/services/hotel.php</bookHotel>
-    </endpoints>
-    <dslx>
-        <description xmlns="http://cpee.org/ns/description/1.0">
-            <loop mode="pre_test" condition="data.persons > 0">
-                <call id="a2" endpoint="bookHotel">
-                    <parameters>
-                        <label>Book Hotel</label>
-                        <method>:post</method>
-                        <arguments>
-                            <to>data.to</to>
-                        </arguments>
-                    </parameters>
-                    <code>
-                        <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
-                    </code>
-                </call>
-                <manipulate id="a3">data.persons -= 1</manipulate>
-            </loop>
-        </description>
-    </dslx>
-</properties>
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <loop mode="pre_test" condition="data.persons > 0">
+        <call id="a2" endpoint="bookHotel">
+            <parameters>
+                <label>Book Hotel</label>
+                <method>:post</method>
+                <arguments>
+                    <to>data.to</to>
+                </arguments>
+            </parameters>
+            <code>
+                <finalize output="result">data.airline = result.value('id'); data.costs += result.value('costs').to_f;</finalize>
+            </code>
+        </call>
+        <manipulate id="a3">data.persons -= 1</manipulate>
+    </loop>
+</description>
