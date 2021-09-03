@@ -1,107 +1,10 @@
 //TODO
-//     comparison boost?
-//      eval with tons of variables and lots of documentation
-//      evaluate update only, no update
-//      place more weight on calls in commonality
-//      diff eval for match cases
-//      add JNDiff
-//      formatting match case
-//      merge match test case
-
-//TODO
 //      in thesis:
-//      edit script is not invertible or commutative
-//      minimality of edit script representation --> talk with jürgen
-//      remove constant change comparison
-//      $$$ compress match comparison
 //      not possible to regenerate a matching
 //      cpeediff is only one to detect moves to inserted subtrees
-//      decision to omit deleted node in edit script ? maybe reconsider
 //      element of children(v) notation
 //      figure short description argument??
 //      which children are unordered?
-
-//TODO today
-//      eval weight boost ?????
-
-//TODO  24.8.
-//      restructure evaluation in thesis (use avg always)
-//      $ simplify test set (no properties)
-
-//TODO  25.8.
-//      $$ restructure evaluation in thesis
-//      $$continue refactoring eval package
-//      craete figure illustrating the merge
-//      meet with Jürgen and ask final questions
-//          discuss introduction length
-//          discuss hand-in
-//          meetings doc -->
-//      mark abstract methods and override and const
-
-//TODO  26.8.
-//      $$$ continue refactoring eval package
-//      craete figure illustrating the merge
-//      $$$ meet with Jürgen and ask final questions
-//          discuss introduction length
-//          discuss hand-in
-//          meetings doc -->
-//      $$$ add loggign to merger and other main threads of exeuction
-//      $$$ use destructuring in tree gen
-//      class for generated match evaluation
-//      move verdicts to ABstractTestCase
-//      move statics  from config
-//      $$$ use betteer names for DSL elements
-
-//TODO  27.8.
-//      craete figure illustrating the merge
-//      $$$ add loggign to merger and other main threads of exeuction
-//      $$$ use destructuring in tree gen
-//      class for generated match evaluation
-//      $$$ move verdicts to ABstractTestCase
-//      $$$ move statics  from config
-//      $$$ missing method/label in comparator
-//      $$$ endponit only case
-//      $$$ test perfect service call shortcut --> keep for now (not documented in thesis)
-//      $$$ unmatched matcher matches (remotely similar) leaf nodes --> SUCCESS! Very good improvement :)
-
-//TODO  27.8.
-//      craete figure illustrating the merge
-//      class for generated match evaluation
-
-
-//TODO 29.8.
-//      $$ craete figure illustrating the merge
-//      Begin implementation overview
-//      Begin conclusion and future work
-//      $$$ add tinkering refinements to thesis
-//      $$$ reorder call comparison in matching thesis
-
-//TODO 30.8.
-//      $$$ change figure illustrating the merge
-//      $$$ Begin implementation overview
-//      $$$ test delta tree for triple extract moves
-//      $$$ improve cli
-//      $$$ old val in delta tree
-//      $$$ merge confidence and xml output
-//      $$$ patch command
-//      $$$ refine commands, remove unnecessary options
-//    $$$ move ids in delta tree
-//      ??? inquire about conditio ndefault val
-
-//TODO 1.9
-//      $$$ performance of parser eval and log
-//
-//      $$$ Begin conclusion and future work
-//
-
-//TODO 2.9
-//    $$$ rewrite evaluation
-//      $$$ run evaluation
-//    $$$ check if you missed anything in XCC change model
-//     $$$ XCC no move-update
-//    $$ proofread once
-//    ??? slow xmldom??? rollback to previous version
-
 
 
 //TODO 3.9
@@ -120,10 +23,12 @@
 //    speed up tree genreation
 //     verify runtime
 //    option to output matching
+//    OPTION TO output preprocessing edit script
 //     test variable prefix
 //    option output summary
 
 //TODO maybe
+//      exact edit script option?
 //      chnage operation weight?
 //      better commonality complexity
 //      remove adjustmenets to change model

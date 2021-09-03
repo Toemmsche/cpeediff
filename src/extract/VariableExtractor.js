@@ -43,6 +43,11 @@ export class VariableExtractor {
     return this._memo.get(node);
   }
 
+  /**
+   * An extractor for the properties of <call> nodes.
+   * @type {CallPropertyExtractor}
+   * @const
+   */
   callPropertyExtractor;
 
   /**

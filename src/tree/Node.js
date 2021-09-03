@@ -277,11 +277,21 @@ export class Node {
   }
 
   /**
+   * NOTE: It is known that property nodes of inner nodes are still considered
+   * ordered by this function. This is fine for our purposes and unlikely to
+   * ever make a difference in reality.
    * @return {Boolean} If the order of the children of this node
    * has semantic implications in terms of the CPEE DSL.
    */
   hasInternalOrdering() {
-    return !Dsl.UNORDERED_SET.has(this.label);
+    if (this.isPropertyNode()) {
+      return this.isCallArguments();
+    } else if (this.isLeaf()) {
+      // Property nodes of leaves are never ordered
+      return false;
+    } else {
+      return !this.isParallel();
+    }
   }
 
   /** @return {Boolean} */

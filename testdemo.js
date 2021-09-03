@@ -49,13 +49,13 @@ DiffConfig.LOG_LEVEL = 'all';
 //new MatchingEvaluation([ new CpeeMatchAdapter("quality"), new CpeeMatchAdapter('balanced'), new CpeeMatchAdapter('fast')]).evalAll(EvalConfig.MATCH_CASES_DIR);
 //new GeneratedMatchingEvaluation([new CpeeMatchAdapter('quality'), new CpeeMatchAdapter('balanced'), new CpeeMatchAdapter('fast')]).average(false, false);
 //DiffEvaluation.all().evalAll();
-//GeneratedDiffEvaluation.all().average(false, false);
+GeneratedDiffEvaluation.all().average(false, false);
 
 
 //new GeneratedDiffEvaluation([new CpeeDiffAdapter('quality'), new XccAdapter()]).single(false, false);
 //new DiffEvaluation([new CpeeDiffAdapter(('quality')), new XccAdapter()]).evalAll();
 
-new MergeEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll(EvalConfig.MERGE_CASES_DIR );
+//new MergeEvaluation([new CpeeMergeAdapter(), new XccPatchAdapter(), new _3dmAdapter()]).evalAll(EvalConfig.MERGE_CASES_DIR );
 
 /*
 const diff = new OurDiffAdapter();

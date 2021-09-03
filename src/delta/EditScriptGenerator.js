@@ -28,7 +28,8 @@ export class EditScriptGenerator {
     // To find the minimal number of moves, map each child to the index of
     // its matching partner and compute the longest increasing subsequence (LIS)
     // on the result. Every node that isn't part of the LIS must be moved.
-    const lis = getLis(nodes.map((node) => this.#matching.getMatch(node).index));
+    const lis = getLis(nodes.map((node) =>
+      this.#matching.getMatch(node).index));
 
     const inLis = new Set();
     for (const index of lis) {

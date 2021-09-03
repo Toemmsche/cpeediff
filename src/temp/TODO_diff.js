@@ -3,12 +3,8 @@
 //      turn single function classes in to functions
 //      print diff info option (as format option)
 //      option to output no diff
-//      option for no preprocessing
-//      deleted tree in edit script
 
 //TODO semi-features
-//      delta tree with old update value, baseNode, colors, etc.
-//      annotated merged tree output (with conrfidence, changeorigin, etc.)
 //      trim all strings of whitespaces and stuff (e.g. attribute values) ==> also test case
 
 //TODO tidy
