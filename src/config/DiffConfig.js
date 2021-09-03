@@ -52,7 +52,6 @@ export const DiffConfig = {
   EXACT_EDIT_SCRIPT: false,
 
   VARIABLE_PREFIX: 'data.',
-  ADD_INIT_SCRIPT: false,
 
   PRETTY_XML: false,
 

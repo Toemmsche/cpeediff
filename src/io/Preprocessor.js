@@ -157,7 +157,7 @@ export class Preprocessor {
       }
     }
 
-    if (DiffConfig.ADD_INIT_SCRIPT && dataElements.size > 0) {
+    if (dataElements.size > 0) {
       // insert initializer for all declared variables at beginning of tree
       const script = new Node(Dsl.ELEMENTS.SCRIPT.label);
       script.text = '';

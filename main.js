@@ -65,14 +65,6 @@ const argv = yargs(hideBin(process.argv))
                 type: 'string',
                 default: 'data.',
               })
-              .option('addInitScript', {
-                description: 'Add a script element (<manipulate>) at the ' +
-                    'beginning of the tree that initializes all declared ' +
-                    'data variables.',
-                alias: 's',
-                type: 'boolean',
-                default: false,
-              })
               .option('format', {
                 description: 'Output format. Choice between an XML ' +
                     'edit script, a delta tree, or ' +
@@ -107,7 +99,6 @@ const argv = yargs(hideBin(process.argv))
         },
         (argv) => {
           // Configure diff instance
-          DiffConfig.ADD_INIT_SCRIPT = argv.addInitScript;
           DiffConfig.VARIABLE_PREFIX = argv.variablePrefix;
           DiffConfig.COMPARISON_THRESHOLD = argv.threshold;
           DiffConfig.MATCH_MODE = argv.mode;

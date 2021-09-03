@@ -19,10 +19,10 @@ export class FixedMatcher {
     const oldFirstChild = oldTree.getChild(0);
     const newFirstChild = newTree.getChild(0);
     if (oldFirstChild != null &&
-        oldFirstChild.attributes.get('id') === 'init') {
-      if (newFirstChild.attributes.get('id') === 'init') {
-        matching.matchNew(newFirstChild, oldTree.getChild(0));
-      }
+        newFirstChild != null &&
+        oldFirstChild.attributes.get('id') === 'init' &&
+        newFirstChild.attributes.get('id') === 'init') {
+      matching.matchNew(newFirstChild, oldTree.getChild(0));
     }
   }
 }
