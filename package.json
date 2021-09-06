@@ -59,10 +59,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/toemmsche/CpeeDiff.git"
+    "url": "git+https://github.com/toemmsche/cpeediff.git"
   },
   "bugs": {
-    "url": "https://github.com/toemmsche/CpeeDiff/issues"
+    "url": "https://github.com/toemmsche/cpeediff/issues"
   },
-  "homepage": "https://github.com/toemmsche/CpeeDiff#readme"
+  "homepage": "https://github.com/toemmsche/cpeediff#readme"
 }

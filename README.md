@@ -1,4 +1,4 @@
-# CpeeDiff
+# cpeediff
 
 Command line tool to calculate and visualize the difference between two business process trees conforming to the [CPEE](https://cpee.org) syntax. This tool is part of my bachelor's thesis at the Technical University of Munich (TUM).
 
