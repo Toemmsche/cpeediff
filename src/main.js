@@ -20,7 +20,6 @@ import {EditScript} from './diff/delta/EditScript.js';
 import {Patcher} from './diff/patch/Patcher.js';
 import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
 
-console.log(process.cwd());
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {
       global: true,
