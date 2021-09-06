@@ -5,12 +5,12 @@ temp/*
 .vs
 
 # ignore temporary files
-temp
-new.xml
-old.xml
-base.xml
-1.xml
-2.xml
+/temp
+/new.xml
+/old.xml
+/base.xml
+/1.xml
+/2.xml
 *.log
 
 
