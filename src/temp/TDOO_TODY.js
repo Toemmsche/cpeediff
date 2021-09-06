@@ -8,16 +8,27 @@
 
 
 //TODO 3.9
-//     incremental tree size increase
-//  refactor all test cases -> add init script per default
+//     $$$ incremental tree size increase
+//  $$$ refactor all test cases -> add init script per default
 //   fix EDIT SCRIPT INVALID!!!
 //      $$ test with lots of variables and every node text update
-//    logs in output main.js
+//    $$$ logs in output main.js
+//    Readme
+//    $$$ exact edit script in thesis
+//    collapse pathmatcher and fast similarity matcher
+//    unordere dhildren in thesis --> ask Jürgen
+//    linear scale in ehsi ? --> ask Jürgen
+//    diffxml update where and how?
+//    $$$ logmode for evaluation edit script cost and size
+//    $$$ sametree for constnat size evaluation
+//    kyong ho selkow model
 
 
 
 
 //TODO finish
+//    check on indents, allign figures
+//    cmd invoke instructions in thesis
 //    publish to npm
 //    publish documentation
 //    speed up tree genreation
@@ -28,12 +39,13 @@
 //    option output summary
 
 //TODO maybe
+//    compare edits cript size
+//      strip index path of quotes
 //      exact edit script option?
 //      chnage operation weight?
-//      better commonality complexity
-//      remove adjustmenets to change model
-//      shorten evaluation
-//      selkow and tai in thesis
+//      --- better commonality complexity
+//      $$$ remove adjustmenets to change model
+//      $$$ shorten evaluation
 //      $$$ compress edit script gen phase in thesis
 //
 
@@ -46,7 +58,3 @@ TO BEAT for benchmark
  */
 //maybe insert arg
 
-/*
-NOtes:
-Accuracy is higher without hash matching, huh....
- */

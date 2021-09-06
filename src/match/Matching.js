@@ -59,12 +59,10 @@ export class Matching {
    */
   matchNew(newNode, oldNode) {
     if (this.isMatched(newNode) || this.isMatched(oldNode)) {
-      const msg = 'Matching of already matched node';
-      Logger.error(msg, this);
+      Logger.error('Matching of already matched node', this);
     }
     if (newNode == null || oldNode == null) {
-      const msg = 'Matching of undefined or null';
-      Logger.error(msg, this);
+      Logger.error('Matching of undefined or null', this);
     }
     this.newToOldMap.set(newNode, oldNode);
     this.oldToNewMap.set(oldNode, newNode);

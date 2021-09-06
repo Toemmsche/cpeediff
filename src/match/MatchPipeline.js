@@ -3,7 +3,7 @@ import {PropertyMatcher} from './PropertyMatcher.js';
 import {Matching} from './Matching.js';
 import {HashMatcher} from './HashMatcher.js';
 import {SimilarityMatcher} from './SimilarityMatcher.js';
-import {UnmatchedMatcher} from './UnmatchedMatcher.js';
+import {SandwichMatcher} from './SandwichMatcher.js';
 import {Logger} from '../../util/Logger.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 import {CommonalityPathMatcher} from './CommonalityPathMatcher.js';
@@ -58,7 +58,7 @@ export class MatchPipeline {
           new SimilarityMatcher(),
           new CommonalityPathMatcher(),
           new PathMatcher(),
-          new UnmatchedMatcher(),
+          new SandwichMatcher(),
           new PropertyMatcher(),
         ]);
   }
@@ -77,11 +77,10 @@ export class MatchPipeline {
               new FastSimilarityMatcher(),
               new PathMatcher(),
               new PathMatcher(),
-              new UnmatchedMatcher(),
+              new SandwichMatcher(),
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.BALANCED:
-        //DiffConfig.EXP = true;
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -89,11 +88,10 @@ export class MatchPipeline {
               new SimilarityMatcher(),
               new PathMatcher(),
               new PathMatcher(),
-              new UnmatchedMatcher(),
+              new SandwichMatcher(),
               new PropertyMatcher(),
             ]);
       case MatchPipeline.MATCH_MODES.QUALITY:
-        //DiffConfig.EXP = false;
         return new MatchPipeline(
             [
               new FixedMatcher(),
@@ -101,7 +99,7 @@ export class MatchPipeline {
               new SimilarityMatcher(),
               new CommonalityPathMatcher(),
               new PathMatcher(),
-              new UnmatchedMatcher(),
+              new SandwichMatcher(),
               new PropertyMatcher(),
             ]);
     }

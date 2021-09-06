@@ -493,11 +493,14 @@ export class Comparator {
 
   /**
    * Compute the weighted average for a set of comparison values and weights.
-   * @param {Array<?Number>} items The array of comparison values from the range
-   *     [0;1]. A null value indicates a missing value that won't be considered.
+   * @param {Array<?Number>} items The array of comparison values from the
+   *     range
+   *     [0,1]. A null value indicates a missing value that won't be
+   *     considered.
    * @param {Array<Number>} weights The array of weights.
    * @param {?Number} defaultValue The result if the computation is invalid.
-   * @return {?Number} The average comparison value from the range [0;1]
+   * @return {?Number} The weighted average from the range [0,1] of the
+   *     supplied comparison values.
    */
   weightedAverage(items, weights, defaultValue = null) {
     let itemSum = 0;

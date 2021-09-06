@@ -5,7 +5,7 @@ import {DiffConfig} from '../config/DiffConfig.js';
  * if certain conditions are met.
  * @implements {MatcherInterface}
  */
-export class UnmatchedMatcher {
+export class SandwichMatcher {
   /**
    * Extend the matching with matches that can be inferred from the matching
    * of surrounding nodes, e.g., if a node is vertically or horizontally

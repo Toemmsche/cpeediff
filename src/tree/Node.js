@@ -222,8 +222,7 @@ export class Node {
     if (indexPath !== '') {
       for (const index of indexPath.split('/').map((str) => parseInt(str))) {
         if (index >= currNode.degree()) {
-          const msg = 'Invalid index path';
-          Logger.error(msg, this);
+          Logger.error('Invalid index path', this);
         }
         currNode = currNode.getChild(index);
       }

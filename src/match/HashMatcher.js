@@ -1,5 +1,3 @@
-import {MatcherInterface} from './MatcherInterface.js';
-import {HashExtractor} from '../extract/HashExtractor.js';
 import {persistBestMatches} from './BestMatchPersister.js';
 import {DiffConfig} from '../config/DiffConfig.js';
 

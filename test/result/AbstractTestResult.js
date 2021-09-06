@@ -66,7 +66,8 @@ export class AbstractTestResult {
    * @return {Boolean} If this test result indicates success.
    */
   isOk() {
-    return this.verdict === AbstractTestResult.VERDICTS.OK;
+    return this.verdict === AbstractTestResult.VERDICTS.OK &&
+        this.actual != null;
   }
 
   /**

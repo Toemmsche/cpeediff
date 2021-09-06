@@ -7,12 +7,12 @@ import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
 import {AverageDiffResult} from '../result/AverageDiffResult.js';
 import {DiffTestResult} from '../result/DiffTestResult.js';
+import {AbstractEvaluation} from './AbstractEvaluation.js';
 
 /**
  * An evaluation of diff algorithms using generated test cases.
  */
 export class GeneratedDiffEvaluation extends DiffEvaluation {
-
   /**
    * Construct a new GeneratedDiffEvaluation instance.
    * @param {Array<DiffAdapter>} adapters The adapters of the algorithms to
@@ -41,15 +41,14 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
   }
 
   /**
-   * Evaluate diff algorithms using random process trees of increasing size.The
-   * results are relative to a proposed edit script and represent the average
-   * of multiple runs with trees of similar size.
-   * @param {Boolean} flat If the number of changes should remain constant.
-   * @param {Boolean} local If the changes should be applied locally, i.e. to a
-   *     small region of the process tree. If set to false, changes are
-   *     randomly distributed within the tree.
+   * Evaluate diff algorithms using random process trees of increasing size.
+   * The results are relative to a proposed edit script and represent the
+   * average of multiple runs with trees of similar size.
+   * @param {Boolean} local If a constant number of changes should be applied
+   *     locally, i.e. to a small region of the process tree. If set to false,
+   *     changes are growing and randomly distributed within the tree.
    */
-  average(flat = false, local = false) {
+  growingSize(local = false) {
     Logger.section('Diff Evaluation with Generated Trees', this);
     // TODO LATEX REMOVE
     /** @type {Map<String, Array<AverageDiffResult>>} */
@@ -58,14 +57,13 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       [],
     ]));
     // TODO remove latex
-    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
+    for (let i = 1; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
       // Init results with empty array for each adapter
       const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
         adapter,
         [],
       ]));
-      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
-          (EvalConfig.PROGRESSION.FACTOR ** i);
+      const size = EvalConfig.SIZE_GROWTH.INTERVAL * i;
       const genParams = new GeneratorParameters(
           size,
           size,
@@ -75,15 +73,14 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       const treeGen = new TreeGenerator(genParams);
       const changeParams =
           new ChangeParameters(
-              EvalConfig.PROGRESSION.INITIAL_CHANGES *
-              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              EvalConfig.CHANGE_GROWTH.INTERVAL * i,
               local,
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
 
       // Take the average of multiple runs
-      for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
+      for (let j = 0; j < EvalConfig.REPS; j++) {
         const oldTree = treeGen.randomTree();
         const testCase = treeGen.changeTree(oldTree, changeParams)[0];
 
@@ -122,86 +119,134 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       Logger.result(markdownTable(table));
     }
 
-    // TODO remove latex
-    //Produce runtime plots
-    const colors = 'black, red, blue, magenta, orange, violet, teal'.split(
-        ', ');
-    const markers = 'square*, triangle*, *, diamond*, square, triangle, o, diamond'.split(
-        ', ');
-    let i = 0;
-    Logger.section('RUNTIME LATEX', this);
-    for (const [algorithm, tests] of aResultsPerAdapter) {
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark={2},\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };')
-          .replace('{0}', colors[i])
-          .replace('{2}', markers[i++])
-          .replace(
-              '{1}',
-              tests.map(t => '(' + t.size + ',' + t.avgRuntime + ')')
-                  .join('')
-          ), this);
+    this.publishLatex(aResultsPerAdapter, (result) => result.size);
+  }
+
+  /**
+   * Evaluate diff algorithms using a random process tree of constant size, to
+   * which an increasing number of random changes are applied randomly
+   * throughout the tree. The results are relative to a proposed edit script
+   * and represent the average of multiple runs.
+   */
+  constantSize() {
+    Logger.section(
+        'Diff Evaluation with Generated Trees of Constant Size',
+        this,
+    );
+    /** @type {Map<String, Array<AverageDiffResult>>} */
+    const averageResultsPerAdapter = new Map(this._adapters.map((adapter) => [
+      adapter.displayName,
+      [],
+    ]));
+
+    // Use the same tree and generator for all runs
+    const size = EvalConfig.CHANGE_GROWTH.SIZE;
+    const genParams = new GeneratorParameters(
+        size,
+        size,
+        Math.ceil(Math.log2(size)),
+        Math.ceil(Math.log10(size)),
+    );
+    const treeGen = new TreeGenerator(genParams);
+    const oldTree = treeGen.randomTree();
+
+    for (let i = 1; i <= EvalConfig.CHANGE_GROWTH.LIMIT; i++) {
+      // Init results with empty array for each adapter
+      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
+        adapter,
+        [],
+      ]));
+
+      const numChanges = i * EvalConfig.CHANGE_GROWTH.INTERVAL;
+      // Cannot be local
+      const changeParams = new ChangeParameters(numChanges, false);
+      const testId = '[Size: ' + size +
+          ', Changes: ' + changeParams.totalChanges + ']';
+
+      // Take the average of multiple runs
+      for (let j = 0; j < EvalConfig.REPS; j++) {
+        const testCase = treeGen.changeTree(oldTree, changeParams)[0];
+
+        for (const adapter of this._adapters) {
+          Logger.info(
+              'Running rep ' + j + ' for adapter ' + adapter.displayName,
+              this,
+          );
+          const result = adapter.evalCase(testCase);
+          if (result.isOk()) {
+            // Make relative to proposed edit script
+            result.actual.cost /= testCase.expected.editScript.cost;
+            result.actual.editOperations /= testCase.expected.editScript.size();
+          } else if (result.isTimeOut()) {
+            // Do not use in future runs
+            const adapterIndex = this._adapters.indexOf(adapter);
+            this._adapters.splice(adapterIndex, 1);
+          }
+          resultsPerAdapter.get(adapter).push(result);
+        }
+      }
+      const averageResults = [...resultsPerAdapter.entries()]
+          .map((entry) => AverageDiffResult.of(entry[1]))
+          .filter((averageResult) => averageResult != null);
+      // TODO remove latex
+      for (const averageResult of averageResults) {
+        // Preserve size as object property
+        averageResult.numChanges = numChanges;
+        averageResultsPerAdapter.get(averageResult.algorithm)
+            .push(averageResult);
+      }
+      // TODO remove latex
+      const table = [
+        AverageDiffResult.header(),
+        ...(averageResults.map((result) => result.values())),
+      ];
+      Logger.result('Results for cases ' + testId);
+      Logger.result(markdownTable(table));
     }
-    Logger.result('\\legend{' + this._adapters.map(a => a.displayName)
+
+    // TODO remove latex
+    // Produce runtime plots
+    this.publishLatex(averageResultsPerAdapter);
+  }
+
+  publishLatex(averageResultsPerAdapter, xFunc) {
+    Logger.section('RUNTIME LATEX', this);
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...averageResultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgRuntime + ')'),
+            ),
+    ));
+    Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
         .join(', ')
         .replaceAll('_', '\\_') + '}');
-
-    i = 0;
     Logger.section('COST LATEX', this);
-    for (const [adapter, tests] of aResultsPerAdapter) {
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark={2},\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };')
-          .replace('{0}', colors[i])
-          .replace('{2}', markers[i++])
-          .replace(
-              '{1}',
-              tests.map(t => '(' + t.size + ',' + t.avgCost + ')')
-                  .join(''),
-          ), this);
-    }
-
-    i = 0;
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...averageResultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgCost + ')'),
+            ),
+    ));
     Logger.section('EDIT OPS LATEX', this);
-    for (const [adapter, tests] of aResultsPerAdapter) {
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark={2},\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };')
-          .replace('{0}', colors[i])
-          .replace('{2}', markers[i++])
-          .replace(
-              '{1}',
-              tests.map(t => '(' + t.size + ',' + t.avgEditOperations + ')')
-                  .join(''),
-          ), this);
-    }
-    // TODO remove latex
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...averageResultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgEditOperations + ')'),
+            ),
+    ));
   }
 
   /**
    * Evaluate diff algorithms using random process trees of increasing size.
-   * @param {Boolean} flat If the number of changes should remain constant.
    * @param {Boolean} local If the changes should be applied locally, i.e. to a
-   *     small region of the process tree. If set to false, changes are
-   *     randomly distributed within the tree.
+   *     small region of the process tree. If set to false, changes are growing
+   *     and randomly distributed within the tree.
    */
-  single(flat = false, local = false) {
+  single( local = false) {
     Logger.section('Diff Evaluation with Generated Trees', this);
-    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
-      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
-          (EvalConfig.PROGRESSION.FACTOR ** i);
+    for (let i = 0; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
+      const size = EvalConfig.SIZE_GROWTH.INITIAL_SIZE *
+          (EvalConfig.SIZE_GROWTH.FACTOR ** i);
       const genParams = new GeneratorParameters(
           size,
           size,
@@ -211,8 +256,8 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       const treeGen = new TreeGenerator(genParams);
       const changeParams =
           new ChangeParameters(
-              EvalConfig.PROGRESSION.INITIAL_CHANGES *
-              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              EvalConfig.SIZE_GROWTH.INITIAL_CHANGES *
+              (local ? 1 : (EvalConfig.SIZE_GROWTH.FACTOR ** i)),
               local,
           );
 

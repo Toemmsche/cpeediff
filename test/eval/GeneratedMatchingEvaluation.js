@@ -7,6 +7,7 @@ import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
 import {MatchingEvaluation} from './MatchingEvaluation.js';
 import {Comparator} from '../../src/match/Comparator.js';
+import {AbstractEvaluation} from './AbstractEvaluation.js';
 
 /**
  * An evaluation for matching algorithms that uses generated process trees and
@@ -67,14 +68,14 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           unmatchedInners++;
         } else if (newNode.isLeaf()) {
           const cv = new Comparator().compare(newNode, oldNode);
-          const other = new Comparator().compare(oldNode ,newNode);
+          const other = new Comparator().compare(oldNode, newNode);
           unmatchedLeaves++;
         }
       }
     }
 
-    for(const [newNode, oldNode] of actual.newToOldMap) {
-      if(!expected.isMatched(newNode) && !expected.isMatched(oldNode)) {
+    for (const [newNode, oldNode] of actual.newToOldMap) {
+      if (!expected.isMatched(newNode) && !expected.isMatched(oldNode)) {
         if (newNode.isInnerNode()) {
           //Logger.debug("Mismatched " + newNode.label, this)
           mismatchedInners++;
@@ -123,9 +124,9 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       [],
     ]));
     // TODO remove latex
-    for (let i = 0; i <= EvalConfig.PROGRESSION.LIMIT; i++) {
-      const size = EvalConfig.PROGRESSION.INITIAL_SIZE *
-          (EvalConfig.PROGRESSION.FACTOR ** i);
+    for (let i = 0; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
+      const size = EvalConfig.SIZE_GROWTH.INITIAL_SIZE *
+          (EvalConfig.SIZE_GROWTH.FACTOR ** i);
       const genParams = new GeneratorParameters(
           size,
           size,
@@ -135,14 +136,14 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       const treeGen = new TreeGenerator(genParams);
       const changeParams =
           new ChangeParameters(
-              EvalConfig.PROGRESSION.INITIAL_CHANGES *
-              (flat ? 1 : (EvalConfig.PROGRESSION.FACTOR ** i)),
+              EvalConfig.SIZE_GROWTH.INITIAL_CHANGES *
+              (flat ? 1 : (EvalConfig.SIZE_GROWTH.FACTOR ** i)),
               local
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
       const results = new Map();
-      for (let j = 0; j < EvalConfig.PROGRESSION.REPS; j++) {
+      for (let j = 0; j < EvalConfig.SIZE_GROWTH.REPS; j++) {
         const oldTree = treeGen.randomTree();
         const [testCase, expectedMatching] =
             treeGen.changeTree(oldTree, changeParams);
@@ -211,26 +212,13 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       ]));
     }
 
-    //Produce runtime plots
-
-    const colors = 'black, blue, green, magenta, orange, red, yellow, teal, violet, white'.split(
-        ', ');
-    let i = 0;
+    // Produce runtime plots
     Logger.section('RUNTIME LATEX', this);
-    for (const [adapter, tests] of aResultsPerAdapter) {
-      const nextColor = colors[i++];
-      Logger.result(('\\addplot[\n' +
-          '    color={0},\n' +
-          '    mark=square,\n' +
-          '    ]\n' +
-          '    coordinates {\n' +
-          '    {1}\n' +
-          '    };').replace('{0}', nextColor).replace(
-          '{1}',
-          tests.map(t => '(' + t[1] + ',' + t[3] + ')').join('')
-      ), this);
-    }
-    Logger.result('\\legend{' + this._adapters.map(a => a.displayName).join(', ')
+    AbstractEvaluation.LATEX.fromTemplate([...aResultsPerAdapter.entries()].map(
+        (entry) => entry[1].map((result) => '(' + result[1] + ',' + result[3] + ')')));
+
+    Logger.result('\\legend{' + this._adapters.map(a => a.displayName)
+        .join(', ')
         .replaceAll('_', '\\_') + '}');
 
   }

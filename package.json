@@ -1,7 +1,7 @@
 {
-  "name": "process-tree-diff",
+  "name": "cpeediff",
   "version": "0.1.0",
-  "description": "",
+  "description": "An advanced difference tool for process models conforming to notation used by the Cloud Process Execution Engine.",
   "main": "demo.js",
   "esversion": 12,
   "scripts": {
@@ -34,8 +34,7 @@
     "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/preset-env": "^7.15.0",
     "eslint": "^7.32.0",
-    "eslint-config-google": "^0.14.0",
-    "xmlshim": "^0.2.7"
+    "eslint-config-google": "^0.14.0"
   },
   "eslintConfig": {
     "env": {

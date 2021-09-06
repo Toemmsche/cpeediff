@@ -7,7 +7,6 @@ import {DomHelper} from '../../util/DomHelper.js';
 import xmldom from '@xmldom/xmldom';
 import vkbeautify from 'vkbeautify';
 import {DiffConfig} from '../config/DiffConfig.js';
-import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
 
 /**
  * A wrapper class for an ordered sequence of edit operations, commonly
@@ -62,7 +61,7 @@ export class EditScript {
       editScript.#cost = parseInt(xmlElement.getAttribute('cost'));
     }
     DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
-        editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
+      editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
     return editScript;
   }
 
