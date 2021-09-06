@@ -37,7 +37,7 @@ export class CpeeMergeAdapter extends MergeAdapter {
     fs.writeFileSync(branch2FilePath, branch2String);
 
     return execFileSync(
-        './main.js',
+        this.path,
         [
           'merge',
           baseFilePath,

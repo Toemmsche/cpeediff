@@ -1,4 +1,5 @@
 import {AbstractTestResult} from './AbstractTestResult.js';
+import {ActualDiff} from '../actual/ActualDiff.js';
 
 /**
  * The result for a diff test case.
@@ -82,5 +83,4 @@ export class DiffTestResult extends AbstractTestResult {
     ];
   }
 }
-
 

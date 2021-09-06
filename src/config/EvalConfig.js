@@ -51,7 +51,7 @@ export const EvalConfig = {
   DIFFS: {
     CPEEDIFF: {
       displayName: 'CpeeDiff',
-      path: '',
+      path: './src/main.js',
     },
     XMLDIFF: {
       displayName: 'xmldiff',
@@ -82,7 +82,7 @@ export const EvalConfig = {
   MERGES: {
     CPEEMERGE: {
       displayName: 'CpeeMerge',
-      path: '',
+      path: './src/main.js',
     },
     _3DM: {
       displayName: '3DM',

@@ -44,11 +44,15 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    * Evaluate diff algorithms using random process trees of increasing size.
    * The results are relative to a proposed edit script and represent the
    * average of multiple runs with trees of similar size.
+   * @param {Boolean} constChanges If the number of changes should remain
+   *     constant.
+   * @param {Boolean} constSize If the size of the trees should remain
+   *     constant.
    * @param {Boolean} local If a constant number of changes should be applied
    *     locally, i.e. to a small region of the process tree. If set to false,
    *     changes are growing and randomly distributed within the tree.
    */
-  growingSize(local = false) {
+  average(constChanges, constSize, local = false) {
     Logger.section('Diff Evaluation with Generated Trees', this);
     // TODO LATEX REMOVE
     /** @type {Map<String, Array<AverageDiffResult>>} */
@@ -63,7 +67,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
         adapter,
         [],
       ]));
-      const size = EvalConfig.SIZE_GROWTH.INTERVAL * i;
+      const size = EvalConfig.SIZE_GROWTH.INTERVAL * (constSize ? 1 : i);
       const genParams = new GeneratorParameters(
           size,
           size,
@@ -73,7 +77,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       const treeGen = new TreeGenerator(genParams);
       const changeParams =
           new ChangeParameters(
-              EvalConfig.CHANGE_GROWTH.INTERVAL * i,
+              EvalConfig.CHANGE_GROWTH.INTERVAL * (constChanges ? 1 : i),
               local,
           );
       const testId = '[Size: ' + size +
@@ -242,7 +246,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    *     small region of the process tree. If set to false, changes are growing
    *     and randomly distributed within the tree.
    */
-  single( local = false) {
+  single(local = false) {
     Logger.section('Diff Evaluation with Generated Trees', this);
     for (let i = 1; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
       const size = EvalConfig.SIZE_GROWTH.INTERVAL * i;

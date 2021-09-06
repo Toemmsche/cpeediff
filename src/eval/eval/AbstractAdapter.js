@@ -13,7 +13,7 @@ export class AbstractAdapter {
    * @protected
    * @const
    */
-  _path;
+  path;
 
   /**
    * The name to display for the algorithm this adapter represents.

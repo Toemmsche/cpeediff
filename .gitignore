@@ -5,6 +5,7 @@ temp/*
 .vs
 
 # ignore temporary files
+./temp/*
 ./temp
 ./new.xml
 ./old.xml
@@ -12,5 +13,6 @@ temp/*
 ./1.xml
 ./2.xml
 *.log
+temp/testdemo.js
 
 

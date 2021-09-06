@@ -69,7 +69,7 @@ export class CallProperties {
 
   /** @return {Boolean} */
   hasArgs() {
-    return this.args != null && this.args.length > 0;
+    return this.argKeys != null && this.argKeys.length > 0;
   }
 
   /** @return {Boolean} */

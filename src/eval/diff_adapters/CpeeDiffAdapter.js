@@ -83,7 +83,7 @@ export class CpeeDiffAdapter extends DiffAdapter {
     const time = new Date().getTime();
     return {
       output: execFileSync(
-          './main.js',
+          this.path,
           [
             'diff',
             '--mode',

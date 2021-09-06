@@ -1,5 +1,5 @@
 {
-  "name": "cpeediff",
+  "name": "@toemmsche/cpeediff",
   "version": "0.1.0",
   "description": "An advanced difference tool for process models conforming to the [CPEE](https://cpee.org) notation.",
   "main": "src/main.js",
@@ -21,14 +21,16 @@
     "Semantic Diff"
   ],
   "author": "Tom Papke",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "markdown-table": "^3.0.1",
     "murmur-32": "^0.2.0",
-    "node": "^16.4.0",
     "vkbeautify": "^0.99.3",
     "@xmldom/xmldom": "^0.7.4",
     "yargs": "^17.0.1"
+  },
+  "engines": {
+    "node": "^16"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -54,5 +56,13 @@
       }
     },
     "parser": "@babel/eslint-parser"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toemmsche/CpeeDiff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/toemmsche/CpeeDiff/issues"
+  },
+  "homepage": "https://github.com/toemmsche/CpeeDiff#readme"
 }

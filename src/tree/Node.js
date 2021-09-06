@@ -46,39 +46,39 @@ export class Node {
     this.label = label;
     this.text = text;
     this.attributes = new Map();
-    this.#children = [];
-    this.#parent = null;
-    this.#index = null;
+    this._children = [];
+    this._parent = null;
+    this._index = null;
   }
 
   /**
    * The parent of this node, if it exists.
    * @type {?Node}
-   * @private
+   * @protected
    */
-  #parent;
+  _parent;
 
   /**
    * Get the parent of this node, if it exists.
    * @return {?Node}
    */
   get parent() {
-    return this.#parent;
+    return this._parent;
   }
 
   /**
    * The index of this node within the parent's ordered child list.
    * @type {?Number}
-   * @private
+   * @protected
    */
-  #index;
+  _index;
 
   /**
    * Get the index of this node within the parent's ordered child list.
    * @return {?Number}
    */
   get index() {
-    return this.#index;
+    return this._index;
   }
 
   /**
@@ -88,19 +88,19 @@ export class Node {
    */
   set index(index) {
     // TODO remove, too dangerous
-    this.#index = index;
+    this._index = index;
   }
 
   /**
    * The ordered child list of this node.
    * @type {Array<Node>}
-   * @private
+   * @protected
    */
-  #children;
+  _children;
 
   /** @return {Array<Node>} */
   get children() {
-    return this.#children;
+    return this._children;
   }
 
   /**
@@ -169,13 +169,13 @@ export class Node {
    * @return {IterableIterator<Node>} An iterator for this node's children
    */
   [Symbol.iterator]() {
-    return this.#children[Symbol.iterator]();
+    return this._children[Symbol.iterator]();
   }
 
   /** @param {Node} node */
   appendChild(node) {
-    node.#index = this.#children.push(node) - 1;
-    node.#parent = this;
+    node._index = this._children.push(node) - 1;
+    node._parent = this;
   }
 
   /**
@@ -184,11 +184,11 @@ export class Node {
    */
   changeIndex(index) {
     // delete
-    this.#parent.#children.splice(this.#index, 1);
+    this._parent._children.splice(this._index, 1);
     // insert
-    this.#parent.#children.splice(index, 0, this);
+    this._parent._children.splice(index, 0, this);
     // adjust indices of all children
-    this.#parent.#fixChildIndices();
+    this._parent.#fixChildIndices();
   }
 
   /**
@@ -209,7 +209,7 @@ export class Node {
    * @return {Number} The number of children of this node
    */
   degree() {
-    return this.#children.length;
+    return this._children.length;
   }
 
   /**
@@ -235,7 +235,7 @@ export class Node {
    * @private
    */
   #fixChildIndices() {
-    this.#children.forEach((node, index) => node.#index = index);
+    this._children.forEach((node, index) => node._index = index);
   }
 
   /**
@@ -243,26 +243,26 @@ export class Node {
    * @return {Node}
    */
   getChild(index) {
-    return this.#children[index];
+    return this._children[index];
   }
 
   /** @return {?Node} */
   getLeftSibling() {
-    return this.#index > 0 ?
-           this.getSiblings()[this.#index - 1] :
+    return this._index > 0 ?
+           this.getSiblings()[this._index - 1] :
            null;
   }
 
   /** @return {?Node} */
   getRightSibling() {
-    return this.#index < this.getSiblings().length - 1 ?
-           this.getSiblings()[this.#index + 1] :
+    return this._index < this.getSiblings().length - 1 ?
+           this.getSiblings()[this._index + 1] :
            null;
   }
 
   /** @return {?Array<Node>} The child list of the parent node */
   getSiblings() {
-    return this.#parent.#children;
+    return this._parent._children;
   }
 
   /** @return {Boolean} */
@@ -320,57 +320,57 @@ export class Node {
    * @param {Node} node The new child.
    */
   insertChild(index, node) {
-    this.#children.splice(index, 0, node);
-    node.#parent = this;
+    this._children.splice(index, 0, node);
+    node._parent = this;
     this.#fixChildIndices();
   }
 
   /** @return {Boolean} */
   isAlternative() {
     return this.label === Dsl.ELEMENTS.ALTERNATIVE.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isBreak() {
     return this.label === Dsl.ELEMENTS.BREAK.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isCall() {
     return this.label === Dsl.ELEMENTS.CALL.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isCallArguments() {
     return this.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label &&
-        this.#parent.label !== Dsl.CALL_PROPERTIES.ARGUMENTS.label;
+        this._parent.label !== Dsl.CALL_PROPERTIES.ARGUMENTS.label;
   }
 
   /** @return {Boolean} */
   isCallLabel() {
     return this.label === Dsl.CALL_PROPERTIES.LABEL.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isCallMethod() {
     return this.label === Dsl.CALL_PROPERTIES.METHOD.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isChoice() {
     return this.label === Dsl.ELEMENTS.CHOICE.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isCritical() {
     return this.label === Dsl.ELEMENTS.CRITICAL.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
@@ -391,7 +391,7 @@ export class Node {
    */
   isInnerNode() {
     return Dsl.INNER_NODE_SET.has(this.label) &&
-        !this.#parent?.isCallArguments(); // root may be checked
+        !this._parent?.isCallArguments(); // root may be checked
   }
 
   /** @return {Boolean} */
@@ -405,31 +405,31 @@ export class Node {
    */
   isLeaf() {
     return Dsl.LEAF_NODE_SET.has(this.label) &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isLoop() {
     return this.label === Dsl.ELEMENTS.LOOP.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isOtherwise() {
     return this.label === Dsl.ELEMENTS.OTHERWISE.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isParallel() {
     return this.label === Dsl.ELEMENTS.PARALLEL.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isParallelBranch() {
     return this.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /**
@@ -440,30 +440,30 @@ export class Node {
     // Call arguments that are named after DSL-elements
     // can break the first condition.
     return !Dsl.ELEMENT_SET.has(this.label) ||
-        this.#parent?.isCallArguments();
+        this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isRoot() {
-    return this.label === Dsl.ELEMENTS.DSL_ROOT.label && this.#parent == null;
+    return this.label === Dsl.ELEMENTS.DSL_ROOT.label && this._parent == null;
   }
 
   /** @return {Boolean} */
   isScript() {
     return this.label === Dsl.ELEMENTS.SCRIPT.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isStop() {
     return this.label === Dsl.ELEMENTS.STOP.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Boolean} */
   isTermination() {
     return this.label === Dsl.ELEMENTS.TERMINATION.label &&
-        !this.#parent?.isCallArguments();
+        !this._parent?.isCallArguments();
   }
 
   /** @return {Array<Node>} All leaf nodes of this subtree in pre-order */
@@ -493,7 +493,7 @@ export class Node {
     let node = this;
     while (node != null && (limit == null || pathArr.length < limit)) {
       pathArr.push(node);
-      node = node.#parent;
+      node = node._parent;
     }
     // this node is always last in path
     return pathArr.reverse();
@@ -504,9 +504,9 @@ export class Node {
    * Note: The parent attribute is not cleared by this function.
    */
   removeFromParent() {
-    if (this.#parent != null) {
-      this.#parent.children.splice(this.#index, 1);
-      this.#parent.#fixChildIndices();
+    if (this._parent != null) {
+      this._parent.children.splice(this._index, 1);
+      this._parent.#fixChildIndices();
     } else {
       // Unexpected, but non-fatal event
       Logger.warn('Removing node ' +

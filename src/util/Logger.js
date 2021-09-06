@@ -68,6 +68,7 @@ export class Logger {
     this.error('Execution of an abstract method', source);
   }
 
+
   /**
    * Create a log with log type DEBUG.
    * Debug logs provide a way for developers to gain insight into the internals

@@ -1,5 +1,3 @@
-import {MatcherInterface} from './MatcherInterface.js';
-
 /**
  * A matching module dedicated to the matching or property nodes.
  * @implements {MatcherInterface}

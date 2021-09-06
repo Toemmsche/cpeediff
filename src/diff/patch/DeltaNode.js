@@ -93,8 +93,8 @@ export class DeltaNode extends Node {
     super.insertChild(index, node);
     // Adjust placeholders
     for (const placeholder of this.placeholders) {
-      if (placeholder.index >= index) {
-        placeholder.index = placeholder.index + 1;
+      if (placeholder._index >= index) {
+        placeholder._index++;
       }
     }
   }
@@ -107,10 +107,10 @@ export class DeltaNode extends Node {
    */
   removeFromParent() {
     super.removeFromParent();
-    if (this.parent != null) {
-      for (const placeholder of this.parent.placeholders) {
-        if (placeholder.index > this.index) {
-          placeholder.index = placeholder.index - 1;
+    if (this._parent != null) {
+      for (const placeholder of this._parent.placeholders) {
+        if (placeholder._index > this.index) {
+          placeholder._index--;
         }
       }
     }
