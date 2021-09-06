@@ -1,8 +1,16 @@
 /.idea
 /node_modules
 /node_modules/*
-/src/temp/Report
+temp/*
 .vs
-*.log
-./old.xml
+
+# ignore temporary files
+./temp
 ./new.xml
+./old.xml
+./base.xml
+./1.xml
+./2.xml
+*.log
+
+

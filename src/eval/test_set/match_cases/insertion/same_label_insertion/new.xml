@@ -1,0 +1,15 @@
+<description xmlns="http://cpee.org/ns/description/1.0">
+    <loop condition="data.costs > 100">
+        <loop condition="data.persons > 0">
+            <call endpoint="approve">
+                <parameters>
+                    <label>Approve Hotels</label>
+                    <method>:put</method>
+                    <arguments>
+                        <costs>data.costs</costs>
+                    </arguments>
+                </parameters>
+            </call>
+        </loop>
+    </loop>
+</description>
