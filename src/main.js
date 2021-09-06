@@ -14,11 +14,13 @@ import {CpeeMerge} from './merge/CpeeMerge.js';
 import {MatchPipeline} from './diff/match/MatchPipeline.js';
 import {Node} from './tree/Node.js';
 import {GeneratedDiffEvaluation} from './eval/eval/GeneratedDiffEvaluation.js';
-import {GeneratedMatchingEvaluation} from './eval/eval/GeneratedMatchingEvaluation.js';
+import {GeneratedMatchingEvaluation}
+  from './eval/eval/GeneratedMatchingEvaluation.js';
 import {EditScript} from './diff/delta/EditScript.js';
 import {Patcher} from './diff/patch/Patcher.js';
 import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
 
+console.log(process.cwd());
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {
       global: true,

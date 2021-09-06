@@ -33,9 +33,9 @@ export const EvalConfig = {
     ACCEPTED_MERGE_PREFIX: 'accepted',
   },
 
-  MATCH_CASES_DIR: 'test/test_set/match_cases',
-  DIFF_CASES_DIR: 'test/test_set/diff_cases',
-  MERGE_CASES_DIR: 'test/test_set/merge_cases',
+  MATCH_CASES_DIR: 'test_set/match_cases',
+  DIFF_CASES_DIR: 'test_set/diff_cases',
+  MERGE_CASES_DIR: 'test_set/merge_cases',
 
   EXECUTION_OPTIONS: {
     timeout: 30000, // 30s
