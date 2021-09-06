@@ -1,11 +1,11 @@
-import {MatchPipeline} from '../match/MatchPipeline.js';
-import {Matching} from '../match/Matching.js';
-import {CpeeDiff} from '../CpeeDiff.js';
-import {DeltaTreeGenerator} from '../patch/DeltaTreeGenerator.js';
+import {MatchPipeline} from '../diff/match/MatchPipeline.js';
+import {Matching} from '../diff/match/Matching.js';
+import {CpeeDiff} from '../diff/CpeeDiff.js';
+import {DeltaTreeGenerator} from '../diff/patch/DeltaTreeGenerator.js';
 import {Preprocessor} from '../io/Preprocessor.js';
-import {Update} from '../patch/Update.js';
+import {Update} from '../diff/patch/Update.js';
 import {MergeNode} from './MergeNode.js';
-import {Logger} from '../../util/Logger.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * A simple matching-based three way merger for process trees.

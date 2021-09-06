@@ -1,25 +1,28 @@
 {
   "name": "cpeediff",
   "version": "0.1.0",
-  "description": "An advanced difference tool for process models conforming to notation used by the Cloud Process Execution Engine.",
-  "main": "demo.js",
-  "esversion": 12,
+  "description": "An advanced difference tool for process models conforming to the [CPEE](https://cpee.org) notation.",
+  "main": "src/main.js",
+  "esversion": 21,
   "scripts": {
-    "run": "node main.js"
+    "run": "node src/main.js"
+  },
+  "bin": {
+    "cpeediff": "src/main.js"
   },
   "type": "module",
   "keywords": [
     "CPEE",
+    "cpee.org",
     "Process trees",
     "Diff",
     "Tree Diff",
     "XML",
     "Semantic Diff"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Tom Papke",
+  "license": "Apache 2.0",
   "dependencies": {
-    "bindings": "^1.3.1",
     "markdown-table": "^3.0.1",
     "murmur-32": "^0.2.0",
     "node": "^16.4.0",

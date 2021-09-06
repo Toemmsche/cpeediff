@@ -3,9 +3,9 @@ import fs from 'fs';
 import {Dsl} from '../config/Dsl.js';
 import xmldom from '@xmldom/xmldom';
 import {DiffConfig} from '../config/DiffConfig.js';
-import {DomHelper} from '../../util/DomHelper.js';
-import {EditScript} from '../delta/EditScript.js';
-import {Logger} from '../../util/Logger.js';
+import {DomHelper} from '../util/DomHelper.js';
+import {EditScript} from '../diff/delta/EditScript.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * A parser and preprocessor for CPEE process trees.

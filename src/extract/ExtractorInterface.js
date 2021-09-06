@@ -1,4 +1,4 @@
-import {Logger} from '../../util/Logger.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * Abstract superclass for all extractors.

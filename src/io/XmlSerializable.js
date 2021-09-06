@@ -1,4 +1,4 @@
-import {Logger} from '../../util/Logger.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * Interface for all classes whose objects can be serialized to and

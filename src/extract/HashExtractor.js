@@ -1,6 +1,6 @@
 import {ExtractorInterface} from './ExtractorInterface.js';
-import {getPrimes} from '../lib/PrimeGenerator.js';
-import {stringHash} from '../lib/StringHash.js';
+import {getPrimes} from '../diff/lib/PrimeGenerator.js';
+import {stringHash} from '../diff/lib/StringHash.js';
 
 /**
  * Extractor for retrieving and caching the hash (and content hash) value

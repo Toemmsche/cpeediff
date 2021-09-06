@@ -1,6 +1,6 @@
 import {Dsl} from '../config/Dsl.js';
 import {CallProperties} from './CallProperties.js';
-import {Logger} from '../../util/Logger.js';
+import {Logger} from '../util/Logger.js';
 
 /**
  * Extractor for retrieving and caching the semantic properties of Calls.

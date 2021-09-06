@@ -1,4 +1,4 @@
-import {DeltaNode} from '../patch/DeltaNode.js';
+import {DeltaNode} from '../diff/patch/DeltaNode.js';
 import {Confidence} from './Confidence.js';
 import {Dsl} from '../config/Dsl.js';
 
