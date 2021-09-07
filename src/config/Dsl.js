@@ -152,37 +152,37 @@ export const Dsl = {
   BASENODE: 'basenode',
   CHANGE_MODEL: {
     INSERTION: {
-      label: 'INSERT',
+      label: 'insert',
       uri: 'http://cpee.org/ns/description/1.0/insert',
       prefix: 'ins',
     },
     DELETION: {
-      label: 'DELETE',
+      label: 'delete',
       uri: 'http://cpee.org/ns/description/1.0/delete',
       prefix: 'del',
     },
     MOVE: {
-      label: 'MOVE',
+      label: 'move',
       uri: 'http://cpee.org/ns/description/1.0/move',
       prefix: 'mov',
     },
     MOVE_FROM: {
-      label: 'MOVE_FROM',
+      label: 'move_from',
       uri: 'http://cpee.org/ns/description/1.0/move-from',
       prefix: 'movfr',
     },
     UPDATE: {
-      label: 'UPDATE',
+      label: 'update',
       uri: 'http://cpee.org/ns/description/1.0/update',
       prefix: 'upd',
     },
     UPDATE_FROM: {
-      label: 'UPDATE_FROM',
+      label: 'udpate_from',
       uri: 'http://cpee.org/ns/description/1.0/update-from',
       prefix: 'updfr',
     },
     NIL: {
-      label: 'NIL',
+      label: 'nil',
       uri: 'http://cpee.org/ns/description/1.0/nil',
       prefix: 'nil',
     },

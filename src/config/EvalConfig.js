@@ -11,11 +11,9 @@ export const EvalConfig = {
     INTERVAL: 1000,
     LIMIT: 20,
   },
-
   CHANGE_GROWTH: {
-    INTERVAL: 50,
+    INTERVAL: 100,
     LIMIT: 20,
-    SIZE: 1000,
   },
 
   FILENAMES: {

@@ -5,11 +5,9 @@ import {HashMatcher} from './HashMatcher.js';
 import {SimilarityMatcher} from './SimilarityMatcher.js';
 import {SandwichMatcher} from './SandwichMatcher.js';
 import {Logger} from '../../util/Logger.js';
-import {DiffConfig} from '../../config/DiffConfig.js';
-import {CommonalityPathMatcher} from './CommonalityPathMatcher.js';
-import {FastSimilarityMatcher} from './FastSimilarityMatcher.js';
 import {PathMatcher} from './PathMatcher.js';
 import {Comparator} from './Comparator.js';
+import {DiffConfig} from '../../config/DiffConfig.js';
 
 /**
  * Wrapper for an ordered sequence of matching modules (matchers for short).
@@ -46,63 +44,22 @@ export class MatchPipeline {
   }
 
   /**
-   * Construct a matching pipeline for use in the matching-based merging
-   * algorithm.
-   * @return {MatchPipeline}
-   */
-  static forMerge() {
-    return new MatchPipeline(
-        [
-          new FixedMatcher(),
-          new HashMatcher(),
-          new SimilarityMatcher(),
-          new CommonalityPathMatcher(),
-          new PathMatcher(),
-          new SandwichMatcher(),
-          new PropertyMatcher(),
-        ]);
-  }
-
-  /**
    * Construct a matching pipeline based on the selected matching mode.
    * @return {MatchPipeline}
    */
   static fromMode() {
-    switch (DiffConfig.MATCH_MODE) {
-      case MatchPipeline.MATCH_MODES.FAST:
-        return new MatchPipeline(
-            [
-              new FixedMatcher(),
-              new HashMatcher(),
-              new FastSimilarityMatcher(),
-              new PathMatcher(),
-              new PathMatcher(),
-              new SandwichMatcher(),
-              new PropertyMatcher(),
-            ]);
-      case MatchPipeline.MATCH_MODES.BALANCED:
-        return new MatchPipeline(
-            [
-              new FixedMatcher(),
-              new HashMatcher(),
-              new SimilarityMatcher(),
-              new PathMatcher(),
-              new PathMatcher(),
-              new SandwichMatcher(),
-              new PropertyMatcher(),
-            ]);
-      case MatchPipeline.MATCH_MODES.QUALITY:
-        return new MatchPipeline(
-            [
-              new FixedMatcher(),
-              new HashMatcher(),
-              new SimilarityMatcher(),
-              new CommonalityPathMatcher(),
-              new PathMatcher(),
-              new SandwichMatcher(),
-              new PropertyMatcher(),
-            ]);
-    }
+    return new MatchPipeline(
+        [
+          new FixedMatcher(),
+          new HashMatcher(),
+          new SimilarityMatcher(
+              DiffConfig.MATCH_MODE === MatchPipeline.MATCH_MODES.FAST),
+          new PathMatcher(
+              DiffConfig.MATCH_MODE === MatchPipeline.MATCH_MODES.QUALITY),
+          new PathMatcher(false),
+          new SandwichMatcher(),
+          new PropertyMatcher(),
+        ]);
   }
 
   /**

@@ -59,19 +59,19 @@ export class HashExtractor extends ExtractorInterface {
    * @private
    */
   #childHash(node) {
-    let childHash = 0;
+    let childHash;
     if (node.hasInternalOrdering()) {
       // Respect order by multiplying child hashes with distinct prime number
       // based on index
       const primes = getPrimes(node.degree());
-      childHash += node
+      childHash = node
           .children
           // Use child hash value
           .map((child, i) => this.get(child) * primes[i])
           .reduce((prev, curr) => prev + curr, 0);
     } else {
       // Arbitrary order, achieved by simple addition
-      childHash += node
+      childHash = node
           .children
           // Use child hash value
           .map((child) => this.get(child))
@@ -87,12 +87,12 @@ export class HashExtractor extends ExtractorInterface {
    * @private
    */
   #contentHash(node) {
-    // Attribute order is irrelevant
-    const sortedAttrList = //TODO remove
-        new Array(...node.attributes.keys())
-            .filter((key) => key !== 'xmlns')
-            .sort();
     let content = node.label;
+    // Attribute order is irrelevant
+    const sortedAttrList =
+        [...node.attributes.keys()]
+            .filter((key) => key !== 'xmlns') // Ignore namespaces
+            .sort();
     for (const key of sortedAttrList) {
       content += key + '=' + node.attributes.get(key);
     }

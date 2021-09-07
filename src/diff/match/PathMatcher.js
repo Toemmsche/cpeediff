@@ -1,21 +1,74 @@
 import {DiffConfig} from '../../config/DiffConfig.js';
+import {LeafSetExtractor} from '../../extract/LeafSetExtractor.js';
+import {MatchPipeline} from './MatchPipeline.js';
 
 /**
  * A matching module that uses the existing matches to find good matches
- * between inner nodes. Does not consider the commonality between subtrees.
+ * between inner nodes. Also considers the commonality between subtrees.
  * @implements {MatcherInterface}
  */
 export class PathMatcher {
   /**
+   *  @type {LeafSetExtractor}
+   *  @private
+   */
+  #leafSetExtractor;
+
+  /**
+   * If the commonality among leaf nodes should be considered.
+   * @type {Boolean}
+   * @private
+   * @const
+   */
+  #withCommonality;
+
+  /**
+   * Create a new PathMatcher instance.
+   * @param {Boolean} withCommonality If the commonality among leaf nodes
+   *     should be considered.
+   */
+  constructor(withCommonality = false) {
+    this.#withCommonality = withCommonality;
+  }
+
+  /**
+   * Compute the commonality between two subtrees as a comparison value. The
+   * commonality is defined as the number of overlapping leaves. Leaves are
+   * considered 'equal' if they are matched.
+   * @param {Node} oldNode The root of the subtree from the old process tree.
+   * @param {Node} newNode The root of the subtree from the new process tree.
+   * @param {Matching} matching The matching used to determine equality between
+   *     leaves.
+   * @return {Number} A comparison value for the commonality from the range
+   *     [0;1]. 0 indicates full overlap, 1 indicates no overlap.
+   */
+  #commonality(oldNode, newNode, matching) {
+    let common = 0;
+    const newSet = this.#leafSetExtractor.get(newNode);
+    const oldSet = this.#leafSetExtractor.get(oldNode);
+
+    for (const newCand of newSet) {
+      if (matching.isMatched(newCand) &&
+          oldSet.has(matching.getMatch(newCand))) {
+        common++;
+      }
+    }
+
+    return 1 - (common / (Math.max(newSet.size, oldSet.size)));
+  }
+
+  /**
    * Extend the matching with inner nodes matches that are found along the path
-   * of already matched leaves. Does not consider the commonality between
-   * subtrees.
+   * of already matched leaves. Also considers the commonality between subtrees
+   * in quality mode.
    * @param {Node} oldTree The root of the old (original) process tree
    * @param {Node} newTree The root of the new (changed) process tree
    * @param {Matching} matching The existing matching to be extended
    * @param {Comparator} comparator The comparator used for comparisons.
    */
-  match(oldTree, newTree, matching, comparator) {
+  match(oldTree, newTree, matching, comparator, secondRun) {
+    this.#leafSetExtractor = new LeafSetExtractor();
+
     // Store all candidates for an inner node
     /**
      * @type {Map<Node, Set<Node>>}
@@ -80,7 +133,23 @@ export class PathMatcher {
       let minCVNode = null;
       for (const oldNode of oldNodeSet) {
         if (matching.isMatched(oldNode)) continue;
-        const CV = comparator.compare(oldNode, newNode);
+        let CV;
+        if (this.#withCommonality) {
+          CV = comparator.weightedAverage(
+              [
+                comparator.compareContent(oldNode, newNode),
+                comparator.comparePosition(oldNode, newNode),
+                this.#commonality(oldNode, newNode, matching),
+              ],
+              [
+                DiffConfig.COMPARATOR.CONTENT_WEIGHT,
+                DiffConfig.COMPARATOR.POSITION_WEIGHT,
+                DiffConfig.COMPARATOR.COMMONALITY_WEIGHT,
+              ],
+          );
+        } else {
+          CV = comparator.compare(oldNode, newNode);
+        }
 
         // Perfect match? => add to M and resume with different node
         if (CV === 0) {

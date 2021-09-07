@@ -1,12 +1,10 @@
 import {EvalConfig} from '../../config/EvalConfig.js';
-
 import {Logger} from '../../util/Logger.js';
 import {GeneratorParameters} from '../gen/GeneratorParameters.js';
 import {TreeGenerator} from '../gen/TreeGenerator.js';
 import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
 import {MatchingEvaluation} from './MatchingEvaluation.js';
-import {Comparator} from '../../diff/match/Comparator.js';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
 
 /**
@@ -14,7 +12,6 @@ import {AbstractEvaluation} from './AbstractEvaluation.js';
  * computes the overlap between the expected and actual matching.
  */
 export class GeneratedMatchingEvaluation extends MatchingEvaluation {
-
   /**
    * Construct a new GeneratedMatchingEvaluation instance.
    * @param {Array<MatchAdapter>} adapters The adapters of the matching
@@ -39,94 +36,33 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
    */
   evalAll() {
     // Simply run all functions...
-    this.single();
-    this.average();
-  }
-
-  _getMismatchedNodes(expected, actual) {
-    let [mismatchedLeaves, mismatchedInners, unmatchedLeaves, unmatchedInners] = [
-      0,
-      0,
-      0,
-      0
-    ];
-
-    for (const [newNode, oldNode] of expected.newToOldMap) {
-      if (actual.isMatched(newNode) && actual.getMatch(newNode) !== oldNode) {
-        const actualOldMatch = actual.getMatch(newNode);
-        const actualNewMatch = actual.getMatch(oldNode);
-        if (newNode.isInnerNode()) {
-          //Logger.debug("Mismatched " + newNode.label, this)
-          mismatchedInners++;
-        } else if (newNode.isLeaf()) {
-          //Logger.debug("Mismatched " + newNode.label, this)
-          mismatchedLeaves++;
-        }
-      }
-      if (!actual.isMatched(newNode)) {
-        if (newNode.isInnerNode()) {
-          unmatchedInners++;
-        } else if (newNode.isLeaf()) {
-          const cv = new Comparator().compare(newNode, oldNode);
-          const other = new Comparator().compare(oldNode, newNode);
-          unmatchedLeaves++;
-        }
-      }
-    }
-
-    for (const [newNode, oldNode] of actual.newToOldMap) {
-      if (!expected.isMatched(newNode) && !expected.isMatched(oldNode)) {
-        if (newNode.isInnerNode()) {
-          //Logger.debug("Mismatched " + newNode.label, this)
-          mismatchedInners++;
-        } else if (newNode.isLeaf()) {
-          //Logger.debug("Mismatched " + newNode.label, this)
-          mismatchedLeaves++;
-        }
-      }
-    }
-
-    return [
-      mismatchedLeaves,
-      mismatchedInners,
-      unmatchedLeaves,
-      unmatchedInners,
-    ];
-  }
-
-  _matchingCommonality(expected, actual) {
-    let common = 0;
-    for (const [newNode, oldNode] of expected.newToOldMap) {
-      if (actual.isMatched(newNode) && actual.getMatch(newNode) === oldNode) {
-        common++;
-      }
-    }
-
-    return 1 - (common / (Math.max(expected.size(), actual.size())));
+    this.average(false, false, false);
   }
 
   /**
    * Evaluate matching algorithms using random process trees of increasing
    * size. The results indicate how well a matching algorithm approximates the
    * 'optimal' matching.
-   * @param {Boolean} flat If the number of changes should remain constant.
-   * @param {Boolean} local If the changes should be applied locally, i.e. to a
-   *     small region of the process tree. If set to false, changes are
-   *     randomly distributed within the tree.
+   * @param {Boolean} constChanges If the number of changes should remain
+   *     constant.
+   * @param {Boolean} constSize If the size of the trees should remain
+   *     constant.
+   * @param {Boolean} local If a constant number of changes should be applied
+   *     locally, i.e. to a small region of the process tree. If set to false,
+   *     changes are growing and randomly distributed within the tree.
    */
-  average(flat = false, local = false) {
+  average(constChanges, constSize, local = false) {
     Logger.section('Matching evaluation with Generated Trees', this);
 
     // TODO LATEX REMOVE
     /** @type {Map<String, Array<Object>>} */
-    const aResultsPerAdapter = new Map(this._adapters.map((adapter) => [
+    const aggregateResultsPerAdapter = new Map(this._adapters.map((adapter) => [
       adapter.displayName,
       [],
     ]));
     // TODO remove latex
-    for (let i = 0; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
-      const size = EvalConfig.SIZE_GROWTH.INITIAL_SIZE *
-          (EvalConfig.SIZE_GROWTH.FACTOR ** i);
+    for (let i = 1; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
+      const size = EvalConfig.SIZE_GROWTH.INTERVAL * (constSize ? 1 : i);
       const genParams = new GeneratorParameters(
           size,
           size,
@@ -136,14 +72,13 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       const treeGen = new TreeGenerator(genParams);
       const changeParams =
           new ChangeParameters(
-              EvalConfig.SIZE_GROWTH.INITIAL_CHANGES *
-              (flat ? 1 : (EvalConfig.SIZE_GROWTH.FACTOR ** i)),
-              local
+              EvalConfig.CHANGE_GROWTH.INTERVAL * (constChanges ? 1 : i),
+              local,
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
       const results = new Map();
-      for (let j = 0; j < EvalConfig.SIZE_GROWTH.REPS; j++) {
+      for (let j = 0; j < EvalConfig.REPS; j++) {
         const oldTree = treeGen.randomTree();
         const [testCase, expectedMatching] =
             treeGen.changeTree(oldTree, changeParams);
@@ -163,20 +98,20 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           const time = new Date().getTime();
           const actualMatching = adapter.run(oldTree, newTree);
           const elapsedTime = new Date().getTime() - time;
-          const matchingCommonality = this._matchingCommonality(
+          const matchingCommonality = this.#matchingCommonality(
               expectedMatching,
-              actualMatching
+              actualMatching,
           );
-          const mismatches = this._getMismatchedNodes(
+          const mismatches = this.#mismatchedNodes(
               expectedMatching,
-              actualMatching
+              actualMatching,
           );
           results.get(adapter).push([
             adapter.displayName,
             testId,
             elapsedTime,
             matchingCommonality,
-            ...mismatches
+            ...mismatches,
           ]);
         }
       }
@@ -188,13 +123,13 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           size,
         ];
         for (let j = 2; j < resultsList[0].length; j++) {
-          aggregateResult.push(this.avg(resultsList.map(r => r[j])));
+          aggregateResult.push(this.avg(resultsList.map((r) => r[j])));
         }
         aggregateResults.push(aggregateResult);
       }
 
       for (const result of aggregateResults) {
-        aResultsPerAdapter.get(result[0]).push(result);
+        aggregateResultsPerAdapter.get(result[0]).push(result);
       }
       Logger.result('Results for case ' + testId, this);
       Logger.result(markdownTable([
@@ -208,23 +143,102 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           'avg unmatched leaves',
           'avg unmatched inners',
         ],
-        ...aggregateResults
+        ...aggregateResults,
       ]));
     }
 
     // Produce runtime plots
     Logger.section('RUNTIME LATEX', this);
-    AbstractEvaluation.LATEX.fromTemplate([...aResultsPerAdapter.entries()].map(
-        (entry) => entry[1].map((result) => '(' + result[1] + ',' + result[3] + ')')));
+    AbstractEvaluation.LATEX.fromTemplate(
+        [...aggregateResultsPerAdapter.entries()]
+            .map((entry) => entry[1].map((result) =>
+              '(' + result[1] + ',' + result[3] + ')')));
 
-    Logger.result('\\legend{' + this._adapters.map(a => a.displayName)
+    Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
         .join(', ')
         .replaceAll('_', '\\_') + '}');
-
   }
 
+  /**
+   * @param {Array<Number>} arr Any array of numbers.
+   * @return {number} The average value.
+   */
   avg(arr) {
     return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  /**
+   * Calculate the commonality between the expected and actual matching as a
+   * comparison value.
+   * @param {Matching} expected The expected matching.
+   * @param {Matching} actual The actual matching.
+   * @return {number} The commonality comparison value.
+   */
+  #matchingCommonality(expected, actual) {
+    let common = 0;
+    for (const [newNode, oldNode] of expected.newToOldMap) {
+      if (actual.isMatched(newNode) && actual.getMatch(newNode) === oldNode) {
+        common++;
+      }
+    }
+
+    return 1 - (common / (Math.max(expected.size(), actual.size())));
+  }
+
+  /**
+   * Calculate the amount of mismatched and unmatched nodes compared to the
+   * expected matching.
+   * @param {Matching} expected The expected matching.
+   * @param {Matching} actual The actual matching.
+   * @return {[Number, Number, Number, Number]} [mismatched Leaves, mismatched
+   *     Inners, unmatched Leaves, unmatched Inners]
+   */
+  #mismatchedNodes(expected, actual) {
+    let [
+      mismatchedLeaves,
+      mismatchedInners,
+      unmatchedLeaves,
+      unmatchedInners,
+    ] = [
+      0,
+      0,
+      0,
+      0,
+    ];
+
+    for (const [newNode, oldNode] of expected.newToOldMap) {
+      if (actual.isMatched(newNode) && actual.getMatch(newNode) !== oldNode) {
+        if (newNode.isInnerNode()) {
+          mismatchedInners++;
+        } else if (newNode.isLeaf()) {
+          mismatchedLeaves++;
+        }
+      }
+      if (!actual.isMatched(newNode)) {
+        if (newNode.isInnerNode()) {
+          unmatchedInners++;
+        } else if (newNode.isLeaf()) {
+          unmatchedLeaves++;
+        }
+      }
+    }
+
+    for (const [newNode, oldNode] of actual.newToOldMap) {
+      if (!expected.isMatched(newNode) && !expected.isMatched(oldNode)) {
+        if (newNode.isInnerNode()) {
+          mismatchedInners++;
+        } else if (newNode.isLeaf()) {
+          mismatchedLeaves++;
+        }
+      }
+    }
+
+    return [
+      mismatchedLeaves,
+      mismatchedInners,
+      unmatchedLeaves,
+      unmatchedInners,
+    ];
   }
 }
 

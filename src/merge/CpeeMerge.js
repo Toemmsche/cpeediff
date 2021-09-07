@@ -133,7 +133,7 @@ export class CpeeMerge {
     }
     // Find duplicate insertions
     return MatchPipeline
-        .forMerge()
+        .fromMode()
         .execute(mergeTree1, mergeTree2, matching);
   }
 

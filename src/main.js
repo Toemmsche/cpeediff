@@ -20,6 +20,10 @@ import {EditScript} from './diff/delta/EditScript.js';
 import {Patcher} from './diff/patch/Patcher.js';
 import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
 
+/**
+ * @file Main entrypoint for the CpeeDiff command line utility.
+ */
+
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {
       global: true,
@@ -110,7 +114,7 @@ const argv = yargs(hideBin(process.argv))
           const oldTree = parser.fromFile(argv.old);
           const newTree = parser.fromFile(argv.new);
 
-          const editScript = new CpeeDiff(MatchPipeline.fromMode()).diff(
+          const editScript = new CpeeDiff().diff(
               oldTree,
               newTree,
           );

@@ -5,6 +5,10 @@ import {Logger} from '../../util/Logger.js';
  * @abstract
  */
 export class AbstractEvaluation {
+  /**
+   * Constants needed for automated output of Latex plots.
+   * @type {Object}
+   */
   static LATEX = {
     COLORS: 'black, red, blue, magenta, orange, violet, teal'.split(
         ', '),
