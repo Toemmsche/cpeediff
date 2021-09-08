@@ -12,73 +12,33 @@ import {Logger} from '../util/Logger.js';
  */
 export class Preprocessor {
   /**
-   * Parse and preprocess a process tree defined in an XML document.
+   * Parse and preprocess a process tree defined in an XML file.
    * @param {String} path A path to the file containing the XML document.
+   * @param {?EditScript} editScript An edit script for recording the changes
+   *     applied during preprocessing.
    * @return {Node} The root of the process tree.
    */
-  fromFile(path) {
+  fromFile(path, editScript = undefined) {
     Logger.startTimed();
-    const root = this.withMetadata(fs.readFileSync(path).toString());
+    const root = this.fromString(
+        fs.readFileSync(path).toString(),
+        editScript,
+    );
     Logger.stat('Parsing and preprocessing of ' + path +
         ' took ' + Logger.endTimed() + 'ms', this);
     return root;
   }
 
   /**
-   * Parse an XML document representing a CPEE process tree.
-   * This function also considers data outside the DSL-element tree such as the
-   * list of endpoints and data elements.
-   * @param {String} xml The XML document as a String.
-   * @return {Node} The root of the process tree
+   * Parse and preprocess a process tree defined in an XML document string.
+   * @param {String} xml The XML document as a string.
+   * @param {?EditScript} editScript An edit script for recording the changes
+   *     applied during preprocessing.
+   * @return {Node} The root of the process tree.
    */
-  withMetadata(xml) {
-    const endpointToUrl = new Map();
-    const dataElements = new Map();
-
-    // Skip comments and processing instructions
-    const xmlRoot = DomHelper.firstChildElement(
-        new xmldom.DOMParser().parseFromString(xml, 'text/xml'));
-
-    let tree;
-    if (xmlRoot == null) {
-      // Empty tree
-      return new Node(Dsl.ELEMENTS.DSL_ROOT.label);
-    } else if (xmlRoot.localName === Dsl.ELEMENTS.DSL_ROOT.label) {
-      // Hop straight into tree parsing
-      tree = Node.fromXmlDom(xmlRoot, true);
-    } else {
-      // Parse process tree with metadata
-      const xmlDescription =
-          DomHelper.firstChildElement(xmlRoot, Dsl.ELEMENTS.DSL_ROOT.label) ||
-          DomHelper.firstChildElement(
-              DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.WRAPPER),
-              Dsl.ELEMENTS.DSL_ROOT.label,
-          );
-      if (xmlDescription == null) {
-        Logger.error('Cannot find DSL root, malformed process model?', this);
-      }
-
-      tree = Node.fromXmlDom(xmlDescription, true);
-
-      // Parse endpoints
-      const xmlEndpoints =
-          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.ENDPOINTS);
-      DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
-        endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
-      });
-
-      // Parse initial values for data elements
-      const xmlDataElements =
-          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.DATA_ELEMENTS);
-      DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
-        dataElements.set(
-            xmlDataElement.localName,
-            xmlDataElement.firstChild.data,
-        );
-      });
-    }
-    // Preprocess in any case
-    return this.preprocess(tree, endpointToUrl, dataElements);
+  fromString(xml, editScript = undefined) {
+    const parsed = this.withMetadata(xml);
+    return this.preprocess(...parsed, editScript);
   }
 
   /**
@@ -88,12 +48,12 @@ export class Preprocessor {
    * @param {Map<String, String>} endpointToUrl A map of endpoint IDs to URIs
    * @param {Map<String, String>} dataElements A map of data elements (=
    *     variables) to their initial value
-   * @param {EditScript}editScript An edit script for recording the edit
-   *     operations applied to th
+   * @param {EditScript} editScript An edit script for recording the edit
+   *     operations applied to the tree.
    * @return {Node} The root of the preprocessed tree
    */
   preprocess(tree, endpointToUrl = new Map(),
-      dataElements = new Map(), editScript = new EditScript()) {
+             dataElements = new Map(), editScript = new EditScript()) {
     // traverse tree in post-order (bottom-up)
     for (const node of tree.toPostOrderArray()) {
       let updated = false;
@@ -151,9 +111,9 @@ export class Preprocessor {
       }
 
       if (deleted) {
-        editScript?.appendDeletion(node);
+        editScript.appendDeletion(node);
       } else if (updated) {
-        editScript?.appendUpdate(node);
+        editScript.appendUpdate(node);
       }
     }
 
@@ -180,5 +140,67 @@ export class Preprocessor {
     }
 
     return tree;
+  }
+
+  /**
+   * Parse an XML document representing a CPEE process tree.
+   * This function also considers data outside the DSL-element tree such as the
+   * list of endpoints and data elements.
+   * @param {String} xml The XML document as a String.
+   * @return {[Node, Map<String, String>, Map<String, String>]} [process tree
+   *     root, endpoint map, data elements map]
+   */
+  withMetadata(xml) {
+    const endpointToUrl = new Map();
+    const dataElements = new Map();
+
+    // Skip comments and processing instructions
+    const xmlRoot = DomHelper.firstChildElement(
+        new xmldom.DOMParser().parseFromString(xml, 'text/xml'));
+
+    let tree;
+    if (xmlRoot == null) {
+      // Empty tree
+      return new Node(Dsl.ELEMENTS.DSL_ROOT.label);
+    } else if (xmlRoot.localName === Dsl.ELEMENTS.DSL_ROOT.label) {
+      // Hop straight into tree parsing
+      tree = Node.fromXmlDom(xmlRoot, true);
+    } else {
+      // Parse process tree with metadata
+      const xmlDescription =
+          DomHelper.firstChildElement(xmlRoot, Dsl.ELEMENTS.DSL_ROOT.label) ||
+          DomHelper.firstChildElement(
+              DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.WRAPPER),
+              Dsl.ELEMENTS.DSL_ROOT.label,
+          );
+      if (xmlDescription == null) {
+        Logger.error('Cannot find DSL root, malformed process model?', this);
+      }
+
+      tree = Node.fromXmlDom(xmlDescription, true);
+
+      // Parse endpoints
+      const xmlEndpoints =
+          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.ENDPOINTS);
+      DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
+        endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
+      });
+
+      // Parse initial values for data elements
+      const xmlDataElements =
+          DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.DATA_ELEMENTS);
+      DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
+        dataElements.set(
+            xmlDataElement.localName,
+            xmlDataElement.firstChild.data,
+        );
+      });
+    }
+    // Preprocess in any case
+    return [
+      tree,
+      endpointToUrl,
+      dataElements
+    ];
   }
 }

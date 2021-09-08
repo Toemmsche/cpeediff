@@ -105,7 +105,7 @@ export class DeltaNode extends Node {
     xmlElement.localName = this.label;
 
     if (this.isMoved() || this.isMovedFrom()) {
-      xmlElement.setAttribute(prefix + Dsl.DELTA_TREE.MOVE_KEY, this.baseNode);
+      xmlElement.setAttribute(prefix + 'id', this.baseNode);
     }
 
     if (this.isRoot()) {
@@ -148,7 +148,7 @@ export class DeltaNode extends Node {
       }
     }
 
-    const textKey = Dsl.DELTA_TREE.TEXT_UPDATE_KEY;
+    const textKey = 'text';
     // Changes in text content are also modelled as updates
     if (this.updates.has(textKey)) {
       const oldVal = this.updates.get(textKey).oldVal;

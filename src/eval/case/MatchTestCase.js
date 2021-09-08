@@ -41,24 +41,6 @@ export class MatchTestCase extends AbstractTestCase {
   }
 
   /**
-   * Complete this test case.
-   * @param {String} algorithm The algorithm that ran this case
-   * @param {?ActualMatching} actual The matching produced by the
-   *     algorithm, null indicates failure
-   * @param {String} verdict The verdict for this test case and algorithm
-   * @return {MatchTestResult} The corresponding result
-   * @override
-   */
-  complete(algorithm, actual = null, verdict) {
-    return new MatchTestResult(
-        this.name,
-        algorithm,
-        actual,
-        verdict,
-    );
-  }
-
-  /**
    * Construct a match test case from a test case directory.
    * @param {String} testCaseDir An absolute or relative path to the test case
    *     directory
@@ -73,13 +55,16 @@ export class MatchTestCase extends AbstractTestCase {
     let newTree;
     let expected;
     fs.readdirSync(testCaseDir).forEach((file) => {
-      const content = fs.readFileSync(testCaseDir + '/' + file).toString();
+      const filePath = testCaseDir + '/' + file;
       if (file === EvalConfig.FILENAMES.NEW_TREE) {
-        newTree = parser.withMetadata(content);
+        newTree = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.OLD_TREE) {
-        oldTree = parser.withMetadata(content);
+        oldTree = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.EXPECTED_MATCHES) {
-        expected = Object.assign(new ExpectedMatch(), JSON.parse(content));
+        expected = Object.assign(
+            new ExpectedMatch(),
+            JSON.parse(fs.readFileSync(filePath).toString()),
+        );
       }
     });
     return new MatchTestCase(
@@ -87,6 +72,24 @@ export class MatchTestCase extends AbstractTestCase {
         oldTree,
         newTree,
         expected,
+    );
+  }
+
+  /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case
+   * @param {?ActualMatching} actual The matching produced by the
+   *     algorithm, null indicates failure
+   * @param {String} verdict The verdict for this test case and algorithm
+   * @return {MatchTestResult} The corresponding result
+   * @override
+   */
+  complete(algorithm, actual = null, verdict) {
+    return new MatchTestResult(
+        this.name,
+        algorithm,
+        actual,
+        verdict,
     );
   }
 }

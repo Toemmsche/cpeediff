@@ -14,8 +14,7 @@ import {CpeeMerge} from './merge/CpeeMerge.js';
 import {MatchPipeline} from './diff/match/MatchPipeline.js';
 import {Node} from './tree/Node.js';
 import {GeneratedDiffEvaluation} from './eval/driver/GeneratedDiffEvaluation.js';
-import {GeneratedMatchingEvaluation}
-  from './eval/driver/GeneratedMatchingEvaluation.js';
+import {GeneratedMatchingEvaluation} from './eval/driver/GeneratedMatchingEvaluation.js';
 import {EditScript} from './diff/delta/EditScript.js';
 import {Patcher} from './diff/patch/Patcher.js';
 import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
@@ -77,7 +76,7 @@ const argv = yargs(hideBin(process.argv))
               .option('format', {
                 description: 'Output format. Choice between an XML ' +
                     'edit script, a delta tree, or ' +
-                    'the generated matching.',
+                    'the generated matching',
                 alias: 'f',
                 type: 'string',
                 choices: [
@@ -89,7 +88,7 @@ const argv = yargs(hideBin(process.argv))
                 default: 'editScript',
               })
               .option('pretty', {
-                description: 'Pretty-print the output XML document.',
+                description: 'Pretty-print the output XML document',
                 alias: 'p',
                 type: 'boolean',
                 default: false,
@@ -137,8 +136,10 @@ const argv = yargs(hideBin(process.argv))
               break;
             }
             case 'matching': {
-              // TODO
-              Logger.abstractMethodExecution();
+              const matching =
+                  MatchPipeline.fromMode().execute(oldTree, newTree);
+              Logger.result(matching.toXmlString());
+              break;
             }
             case 'summary': {
               //
@@ -146,8 +147,12 @@ const argv = yargs(hideBin(process.argv))
               Logger.result('#Nodes (new tree): ' + oldTree.size());
               const dummyCase = new DiffTestCase('main', oldTree, newTree);
               const result = new CpeeDiffLocalAdapter().evalCase(dummyCase);
-              const table = [DiffTestResult.header(), result.values()];
+              const table = [
+                DiffTestResult.header(),
+                result.values(),
+              ];
               Logger.result(markdownTable(table));
+              break;
             }
           }
         },
@@ -278,7 +283,7 @@ const argv = yargs(hideBin(process.argv))
         },
     )
     .command(
-        'patch <old> <editScript>',
+        'patch <old> [editScript]',
         'Patch a document with an edit script',
         (yargs) => {
           yargs
@@ -302,8 +307,14 @@ const argv = yargs(hideBin(process.argv))
                 ],
                 default: 'patched',
               })
+              .option('afterPreprocess', {
+                description: 'Show the changes applied during preprocessing.',
+                alias: 's',
+                type: 'boolean',
+                default: false,
+              })
               .option('pretty', {
-                description: 'Pretty-print the output XML document.',
+                description: 'Pretty-print the output XML document',
                 alias: 'p',
                 type: 'boolean',
                 default: false,
@@ -312,7 +323,8 @@ const argv = yargs(hideBin(process.argv))
                 if (!fs.existsSync(argv.old)) {
                   throw new Error(argv.old + ' ist not a valid file path');
                 }
-                if (!fs.existsSync(argv.editScript)) {
+                if (argv.editScript != null &&
+                    !fs.existsSync(argv.editScript)) {
                   throw new Error(argv.editScript +
                       ' ist not a valid file path');
                 }
@@ -324,10 +336,20 @@ const argv = yargs(hideBin(process.argv))
           DiffConfig.LOG_LEVEL = argv.logLevel;
           // Parse
           const parser = new Preprocessor();
-          const oldTree = parser.fromFile(argv.old);
+          const preProcessorEditScript = new EditScript();
+          const oldTree = parser.fromFile(argv.old, preProcessorEditScript);
 
-          const editScriptContent = fs.readFileSync(argv.editScript).toString();
-          const editScript = EditScript.fromXmlString(editScriptContent);
+          if (argv.afterPreprocess) {
+            Logger.result('Changes applied during preprocessing:');
+            Logger.result(preProcessorEditScript.toXmlString());
+          }
+
+          let editScript = new EditScript();
+          if (argv.editScript != null) {
+            const editScriptContent = fs.readFileSync(argv.editScript)
+                .toString();
+            editScript = EditScript.fromXmlString(editScriptContent);
+          }
 
           Logger.info('Formatting result as ' + argv.format);
           switch (argv.format) {

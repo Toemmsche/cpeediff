@@ -1,8 +1,15 @@
 import {Logger} from '../../util/Logger.js';
+import xmldom from '@xmldom/xmldom';
+import {DiffConfig} from '../../config/DiffConfig.js';
+import vkbeautify from 'vkbeautify';
+import {Dsl} from '../../config/Dsl.js';
+import {IdExtractor} from '../../extract/IdExtractor.js';
 
 /**
  * Wrapper class for a bidirectional mapping between the nodes of two process
  * trees.
+ *
+ * @implements {XmlSerializable<Matching>}
  */
 export class Matching {
   /**
@@ -73,6 +80,39 @@ export class Matching {
    */
   size() {
     return this.newToOldMap.size;
+  }
+
+  /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
+   * @return {Object} The XML DOM object for this matching.
+   */
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const xmlRoot = ownerDocument.createElement('matching');
+    xmlRoot.setAttribute('size', this.size());
+    const idExtractor = new IdExtractor();
+    for (const [oldNode, newNode] of this.oldToNewMap) {
+      const xmlMatch = ownerDocument.createElement('match');
+      xmlMatch.setAttribute('old_id', idExtractor.get(oldNode));
+      xmlMatch.setAttribute('new_id', idExtractor.get(newNode));
+      xmlRoot.appendChild(xmlMatch);
+    }
+    return xmlRoot;
+  }
+
+  /**
+   * @return {String} The XML document for this matching.
+   */
+  toXmlString() {
+    const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (DiffConfig.PRETTY_XML) {
+      return vkbeautify.xml(str);
+    } else {
+      return str;
+    }
   }
 }
 

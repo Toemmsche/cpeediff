@@ -552,7 +552,7 @@ export class Node {
    *     element.
    * @return {Object} XML DOM object for this node and its children.
    */
-  toXmlDom(ownerDocument =  xmldom
+  toXmlDom(ownerDocument = xmldom
       .DOMImplementation
       .prototype
       .createDocument(Dsl.DEFAULT_NAMESPACE)) {

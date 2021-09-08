@@ -56,13 +56,11 @@ export class DiffTestCase extends AbstractTestCase {
     // Regular test case definition
     const parser = new Preprocessor();
     fs.readdirSync(testCaseDir).forEach((file) => {
-      const content = fs.readFileSync(testCaseDir + '/' + file).toString();
+      const filePath= testCaseDir + '/' + file;
       if (file === EvalConfig.FILENAMES.NEW_TREE) {
-        newTree = parser.withMetadata(content);
+        newTree = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.OLD_TREE) {
-        oldTree = parser.withMetadata(content);
-      } else if (file === EvalConfig.FILENAMES.EXPECTED_DIFF) {
-        expected = Object.assign(new ExpectedDiff(), JSON.parse(content));
+        oldTree = parser.fromFile(filePath);
       }
     });
     // The two process trees are the bare minimum needed for a test case

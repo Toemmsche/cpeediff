@@ -103,29 +103,25 @@ export class MergeNode extends DeltaNode {
             mergeNode.isMoved() ||
             mergeNode.isInserted()) {
           xmlElement.setAttribute(
-              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
-              Dsl.MERGE_TREE.NODE_CHANGE_ORIGIN_KEY,
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':this',
               mergeNode.changeOrigin,
           );
         }
         if (!mergeNode.confidence.contentConfident) {
           xmlElement.setAttribute(
-              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
-              Dsl.MERGE_TREE.CONTENT_CONFIDENCE_KEY,
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':content_confident',
               'false',
           );
         }
         if (!mergeNode.confidence.parentConfident) {
           xmlElement.setAttribute(
-              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
-              Dsl.MERGE_TREE.PARENT_CONFIDENCE_KEY,
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':parent_confident',
               'false',
           );
         }
         if (!mergeNode.confidence.positionConfident) {
           xmlElement.setAttribute(
-              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':' +
-              Dsl.MERGE_TREE.POSITION_CONFIDENCE_KEY,
+              Dsl.MERGE_TREE.NAMESPACE_PREFIX + ':position_confident',
               'false',
           );
         }

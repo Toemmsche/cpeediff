@@ -54,9 +54,10 @@ export class MergeAdapter extends AbstractAdapter {
         );
       }
     }
+    const parser = new Preprocessor();
     const actual = new ActualMerge(
         exec,
-        new Preprocessor().withMetadata(exec),
+        parser.fromString(exec),
     );
     const verdict = this.verifyResult(actual, testCase.expected);
 
@@ -110,10 +111,10 @@ export class MergeAdapter extends AbstractAdapter {
     const actualTree = actualMerge.tree;
     const hashExtractor = new HashExtractor();
     if (expectedMerge.expectedTrees.some((tree) =>
-      hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
+        hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
       return AbstractTestResult.VERDICTS.OK;
     } else if (expectedMerge.acceptedTrees.some((tree) =>
-      hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
+        hashExtractor.get(tree) === hashExtractor.get(actualTree))) {
       return AbstractTestResult.VERDICTS.ACCEPTABLE;
     } else {
       return AbstractTestResult.VERDICTS.WRONG_ANSWER;

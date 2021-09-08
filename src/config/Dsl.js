@@ -191,15 +191,6 @@ export const Dsl = {
   MERGE_TREE: {
     NAMESPACE_URI: 'http://cpee.org/ns/description/1.0/three-way-merge',
     NAMESPACE_PREFIX: 'm3',
-    NODE_CHANGE_ORIGIN_KEY: 'this',
-    POSITION_CONFIDENCE_KEY: 'positionConfident',
-    PARENT_CONFIDENCE_KEY: 'parentConfident',
-    CONTENT_CONFIDENCE_KEY: 'contentConfident',
-  },
-
-  DELTA_TREE: {
-    TEXT_UPDATE_KEY: 'text',
-    MOVE_KEY: 'moveID',
   },
 };
 

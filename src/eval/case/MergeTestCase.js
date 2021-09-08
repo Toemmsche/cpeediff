@@ -50,24 +50,6 @@ export class MergeTestCase extends AbstractTestCase {
   }
 
   /**
-   * Complete this test case.
-   * @param {String} algorithm The algorithm that ran this case
-   * @param {?ActualMerge} actual The merge produced by the algorithm, null
-   *     indicates failure
-   * @param {String} verdict The verdict for this test case and algorithm
-   * @return {MergeTestResult} The corresponding result
-   * @override
-   */
-  complete(algorithm, actual = null, verdict) {
-    return new MergeTestResult(
-        this.name,
-        algorithm,
-        actual,
-        verdict,
-    );
-  }
-
-  /**
    * Construct a merge test case from a test case directory.
    * @param {String} testCaseDir An absolute or relative path to the test case
    *     directory
@@ -84,17 +66,17 @@ export class MergeTestCase extends AbstractTestCase {
     const accepted = [];
 
     fs.readdirSync(testCaseDir).forEach((file) => {
-      const content = fs.readFileSync(testCaseDir + '/' + file).toString();
+      const filePath = testCaseDir + '/' + file;
       if (file === EvalConfig.FILENAMES.BASE) {
-        base = parser.withMetadata(content);
+        base = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.BRANCH_1) {
-        branch1 = parser.withMetadata(content);
+        branch1 = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.BRANCH_2) {
-        branch2 = parser.withMetadata(content);
+        branch2 = parser.fromFile(filePath);
       } else if (file.startsWith(EvalConfig.FILENAMES.EXPECTED_MERGE_PREFIX)) {
-        expected.push(parser.withMetadata(content));
+        expected.push(parser.fromFile(filePath));
       } else if (file.startsWith(EvalConfig.FILENAMES.ACCEPTED_MERGE_PREFIX)) {
-        accepted.push(parser.withMetadata(content));
+        accepted.push(parser.fromFile(filePath));
       }
     });
     return new MergeTestCase(
@@ -103,6 +85,24 @@ export class MergeTestCase extends AbstractTestCase {
         branch1,
         branch2,
         new ExpectedMerge(expected, accepted),
+    );
+  }
+
+  /**
+   * Complete this test case.
+   * @param {String} algorithm The algorithm that ran this case
+   * @param {?ActualMerge} actual The merge produced by the algorithm, null
+   *     indicates failure
+   * @param {String} verdict The verdict for this test case and algorithm
+   * @return {MergeTestResult} The corresponding result
+   * @override
+   */
+  complete(algorithm, actual = null, verdict) {
+    return new MergeTestResult(
+        this.name,
+        algorithm,
+        actual,
+        verdict,
     );
   }
 }

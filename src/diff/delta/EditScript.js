@@ -202,7 +202,6 @@ export class EditScript {
       .DOMImplementation
       .prototype
       .createDocument(Dsl.DEFAULT_NAMESPACE)) {
-
     const xmlNode = ownerDocument.createElement('delta');
     xmlNode.setAttribute('cost', this.#cost);
     for (const change of this) {
