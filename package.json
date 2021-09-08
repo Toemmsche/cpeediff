@@ -1,7 +1,7 @@
 {
   "name": "@toemmsche/cpeediff",
   "version": "0.1.1",
-  "description": "An advanced difference tool for process models conforming to the CPEE notation.",
+  "description": "An advanced diff tool for process models conforming to the CPEE notation.",
   "main": "src/main.js",
   "esversion": 21,
   "scripts": {
