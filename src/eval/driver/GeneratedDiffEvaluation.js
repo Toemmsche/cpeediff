@@ -88,7 +88,9 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
         const oldTree = treeGen.randomTree();
         const testCase = treeGen.changeTree(oldTree, changeParams)[0];
 
-        for (const adapter of this._adapters) {
+        const skip = new Set();
+        for (const adapter of this._adapters
+            .filter((adapter) => !skip.has(adapter))) {
           Logger.info(
               'Running rep ' + j + ' for adapter ' + adapter.displayName,
               this,
@@ -100,8 +102,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
             result.actual.editOperations /= testCase.expected.editScript.size();
           } else if (result.isTimeOut()) {
             // Do not use in future runs
-            const adapterIndex = this._adapters.indexOf(adapter);
-            this._adapters.splice(adapterIndex, 1);
+            skip.add(adapter);
           }
           resultsPerAdapter.get(adapter).push(result);
         }
@@ -109,12 +110,10 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       const aggregateResults = [...resultsPerAdapter.entries()]
           .map((entry) => AverageDiffResult.of(entry[1]))
           .filter((aggregateResult) => aggregateResult != null);
-      // TODO remove latex
       for (const aResult of aggregateResults) {
         aResult.size = size;
         aResultsPerAdapter.get(aResult.algorithm).push(aResult);
       }
-      // TODO remove latex
       const table = [
         AverageDiffResult.header(),
         ...(aggregateResults.map((result) => result.values())),
@@ -123,13 +122,16 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
       Logger.result(markdownTable(table));
     }
 
-    this.publishLatex(aResultsPerAdapter, (result) => result.size);
+    if (EvalConfig.OUTPUT_LATEX) {
+      this.publishLatex(aResultsPerAdapter, (result) => result.size);
+    }
+
   }
 
   /**
    * Print the Latex plots for a list or results.
-   * @param {Array<Array<AverageDiffResult>>} resultsPerAdapter The result
-   *     matrix. Rows contain results for the same algorithm.
+   * @param {Map<String, Array<AverageDiffResult>>} resultsPerAdapter The
+   *     results grouped by algorithm.
    * @param {Function} xFunc A function that maps each result to the x-value
    *     in the latex plot.
    */

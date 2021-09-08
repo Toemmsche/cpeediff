@@ -1,29 +1,32 @@
 # cpeediff
 
-Command line tool to calculate and visualize the difference between two business process trees conforming to the [CPEE](https://cpee.org) syntax. This tool is part of my bachelor's thesis at the Technical University of Munich (TUM).
+Diff tool for business process models conforming to the [CPEE](https://cpee.org) notation. This project is part of my bachelor's thesis at the Technical University of Munich (TUM).
 
 ## Prerequisites
 
-- Node 16 or higher
+- Linux
+- Node.js 16.x.x
+
+Although not explicitly tested, CpeeDiff should also work with Node.js 15.x.x.
 ## Installation
 
-To install as a command line utility, run `npm install -g @toemmsche/cpeediff`. To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
+To install globally and as a command line utility, run `npm install -g @toemmsche/cpeediff`. To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
 
-If you want to use CpeeDiff as a module, navigate to your project folder and run `npm install @toemmsche/cpeediff`.
+If you want to use CpeeDiff for a single project only, navigate to your project folder and run `npm install @toemmsche/cpeediff`.
 
+If you want to install from source, clone this repository, navigate to it, and run `npm install`. This should place all the necessary dependencies in the `node_modules` directory.
 ## Usage
-
 
 ### From the command line
 
-- `cpeediff --help` for the list of available commands.
-- `cpediff <command> --help` for the list of available options for a command.
+- `cpeediff --help` for the list of available subcommands.
+- `cpediff <command> --help` for the list of available options for a subcommand.
 
-Currently, the following commands are available:
-- `cpediff diff <old> <new>`: Find differences between two CPEE process trees given as XML documents. The diff is given as a sequence of edit operations endoded in an XML document.
-- `cpediff patch <old> <editScript>`: Apply an edit script produced by CpeeDiff to a CPEE process tree. The old tree must be identical to the old tree that was used to generate the edit script.
-- `cpediff merge <base> <branch1> <branch2>`: Perform a three-way merge on the specified process trees.
-- `cpediff eval <suite>`: Run the automated evaluation framework with the specified test suite.
+Currently, the following subcommands are available:
+- `diff <old> <new>`: Find differences between two CPEE process trees given as XML documents. The diff is given as a sequence of edit operations encoded in an XML document.
+- `patch <old> [editScript]`: Apply an edit script produced by CpeeDiff to a CPEE process tree. The given tree must be identical to the tree that was used to generate the edit script.
+- `merge <base> <branch1> <branch2>`: Perform a three-way merge with the given process trees.
+- `eval <suite>`: Run the automated evaluation framework with the selected test suite.
 
 By default, output XML documents are unformatted and (nearly) impossible to navigate for humans. To pretty-print XML output, use the `--pretty` option.
 ### As a module
@@ -51,7 +54,7 @@ console.log(editScript.toXmlString());
 ```
 ## References
 
-Made with the help of the following npm modules (all licensed under the MIT license):
+Made with the help of the following npm modules (all licensed under MIT):
 
 - [yargs](https://www.npmjs.com/package/yargs) to parse command line arguments.
 - [xmldom](https://www.npmjs.com/package/@xmldom/xmldom) for access to XML DOM functions and XML (de-)serialization.

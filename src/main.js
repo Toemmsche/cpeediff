@@ -53,37 +53,34 @@ const argv = yargs(hideBin(process.argv))
                 type: 'string',
               })
               .option('mode', {
-                description: 'The matching mode to be used. This affects ' +
-                    'the performance and quality of the diff algorithm.',
+                description: 'Select the matching mode to use.',
                 alias: 'm',
                 type: 'string',
                 choices: Object.values(MatchPipeline.MATCH_MODES),
                 default: MatchPipeline.MATCH_MODES.QUALITY,
               })
               .option('threshold', {
-                description: 'Similarity threshold for matching nodes',
+                description: 'Define the threshold for matching nodes',
                 alias: 't',
                 type: 'number',
                 default: 0.4,
               })
               .option('variablePrefix', {
-                description: 'Prefix used to detect read/written variables in' +
-                    ' code and arguments',
+                description: 'Specify the prefix used to detect read/written ' +
+                    'variables in code and arguments',
                 alias: 'v',
                 type: 'string',
                 default: 'data.',
               })
               .option('format', {
-                description: 'Output format. Choice between an XML ' +
-                    'edit script, a delta tree, or ' +
-                    'the generated matching',
+                description: 'Select the output format',
                 alias: 'f',
                 type: 'string',
                 choices: [
                   'editScript',
                   'deltaTree',
                   'matching',
-                  'summary'
+                  'summary',
                 ],
                 default: 'editScript',
               })
@@ -236,10 +233,35 @@ const argv = yargs(hideBin(process.argv))
                     'as an XML document',
                 type: 'string',
               })
-              .option('mergeTree', {
-                alias: 'mt',
-                type: 'boolean',
-                default: false,
+              .option('mode', {
+                description: 'Select the matching mode to use.',
+                alias: 'm',
+                type: 'string',
+                choices: Object.values(MatchPipeline.MATCH_MODES),
+                default: MatchPipeline.MATCH_MODES.QUALITY,
+              })
+              .option('threshold', {
+                description: 'Define the threshold for matching nodes',
+                alias: 't',
+                type: 'number',
+                default: 0.4,
+              })
+              .option('variablePrefix', {
+                description: 'Specify the prefix used to detect read/written ' +
+                    'variables in code and arguments',
+                alias: 'v',
+                type: 'string',
+                default: 'data.',
+              })
+              .option('format', {
+                description: 'Select the output format',
+                alias: 'f',
+                type: 'string',
+                choices: [
+                  'mergeTree',
+                  'std',
+                ],
+                default: 'std',
               })
               .option('pretty', {
                 description: 'Pretty-print the output XML document.',
@@ -262,6 +284,9 @@ const argv = yargs(hideBin(process.argv))
         },
         (argv) => {
           DiffConfig.LOG_LEVEL = argv.logLevel;
+          DiffConfig.VARIABLE_PREFIX = argv.variablePrefix;
+          DiffConfig.MATCH_MODE = argv.mode;
+          DiffConfig.COMPARISON_THRESHOLD = argv.threshold;
           DiffConfig.PRETTY_XML = argv.pretty;
           // Parse
           const parser = new Preprocessor();
@@ -273,12 +298,16 @@ const argv = yargs(hideBin(process.argv))
           const merger = new CpeeMerge();
           const merged = merger.merge(base, branch1, branch2);
 
-          const format = argv.mergeTree ? 'mergeTree' : 'process tree';
-          Logger.info('Formatting merge result as ' + format);
-          if (argv.mergeTree) {
-            Logger.result(merged.toXmlString());
-          } else {
-            Logger.result(Node.fromNode(merged).toXmlString());
+          Logger.info('Formatting merge result as ' + argv.format);
+          switch (argv.format) {
+            case 'mergeTree': {
+              Logger.result(Node.fromNode(merged).toXmlString());
+              break;
+            }
+            case 'std': {
+              Logger.result(merged.toXmlString());
+              break;
+            }
           }
         },
     )
@@ -297,8 +326,7 @@ const argv = yargs(hideBin(process.argv))
                 type: 'string',
               })
               .option('format', {
-                description: 'Output format. Choice between the patched ' +
-                    'process tree or a delta tree',
+                description: 'Select the output format',
                 alias: 'f',
                 type: 'string',
                 choices: [

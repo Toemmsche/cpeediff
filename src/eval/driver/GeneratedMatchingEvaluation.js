@@ -147,6 +147,8 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       ]));
     }
 
+
+
     // Produce runtime plots
     Logger.section('RUNTIME LATEX', this);
     AbstractEvaluation.LATEX.fromTemplate(
