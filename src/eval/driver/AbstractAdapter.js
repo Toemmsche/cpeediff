@@ -10,7 +10,6 @@ export class AbstractAdapter {
    * The path to the directory containing the algorithm and the run
    * script.
    * @type {String}
-   * @protected
    * @const
    */
   path;
@@ -42,5 +41,6 @@ export class AbstractAdapter {
    */
   evalCase(testCase) {
     Logger.abstractMethodExecution();
+    return null;
   }
 }

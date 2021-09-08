@@ -4,21 +4,25 @@ import {hideBin} from 'yargs/helpers';
 import {DiffConfig} from './config/DiffConfig.js';
 import {Preprocessor} from './io/Preprocessor.js';
 import {CpeeDiff} from './diff/CpeeDiff.js';
-import {DiffEvaluation} from './eval/eval/DiffEvaluation.js';
-import {MergeEvaluation} from './eval/eval/MergeEvaluation.js';
-import {MatchingEvaluation} from './eval/eval/MatchingEvaluation.js';
+import {DiffEvaluation} from './eval/driver/DiffEvaluation.js';
+import {MergeEvaluation} from './eval/driver/MergeEvaluation.js';
+import {MatchingEvaluation} from './eval/driver/MatchingEvaluation.js';
 import {EvalConfig} from './config/EvalConfig.js';
 import * as fs from 'fs';
 import {Logger} from './util/Logger.js';
 import {CpeeMerge} from './merge/CpeeMerge.js';
 import {MatchPipeline} from './diff/match/MatchPipeline.js';
 import {Node} from './tree/Node.js';
-import {GeneratedDiffEvaluation} from './eval/eval/GeneratedDiffEvaluation.js';
+import {GeneratedDiffEvaluation} from './eval/driver/GeneratedDiffEvaluation.js';
 import {GeneratedMatchingEvaluation}
-  from './eval/eval/GeneratedMatchingEvaluation.js';
+  from './eval/driver/GeneratedMatchingEvaluation.js';
 import {EditScript} from './diff/delta/EditScript.js';
 import {Patcher} from './diff/patch/Patcher.js';
 import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
+import {DiffTestResult} from './eval/result/DiffTestResult.js';
+import {DiffTestCase} from './eval/case/DiffTestCase.js';
+import {CpeeDiffLocalAdapter} from './eval/diff_adapters/CpeeDiffLocalAdapter.js';
+import {markdownTable} from 'markdown-table';
 
 /**
  * @file Main entrypoint for the CpeeDiff command line utility.
@@ -80,6 +84,7 @@ const argv = yargs(hideBin(process.argv))
                   'editScript',
                   'deltaTree',
                   'matching',
+                  'summary'
                 ],
                 default: 'editScript',
               })
@@ -134,6 +139,15 @@ const argv = yargs(hideBin(process.argv))
             case 'matching': {
               // TODO
               Logger.abstractMethodExecution();
+            }
+            case 'summary': {
+              //
+              Logger.result('#Nodes (old tree): ' + oldTree.size());
+              Logger.result('#Nodes (new tree): ' + oldTree.size());
+              const dummyCase = new DiffTestCase('main', oldTree, newTree);
+              const result = new CpeeDiffLocalAdapter().evalCase(dummyCase);
+              const table = [DiffTestResult.header(), result.values()];
+              Logger.result(markdownTable(table));
             }
           }
         },

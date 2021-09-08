@@ -5,7 +5,7 @@ import {execFileSync} from 'child_process';
 import {Logger} from '../../util/Logger.js';
 import {DomHelper} from '../../util/DomHelper.js';
 import {ActualDiff} from '../actual/ActualDiff.js';
-import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractAdapter} from '../driver/AbstractAdapter.js';
 import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**
@@ -28,6 +28,7 @@ export class DiffAdapter extends AbstractAdapter {
    * @inheritDoc
    * @param {DiffTestCase} testCase The diff test case to run.
    * @return {DiffTestResult} The result.
+   * @override
    */
   evalCase(testCase) {
     let exec;

@@ -60,6 +60,19 @@ export class Logger {
   };
 
   /**
+   * A list of colors to beautify the log outputs.
+   * @type {Object}
+   */
+  static COLORS = {
+    RED: '\x1b[31m',
+    BLUE: '\x1b[34m',
+    CYAN: '\x1b[36m',
+    YELLOW: '\x1b[33m',
+    MAGENTA: '\x1b[35m',
+    WHITE: '\x1b[97m',
+  };
+
+  /**
    * Create a log with log type ERROR that signals the execution of an
    * abstract method.
    * @param {Object} source The caller object.
@@ -67,7 +80,6 @@ export class Logger {
   static abstractMethodExecution(source = null) {
     this.error('Execution of an abstract method', source);
   }
-
 
   /**
    * Create a log with log type DEBUG.
@@ -80,7 +92,7 @@ export class Logger {
   static debug(message, source = null) {
     if (this.#enabled && DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
       const logMessage = new LogMessage(this.LOG_TYPES.DEBUG, message, source);
-      console.error(logMessage.toString());
+      console.error( logMessage.toString());
     }
   }
 

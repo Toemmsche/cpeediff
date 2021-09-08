@@ -48,13 +48,13 @@ export class DiffTestResult extends AbstractTestResult {
     return [
       'Algorithm',
       'Runtime',
-      'Cost',
-      'Diff Size',
-      'Edit Operations',
+      'Edit Script Cost',
+      'Edit Script Size',
       'Insertions',
       'Moves',
       'Updates',
       'Deletions',
+      'Diff Size',
     ];
   }
 
@@ -74,12 +74,12 @@ export class DiffTestResult extends AbstractTestResult {
       this.algorithm,
       this.runtime,
       this.actual.cost,
-      this.actual.diffSize,
       this.actual.editOperations,
       this.actual.insertions,
       this.actual.moves,
       this.actual.updates,
       this.actual.deletions,
+      this.actual.diffSize,
     ];
   }
 }

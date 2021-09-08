@@ -2,7 +2,7 @@ import {IdExtractor} from '../../extract/IdExtractor.js';
 import assert from 'assert';
 import {Logger} from '../../util/Logger.js';
 import {ActualMatching} from '../actual/ActualMatching.js';
-import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractAdapter} from '../driver/AbstractAdapter.js';
 import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**

@@ -5,7 +5,7 @@ import {Preprocessor} from '../../io/Preprocessor.js';
 import {HashExtractor} from '../../extract/HashExtractor.js';
 import {Logger} from '../../util/Logger.js';
 import {ActualMerge} from '../actual/ActualMerge.js';
-import {AbstractAdapter} from '../eval/AbstractAdapter.js';
+import {AbstractAdapter} from '../driver/AbstractAdapter.js';
 import {AbstractTestResult} from '../result/AbstractTestResult.js';
 
 /**
@@ -74,7 +74,7 @@ export class MergeAdapter extends AbstractAdapter {
    * @param {Node} base The root of the base process tree.
    * @param {Node} branch1 The root of the first branch process tree.
    * @param {Node} branch2 The root of the second branch process tree.
-   * @return {Node} The root of the merge result.
+   * @return {String} The merge result as an XML document.
    */
   run(base, branch1, branch2) {
     const baseString = base.toXmlString();

@@ -29,6 +29,7 @@ export class CpeeDiffLocalAdapter extends DiffAdapter {
 
   /**
    * @inheritDoc
+   * @return {DiffTestResult} The diff test result.
    * @override
    */
   evalCase(testCase) {
