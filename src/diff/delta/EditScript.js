@@ -61,7 +61,7 @@ export class EditScript {
       editScript.#cost = parseInt(xmlElement.getAttribute('cost'));
     }
     DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
-      editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
+        editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
     return editScript;
   }
 
@@ -194,19 +194,19 @@ export class EditScript {
   }
 
   /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
    * @return {Object} The XML DOM object for this edit script.
    */
-  toXmlDom() {
-    const doc =
-        xmldom
-            .DOMImplementation
-            .prototype
-            .createDocument(Dsl.DEFAULT_NAMESPACE);
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
 
-    const xmlNode = doc.createElement('delta');
+    const xmlNode = ownerDocument.createElement('delta');
     xmlNode.setAttribute('cost', this.#cost);
     for (const change of this) {
-      xmlNode.appendChild(change.toXmlDom());
+      xmlNode.appendChild(change.toXmlDom(ownerDocument));
     }
 
     return xmlNode;

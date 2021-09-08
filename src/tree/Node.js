@@ -36,6 +36,24 @@ export class Node {
    * @type {String}
    */
   text;
+  /**
+   * The parent of this node, if it exists.
+   * @type {?Node}
+   * @protected
+   */
+  _parent;
+  /**
+   * The index of this node within the parent's ordered child list.
+   * @type {?Number}
+   * @protected
+   */
+  _index;
+  /**
+   * The ordered child list of this node.
+   * @type {Array<Node>}
+   * @protected
+   */
+  _children;
 
   /**
    * Create a new Node instance.
@@ -52,26 +70,12 @@ export class Node {
   }
 
   /**
-   * The parent of this node, if it exists.
-   * @type {?Node}
-   * @protected
-   */
-  _parent;
-
-  /**
    * Get the parent of this node, if it exists.
    * @return {?Node}
    */
   get parent() {
     return this._parent;
   }
-
-  /**
-   * The index of this node within the parent's ordered child list.
-   * @type {?Number}
-   * @protected
-   */
-  _index;
 
   /**
    * Get the index of this node within the parent's ordered child list.
@@ -90,13 +94,6 @@ export class Node {
     // TODO remove, too dangerous
     this._index = index;
   }
-
-  /**
-   * The ordered child list of this node.
-   * @type {Array<Node>}
-   * @protected
-   */
-  _children;
 
   /** @return {Array<Node>} */
   get children() {
@@ -551,15 +548,15 @@ export class Node {
   }
 
   /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
    * @return {Object} XML DOM object for this node and its children.
    */
-  toXmlDom() {
-    const doc =
-        xmldom
-            .DOMImplementation
-            .prototype
-            .createDocument(Dsl.DEFAULT_NAMESPACE);
-    const xmlElement = doc.createElement(this.label);
+  toXmlDom(ownerDocument =  xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const xmlElement = ownerDocument.createElement(this.label);
     if (this.isRoot()) {
       xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
     }
@@ -568,11 +565,11 @@ export class Node {
     }
 
     for (const child of this) {
-      xmlElement.appendChild(child.toXmlDom());
+      xmlElement.appendChild(child.toXmlDom(ownerDocument));
     }
 
     if (this.text != null) {
-      xmlElement.appendChild(doc.createTextNode(this.text));
+      xmlElement.appendChild(ownerDocument.createTextNode(this.text));
     }
 
     return xmlElement;

@@ -1,6 +1,7 @@
 import {DeltaNode} from '../diff/patch/DeltaNode.js';
 import {Confidence} from './Confidence.js';
 import {Dsl} from '../config/Dsl.js';
+import xmldom from '@xmldom/xmldom';
 
 /**
  * A node inside a merged process tree.
@@ -81,8 +82,11 @@ export class MergeNode extends DeltaNode {
    * @return {Object} XML DOM object for this merge node and its children.
    * @override
    */
-  toXmlDom() {
-    const deltaXmlRoot = DeltaNode.fromNode(this, true).toXmlDom();
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const deltaXmlRoot = DeltaNode.fromNode(this, true).toXmlDom(ownerDocument);
 
     deltaXmlRoot.setAttribute('xmlns:' + Dsl.MERGE_TREE.NAMESPACE_PREFIX +
         Dsl.MERGE_TREE.NAMESPACE_URI);

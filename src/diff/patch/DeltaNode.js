@@ -54,36 +54,6 @@ export class DeltaNode extends Node {
   }
 
   /**
-   * Create a new DeltaNode instance from an existing node.
-   * @param {Node} node
-   * @param {Boolean} includeChildren
-   * @return {DeltaNode}
-   * @override
-   */
-  static fromNode(node, includeChildren) {
-    const deltaNode = new DeltaNode(node.label, node.text);
-    for (const [key, value] of node.attributes) {
-      deltaNode.attributes.set(key, value);
-    }
-    if (includeChildren) {
-      for (const child of node) {
-        deltaNode.appendChild(this.fromNode(child, includeChildren));
-      }
-    }
-    if (node instanceof DeltaNode) {
-      deltaNode.type = node.type;
-      deltaNode.baseNode = node.baseNode;
-      for (const placeholder of node.placeholders) {
-        deltaNode.placeholders.push(this.fromNode(placeholder, true));
-      }
-      for (const [key, update] of node.updates) {
-        deltaNode.updates.set(key, update.copy());
-      }
-    }
-    return deltaNode;
-  }
-
-  /**
    * Insert a new child and adjust placeholder indices.
    * @param {Number} index The position at which to insert the new child.
    * @param {Node} node The new child.
@@ -117,22 +87,21 @@ export class DeltaNode extends Node {
   }
 
   /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
    * @return {Object} XML DOM object for this delta node and its children.
    * @override
    */
-  toXmlDom() {
-    const doc =
-        xmldom
-            .DOMImplementation
-            .prototype
-            .createDocument(Dsl.DEFAULT_NAMESPACE);
-
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
     const prefix =
         Object
             .values(Dsl.CHANGE_MODEL)
             .find((changeType) => changeType.label === this.type)
             .prefix + ':';
-    const xmlElement = doc.createElement(prefix + this.label);
+    const xmlElement = ownerDocument.createElement(prefix + this.label);
     xmlElement.localName = this.label;
 
     if (this.isMoved() || this.isMovedFrom()) {
@@ -207,14 +176,44 @@ export class DeltaNode extends Node {
     }
 
     if (this.hasText()) {
-      xmlElement.appendChild(doc.createTextNode(this.text));
+      xmlElement.appendChild(ownerDocument.createTextNode(this.text));
     }
 
     for (const child of this) {
-      xmlElement.appendChild(child.toXmlDom());
+      xmlElement.appendChild(child.toXmlDom(ownerDocument));
     }
 
     return xmlElement;
+  }
+
+  /**
+   * Create a new DeltaNode instance from an existing node.
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {DeltaNode}
+   * @override
+   */
+  static fromNode(node, includeChildren) {
+    const deltaNode = new DeltaNode(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      deltaNode.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        deltaNode.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    if (node instanceof DeltaNode) {
+      deltaNode.type = node.type;
+      deltaNode.baseNode = node.baseNode;
+      for (const placeholder of node.placeholders) {
+        deltaNode.placeholders.push(this.fromNode(placeholder, true));
+      }
+      for (const [key, update] of node.updates) {
+        deltaNode.updates.set(key, update.copy());
+      }
+    }
+    return deltaNode;
   }
 
   /**

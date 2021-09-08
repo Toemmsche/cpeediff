@@ -122,16 +122,15 @@ export class EditOperation {
   }
 
   /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
    * @return {Object} The XML DOM object for this edit operation.
    */
-  toXmlDom() {
-    const doc =
-        xmldom
-            .DOMImplementation
-            .prototype
-            .createDocument(Dsl.DEFAULT_NAMESPACE);
-
-    const xmlNode = doc.createElement(this.type);
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const xmlNode = ownerDocument.createElement(this.type);
     if (this.oldPath != null) {
       // Add root slash
       xmlNode.setAttribute('oldPath', '/' + this.oldPath);
@@ -141,7 +140,7 @@ export class EditOperation {
       xmlNode.setAttribute('newPath', '/' + this.newPath);
     }
     if (this.newContent != null) {
-      xmlNode.appendChild(this.newContent.toXmlDom(true));
+      xmlNode.appendChild(this.newContent.toXmlDom(ownerDocument));
     }
 
     return xmlNode;

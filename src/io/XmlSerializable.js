@@ -1,4 +1,6 @@
 import {Logger} from '../util/Logger.js';
+import xmldom from '@xmldom/xmldom';
+import {Dsl} from '../config/Dsl.js';
 
 /**
  * Interface for all classes whose objects can be serialized to and
@@ -28,10 +30,15 @@ export class XmlSerializable {
   }
 
   /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
    * @return {Object} XML DOM object for this object.
    * @abstract
    */
-  toXmlDom() {
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
     Logger.abstractMethodExecution();
     return null;
   }
