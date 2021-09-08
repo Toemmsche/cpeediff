@@ -10,7 +10,7 @@ Diff tool for business process models conforming to the [CPEE](https://cpee.org)
 Although not explicitly tested, CpeeDiff should also work with Node.js 15.x.x.
 ## Installation
 
-To install globally and as a command line utility, run `npm install -g @toemmsche/cpeediff`. To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
+To install globally and as a command line utility, run `npm install -g @toemmsche/cpeediff` (root user privileges may be necessary). To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
 
 If you want to use CpeeDiff for a single project only, navigate to your project folder and run `npm install @toemmsche/cpeediff`.
 
