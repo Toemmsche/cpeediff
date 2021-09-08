@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: diff/delta/EditScript.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: diff/delta/EditScript.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {EditOperation} from './EditOperation.js';
+import {Dsl} from '../../config/Dsl.js';
+import {HashExtractor} from '../../extract/HashExtractor.js';
+import {Patcher} from '../patch/Patcher.js';
+import {Node} from '../../tree/Node.js';
+import {DomHelper} from '../../util/DomHelper.js';
+import xmldom from '@xmldom/xmldom';
+import vkbeautify from 'vkbeautify';
+import {DiffConfig} from '../../config/DiffConfig.js';
+
+/**
+ * A wrapper class for an ordered sequence of edit operations, commonly
+ * referred to as an edit script. An edit script captures the changes that
+ * transform one version of a process tree into another.
+ *
+ * @implements {XmlSerializable&lt;EditScript>}
+ */
+export class EditScript {
+  /**
+   * The edit operations contained in this edit script.
+   * @type {Array&lt;EditOperation>}
+   * @private
+   * @const
+   */
+  #editOperations;
+
+  /**
+   * Construct a new EditScript instance.
+   */
+  constructor() {
+    this.#editOperations = [];
+    this.#cost = 0;
+  }
+
+  /**
+   * @return {Array&lt;EditOperation>}
+   */
+  get editOperations() {
+    return this.#editOperations;
+  }
+
+  /**
+   * The total cost of this edit script.
+   * @type {Number}
+   * @private
+   */
+  #cost;
+
+  /** @return {Number} */
+  get cost() {
+    return this.#cost;
+  }
+
+  /**
+   * @param {Object} xmlElement The XML DOM object.
+   * @return {EditScript}
+   */
+  static fromXmlDom(xmlElement) {
+    const editScript = new EditScript();
+    if (xmlElement.hasAttribute('cost')) {
+      editScript.#cost = parseInt(xmlElement.getAttribute('cost'));
+    }
+    DomHelper.forAllChildElements(xmlElement, (xmlChange) =>
+        editScript.#editOperations.push(EditOperation.fromXmlDom(xmlChange)));
+    return editScript;
+  }
+
+  /**
+   * @param {String} xml The XML document.
+   * @return {EditScript}
+   */
+  static fromXmlString(xml) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')));
+  }
+
+  /**
+   * @return {IterableIterator&lt;EditOperation>} An iterator for the changes
+   *     contained in this edit script.
+   */
+  [Symbol.iterator]() {
+    return this.#editOperations[Symbol.iterator]();
+  }
+
+  /**
+   * Append a DELETE operation to this edit script.
+   * @param {Node} deletedNode The root of the deleted subtree.
+   */
+  appendDeletion(deletedNode) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.DELETION.label,
+            deletedNode.xPath(),
+            null,
+            null,
+        ));
+    this.#cost += deletedNode.size();
+  }
+
+  /**
+   * Append a INSERT operation to this edit script.
+   * @param {Node} insertedNode The root of the inserted subtree *after* it has
+   *     been inserted.
+   */
+  appendInsertion(insertedNode) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.INSERTION.label,
+            null,
+            insertedNode.xPath(),
+            Node.fromNode(insertedNode),
+        ));
+    this.#cost += insertedNode.size();
+  }
+
+  /**
+   * Append a MOVE operation to this edit script.
+   * @param {String} oldPath The path of the moved node *before* it was moved.
+   * @param {String} newPath The path of the moved node *after* it was moved.
+   */
+  appendMove(oldPath, newPath) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.MOVE.label,
+            oldPath,
+            newPath,
+            null,
+        ));
+    this.#cost++;
+  }
+
+  /**
+   * Append an UPDATE operation to this edit script.
+   * @param {Node} updatedNode The updated node *after* the update was applied.
+   */
+  appendUpdate(updatedNode) {
+    this.#editOperations.push(
+        new EditOperation(
+            Dsl.CHANGE_MODEL.UPDATE.label,
+            updatedNode.xPath(),
+            null,
+            Node.fromNode(updatedNode, false),
+        ));
+    this.#cost++;
+  }
+
+  /**
+   * @return {Number} The number of deletions in this edit script.
+   */
+  deletions() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.DELETION.label)
+        .length;
+  }
+
+  /**
+   * @return {Number} The number of insertions in this edit script.
+   */
+  insertions() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.INSERTION.label)
+        .length;
+  }
+
+  /**
+   * Check if this edit script is valid for a process tree transformation.
+   * @param {Node} oldTree The root of the old (original) process tree.
+   * @param {Node} newTree The root of the new (changed) process tree.
+   * @return {Boolean} True, iff this edit script is valid.
+   */
+  isValid(oldTree, newTree) {
+    const patchedTree = new Patcher().patch(oldTree, this);
+    const hashExtractor = new HashExtractor();
+    return hashExtractor.get(patchedTree) === hashExtractor.get(newTree);
+  }
+
+  /**
+   * @return {Number} The number of moves in this edit script.
+   */
+  moves() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.MOVE.label)
+        .length;
+  }
+
+  /** @return {Number} */
+  size() {
+    return this.#editOperations.length;
+  }
+
+  /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
+   * @return {Object} The XML DOM object for this edit script.
+   */
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const xmlNode = ownerDocument.createElement('delta');
+    xmlNode.setAttribute('cost', this.#cost);
+    for (const change of this) {
+      xmlNode.appendChild(change.toXmlDom(ownerDocument));
+    }
+
+    return xmlNode;
+  }
+
+  /**
+   * @return {String} The XML document for this edit script.
+   */
+  toXmlString() {
+    const str = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (DiffConfig.PRETTY_XML) {
+      return vkbeautify.xml(str);
+    } else {
+      return str;
+    }
+  }
+
+  /**
+   * @return {Number} The number of updates in this edit script.
+   */
+  updates() {
+    return this
+        .#editOperations
+        .filter((editOp) => editOp.type === Dsl.CHANGE_MODEL.UPDATE.label)
+        .length;
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

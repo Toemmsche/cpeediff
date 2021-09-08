@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: util/Logger.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: util/Logger.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ Copyright 2021 Tom Papke
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+import {LogMessage} from './LogMessage.js';
+import {DiffConfig} from '../config/DiffConfig.js';
+
+/**
+ * A simple logging class.
+ * Their intended usage is described in more detail in the respective functions.
+ */
+export class Logger {
+
+  /**
+   * The available log types.
+   * @type {Object}
+   * @const
+   */
+  static LOG_TYPES = {
+    STAT: 'STAT',
+    INFO: 'INFO',
+    DEBUG: 'DEBUG',
+    WARN: 'WARN',
+    ERROR: 'ERROR',
+  };
+  /**
+   * Wether logging is enabled.
+   * @type {Boolean}
+   * @private
+   */
+  static #enabled = true;
+  /**
+   * Helper variable for timed logs.
+   * @type {?Number}
+   * @private
+   */
+  static #startTime;
+
+  /**
+   * The available log levels that can be passed as command-line arguments.
+   * @type {Object}
+   * @const
+   */
+  static LOG_LEVELS = {
+    ERROR: 'error',
+    WARN: 'warn',
+    ALL: 'all',
+  };
+
+  /**
+   * A list of colors to beautify the log outputs.
+   * @type {Object}
+   */
+  static COLORS = {
+    RED: '\x1b[31m',
+    BLUE: '\x1b[34m',
+    CYAN: '\x1b[36m',
+    YELLOW: '\x1b[33m',
+    MAGENTA: '\x1b[35m',
+    WHITE: '\x1b[97m',
+  };
+
+  /**
+   * Create a log with log type ERROR that signals the execution of an
+   * abstract method.
+   * @param {Object} source The caller object.
+   */
+  static abstractMethodExecution(source = null) {
+    this.error('Execution of an abstract method', source);
+  }
+
+  /**
+   * Create a log with log type DEBUG.
+   * Debug logs provide a way for developers to gain insight into the internals
+   * of the application during runtime. The log is printed to stderr if logging
+   * is enabled and the application log level is set to ALL.
+   * @param {String} message The message to log as DEBUG.
+   * @param {Object} source The caller object.
+   */
+  static debug(message, source = null) {
+    if (this.#enabled &amp;&amp; DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+      const logMessage = new LogMessage(this.LOG_TYPES.DEBUG, message, source);
+      console.error( logMessage.toString());
+    }
+  }
+
+  /**
+   * Disable logging. Result logs are not affected.
+   * @return {Boolean} If logging was previously enabled.
+   */
+  static disableLogging() {
+    const wasEnabled = this.#enabled;
+    this.#enabled = false;
+    return wasEnabled;
+  }
+
+  /**
+   * Enable logging conditionally. Result logs are not affected.
+   * @param {Boolean} enable If logging should be enabled.
+   */
+  static enableLogging(enable = true) {
+    this.#enabled = enable;
+  }
+
+  /**
+   * End the timer if logging is enabled and return the elapsed time.
+   * @return {Number} The elapsed time in milliseconds.
+   */
+  static endTimed() {
+    if (this.#enabled) {
+      if (this.#startTime == null) {
+        // Timer was reset by someone else in the meantime. This is not fatal
+        // but may invalidate stats.
+        this.warn('Bad timer', this);
+      }
+      const elapsedTime = new Date().getTime() - this.#startTime;
+      this.#startTime = null;
+      return elapsedTime;
+    }
+  }
+
+  /**
+   * Create a log with log type ERROR.
+   * Error logs indicate a faulty state of the system that, if not addressed
+   * immediately, will lead to the termination of the application. The log is
+   * printed to stderr if logging is enabled.
+   * @param {String} message The message to log as ERROR
+   * @param {Object} source The caller object.
+   */
+  static error(message, source = null) {
+    if (this.#enabled) {
+      const logMessage = new LogMessage(this.LOG_TYPES.ERROR, message, source);
+      console.error(logMessage.toString());
+    }
+    throw new Error(message);
+  }
+
+  /**
+   * Create a log with log type INFO.
+   * Info logs provide information about the state of an application and
+   * represent expected behaviour. The log is printed to stdout if logging is
+   * enabled and the application log level is set to ALL.
+   * @param {String} message The message to log as INFO.
+   * @param {Object} source The caller object.
+   */
+  static info(message, source = null) {
+    if (this.#enabled &amp;&amp; DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+      const logMessage = new LogMessage(this.LOG_TYPES.INFO, message, source);
+      console.log(logMessage.toString());
+    }
+  }
+
+  /**
+   * Publish a result to stdout without any additional information like log
+   * level or caller class.
+   * @param {String} message The result to log.
+   * @param {Object} source The caller object.
+   */
+  static result(message, source = null) {
+    console.log(message);
+  }
+
+  /**
+   * Log the beginning of a major section in the execution flow of a component
+   * as an INFO log.
+   * @param {String} title The title of the section.
+   * @param {Object} source The caller object.
+   */
+  static section(title, source = null) {
+    this.info('============' + title + '=============', source);
+  }
+
+  /**
+   *  Start a timer if logging is enabled.
+   */
+  static startTimed() {
+    if (this.#enabled) {
+      this.#startTime = new Date().getTime();
+    }
+  }
+
+  /**
+   * Create a log with log type STAT.
+   * Statistical logs provide quantitative information and metrics about the
+   * execution of a module. The log is printed to stdout if logging is enabled
+   * and the application log level is set to ALL.
+   * @param {String} message The message to log as STAT.
+   * @param {Object} source The caller object.
+   */
+  static stat(message, source = null) {
+    if (this.#enabled &amp;&amp; DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL) {
+      const logMessage = new LogMessage(this.LOG_TYPES.STAT, message, source);
+      console.log(logMessage.toString());
+    }
+  }
+
+  /**
+   * Create a log with log type WARN.
+   * Warning logs indicate a dangerous state or potentially unwanted behaviour
+   * of the application. The log is printed to stdout if logging is enabled and
+   * the application log level is at least set to WARN.
+   * @param {String} message The message to log as WARN.
+   * @param {Object} source The caller object.
+   */
+  static warn(message, source = null) {
+    if (this.#enabled &amp;&amp;
+        (DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.ALL ||
+            DiffConfig.LOG_LEVEL === Logger.LOG_LEVELS.WARN)) {
+      const logMessage = new LogMessage(this.LOG_TYPES.WARN, message, source);
+      console.log(logMessage.toString());
+    }
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

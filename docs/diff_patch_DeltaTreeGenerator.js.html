@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: diff/patch/DeltaTreeGenerator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: diff/patch/DeltaTreeGenerator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Dsl} from '../../config/Dsl.js';
+import {IdExtractor} from '../../extract/IdExtractor.js';
+import {Update} from './Update.js';
+import {DeltaNode} from './DeltaNode.js';
+import {Logger} from '../../util/Logger.js';
+import {Node} from '../../tree/Node.js';
+
+/**
+ * Generator class for delta trees, i.e. process trees that are annotated with
+ * diff-related information
+ * @see {DeltaNode}
+ */
+export class DeltaTreeGenerator {
+  /** @type  {DeltaNode} */
+  #deltaTree;
+  /**
+   * A map that assigns each moved node a placeholder node at its old position.
+   * @type {Map&lt;DeltaNode, DeltaNode>} */
+  #moveMap;
+
+  /**
+   * @param {DeltaNode} node
+   */
+  #applyDelete(node) {
+    for (const descendant of node.toPreOrderArray()) {
+      descendant.type = Dsl.CHANGE_MODEL.DELETION.label;
+    }
+
+    node.removeFromParent();
+    node.parent.placeholders.push(node);
+  }
+
+  /**
+   * @param {DeltaNode} parent
+   * @param {DeltaNode} node
+   * @param {Number} index
+   */
+  #applyInsert(parent, node, index) {
+    // Copy the inserted node
+    const child = DeltaNode.fromNode(node, true);
+    parent.insertChild(index, child);
+    for (const descendant of child.toPreOrderArray()) {
+      descendant.type = Dsl.CHANGE_MODEL.INSERTION.label;
+    }
+  }
+
+  /**
+   * @param {DeltaNode} node
+   * @param {Node} newContent
+   */
+  #applyUpdate(node, newContent) {
+    // Detect changes to text content
+    if (node.text !== newContent.text) {
+      node.updates.set('text', new Update(node.text, newContent.text));
+      node.text = newContent.text;
+    }
+
+    // Detect updated and inserted attributes
+    for (const [key, value] of newContent.attributes) {
+      if (node.attributes.has(key)) {
+        if (node.attributes.get(key) !== value) {
+          node.updates.set(key, new Update(node.attributes.get(key), value));
+          node.attributes.set(key, value);
+        }
+      } else {
+        node.updates.set(key, new Update(null, value));
+        node.attributes.set(key, value);
+      }
+    }
+
+    // Detect deleted attributes
+    for (const [key, value] of node.attributes) {
+      if (!newContent.attributes.has(key)) {
+        node.updates.set(key, new Update(value, null));
+        node.attributes.delete(key);
+      }
+    }
+  }
+
+  /**
+   * Copy a data node and its children and placeholders by value.
+   * Any outdated values of the move map are updated in the process.
+   * @param {DeltaNode} deltaNode The delta node to copy.
+   * @return {DeltaNode}
+   */
+  #copyAndUpdateMoveMap(deltaNode) {
+    const copy = new DeltaNode(
+        deltaNode.label,
+        deltaNode.text,
+        deltaNode.type,
+        deltaNode.baseNode,
+    );
+    const partner =
+        [...this.#moveMap.entries()]
+            .filter((e) => e[1] === deltaNode)[0];
+    if (partner != null) {
+      this.#moveMap.set(partner[0], copy);
+    }
+    for (const [key, value] of deltaNode.attributes) {
+      copy.attributes.set(key, value);
+    }
+    for (const child of deltaNode) {
+      copy.appendChild(this.#copyAndUpdateMoveMap(child));
+    }
+    for (const placeholder of deltaNode.placeholders) {
+      copy.placeholders.push(this.#copyAndUpdateMoveMap(placeholder));
+    }
+    for (const [key, update] of deltaNode.updates) {
+      copy.updates.set(key, update.copy());
+    }
+    return copy;
+  };
+
+  /**
+   * Create a standard delta tree out of a base tree and an edit script.
+   * The standard delta tree does not contain "move from" and "deleted"
+   * placeholders.
+   * @param {Node} tree The root of the tree to transform into a delta tree.
+   * @param {EditScript} editScript The delta.
+   * @return {DeltaNode} The root of the delta tree.
+   */
+  deltaTree(tree, editScript) {
+    // Copy the tree as a delta node
+    this.#deltaTree = DeltaNode.fromNode(tree, true);
+    this.#moveMap = new Map();
+
+    // Node IDs are equal to the index in the pre-order array
+    const idExtractor = new IdExtractor();
+    for (const node of this.#deltaTree.toPreOrderArray()) {
+      node.baseNode = idExtractor.get(node);
+    }
+
+    for (const editOp of editScript) {
+      switch (editOp.type) {
+        case Dsl.CHANGE_MODEL.INSERTION.label: {
+          this.#handleInsertion(editOp);
+          break;
+        }
+        case Dsl.CHANGE_MODEL.MOVE.label: {
+          this.#handleMove(editOp);
+          break;
+        }
+        case Dsl.CHANGE_MODEL.UPDATE.label: {
+          this.#handleUpdate(editOp);
+          break;
+        }
+        case Dsl.CHANGE_MODEL.DELETION.label: {
+          this.#handleDeletion(editOp);
+          break;
+        }
+      }
+    }
+    this.#resolvePlaceholders(this.#deltaTree);
+    this.#trim();
+    return this.#deltaTree;
+  }
+
+  /**
+   * @param {String} indexPath
+   * @return {Array&lt;DeltaNode>} [regular node, movfrNode].
+   */
+  #findWithMovfr(indexPath) {
+    let currNode = this.#deltaTree;
+    let movfrNode = null;
+    let foundMovfrNode = false;
+    if (indexPath !== '') {
+      for (const index of indexPath
+          .split('/') // Remove root path "/"
+          .map((str) => parseInt(str))) {
+        if (index >= currNode.degree()) {
+          Logger.error('Edit script not applicable to tree', this);
+        }
+        if (movfrNode != null) {
+          movfrNode = movfrNode.getChild(index);
+        }
+        currNode = currNode.getChild(index);
+        if (this.#moveMap.has(currNode)) {
+          movfrNode = this.#moveMap.get(currNode);
+          foundMovfrNode = true;
+        }
+      }
+    }
+    if (foundMovfrNode &amp;&amp; movfrNode == null) {
+      Logger.error('Could not find movfr node', this);
+    }
+    return [
+      currNode,
+      movfrNode,
+    ];
+  }
+
+  /**
+   * @param {EditOperation} deletion
+   */
+  #handleDeletion(deletion) {
+    const [node, movfrNode] = this.#findWithMovfr(deletion.oldPath);
+
+    this.#applyDelete(node);
+    if (movfrNode != null) {
+      this.#applyDelete(movfrNode);
+    }
+  }
+
+  /**
+   * @param {EditOperation} insertion
+   */
+  #handleInsertion(insertion) {
+    const indexArr =
+        insertion
+            .newPath
+            .split('/')
+            .map((str) => parseInt(str));
+    const index = indexArr.pop();
+    const [parent, movfrParent] = this.#findWithMovfr(indexArr.join('/'));
+
+    this.#applyInsert(parent, insertion.newContent, index);
+    if (movfrParent != null) {
+      this.#applyInsert(movfrParent, insertion.newContent, index);
+    }
+  }
+
+  /**
+   * @param {EditOperation} move
+   */
+  #handleMove(move) {
+    // Find moved node
+    let [node, movfrNode] = this.#findWithMovfr(move.oldPath);
+
+    // If movfrNode does not exist (no deep move), create a new placeholder
+    if (movfrNode == null) {
+      // Copy regular node exactly and update moveMap entries
+      movfrNode = this.#copyAndUpdateMoveMap(node);
+      // Copy regular node index
+      movfrNode.index = node.index;
+      // Append placeholder
+      node.parent.placeholders.push(movfrNode);
+    } else {
+      movfrNode.removeFromParent();
+      movfrNode.parent?.placeholders.push(movfrNode);
+    }
+    movfrNode.type = Dsl.CHANGE_MODEL.MOVE_FROM.label;
+
+    // Create entry in move map
+    this.#moveMap.set(node, movfrNode);
+
+    // Detach regular node
+    node.removeFromParent();
+
+    // Find the new parent
+    const parentIndexArr =
+        move
+            .newPath
+            .split('/')
+            .map((str) => parseInt(str));
+    const targetIndex = parentIndexArr.pop();
+    const [parent, movfrParent] = this.#findWithMovfr(parentIndexArr.join('/'));
+
+    // Insert dummy node in movfrParent
+    if (movfrParent != null) {
+      movfrParent.insertChild(targetIndex, new DeltaNode('dummy'));
+    }
+
+    // Insert regular node
+    parent.insertChild(targetIndex, node);
+    node.type = move.type;
+  }
+
+  /**
+   * @param {EditOperation} update
+   */
+  #handleUpdate(update) {
+    const [node, movfrNode] = this.#findWithMovfr(update.oldPath);
+    const newContent = update.newContent;
+
+    this.#applyUpdate(node, newContent);
+    if (movfrNode != null) {
+      this.#applyUpdate(movfrNode, newContent);
+    }
+  }
+
+  /**
+   * @param {DeltaNode} node
+   */
+  #resolvePlaceholders(node) {
+    for (const child of node.children) {
+      this.#resolvePlaceholders(child);
+    }
+    while (node.placeholders.length > 0) {
+      const placeholder = node.placeholders.pop();
+      // Placeholders can have placeholders themselves (nested move to front)
+      this.#resolvePlaceholders(placeholder);
+      node.insertChild(placeholder.index, placeholder);
+    }
+  }
+
+  /**
+   * Trim excess nodes resulting from move operations.
+   */
+  #trim() {
+    for (const deltaNode of this.#deltaTree.toPostOrderArray()) {
+      if (deltaNode.label === 'dummy') {
+        deltaNode.removeFromParent();
+        continue;
+      }
+      if (deltaNode.isMoved()) {
+        deltaNode
+            .toPreOrderArray()
+            .forEach((descendant) => {
+              if (descendant.isMovedFrom()) {
+                descendant.removeFromParent();
+              }
+            });
+      } else if (deltaNode.isMovedFrom()) {
+        deltaNode
+            .toPreOrderArray()
+            .forEach((descendant) => {
+              if (descendant.isMoved()) {
+                descendant.removeFromParent();
+              }
+            });
+      }
+    }
+  }
+
+  /**
+   * Create a trimmed version of the delta tree that does not contain
+   * "move-from" or "deleted" placeholders.
+   * @param {Node} tree The root of the tree to transform into a delta tree.
+   * @param {EditScript} editScript The delta.
+   * @return {DeltaNode} The root of the delta tree.
+   */
+  trimmedDeltaTree(tree, editScript) {
+    const deltaTree = this.deltaTree(tree, editScript);
+    deltaTree
+        .toPreOrderArray()
+        .forEach((node) => {
+          if (node.isPlaceholder()) {
+            node.removeFromParent();
+          }
+        });
+    return deltaTree;
+  }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

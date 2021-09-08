@@ -3,7 +3,7 @@
 /node_modules/*
 temp/*
 .vs
-/out
+/docs
 
 # ignore temporary files
 /temp

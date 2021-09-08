@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: MergeTestCase</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: MergeTestCase</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>MergeTestCase<span class="signature">(name, base, branch1, branch2, expected)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">Represents a test case for the evaluation of merging algorithms.</div>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="MergeTestCase"><span class="type-signature"></span>new MergeTestCase<span class="signature">(name, base, branch1, branch2, expected)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Construct a new MergeTestCase instance.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the test case</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>base</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The root of the base process tree</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>branch1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The root of the first branch process tree#</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>branch2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The root of the second branch process tree</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>expected</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ExpectedMerge.html">ExpectedMerge</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The expected merge results</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="MergeTestCase.html">MergeTestCase</a></dt>
+            <dd></dd>
+        </dl>
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="base"><span class="type-signature">(constant) </span>base<span class="type-signature"> :<a href="Node.html">Node</a></span></h4>
+
+
+
+
+<div class="description">
+    The root the base process tree.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="branch1"><span class="type-signature">(constant) </span>branch1<span class="type-signature"> :<a href="Node.html">Node</a></span></h4>
+
+
+
+
+<div class="description">
+    The root the first branch process tree.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line23">line 23</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="branch2"><span class="type-signature">(constant) </span>branch2<span class="type-signature"> :<a href="Node.html">Node</a></span></h4>
+
+
+
+
+<div class="description">
+    The root the second branch process tree.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Node.html">Node</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line29">line 29</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".from"><span class="type-signature">(static) </span>from<span class="signature">(testCaseDir)</span><span class="type-signature"> &rarr; {<a href="MergeTestCase.html">MergeTestCase</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Construct a merge test case from a test case directory.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>testCaseDir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">An absolute or relative path to the test case
+    directory</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line59">line 59</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The constructed merge test case
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MergeTestCase.html">MergeTestCase</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="complete"><span class="type-signature"></span>complete<span class="signature">(algorithm, actual<span class="signature-attributes">nullable</span>, verdict)</span><span class="type-signature"> &rarr; {<a href="MergeTestResult.html">MergeTestResult</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Complete this test case.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>algorithm</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The algorithm that ran this case</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>actual</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="ActualMerge.html">ActualMerge</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">The merge produced by the algorithm, null
+    indicates failure</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>verdict</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The verdict for this test case and algorithm</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="eval_case_MergeTestCase.js.html">eval/case/MergeTestCase.js</a>, <a href="eval_case_MergeTestCase.js.html#line100">line 100</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The corresponding result
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="MergeTestResult.html">MergeTestResult</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

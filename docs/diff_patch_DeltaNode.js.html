@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: diff/patch/DeltaNode.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: diff/patch/DeltaNode.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Node} from '../../tree/Node.js';
+import {Dsl} from '../../config/Dsl.js';
+import xmldom from '@xmldom/xmldom';
+
+/**
+ * A node inside a CPEE process tree annotated with change related information.
+ * This class serves as the basis for diff visualization as well as merging.
+ *
+ * @implements {XmlSerializable&lt;DeltaNode>}
+ * @extends {Node}
+ */
+export class DeltaNode extends Node {
+  /**
+   * The type of change this node was affected by.
+   * @type {String}
+   */
+  type;
+  /**
+   * The updates applied to the attributes and text content of this node.
+   * @type {Map&lt;String, Update>}
+   * @const
+   */
+  updates;
+  /**
+   * Placeholder children of this node that were deleted or moved away.
+   * @type {Array&lt;DeltaNode>}
+   * @const
+   */
+  placeholders;
+  /**
+   * The ID of the node in the base tree, if it exists, that this node
+   * corresponds to. Null indicates an inserted node
+   * @type {?Number}
+   */
+  baseNode;
+
+  /**
+   * Construct a new DeltaNode instance.
+   * @param {String} label The label of the node.
+   * @param {?String} text The text content of the node.
+   * @param {String} type The type of change this node was affected by.
+   * @param {?Number} baseNode The base node ID.
+   */
+  constructor(
+      label,
+      text = null,
+      type = Dsl.CHANGE_MODEL.NIL.label,
+      baseNode = null,
+  ) {
+    super(label, text);
+    this.baseNode = baseNode;
+    this.type = type;
+    this.updates = new Map();
+    this.placeholders = [];
+  }
+
+  /**
+   * Insert a new child and adjust placeholder indices.
+   * @param {Number} index The position at which to insert the new child.
+   * @param {Node} node The new child.
+   * @override
+   */
+  insertChild(index, node) {
+    super.insertChild(index, node);
+    // Adjust placeholders
+    for (const placeholder of this.placeholders) {
+      if (placeholder._index >= index) {
+        placeholder._index++;
+      }
+    }
+  }
+
+  /**
+   * Remove a node from the child list of its parent. Also adjust the indices
+   * of all placeholders. Note: The parent attribute is not cleared by this
+   * function.
+   * @override
+   */
+  removeFromParent() {
+    super.removeFromParent();
+    if (this._parent != null) {
+      for (const placeholder of this._parent.placeholders) {
+        if (placeholder._index > this.index) {
+          placeholder._index--;
+        }
+      }
+    }
+  }
+
+  /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
+   * @return {Object} XML DOM object for this delta node and its children.
+   * @override
+   */
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const prefix =
+        Object
+            .values(Dsl.CHANGE_MODEL)
+            .find((changeType) => changeType.label === this.type)
+            .prefix + ':';
+    const xmlElement = ownerDocument.createElement(prefix + this.label);
+    xmlElement.localName = this.label;
+
+    if (this.isMoved() || this.isMovedFrom()) {
+      xmlElement.setAttribute(prefix + 'id', this.baseNode);
+    }
+
+    if (this.isRoot()) {
+      xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
+      for (const type of Object.values(Dsl.CHANGE_MODEL)) {
+        xmlElement.setAttribute('xmlns:' + type.prefix, type.uri);
+      }
+    }
+
+    // Append regular attributes
+    for (const [key, value] of this.attributes) {
+      if (!this.updates.has(key)) {
+        xmlElement.setAttribute(key, value);
+      }
+    }
+
+    // Append updated attributes
+    for (const [key, update] of this.updates) {
+      const oldVal = update.oldVal;
+      const newVal = update.newVal;
+      if (oldVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.INSERTION.prefix + ':' + key,
+            newVal,
+        );
+      } else if (newVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.DELETION.prefix + ':' + key,
+            oldVal,
+        );
+      } else {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + key,
+            oldVal,
+        );
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + key,
+            newVal,
+        );
+      }
+    }
+
+    const textKey = 'text';
+    // Changes in text content are also modelled as updates
+    if (this.updates.has(textKey)) {
+      const oldVal = this.updates.get(textKey).oldVal;
+      const newVal = this.updates.get(textKey).newVal;
+      if (oldVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.INSERTION.prefix + ':' + textKey,
+            'true',
+        );
+      } else if (newVal == null) {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.DELETION.prefix + ':' + textKey,
+            'true',
+        );
+      } else {
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE_FROM.prefix + ':' + textKey,
+            oldVal,
+        );
+        xmlElement.setAttribute(
+            Dsl.CHANGE_MODEL.UPDATE.prefix + ':' + textKey,
+            'true',
+        );
+      }
+    }
+
+    if (this.hasText()) {
+      xmlElement.appendChild(ownerDocument.createTextNode(this.text));
+    }
+
+    for (const child of this) {
+      xmlElement.appendChild(child.toXmlDom(ownerDocument));
+    }
+
+    return xmlElement;
+  }
+
+  /**
+   * Create a new DeltaNode instance from an existing node.
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {DeltaNode}
+   * @override
+   */
+  static fromNode(node, includeChildren) {
+    const deltaNode = new DeltaNode(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      deltaNode.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        deltaNode.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    if (node instanceof DeltaNode) {
+      deltaNode.type = node.type;
+      deltaNode.baseNode = node.baseNode;
+      for (const placeholder of node.placeholders) {
+        deltaNode.placeholders.push(this.fromNode(placeholder, true));
+      }
+      for (const [key, update] of node.updates) {
+        deltaNode.updates.set(key, update.copy());
+      }
+    }
+    return deltaNode;
+  }
+
+  /**
+   * @return {Boolean} If this node was deleted.
+   */
+  isDeleted() {
+    return this.type === Dsl.CHANGE_MODEL.DELETION.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was inserted.
+   */
+  isInserted() {
+    return this.type === Dsl.CHANGE_MODEL.INSERTION.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was moved.
+   */
+  isMoved() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE.label;
+  }
+
+  /**
+   * @return {Boolean} If this node is a placeholder for a moved node before it
+   *     was moved.
+   */
+  isMovedFrom() {
+    return this.type === Dsl.CHANGE_MODEL.MOVE_FROM.label;
+  }
+
+  /**
+   * @return {Boolean} If this node was deleted or moved away
+   */
+  isPlaceholder() {
+    return this.isMovedFrom() || this.isDeleted();
+  }
+
+  /**
+   * @return {Boolean} If this node was not changed in any way regarding
+   *     position or content.
+   */
+  isUnchanged() {
+    return this.type === Dsl.CHANGE_MODEL.NIL.label &amp;&amp; !this.isUpdated();
+  }
+
+  /**
+   * @return {Boolean} If this node was updated.
+   */
+  isUpdated() {
+    return this.updates.size > 0;
+  }
+}
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

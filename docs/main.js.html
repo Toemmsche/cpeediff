@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>#!/usr/bin/env node
+import yargs from 'yargs';
+import {hideBin} from 'yargs/helpers';
+import {DiffConfig} from './config/DiffConfig.js';
+import {Preprocessor} from './io/Preprocessor.js';
+import {CpeeDiff} from './diff/CpeeDiff.js';
+import {DiffEvaluation} from './eval/driver/DiffEvaluation.js';
+import {MergeEvaluation} from './eval/driver/MergeEvaluation.js';
+import {MatchingEvaluation} from './eval/driver/MatchingEvaluation.js';
+import {EvalConfig} from './config/EvalConfig.js';
+import * as fs from 'fs';
+import {Logger} from './util/Logger.js';
+import {CpeeMerge} from './merge/CpeeMerge.js';
+import {MatchPipeline} from './diff/match/MatchPipeline.js';
+import {Node} from './tree/Node.js';
+import {GeneratedDiffEvaluation} from './eval/driver/GeneratedDiffEvaluation.js';
+import {GeneratedMatchingEvaluation} from './eval/driver/GeneratedMatchingEvaluation.js';
+import {EditScript} from './diff/delta/EditScript.js';
+import {Patcher} from './diff/patch/Patcher.js';
+import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
+import {DiffTestResult} from './eval/result/DiffTestResult.js';
+import {DiffTestCase} from './eval/case/DiffTestCase.js';
+import {CpeeDiffLocalAdapter} from './eval/diff_adapters/CpeeDiffLocalAdapter.js';
+import {markdownTable} from 'markdown-table';
+
+/**
+ * @file Main entrypoint for the CpeeDiff command line utility.
+ */
+
+const argv = yargs(hideBin(process.argv))
+    .option('logLevel', {
+      global: true,
+      description: 'Choose the desired log level. "all" includes INFO, ' +
+          'DEBUG, and STAT messages.',
+      alias: 'l',
+      type: 'string',
+      choices: Object.values(Logger.LOG_LEVELS),
+      default: Logger.LOG_LEVELS.ERROR,
+    })
+    .command(
+        'diff &lt;old> &lt;new>',
+        'Calculate and show the difference between two CPEE process trees',
+        (yargs) => {
+          yargs
+              .positional('old', {
+                description: 'Path to the original CPEE process tree as an ' +
+                    'XML document',
+                type: 'string',
+              })
+              .positional('new', {
+                description: 'Path to the changed CPEE process tree as an ' +
+                    'XML document',
+                type: 'string',
+              })
+              .option('mode', {
+                description: 'Select the matching mode to use.',
+                alias: 'm',
+                type: 'string',
+                choices: Object.values(MatchPipeline.MATCH_MODES),
+                default: MatchPipeline.MATCH_MODES.QUALITY,
+              })
+              .option('threshold', {
+                description: 'Define the threshold for matching nodes',
+                alias: 't',
+                type: 'number',
+                default: 0.4,
+              })
+              .option('variablePrefix', {
+                description: 'Specify the prefix used to detect read/written ' +
+                    'variables in code and arguments',
+                alias: 'v',
+                type: 'string',
+                default: 'data.',
+              })
+              .option('format', {
+                description: 'Select the output format',
+                alias: 'f',
+                type: 'string',
+                choices: [
+                  'editScript',
+                  'deltaTree',
+                  'matching',
+                  'summary',
+                ],
+                default: 'editScript',
+              })
+              .option('pretty', {
+                description: 'Pretty-print the output XML document',
+                alias: 'p',
+                type: 'boolean',
+                default: false,
+              })
+              .check((argv) => {
+                if (!fs.existsSync(argv.old)) {
+                  throw new Error(argv.old + ' ist not a valid file path');
+                }
+                if (!fs.existsSync(argv.new)) {
+                  throw new Error(argv.new + ' ist not a valid file path');
+                }
+                if (argv.threshold &lt; 0 || argv.threshold > 1) {
+                  throw new Error('threshold must be in [0,1]');
+                }
+                return true;
+              });
+        },
+        (argv) => {
+          // Configure diff instance
+          DiffConfig.VARIABLE_PREFIX = argv.variablePrefix;
+          DiffConfig.COMPARISON_THRESHOLD = argv.threshold;
+          DiffConfig.MATCH_MODE = argv.mode;
+          DiffConfig.LOG_LEVEL = argv.logLevel;
+          DiffConfig.PRETTY_XML = argv.pretty;
+
+          const parser = new Preprocessor();
+          const oldTree = parser.fromFile(argv.old);
+          const newTree = parser.fromFile(argv.new);
+
+          const editScript = new CpeeDiff().diff(
+              oldTree,
+              newTree,
+          );
+
+          Logger.info('Formatting result as ' + argv.format);
+          switch (argv.format) {
+            case 'editScript': {
+              Logger.result(editScript.toXmlString());
+              break;
+            }
+            case 'deltaTree': {
+              const deltaTreeGen = new DeltaTreeGenerator();
+              const deltaTree = deltaTreeGen.deltaTree(oldTree, editScript);
+              Logger.result(deltaTree.toXmlString());
+              break;
+            }
+            case 'matching': {
+              const matching =
+                  MatchPipeline.fromMode().execute(oldTree, newTree);
+              Logger.result(matching.toXmlString());
+              break;
+            }
+            case 'summary': {
+              //
+              Logger.result('#Nodes (old tree): ' + oldTree.size());
+              Logger.result('#Nodes (new tree): ' + oldTree.size());
+              const dummyCase = new DiffTestCase('main', oldTree, newTree);
+              const result = new CpeeDiffLocalAdapter().evalCase(dummyCase);
+              const table = [
+                DiffTestResult.header(),
+                result.values(),
+              ];
+              Logger.result(markdownTable(table));
+              break;
+            }
+          }
+        },
+    )
+    .command(
+        'eval &lt;suite>',
+        'Evaluate the CpeeDiff algorithm and compare against other algorithms',
+        (yargs) => {
+          yargs
+              .positional('suite', {
+                description: 'The evaluation suite to run',
+                type: 'string',
+                choices: [
+                  'match',
+                  'diff',
+                  'merge',
+                  'genDiff',
+                  'genMatch',
+                ],
+              })
+              .option('timeout', {
+                description: 'The time limit for each individual test case ' +
+                    'in seconds',
+                alias: 't',
+                type: 'number',
+                default: 30,
+              });
+        },
+        (argv) => {
+          if (argv.pretty) {
+            Logger.info('Overriding option "pretty" with false');
+            argv.pretty = false;
+          }
+          DiffConfig.PRETTY_XML = argv.pretty;
+          DiffConfig.LOG_LEVEL = argv.logLevel;
+          EvalConfig.EXECUTION_OPTIONS.timeout = argv.timeout * 1000;
+          EvalConfig.RUN_AUTOGENERATED_TESTS = argv.gen;
+
+          Logger.info('Executing test suite ' + argv.suite);
+          switch (argv.suite) {
+            case 'match': {
+              MatchingEvaluation.all().evalAll(EvalConfig.MATCH_CASES_DIR);
+              break;
+            }
+            case 'diff': {
+              DiffEvaluation.all().evalAll(EvalConfig.MATCH_CASES_DIR);
+              break;
+            }
+            case 'merge': {
+              MergeEvaluation.all().evalAll(EvalConfig.MERGE_CASES_DIR);
+              break;
+            }
+            case 'genDiff': {
+              GeneratedDiffEvaluation.all().evalAll();
+              break;
+            }
+            case 'genMatch': {
+              GeneratedMatchingEvaluation.all().evalAll();
+              break;
+            }
+          }
+        },
+    )
+    .command(
+        'merge &lt;base> &lt;branch1> &lt;branch2>',
+        'Perform a three-way merge for process trees',
+        (yargs) => {
+          yargs
+              .positional('base', {
+                description: 'Path to the base CPEE process tree as an ' +
+                    'XML document',
+                type: 'string',
+              })
+              .positional('branch1', {
+                description: 'Path to the first branch CPEE process tree ' +
+                    'as an XML document',
+                type: 'string',
+              })
+              .positional('branch2', {
+                description: 'Path to the second branch CPEE process tree ' +
+                    'as an XML document',
+                type: 'string',
+              })
+              .option('mode', {
+                description: 'Select the matching mode to use.',
+                alias: 'm',
+                type: 'string',
+                choices: Object.values(MatchPipeline.MATCH_MODES),
+                default: MatchPipeline.MATCH_MODES.QUALITY,
+              })
+              .option('threshold', {
+                description: 'Define the threshold for matching nodes',
+                alias: 't',
+                type: 'number',
+                default: 0.4,
+              })
+              .option('variablePrefix', {
+                description: 'Specify the prefix used to detect read/written ' +
+                    'variables in code and arguments',
+                alias: 'v',
+                type: 'string',
+                default: 'data.',
+              })
+              .option('format', {
+                description: 'Select the output format',
+                alias: 'f',
+                type: 'string',
+                choices: [
+                  'mergeTree',
+                  'std',
+                ],
+                default: 'std',
+              })
+              .option('pretty', {
+                description: 'Pretty-print the output XML document.',
+                alias: 'p',
+                type: 'boolean',
+                default: false,
+              })
+              .check((argv) => {
+                if (!fs.existsSync(argv.base)) {
+                  throw new Error(argv.base + ' ist not a valid file path');
+                }
+                if (!fs.existsSync(argv.branch1)) {
+                  throw new Error(argv.branch1 + ' ist not a valid file path');
+                }
+                if (!fs.existsSync(argv.branch2)) {
+                  throw new Error(argv.branch2 + ' ist not a valid file path');
+                }
+                return true;
+              });
+        },
+        (argv) => {
+          DiffConfig.LOG_LEVEL = argv.logLevel;
+          DiffConfig.VARIABLE_PREFIX = argv.variablePrefix;
+          DiffConfig.MATCH_MODE = argv.mode;
+          DiffConfig.COMPARISON_THRESHOLD = argv.threshold;
+          DiffConfig.PRETTY_XML = argv.pretty;
+          // Parse
+          const parser = new Preprocessor();
+          const base = parser.fromFile(argv.base);
+          const branch1 = parser.fromFile(argv.branch1);
+          const branch2 = parser.fromFile(argv.branch2);
+
+          // Merge
+          const merger = new CpeeMerge();
+          const merged = merger.merge(base, branch1, branch2);
+
+          Logger.info('Formatting merge result as ' + argv.format);
+          switch (argv.format) {
+            case 'mergeTree': {
+              Logger.result(Node.fromNode(merged).toXmlString());
+              break;
+            }
+            case 'std': {
+              Logger.result(merged.toXmlString());
+              break;
+            }
+          }
+        },
+    )
+    .command(
+        'patch &lt;old> [editScript]',
+        'Patch a document with an edit script',
+        (yargs) => {
+          yargs
+              .positional('old', {
+                description: 'Path to the original CPEE process tree as an ' +
+                    'XML document',
+                type: 'string',
+              })
+              .positional('editScript', {
+                description: 'Path to the edit script as an XML document',
+                type: 'string',
+              })
+              .option('format', {
+                description: 'Select the output format',
+                alias: 'f',
+                type: 'string',
+                choices: [
+                  'patched',
+                  'deltaTree',
+                ],
+                default: 'patched',
+              })
+              .option('afterPreprocess', {
+                description: 'Show the changes applied during preprocessing.',
+                alias: 's',
+                type: 'boolean',
+                default: false,
+              })
+              .option('pretty', {
+                description: 'Pretty-print the output XML document',
+                alias: 'p',
+                type: 'boolean',
+                default: false,
+              })
+              .check((argv) => {
+                if (!fs.existsSync(argv.old)) {
+                  throw new Error(argv.old + ' ist not a valid file path');
+                }
+                if (argv.editScript != null &amp;&amp;
+                    !fs.existsSync(argv.editScript)) {
+                  throw new Error(argv.editScript +
+                      ' ist not a valid file path');
+                }
+                return true;
+              });
+        },
+        (argv) => {
+          DiffConfig.PRETTY_XML = argv.pretty;
+          DiffConfig.LOG_LEVEL = argv.logLevel;
+          // Parse
+          const parser = new Preprocessor();
+          const preProcessorEditScript = new EditScript();
+          const oldTree = parser.fromFile(argv.old, preProcessorEditScript);
+
+          if (argv.afterPreprocess) {
+            Logger.result('Changes applied during preprocessing:');
+            Logger.result(preProcessorEditScript.toXmlString());
+          }
+
+          let editScript = new EditScript();
+          if (argv.editScript != null) {
+            const editScriptContent = fs.readFileSync(argv.editScript)
+                .toString();
+            editScript = EditScript.fromXmlString(editScriptContent);
+          }
+
+          Logger.info('Formatting result as ' + argv.format);
+          switch (argv.format) {
+            case 'patched': {
+              const patcher = new Patcher();
+              const patched = patcher.patch(oldTree, editScript);
+              Logger.result(patched.toXmlString());
+              break;
+            }
+            case 'deltaTree': {
+              const deltaTreeGen = new DeltaTreeGenerator();
+              const deltaTree = deltaTreeGen.deltaTree(oldTree, editScript);
+              Logger.result(deltaTree.toXmlString());
+              break;
+            }
+          }
+        },
+    )
+    .help()
+    .demandCommand()
+    .strictCommands()
+    .argv;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

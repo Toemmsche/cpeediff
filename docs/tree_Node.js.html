@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: tree/Node.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: tree/Node.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Dsl} from '../config/Dsl.js';
+import {Logger} from '../util/Logger.js';
+import {DomHelper} from '../util/DomHelper.js';
+import xmldom from '@xmldom/xmldom';
+import vkbeautify from 'vkbeautify';
+import {DiffConfig} from '../config/DiffConfig.js';
+import {HashExtractor} from '../extract/HashExtractor.js';
+
+/**
+ * A node inside a CPEE process tree parsed from an XML document.
+ * A node is considered a(n)
+ * - leaf node if it corresponds to a activity DSL-Element.
+ * - inner node if it corresponds to a control flow DSL-Element.
+ * - property node otherwise.
+ *
+ * In the case that a node is the root node, i.e. does not have a parent,
+ * it is labelled as a tree in code.
+ *
+ * @implements {XmlSerializable&lt;Node>}
+ */
+export class Node {
+  /**
+   * The label of this node.
+   * @type {String}
+   * @const
+   */
+  label;
+  /**
+   * The attributes of this node.
+   * @type {Map&lt;String, String>}
+   * @const
+   */
+  attributes;
+  /**
+   * The text content of this node.
+   * @type {String}
+   */
+  text;
+  /**
+   * The parent of this node, if it exists.
+   * @type {?Node}
+   * @protected
+   */
+  _parent;
+  /**
+   * The index of this node within the parent's ordered child list.
+   * @type {?Number}
+   * @protected
+   */
+  _index;
+  /**
+   * The ordered child list of this node.
+   * @type {Array&lt;Node>}
+   * @protected
+   */
+  _children;
+
+  /**
+   * Create a new Node instance.
+   * @param {String} label The label of the node.
+   * @param {?String} text The text content of the node.
+   */
+  constructor(label, text = null) {
+    this.label = label;
+    this.text = text;
+    this.attributes = new Map();
+    this._children = [];
+    this._parent = null;
+    this._index = null;
+  }
+
+  /**
+   * Get the parent of this node, if it exists.
+   * @return {?Node}
+   */
+  get parent() {
+    return this._parent;
+  }
+
+  /**
+   * Get the index of this node within the parent's ordered child list.
+   * @return {?Number}
+   */
+  get index() {
+    return this._index;
+  }
+
+  /** @return {Array&lt;Node>} */
+  get children() {
+    return this._children;
+  }
+
+  /**
+   * Create a new Node instance from an existing node.
+   * @param {Node} node
+   * @param {Boolean} includeChildren
+   * @return {Node}
+   */
+  static fromNode(node, includeChildren = true) {
+    const copy = new Node(node.label, node.text);
+    for (const [key, value] of node.attributes) {
+      copy.attributes.set(key, value);
+    }
+    if (includeChildren) {
+      for (const child of node) {
+        copy.appendChild(this.fromNode(child, includeChildren));
+      }
+    }
+    return copy;
+  }
+
+  /**
+   * @param {String} xmlElement The XML DOM object.
+   * @param {Boolean} includeChildren Whether to include children.
+   * @return {Node}
+   */
+  static fromXmlDom(xmlElement, includeChildren = true) {
+    const node = new Node(xmlElement.localName);
+    // parse attributes
+    for (let i = 0; i &lt; xmlElement.attributes.length; i++) {
+      const attrNode = xmlElement.attributes.item(i);
+      node.attributes.set(attrNode.name, attrNode.value);
+    }
+
+    for (let i = 0; i &lt; xmlElement.childNodes.length; i++) {
+      const childElement = xmlElement.childNodes.item(i);
+      if (childElement.nodeType === DomHelper.XML_NODE_TYPES.TEXT) {
+        // check if text node contains a non-empty payload
+        if (childElement.data.match(/^\s*$/) == null) {
+          if (node.text == null) {
+            node.text = '';
+          }
+          node.text += childElement.data;
+        }
+      } else if (childElement.nodeType === DomHelper.XML_NODE_TYPES.ELEMENT &amp;&amp;
+          includeChildren) {
+        node.appendChild(this.fromXmlDom(childElement, includeChildren));
+      }
+    }
+    return node;
+  }
+
+  /**
+   * @param {String} xml The XML document.
+   * @param {Boolean} includeChildren Whether to include children.
+   * @return {Node}
+   */
+  static fromXmlString(xml, includeChildren = true) {
+    return this.fromXmlDom(DomHelper.firstChildElement(
+        new xmldom
+            .DOMParser()
+            .parseFromString(xml, 'text/xml')), includeChildren);
+  }
+
+  /**
+   * @return {IterableIterator&lt;Node>} An iterator for this node's children
+   */
+  [Symbol.iterator]() {
+    return this._children[Symbol.iterator]();
+  }
+
+  /** @param {Node} node */
+  appendChild(node) {
+    node._index = this._children.push(node) - 1;
+    node._parent = this;
+  }
+
+  /**
+   * Move this node to a new position within the child list of its parent.
+   * @param {Number} index The new index.
+   */
+  changeIndex(index) {
+    // delete
+    this._parent._children.splice(this._index, 1);
+    // insert
+    this._parent._children.splice(index, 0, this);
+    // adjust indices of all children
+    this._parent.#fixChildIndices();
+  }
+
+  /**
+   * Determines if the content of this node is equal to the content
+   * of another node.
+   * @param {Node} other
+   * @return {Boolean} True, iff the content equals.
+   */
+  contentEquals(other) {
+    return this.label === other.label &amp;&amp;
+        this.text === other.text &amp;&amp;
+        this.attributes.size === other.attributes.size &amp;&amp;
+        ![...this.attributes.entries()]
+            .some((entry) => other.attributes.get(entry[0]) !== entry[1]);
+  }
+
+  /**
+   * @return {Number} The number of children of this node
+   */
+  degree() {
+    return this._children.length;
+  }
+
+  /**
+   * Fina a node in the sutree rooted at this node based on its index path.
+   * @param {String} indexPath The index path of the node.
+   * @return {Node}
+   */
+  findNode(indexPath) {
+    let currNode = this;
+    if (indexPath !== '') {
+      for (const index of indexPath.split('/').map((str) => parseInt(str))) {
+        if (index >= currNode.degree()) {
+          Logger.error('Invalid index path', this);
+        }
+        currNode = currNode.getChild(index);
+      }
+    }
+    return currNode;
+  }
+
+  /**
+   * Restore the correct indices of all children.
+   * @private
+   */
+  #fixChildIndices() {
+    this._children.forEach((node, index) => node._index = index);
+  }
+
+  /**
+   * @param {Number} index
+   * @return {Node}
+   */
+  getChild(index) {
+    return this._children[index];
+  }
+
+  /** @return {?Node} */
+  getLeftSibling() {
+    return this._index > 0 ?
+           this.getSiblings()[this._index - 1] :
+           null;
+  }
+
+  /** @return {?Node} */
+  getRightSibling() {
+    return this._index &lt; this.getSiblings().length - 1 ?
+           this.getSiblings()[this._index + 1] :
+           null;
+  }
+
+  /** @return {?Array&lt;Node>} The child list of the parent node */
+  getSiblings() {
+    return this._parent._children;
+  }
+
+  /** @return {Boolean} */
+  hasAttributes() {
+    return this.attributes.size > 0;
+  }
+
+  /** @return {Boolean} */
+  hasChildren() {
+    return this.degree() > 0;
+  }
+
+  /**
+   * NOTE: It is known that property nodes of inner nodes are still considered
+   * ordered by this function. This is fine for our purposes and unlikely to
+   * ever make a difference in reality.
+   * @return {Boolean} If the order of the children of this node
+   * has semantic implications in terms of the CPEE DSL.
+   */
+  hasInternalOrdering() {
+    if (this.isPropertyNode()) {
+      return this.isCallArguments();
+    } else if (this.isLeaf()) {
+      // Property nodes of leaves are never ordered
+      return false;
+    } else {
+      return !this.isParallel();
+    }
+  }
+
+  /** @return {Boolean} */
+  hasText() {
+    return this.text != null &amp;&amp; this.text !== '';
+  }
+
+  /**
+   * Test for subtree hash equality with another subtree.
+   * @param {Node} other The root of the other subtree.
+   * @return {Boolean} True, iff their hashes equal.
+   */
+  hashEquals(other) {
+    const hashExtractor = new HashExtractor();
+    return hashExtractor.get(this) === hashExtractor.get(other);
+  }
+
+  /** @return {Array&lt;Node>} All inner nodes of this subtree in pre-order */
+  inners() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => n.isInnerNode());
+  }
+
+  /**
+   * @param {Number} index The position at which to insert the new child.
+   * @param {Node} node The new child.
+   */
+  insertChild(index, node) {
+    this._children.splice(index, 0, node);
+    node._parent = this;
+    this.#fixChildIndices();
+  }
+
+  /** @return {Boolean} */
+  isAlternative() {
+    return this.label === Dsl.ELEMENTS.ALTERNATIVE.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isBreak() {
+    return this.label === Dsl.ELEMENTS.BREAK.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isCall() {
+    return this.label === Dsl.ELEMENTS.CALL.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isCallArguments() {
+    return this.label === Dsl.CALL_PROPERTIES.ARGUMENTS.label &amp;&amp;
+        this._parent.label !== Dsl.CALL_PROPERTIES.ARGUMENTS.label;
+  }
+
+  /** @return {Boolean} */
+  isCallLabel() {
+    return this.label === Dsl.CALL_PROPERTIES.LABEL.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isCallMethod() {
+    return this.label === Dsl.CALL_PROPERTIES.METHOD.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isChoice() {
+    return this.label === Dsl.ELEMENTS.CHOICE.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isCritical() {
+    return this.label === Dsl.ELEMENTS.CRITICAL.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isEmpty() {
+    if (this.isInnerNode()) {
+      return !this.isRoot() &amp;&amp; !this.hasChildren();
+    } else if (this.isLeaf()) {
+      return this.isScript() &amp;&amp; (this.text === '' || this.text == null);
+    } else {
+      // Property node
+      return !this.hasChildren() &amp;&amp; (this.text === '' || this.text == null);
+    }
+  }
+
+  /**
+   * @return {Boolean} If this node corresponds to a control flow DSL-Element
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isInnerNode() {
+    return Dsl.INNER_NODE_SET.has(this.label) &amp;&amp;
+        !this._parent?.isCallArguments(); // root may be checked
+  }
+
+  /** @return {Boolean} */
+  isInnterruptLeafNode() {
+    return this.isTermination() || this.isStop() || this.isBreak();
+  }
+
+  /**
+   * @return {Boolean} If this node corresponds to an activity DSL-Element
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isLeaf() {
+    return Dsl.LEAF_NODE_SET.has(this.label) &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isLoop() {
+    return this.label === Dsl.ELEMENTS.LOOP.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isOtherwise() {
+    return this.label === Dsl.ELEMENTS.OTHERWISE.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isParallel() {
+    return this.label === Dsl.ELEMENTS.PARALLEL.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isParallelBranch() {
+    return this.label === Dsl.ELEMENTS.PARALLEL_BRANCH.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /**
+   * @return {Boolean} If this node corresponds to a property
+   * in terms of the CPEE DSL {@see Dsl}.
+   */
+  isPropertyNode() {
+    // Call arguments that are named after DSL-elements
+    // can break the first condition.
+    return !Dsl.ELEMENT_SET.has(this.label) ||
+        this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isRoot() {
+    return this.label === Dsl.ELEMENTS.DSL_ROOT.label &amp;&amp; this._parent == null;
+  }
+
+  /** @return {Boolean} */
+  isScript() {
+    return this.label === Dsl.ELEMENTS.SCRIPT.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isStop() {
+    return this.label === Dsl.ELEMENTS.STOP.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Boolean} */
+  isTermination() {
+    return this.label === Dsl.ELEMENTS.TERMINATION.label &amp;&amp;
+        !this._parent?.isCallArguments();
+  }
+
+  /** @return {Array&lt;Node>} All leaf nodes of this subtree in pre-order */
+  leaves() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => n.isLeaf());
+  }
+
+  /** @return {Array&lt;Node>} All property nodes of this subtree in pre-order */
+  nonPropertyNodes() {
+    return this
+        .toPreOrderArray()
+        .filter((n) => !n.isPropertyNode());
+  }
+
+  /**
+   * Compute a subsequence of this node's path.
+   * The path is the sequence of all ancestors of this node,
+   * starting from the root (inclusive) to this node (inclusive).
+   * @param {?Number} limit The maximum length of the subsequence,
+   *   unlimited if null.
+   * @return {Array&lt;Node>} The subsequence of the path.
+   */
+  path(limit = null) {
+    const pathArr = [];
+    let node = this;
+    while (node != null &amp;&amp; (limit == null || pathArr.length &lt; limit)) {
+      pathArr.push(node);
+      node = node._parent;
+    }
+    // this node is always last in path
+    return pathArr.reverse();
+  }
+
+  /**
+   * Remove a node from the child list of its parent.
+   * Note: The parent attribute is not cleared by this function.
+   */
+  removeFromParent() {
+    if (this._parent != null) {
+      this._parent.children.splice(this._index, 1);
+      this._parent.#fixChildIndices();
+    } else {
+      // Unexpected, but non-fatal event
+      Logger.warn('Removing node ' +
+          this.toString() + ' that has no parent', this);
+    }
+  }
+
+  /**
+   * Warning: This function takes O(n) time!
+   * @return {number} The size of the subtree rooted at this node.
+   */
+  size() {
+    return this.toPreOrderArray().length;
+  }
+
+  /**
+   * Create a list of all nodes contained in the subtree rooted at this node
+   * in post-order.
+   * @param {Array&lt;Node>} arr Helper array for performance reasons.
+   * @return {Array&lt;Node>}
+   */
+  toPostOrderArray(arr = []) {
+    for (const child of this) {
+      child.toPostOrderArray(arr);
+    }
+    arr.push(this);
+    return arr;
+  }
+
+  /**
+   * Create a list of all nodes contained in the subtree rooted at this node
+   * in pre-order.
+   * @param {Array&lt;Node>} arr Helper array for performance reasons.
+   * @return {Array&lt;Node>}
+   */
+  toPreOrderArray(arr = []) {
+    arr.push(this);
+    for (const child of this) {
+      child.toPreOrderArray(arr);
+    }
+    return arr;
+  }
+
+  /**
+   * @param {Object} ownerDocument The owner document of the generated XML
+   *     element.
+   * @return {Object} XML DOM object for this node and its children.
+   */
+  toXmlDom(ownerDocument = xmldom
+      .DOMImplementation
+      .prototype
+      .createDocument(Dsl.DEFAULT_NAMESPACE)) {
+    const xmlElement = ownerDocument.createElement(this.label);
+    if (this.isRoot()) {
+      xmlElement.setAttribute('xmlns', Dsl.DEFAULT_NAMESPACE);
+    }
+    for (const [key, value] of this.attributes) {
+      xmlElement.setAttribute(key, value);
+    }
+
+    for (const child of this) {
+      xmlElement.appendChild(child.toXmlDom(ownerDocument));
+    }
+
+    if (this.text != null) {
+      xmlElement.appendChild(ownerDocument.createTextNode(this.text));
+    }
+
+    return xmlElement;
+  }
+
+  /**
+   * @return {String} XML document of this node and its children.
+   */
+  toXmlString() {
+    const xml = new xmldom.XMLSerializer().serializeToString(this.toXmlDom());
+    if (DiffConfig.PRETTY_XML) {
+      return vkbeautify.xml(xml);
+    } else {
+      return xml;
+    }
+  }
+
+  /**
+   * Returns the an XPath like positional identifier for this node.
+   * @return {String} The array of indices of all nodes on the path
+   *     excluding the root.
+   */
+  xPath() {
+    // discard root node
+    return this.path()
+        .slice(1)
+        .map((node) => node.index)
+        .join('/');
+  }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

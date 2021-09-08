@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: eval/driver/GeneratedDiffEvaluation.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: eval/driver/GeneratedDiffEvaluation.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {EvalConfig} from '../../config/EvalConfig.js';
+import {Logger} from '../../util/Logger.js';
+import {DiffEvaluation} from './DiffEvaluation.js';
+import {GeneratorParameters} from '../gen/GeneratorParameters.js';
+import {TreeGenerator} from '../gen/TreeGenerator.js';
+import {ChangeParameters} from '../gen/ChangeParameters.js';
+import {markdownTable} from 'markdown-table';
+import {AverageDiffResult} from '../result/AverageDiffResult.js';
+import {DiffTestResult} from '../result/DiffTestResult.js';
+import {AbstractEvaluation} from './AbstractEvaluation.js';
+
+/**
+ * An evaluation of diff algorithms using generated test cases.
+ */
+export class GeneratedDiffEvaluation extends DiffEvaluation {
+  /**
+   * Construct a new GeneratedDiffEvaluation instance.
+   * @param {Array&lt;DiffAdapter>} adapters The adapters of the algorithms to
+   *     use for the evaluation.
+   */
+  constructor(adapters = []) {
+    super(adapters);
+  }
+
+  /**
+   * Create a new GeneratedDiffEvaluation instance using all algorithms.
+   * @return {GeneratedDiffEvaluation}
+   */
+  static all() {
+    return new GeneratedDiffEvaluation(super.all()._adapters);
+  }
+
+  /**
+   * @inheritDoc
+   * @override
+   */
+  evalAll() {
+    // Simply run all functions...
+    this.average(false, false, false);
+    this.single(false, false, false);
+  }
+
+  /**
+   * Evaluate diff algorithms using random process trees of increasing size.
+   * The results are relative to a proposed edit script and represent the
+   * average of multiple runs with trees of similar size.
+   * @param {Boolean} constChanges If the number of changes should remain
+   *     constant.
+   * @param {Boolean} constSize If the size of the trees should remain
+   *     constant.
+   * @param {Boolean} local If a constant number of changes should be applied
+   *     locally, i.e. to a small region of the process tree. If set to false,
+   *     changes are growing and randomly distributed within the tree.
+   */
+  average(constChanges, constSize, local = false) {
+    Logger.section('Diff Evaluation with Generated Trees', this);
+    // TODO LATEX REMOVE
+    /** @type {Map&lt;String, Array&lt;AverageDiffResult>>} */
+    const aResultsPerAdapter = new Map(this._adapters.map((adapter) => [
+      adapter.displayName,
+      [],
+    ]));
+    // TODO remove latex
+    for (let i = 1; i &lt;= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
+      // Init results with empty array for each adapter
+      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
+        adapter,
+        [],
+      ]));
+      const size = EvalConfig.SIZE_GROWTH.INTERVAL * (constSize ? 1 : i);
+      const genParams = new GeneratorParameters(
+          size,
+          size,
+          Math.ceil(Math.log2(size)),
+          Math.ceil(Math.log10(size)),
+      );
+      const treeGen = new TreeGenerator(genParams);
+      const changeParams =
+          new ChangeParameters(
+              EvalConfig.CHANGE_GROWTH.INTERVAL * (constChanges ? 1 : i),
+              local,
+          );
+      const testId = '[Size: ' + size +
+          ', Changes: ' + changeParams.totalChanges + ']';
+
+      // Take the average of multiple runs
+      for (let j = 0; j &lt; EvalConfig.REPS; j++) {
+        const oldTree = treeGen.randomTree();
+        const testCase = treeGen.changeTree(oldTree, changeParams)[0];
+
+        const skip = new Set();
+        for (const adapter of this._adapters
+            .filter((adapter) => !skip.has(adapter))) {
+          Logger.info(
+              'Running rep ' + j + ' for adapter ' + adapter.displayName,
+              this,
+          );
+          const result = adapter.evalCase(testCase);
+          if (result.isOk()) {
+            // Make relative to proposed edit script
+            result.actual.cost /= testCase.expected.editScript.cost;
+            result.actual.editOperations /= testCase.expected.editScript.size();
+          } else if (result.isTimeOut()) {
+            // Do not use in future runs
+            skip.add(adapter);
+          }
+          resultsPerAdapter.get(adapter).push(result);
+        }
+      }
+      const aggregateResults = [...resultsPerAdapter.entries()]
+          .map((entry) => AverageDiffResult.of(entry[1]))
+          .filter((aggregateResult) => aggregateResult != null);
+      for (const aResult of aggregateResults) {
+        aResult.size = size;
+        aResultsPerAdapter.get(aResult.algorithm).push(aResult);
+      }
+      const table = [
+        AverageDiffResult.header(),
+        ...(aggregateResults.map((result) => result.values())),
+      ];
+      Logger.result('Results for cases ' + testId);
+      Logger.result(markdownTable(table));
+    }
+
+    if (EvalConfig.OUTPUT_LATEX) {
+      this.publishLatex(aResultsPerAdapter, (result) => result.size);
+    }
+  }
+
+  /**
+   * Print the Latex plots for a list or results.
+   * @param {Map&lt;String, Array&lt;AverageDiffResult>>} resultsPerAdapter The
+   *     results grouped by algorithm.
+   * @param {Function} xFunc A function that maps each result to the x-value
+   *     in the latex plot.
+   */
+  publishLatex(resultsPerAdapter, xFunc) {
+    Logger.section('RUNTIME LATEX', this);
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...resultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgRuntime + ')'),
+            ),
+    ));
+    Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
+        .join(', ')
+        .replaceAll('_', '\\_') + '}');
+    Logger.section('COST LATEX', this);
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...resultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgCost + ')'),
+            ),
+    ));
+    Logger.section('EDIT OPS LATEX', this);
+    Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+        [...resultsPerAdapter.entries()]
+            .map((entry) => entry[1]
+                .map((t) => '(' + xFunc(t) + ',' + t.avgEditOperations + ')'),
+            ),
+    ));
+  }
+
+  /**
+   * Evaluate diff algorithms using random process trees.
+   * @param {Boolean} constChanges If the number of changes should remain
+   *     constant.
+   * @param {Boolean} constSize If the size of the trees should remain
+   *     constant.
+   * @param {Boolean} local If a constant number of changes should be applied
+   *     locally, i.e. to a small region of the process tree. If set to false,
+   *     changes are growing and randomly distributed within the tree.
+   */
+  single(constChanges, constSize, local = false) {
+    Logger.section('Diff Evaluation with Generated Trees', this);
+    for (let i = 1; i &lt;= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
+      const size = EvalConfig.SIZE_GROWTH.INTERVAL * (constSize ? 1 : i);
+      const genParams = new GeneratorParameters(
+          size,
+          size,
+          Math.ceil(Math.log2(size)),
+          Math.ceil(Math.log10(size)),
+      );
+      const treeGen = new TreeGenerator(genParams);
+      const changeParams =
+          new ChangeParameters(
+              EvalConfig.CHANGE_GROWTH.INTERVAL * (constChanges ? 1 : i),
+              local,
+          );
+      const oldTree = treeGen.randomTree();
+      const testCase = treeGen.changeTree(oldTree, changeParams)[0];
+
+      const results = [];
+      for (const adapter of this._adapters) {
+        Logger.info(
+            'Running case ' + testCase.name +
+            ' for adapter ' + adapter.displayName,
+            this,
+        );
+        const result = adapter.evalCase(testCase);
+        results.push(result);
+      }
+
+      const table =
+          [
+            DiffTestResult.header(),
+            testCase.expected.values(),
+            ...results.map((result) => result.values()),
+          ];
+
+      Logger.result('Results for case ' + testCase.name);
+      Logger.result(markdownTable(table));
+    }
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

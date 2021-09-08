@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: merge/CpeeMerge.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: merge/CpeeMerge.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {MatchPipeline} from '../diff/match/MatchPipeline.js';
+import {Matching} from '../diff/match/Matching.js';
+import {CpeeDiff} from '../diff/CpeeDiff.js';
+import {DeltaTreeGenerator} from '../diff/patch/DeltaTreeGenerator.js';
+import {Preprocessor} from '../io/Preprocessor.js';
+import {Update} from '../diff/patch/Update.js';
+import {MergeNode} from './MergeNode.js';
+import {Logger} from '../util/Logger.js';
+
+/**
+ * A simple matching-based three way merger for process trees.
+ */
+export class CpeeMerge {
+  /**
+   * The matching between the branches.
+   * @type {Matching}
+   */
+  #matching;
+
+  /**
+   * Apply updates from one node to another.
+   * @param {MergeNode} fromNode The node that was updated.
+   * @param {MergeNode} toNode The node that was not updated.
+   * @private
+   */
+  #applyUpdate(fromNode, toNode) {
+    toNode.attributes.clear();
+    for (const [key, val] of fromNode.attributes) {
+      toNode.attributes.set(key, val);
+    }
+    toNode.text = fromNode.text;
+    // Updates also contain a change origin
+    for (const [updateKey, updateVal] of fromNode.updates) {
+      toNode.updates.set(updateKey, updateVal.copy());
+      toNode.updates.set(updateKey, updateVal.copy());
+    }
+  }
+
+  /**
+   * Find update and move conflicts.
+   * @param {MergeNode} mergeTree The root of the merge tree that should be
+   *     searched for move and update conflicts.
+   * @return {[Set&lt;MergeNode>, Set&lt;MergeNode>]} The sets of nodes that are
+   *     involved in an update and/or move conflict.
+   * @private
+   */
+  #findConflicts(mergeTree) {
+    const updateConflicts = new Set();
+    const moveConflicts = new Set();
+
+    for (const /** @type {MergeNode} */ node of mergeTree.toPreOrderArray()) {
+      if (this.#matching.isMatched(node)) {
+        /** @type {MergeNode} */
+        const match = this.#matching.getMatch(node);
+        // Moved in both branches ?
+        if (node.isMoved() &amp;&amp;
+            match.isMoved() &amp;&amp;
+            node.changeOrigin !== match.changeOrigin) {
+          moveConflicts.add(node);
+        }
+        // Updated in both branches ?
+        if (node.isUpdated() &amp;&amp; match.isUpdated()) {
+          updateConflicts.add(node);
+        }
+
+        // Edge case: An inserted node that was matched. Possibly a duplicate
+        // insertion.
+        if (node.isInserted() &amp;&amp; (match.isInserted() || match.isUpdated())) {
+          moveConflicts.add(node);
+          if (!node.contentEquals(match)) {
+            updateConflicts.add(node);
+          }
+        }
+      }
+    }
+    return [
+      updateConflicts,
+      moveConflicts,
+    ];
+  }
+
+  /**
+   * Find possible conflicts regarding the position of a node within its
+   * parent's child list.
+   * @param {MergeNode} mergeTree The root of the merge tree that should be
+   *     searched for order conflicts.
+   * @private
+   */
+  #findOrderConflicts(mergeTree) {
+    for (const /** @type {MergeNode} */ node of mergeTree.toPreOrderArray()) {
+      if (node.parent != null &amp;&amp;
+          node.parent.hasInternalOrdering() &amp;&amp;
+          (node.isInserted() || node.isMoved())) {
+        /** @type {MergeNode} */
+        const leftSibling = node.getLeftSibling();
+        /** @type {MergeNode} */
+        const rightSibling = node.getRightSibling();
+        // Order conflicts arise when adjacent nodes where also moved/inserted
+        if (leftSibling != null &amp;&amp;
+            (leftSibling.isMoved() || leftSibling.isInserted()) &amp;&amp;
+            leftSibling.changeOrigin !== node.changeOrigin) {
+          node.confidence.positionConfident = false;
+          leftSibling.confidence.positionConfident = false;
+        }
+        if (rightSibling != null &amp;&amp;
+            (rightSibling.isMoved() || rightSibling.isInserted()) &amp;&amp;
+            rightSibling.changeOrigin !== node.changeOrigin) {
+          node.confidence.positionConfident = false;
+          rightSibling.confidence.positionConfident = false;
+        }
+      }
+    }
+  }
+
+  /**
+   * Construct the matching between the merge trees of the two branches.
+   * @param {MergeNode} mergeTree1 The root of the first branch merge tree.
+   * @param {MergeNode} mergeTree2 The root of the second branch merge tree.
+   * @return {Matching}
+   */
+  #getMatching(mergeTree1, mergeTree2) {
+    const baseNodeMap = new Map();
+    for (const /** @type {MergeNode} */ node1 of mergeTree1.toPreOrderArray()) {
+      if (node1.baseNode != null) {
+        baseNodeMap.set(node1.baseNode, node1);
+      }
+    }
+    const matching = new Matching();
+    for (const /** @type {MergeNode} */ node2 of mergeTree2.toPreOrderArray()) {
+      if (node2.baseNode != null &amp;&amp; baseNodeMap.has(node2.baseNode)) {
+        matching.matchNew(node2, baseNodeMap.get(node2.baseNode));
+      }
+    }
+    // Find duplicate insertions
+    return MatchPipeline
+        .fromMode()
+        .execute(mergeTree1, mergeTree2, matching);
+  }
+
+  /**
+   * Handle unmatched nodes in one branch that were deleted in another.
+   * @param {MergeNode} mergeTree The root of the merge tree that should be
+   *     searched for deletion candidates.
+   */
+  #handleDeletions(mergeTree) {
+    for (const /** @type {MergeNode} */ node of mergeTree.toPreOrderArray()) {
+      if (!this.#matching.isMatched(node) &amp;&amp; !node.isInserted()) {
+        // Node does not have a match and was not inserted. Therefore, its base
+        // node was deleted in the other branch. For the sake of data
+        // reduction, delete this node as well.
+        node.removeFromParent();
+      }
+    }
+  }
+
+  /**
+   * Handle non-conflict moves and insertions.
+   * @param {MergeNode} mergeTree The root of the merge tree that should be
+   *     searched for non-conflict moves and insertions.
+   */
+  #handleMovesAndInsertions(mergeTree) {
+    for (const /** @type {MergeNode} */ node of mergeTree.toPreOrderArray()) {
+      if (node.parent == null) continue;
+      if (this.#matching.isMatched(node)) {
+        /** @type {MergeNode} */
+        const match = this.#matching.getMatch(node);
+        if (node.isMoved() &amp;&amp; !match.isMoved()) {
+          // Node was moved in this tree, but not in the other one --> apply
+          // move to other tree
+          match.removeFromParent();
+          this.#insertCorrectly(match, node);
+        }
+        if (node.isUpdated() &amp;&amp; !match.isUpdated() &amp;&amp; !match.isInserted()) {
+          // update match
+          this.#applyUpdate(node, match);
+        }
+      } else {
+        if (node.isInserted()) {
+          // Node was inserted in this Tree, not in the other --> insert in
+          // other tree
+          const copy = MergeNode.fromNode(node, false);
+          this.#insertCorrectly(copy, node);
+          if (node.changeOrigin === 2) {
+            this.#matching.matchNew(node, copy);
+          } else {
+            this.#matching.matchNew(copy, node);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Insert a node "correctly" in one branch, i.e. with respect to the position
+   * of a reference node in the other branch.
+   * @param {MergeNode} nodeToInsert The node to insert in a branch.
+   * @param {MergeNode} referenceNode The reference node in the other branch.
+   */
+  #insertCorrectly(nodeToInsert, referenceNode) {
+    const newParent = this.#matching.getMatch(referenceNode.parent);
+    nodeToInsert.changeOrigin = referenceNode.changeOrigin;
+    nodeToInsert.type = referenceNode.type;
+    let i = referenceNode.index - 1;
+    // Find the first left sibling of the reference Node that is matched to a
+    // node within the same parent
+    while (i >= 0 &amp;&amp;
+    this.#matching.getMatch(referenceNode.parent.getChild(i)).parent !==
+    newParent) {
+      i--;
+    }
+    if (i &lt; 0) {
+      newParent.insertChild(0, nodeToInsert);
+    } else {
+      const pre = referenceNode.parent.getChild(i);
+      const match = this.#matching.getMatch(pre);
+      newParent.insertChild(match.index + 1, nodeToInsert);
+    }
+  }
+
+  /**
+   * Perform a three-way merge on process trees.
+   * @param {Node} base The root of the base process tree.
+   * @param {Node} branch1 The root of the first branch process tree.
+   * @param {Node} branch2 The root of the second branch process tree.
+   * @return {Node}
+   */
+  merge(base, branch1, branch2) {
+    const differ = new CpeeDiff();
+
+    Logger.section('CpeeMerge', this);
+
+    // Construct the merge tree for each process tree.
+    // It is annotated with difference-related information.
+
+    Logger.info('Diffing base and branch 1...', this);
+    let loggingEnabled = Logger.disableLogging();
+    const delta1 = differ.diff(base, branch1);
+
+    Logger.info('Diffing base and branch 2...', this);
+    loggingEnabled = Logger.disableLogging();
+    const delta2 = differ.diff(base, branch2);
+    Logger.enableLogging(loggingEnabled);
+
+    const deltaTreeFactory = new DeltaTreeGenerator();
+    // Transform into merge trees which can hold additional information
+    Logger.info('Constructing delta tree for branch 1...', this);
+    const mt1 =
+        MergeNode.fromNode(deltaTreeFactory.trimmedDeltaTree(base, delta1));
+
+    Logger.info('Constructing delta tree for branch 2...', this);
+    const mt2 =
+        MergeNode.fromNode(deltaTreeFactory.trimmedDeltaTree(base, delta2));
+
+    // Get the matching between the merge trees.
+    this.#matching = this.#getMatching(mt1, mt2);
+
+    this.#setChangeOrigin(mt1, 1);
+    this.#setChangeOrigin(mt2, 2);
+
+    // Delete all unmatched nodes
+    Logger.info('Processing deletions...', this);
+    this.#handleDeletions(mt1);
+    this.#handleDeletions(mt2);
+    this.#handleDeletions(mt1);
+
+    Logger.info('Finding conflicts...', this);
+    const [updateConflicts, moveConflicts] = this.#findConflicts(mt1);
+
+    // Moves and insertions that only appear in one branch
+    Logger.info('Processing moves and insertions...', this);
+    this.#handleMovesAndInsertions(mt1);
+    this.#handleMovesAndInsertions(mt2);
+
+    Logger.info('Resolving move conflicts...', this);
+    this.#resolveMoveConflicts(moveConflicts);
+    Logger.info('Resolving update conflicts...', this);
+    this.#resolveUpdateConflicts(updateConflicts);
+
+    // Find (unresolvable) order conflicts in the child list of nodes.
+    Logger.info('Finding order conflicts...', this);
+    this.#findOrderConflicts(mt1);
+    this.#findOrderConflicts(mt2);
+
+    // Trimming
+    return new Preprocessor().preprocess(mt1);
+  }
+
+  /**
+   * Resolve move conflicts in favor of branch 1.
+   * Advanced or interactive merge conflict handling is out of scope of this
+   * tool.
+   * @param {Set&lt;MergeNode>} moveConflicts A set of nodes that partake in a
+   *     move conflict.
+   */
+  #resolveMoveConflicts(moveConflicts) {
+    for (const node of moveConflicts) {
+      /** @type {MergeNode} */
+      const match = this.#matching.getMatch(node);
+      if (this.#matching.areMatched(node.parent, match.parent)) {
+        // Interparent move (same parent)
+        node.confidence.positionConfident = false;
+        match.confidence.positionConfident = false;
+      } else {
+        // Far move (new parent)
+        node.confidence.parentConfident = false;
+        match.confidence.parentConfident = false;
+      }
+      // Favor branch 1
+      match.removeFromParent();
+      this.#insertCorrectly(match, node);
+    }
+  }
+
+  /**
+   * Resolve update conflicts by merging the content of two nodes.
+   * If a value was changed in both branches, the longer version is retained.
+   * Otherwise, changed or removed values always superseded unchanged values.
+   * @param {Set&lt;MergeNode>} updateConflicts A set of nodes that partake in an
+   *     update conflict.
+   */
+  #resolveUpdateConflicts(updateConflicts) {
+    for (const node of updateConflicts) {
+      /** @type {MergeNode} */
+      const match = this.#matching.getMatch(node);
+
+      // Edge case: a node is an insertion
+      if (node.isInserted()) {
+        // Insertion is essentially an update with no pre-existing value
+        for (const [key, value] of node.attributes) {
+          node.updates.set(key, new Update(null, value, node.changeOrigin));
+        }
+        node.updates.set(
+            'text',
+            new Update(null, node.text, node.changeOrigin),
+        );
+      }
+      if (match.isInserted()) {
+        for (const [key, value] of match.attributes) {
+          match.updates.set(key, new Update(null, value, match.changeOrigin));
+        }
+        match.updates.set(
+            'text',
+            new Update(null, match.text, match.changeOrigin),
+        );
+      }
+
+      for (const [key, update] of node.updates) {
+        const newVal = update.newVal;
+        // Case 1: Update is exclusive to this branch
+        if (!match.updates.has(key)) {
+          match.updates.set(key, update.copy());
+          if (key === 'text') {
+            match.text = newVal;
+          } else if (newVal == null) {
+            match.attributes.delete(key);
+          } else {
+            match.attributes.set(key, newVal);
+          }
+        } else {
+          const matchNewVal = match.updates.get(key).newVal;
+          // Case 2: Updates are conflicting
+          if (newVal !== matchNewVal) {
+            // Pick longer version
+            if (matchNewVal == null ||
+                (newVal != null &amp;&amp; newVal.length >= matchNewVal.length)) {
+              // Adopt the version of this branch
+              match.updates.get(key).newVal = newVal;
+              match.updates.get(key).origin = update.origin;
+              if (key === 'text') {
+                match.text = newVal;
+              } else {
+                match.attributes.set(key, newVal);
+              }
+            } else {
+              // Adopt the version of the other branch
+              node.updates.get(key).newVal = matchNewVal;
+              node.updates.get(key).origin = match.updates.get(key).origin;
+              if (key === 'text') {
+                node.text = matchNewVal;
+              } else {
+                node.attributes.set(key, matchNewVal);
+              }
+            }
+            // Lose content confidence in both nodes
+            node.confidence.contentConfident = false;
+            match.confidence.contentConfident = false;
+          }
+        }
+      }
+
+      // Consider non-conflicting updates from other node
+      for (const [key, update] of match.updates) {
+        const newVal = update.newVal;
+        if (!node.updates.has(key)) {
+          node.updates.set(key, update.copy());
+          if (key === 'text') {
+            node.text = newVal;
+          } else if (newVal == null) {
+            node.attributes.delete(key);
+          } else {
+            node.attributes.set(key, newVal);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Set a change origin for all nodes of a merge tree.
+   * @param {MergeNode} mergeTree The root of the merge tree
+   * @param {Number} origin The change origin, i.e. the branch number (1 or 2)
+   */
+  #setChangeOrigin(mergeTree, origin) {
+    for (const /** @type {MergeNode} */ node of mergeTree.toPreOrderArray()) {
+      if (!node.isUnchanged()) {
+        node.changeOrigin = origin;
+        for (const [, update] of node.updates) {
+          update.origin = origin;
+        }
+      }
+    }
+  }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AbstractActual.html">AbstractActual</a></li><li><a href="AbstractAdapter.html">AbstractAdapter</a></li><li><a href="AbstractEvaluation.html">AbstractEvaluation</a></li><li><a href="AbstractExpected.html">AbstractExpected</a></li><li><a href="AbstractTestCase.html">AbstractTestCase</a></li><li><a href="AbstractTestResult.html">AbstractTestResult</a></li><li><a href="ActualDiff.html">ActualDiff</a></li><li><a href="ActualMatching.html">ActualMatching</a></li><li><a href="ActualMerge.html">ActualMerge</a></li><li><a href="AggregateMatchResult.html">AggregateMatchResult</a></li><li><a href="AggregateMergeResult_AggregateMergeResult.html">AggregateMergeResult</a></li><li><a href="AverageDiffResult.html">AverageDiffResult</a></li><li><a href="AverageGenMatchResult.html">AverageGenMatchResult</a></li><li><a href="CallProperties.html">CallProperties</a></li><li><a href="CallPropertyExtractor.html">CallPropertyExtractor</a></li><li><a href="ChangeParameters.html">ChangeParameters</a></li><li><a href="Comparator.html">Comparator</a></li><li><a href="Confidence.html">Confidence</a></li><li><a href="CpeeDiff.html">CpeeDiff</a></li><li><a href="CpeeDiffAdapter.html">CpeeDiffAdapter</a></li><li><a href="CpeeDiffLocalAdapter.html">CpeeDiffLocalAdapter</a></li><li><a href="CpeeMatchAdapter.html">CpeeMatchAdapter</a></li><li><a href="CpeeMerge.html">CpeeMerge</a></li><li><a href="CpeeMergeAdapter.html">CpeeMergeAdapter</a></li><li><a href="DeltaNode.html">DeltaNode</a></li><li><a href="DeltaTreeGenerator.html">DeltaTreeGenerator</a></li><li><a href="DiffAdapter.html">DiffAdapter</a></li><li><a href="DiffEvaluation.html">DiffEvaluation</a></li><li><a href="DiffTestCase.html">DiffTestCase</a></li><li><a href="DiffTestResult.html">DiffTestResult</a></li><li><a href="DiffXmlAdapter.html">DiffXmlAdapter</a></li><li><a href="DomHelper.html">DomHelper</a></li><li><a href="EditOperation.html">EditOperation</a></li><li><a href="EditScript.html">EditScript</a></li><li><a href="EditScriptGenerator.html">EditScriptGenerator</a></li><li><a href="ElementSizeExtractor.html">ElementSizeExtractor</a></li><li><a href="ExpectedDiff.html">ExpectedDiff</a></li><li><a href="ExpectedGenMatching.html">ExpectedGenMatching</a></li><li><a href="ExpectedMatching.html">ExpectedMatching</a></li><li><a href="ExpectedMerge.html">ExpectedMerge</a></li><li><a href="FixedMatcher.html">FixedMatcher</a></li><li><a href="GeneratedDiffEvaluation.html">GeneratedDiffEvaluation</a></li><li><a href="GeneratedMatchingEvaluation.html">GeneratedMatchingEvaluation</a></li><li><a href="GeneratorParameters.html">GeneratorParameters</a></li><li><a href="GenMatchTestCase.html">GenMatchTestCase</a></li><li><a href="GenMatchTestResult.html">GenMatchTestResult</a></li><li><a href="HashExtractor.html">HashExtractor</a></li><li><a href="HashMatcher.html">HashMatcher</a></li><li><a href="IdExtractor.html">IdExtractor</a></li><li><a href="LeafSetExtractor.html">LeafSetExtractor</a></li><li><a href="Logger.html">Logger</a></li><li><a href="LogMessage.html">LogMessage</a></li><li><a href="MatchAdapter.html">MatchAdapter</a></li><li><a href="Matching.html">Matching</a></li><li><a href="MatchingEvaluation.html">MatchingEvaluation</a></li><li><a href="MatchPipeline.html">MatchPipeline</a></li><li><a href="MatchTestCase.html">MatchTestCase</a></li><li><a href="MatchTestResult.html">MatchTestResult</a></li><li><a href="MergeAdapter.html">MergeAdapter</a></li><li><a href="MergeEvaluation.html">MergeEvaluation</a></li><li><a href="MergeNode.html">MergeNode</a></li><li><a href="MergeTestCase.html">MergeTestCase</a></li><li><a href="MergeTestResult.html">MergeTestResult</a></li><li><a href="Node.html">Node</a></li><li><a href="Patcher.html">Patcher</a></li><li><a href="PathMatcher.html">PathMatcher</a></li><li><a href="Preprocessor.html">Preprocessor</a></li><li><a href="PropertyMatcher.html">PropertyMatcher</a></li><li><a href="SandwichMatcher.html">SandwichMatcher</a></li><li><a href="SimilarityMatcher.html">SimilarityMatcher</a></li><li><a href="SizeExtractor.html">SizeExtractor</a></li><li><a href="TreeGenerator.html">TreeGenerator</a></li><li><a href="Update.html">Update</a></li><li><a href="VariableExtractor.html">VariableExtractor</a></li><li><a href="XccAdapter.html">XccAdapter</a></li><li><a href="XccPatchAdapter.html">XccPatchAdapter</a></li><li><a href="XmlDiffAdapter.html">XmlDiffAdapter</a></li><li><a href="XyDiffAdapter.html">XyDiffAdapter</a></li></ul><h3>Interfaces</h3><ul><li><a href="ExtractorInterface.html">ExtractorInterface</a></li><li><a href="MatcherInterface.html">MatcherInterface</a></li><li><a href="XmlSerializable.html">XmlSerializable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiffConfig">DiffConfig</a></li><li><a href="global.html#Dsl">Dsl</a></li><li><a href="global.html#EvalConfig">EvalConfig</a></li><li><a href="global.html#getLcsLength">getLcsLength</a></li><li><a href="global.html#getLcsLengthFast">getLcsLengthFast</a></li><li><a href="global.html#getLis">getLis</a></li><li><a href="global.html#getPrimes">getPrimes</a></li><li><a href="global.html#persistBestMatches">persistBestMatches</a></li><li><a href="global.html#primeList">primeList</a></li><li><a href="global.html#stringHash">stringHash</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Wed Sep 08 2021 17:25:01 GMT+0200 (Central European Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
