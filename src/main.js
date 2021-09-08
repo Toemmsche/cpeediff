@@ -307,11 +307,11 @@ const argv = yargs(hideBin(process.argv))
           Logger.info('Formatting merge result as ' + argv.format);
           switch (argv.format) {
             case 'mergeTree': {
-              Logger.result(Node.fromNode(merged).toXmlString());
+              Logger.result(merged.toXmlString());
               break;
             }
             case 'std': {
-              Logger.result(merged.toXmlString());
+              Logger.result(Node.fromNode(merged).toXmlString());
               break;
             }
           }
