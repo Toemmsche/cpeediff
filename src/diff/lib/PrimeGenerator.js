@@ -4,6 +4,13 @@
  * @return {Number[]}
  */
 export function getPrimes(amount) {
+  if (amount > primeList.length) {
+    let result = [];
+    do {
+      result = result.concat(primeList);
+      amount -= primeList.length;
+    } while (amount > 0);
+  }
   return primeList.slice(0, amount);
 }
 
