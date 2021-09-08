@@ -97,7 +97,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           const time = new Date().getTime();
           const actualMatching = adapter.run(
               testCase.oldTree,
-              testCase.newTree
+              testCase.newTree,
           );
           const elapsedTime = new Date().getTime() - time;
           const matchingCommonality = this.#matchingCommonality(
@@ -138,17 +138,17 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
     }
 
     // Produce runtime plots
-    if(EvalConfig.OUTPUT_LATEX) {
+    if (EvalConfig.OUTPUT_LATEX) {
       Logger.section('RUNTIME LATEX', this);
       Logger.result(AbstractEvaluation.LATEX.fromTemplate(
           [...aggregateResultsPerAdapter.entries()]
               .map((entry) => entry[1].map((result) =>
-                  '(' + result.size + ',' + result.avgRuntime + ')'))));
+                '(' + result.size + ',' + result.avgRuntime + ')'))));
       Logger.section('COMMONALITY LATEX', this);
       Logger.result(AbstractEvaluation.LATEX.fromTemplate(
           [...aggregateResultsPerAdapter.entries()]
               .map((entry) => entry[1].map((result) =>
-                  '(' + result.size + ',' + result.avgCommonality + ')'))));
+                '(' + result.size + ',' + result.avgCommonality + ')'))));
       Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
           .join(', ')
           .replaceAll('_', '\\_') + '}');

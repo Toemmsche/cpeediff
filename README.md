@@ -53,7 +53,7 @@ DiffConfig.PRETTY_XML = true;
 console.log(editScript.toXmlString());
 ```
 
-Some rudimentary documentation is available [here](https://toemmsche.github.io/cpeediff/).
+More documentation is available [here](https://toemmsche.github.io/cpeediff/).
 ## References
 
 Made with the help of the following npm modules (all licensed under MIT):
