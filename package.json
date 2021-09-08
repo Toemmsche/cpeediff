@@ -2,13 +2,14 @@
   "name": "@toemmsche/cpeediff",
   "version": "0.1.1",
   "description": "An advanced diff tool for process models conforming to the CPEE notation.",
-  "main": "src/main.js",
+  "main": "main.js",
   "esversion": 21,
   "scripts": {
-    "run": "node src/main.js"
+    "run": "node main.js"
   },
+  "preferGlobal": true,
   "bin": {
-    "cpeediff": "src/main.js"
+    "cpeediff": "main.js"
   },
   "type": "module",
   "keywords": [
