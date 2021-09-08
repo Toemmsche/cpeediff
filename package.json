@@ -13,12 +13,13 @@
   "type": "module",
   "keywords": [
     "CPEE",
-    "cpee.org",
-    "Process trees",
-    "Diff",
-    "Tree Diff",
+    "process trees",
+    "process models",
+    "diff",
+    "tree diff",
     "XML",
-    "Semantic Diff"
+    "semantic diff",
+    "tree matching"
   ],
   "author": "Tom Papke <tom.papke@outlook.de>",
   "license": "Apache-2.0",
