@@ -5,7 +5,7 @@ import {AbstractExpected} from './AbstractExpected.js';
  * All nodes are addressed by their ID, i.e. their position in the pre-order
  * traversal of a process tree.
  */
-export class ExpectedMatch extends AbstractExpected {
+export class ExpectedMatching extends AbstractExpected {
   /**
    * A list of required matches.
    * @type {Array<[Number, Number]>}

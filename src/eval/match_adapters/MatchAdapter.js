@@ -86,7 +86,7 @@ export class MatchAdapter extends AbstractAdapter {
   /**
    * Verify that an actual matching follows the rules of the expected matching.
    * @param {Matching} matching The actual matching produced by the algorithm.
-   * @param {ExpectedMatch} expected Rules for the expected matching.
+   * @param {ExpectedMatching} expected Rules for the expected matching.
    * @throws {Error} If the actual matching does not conform to the rules of
    *     the expected.
    */

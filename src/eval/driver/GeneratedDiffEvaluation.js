@@ -125,7 +125,6 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
     if (EvalConfig.OUTPUT_LATEX) {
       this.publishLatex(aResultsPerAdapter, (result) => result.size);
     }
-
   }
 
   /**

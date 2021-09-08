@@ -2,11 +2,12 @@ import {AbstractTestCase} from './AbstractTestCase.js';
 import {EvalConfig} from '../../config/EvalConfig.js';
 import {MatchTestResult} from '../result/MatchTestResult.js';
 import fs from 'fs';
-import {ExpectedMatch} from '../expected/ExpectedMatch.js';
+import {ExpectedMatching} from '../expected/ExpectedMatching.js';
 import {Preprocessor} from '../../io/Preprocessor.js';
 
 /**
- * Represents a test case for the evaluation of matching algorithms.
+ * Represents a test case for the evaluation of matching algorithms with
+ * manually defined process trees.
  */
 export class MatchTestCase extends AbstractTestCase {
   /**
@@ -27,7 +28,7 @@ export class MatchTestCase extends AbstractTestCase {
    * @param {String} name The name of this test case
    * @param {Node} oldTree The root of the original process tree
    * @param {Node} newTree The root of the changed process tree
-   * @param {ExpectedMatch} expected Rules for the expected matching
+   * @param {ExpectedMatching} expected Rules for the expected matching
    */
   constructor(
       name,
@@ -62,7 +63,7 @@ export class MatchTestCase extends AbstractTestCase {
         oldTree = parser.fromFile(filePath);
       } else if (file === EvalConfig.FILENAMES.EXPECTED_MATCHES) {
         expected = Object.assign(
-            new ExpectedMatch(),
+            new ExpectedMatching(),
             JSON.parse(fs.readFileSync(filePath).toString()),
         );
       }

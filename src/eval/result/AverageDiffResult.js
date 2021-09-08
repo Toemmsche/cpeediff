@@ -6,7 +6,7 @@
  */
 export class AverageDiffResult {
   /**
-   * The matching algorithm that produced the match results.
+   * The diff algorithm that produced the diff results.
    * @type {String}
    * @const
    */

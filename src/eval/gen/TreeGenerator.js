@@ -10,6 +10,8 @@ import {EditScriptGenerator} from '../../diff/delta/EditScriptGenerator.js';
 import {DiffTestCase} from '../case/DiffTestCase.js';
 import {IdExtractor} from '../../extract/IdExtractor.js';
 import {ElementSizeExtractor} from '../../extract/ElementSizeExtractor.js';
+import {GenMatchTestCase} from '../case/GenMatchTestCase.js';
+import {ExpectedGenMatching} from '../expected/ExpectedGenMatching.js';
 
 /**
  * A generator for random (but well-formed) CPEE process trees.
@@ -166,8 +168,8 @@ export class TreeGenerator {
    * @param {Node} tree The root node of the tree to be changed.
    * @param {ChangeParameters} changeParams A set of parameters for the
    *     changes.
-   * @return {[DiffTestCase, Matching]}} An array containing the corresponding
-   *     diff test case and the expected matching.
+   * @return {[DiffTestCase, GenMatchTestCase]}} An array containing the
+   *     corresponding diff and gen match test case.
    */
   changeTree(tree, changeParams) {
     Logger.info(
@@ -329,10 +331,17 @@ export class TreeGenerator {
         new ExpectedDiff(proposedEditScript),
     );
 
+    const matchTestCase = new GenMatchTestCase(
+        testCase.name,
+        testCase.oldTree,
+        testCase.newTree,
+        new ExpectedGenMatching(returnMatching),
+    );
+
     Logger.stat('Changing tree took ' + Logger.endTimed() + 'ms', this);
     return [
       testCase,
-      returnMatching,
+      matchTestCase,
     ];
   }
 

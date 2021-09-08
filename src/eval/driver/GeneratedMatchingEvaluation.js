@@ -6,6 +6,10 @@ import {ChangeParameters} from '../gen/ChangeParameters.js';
 import {markdownTable} from 'markdown-table';
 import {MatchingEvaluation} from './MatchingEvaluation.js';
 import {AbstractEvaluation} from './AbstractEvaluation.js';
+import {GenMatchTestResult} from '../result/GenMatchTestResult.js';
+import {AbstractTestResult} from '../result/AbstractTestResult.js';
+import {AverageGenMatchResult} from '../result/AverageGenMatchResult.js';
+import {ActualMatching} from '../actual/ActualMatching.js';
 
 /**
  * An evaluation for matching algorithms that uses generated process trees and
@@ -55,7 +59,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
     Logger.section('Matching evaluation with Generated Trees', this);
 
     // TODO LATEX REMOVE
-    /** @type {Map<String, Array<Object>>} */
+    /** @type {Map<String, Array<AverageGenMatchResult>>} */
     const aggregateResultsPerAdapter = new Map(this._adapters.map((adapter) => [
       adapter.displayName,
       [],
@@ -77,84 +81,67 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
           );
       const testId = '[Size: ' + size +
           ', Changes: ' + changeParams.totalChanges + ']';
-      const results = new Map();
+      const resultsPerAdapter = new Map(this._adapters.map((adapter) => [
+        adapter.displayName,
+        [],
+      ]));
       for (let j = 0; j < EvalConfig.REPS; j++) {
         const oldTree = treeGen.randomTree();
-        const [testCase, expectedMatching] =
+        const [, testCase] =
             treeGen.changeTree(oldTree, changeParams);
-
-        const newTree = testCase.newTree;
-
-        // Run test case for each matching pipeline and compute number of
-        // mismatched nodes
         for (const adapter of this._adapters) {
-          if (!results.has(adapter)) {
-            results.set(adapter, []);
-          }
           Logger.info(
               'Running rep ' + j + ' for adapter ' + adapter.displayName,
               this,
           );
           const time = new Date().getTime();
-          const actualMatching = adapter.run(oldTree, newTree);
+          const actualMatching = adapter.run(
+              testCase.oldTree,
+              testCase.newTree
+          );
           const elapsedTime = new Date().getTime() - time;
           const matchingCommonality = this.#matchingCommonality(
-              expectedMatching,
+              testCase.expected.matching,
               actualMatching,
           );
           const mismatches = this.#mismatchedNodes(
-              expectedMatching,
+              testCase.expected.matching,
               actualMatching,
           );
-          results.get(adapter).push([
-            adapter.displayName,
-            testId,
-            elapsedTime,
-            matchingCommonality,
-            ...mismatches,
-          ]);
+          resultsPerAdapter.get(adapter.displayName).push(
+              new GenMatchTestResult(
+                  testCase.name,
+                  adapter.displayName,
+                  elapsedTime,
+                  new ActualMatching(null, actualMatching),
+                  AbstractTestResult.VERDICTS.OK,
+                  matchingCommonality,
+                  ...mismatches,
+              ));
         }
       }
 
       const aggregateResults = [];
-      for (const [adapter, resultsList] of results) {
-        const aggregateResult = [
-          adapter.displayName,
-          size,
-        ];
-        for (let j = 2; j < resultsList[0].length; j++) {
-          aggregateResult.push(this.avg(resultsList.map((r) => r[j])));
-        }
+      for (const [adapter, resultsList] of resultsPerAdapter) {
+        const aggregateResult = AverageGenMatchResult.of(resultsList);
         aggregateResults.push(aggregateResult);
+        aggregateResultsPerAdapter.get(adapter)
+            .push(aggregateResult);
       }
 
-      for (const result of aggregateResults) {
-        aggregateResultsPerAdapter.get(result[0]).push(result);
-      }
       Logger.result('Results for case ' + testId, this);
       Logger.result(markdownTable([
-        [
-          'algorithm',
-          'size',
-          'runtime',
-          'compareSet(M, M_prop)',
-          'avg mismatched leaves',
-          'avg mismatched inners',
-          'avg unmatched leaves',
-          'avg unmatched inners',
-        ],
-        ...aggregateResults,
+        AverageGenMatchResult.header(),
+        ...(aggregateResults.map((result) => result.values())),
       ]));
     }
-
-
 
     // Produce runtime plots
     Logger.section('RUNTIME LATEX', this);
     AbstractEvaluation.LATEX.fromTemplate(
         [...aggregateResultsPerAdapter.entries()]
             .map((entry) => entry[1].map((result) =>
-              '(' + result[1] + ',' + result[3] + ')')));
+                '(' + result.avgRuntime + ',' + result.avgCommonality + ')')));
 
     Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
         .join(', ')
