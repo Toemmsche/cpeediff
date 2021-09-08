@@ -1,2 +1,15 @@
+/.idea
+/node_modules
+/node_modules/*
+temp/*
+.vs
 /out
+
+# ignore temporary files
 /temp
+/new.xml
+/old.xml
+/base.xml
+/1.xml
+/2.xml
+*.log
