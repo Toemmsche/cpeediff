@@ -231,7 +231,7 @@ export class DeltaTreeGenerator {
       // Copy regular node exactly and update moveMap entries
       movfrNode = this.#copyAndUpdateMoveMap(node);
       // Copy regular node index
-      movfrNode.index = node.index;
+      movfrNode._index = node.index;
       // Append placeholder
       node.parent.placeholders.push(movfrNode);
     } else {

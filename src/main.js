@@ -1,31 +1,38 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
-import {DiffConfig} from './src/config/DiffConfig.js';
-import {Preprocessor} from './src/io/Preprocessor.js';
-import {CpeeDiff} from './src/diff/CpeeDiff.js';
-import {DiffEvaluation} from './src/eval/driver/DiffEvaluation.js';
-import {MergeEvaluation} from './src/eval/driver/MergeEvaluation.js';
-import {MatchingEvaluation} from './src/eval/driver/MatchingEvaluation.js';
-import {EvalConfig} from './src/config/EvalConfig.js';
+import {DiffConfig} from './config/DiffConfig.js';
+import {Preprocessor} from './io/Preprocessor.js';
+import {CpeeDiff} from './diff/CpeeDiff.js';
+import {DiffEvaluation} from './eval/driver/DiffEvaluation.js';
+import {MergeEvaluation} from './eval/driver/MergeEvaluation.js';
+import {MatchingEvaluation} from './eval/driver/MatchingEvaluation.js';
+import {EvalConfig} from './config/EvalConfig.js';
 import * as fs from 'fs';
-import {Logger} from './src/util/Logger.js';
-import {CpeeMerge} from './src/merge/CpeeMerge.js';
-import {MatchPipeline} from './src/diff/match/MatchPipeline.js';
-import {Node} from './src/tree/Node.js';
-import {GeneratedDiffEvaluation} from './src/eval/driver/GeneratedDiffEvaluation.js';
-import {GeneratedMatchingEvaluation} from './src/eval/driver/GeneratedMatchingEvaluation.js';
-import {EditScript} from './src/diff/delta/EditScript.js';
-import {Patcher} from './src/diff/patch/Patcher.js';
-import {DeltaTreeGenerator} from './src/diff/patch/DeltaTreeGenerator.js';
-import {DiffTestResult} from './src/eval/result/DiffTestResult.js';
-import {DiffTestCase} from './src/eval/case/DiffTestCase.js';
-import {CpeeDiffLocalAdapter} from './src/eval/diff_adapters/CpeeDiffLocalAdapter.js';
+import {Logger} from './util/Logger.js';
+import {CpeeMerge} from './merge/CpeeMerge.js';
+import {MatchPipeline} from './diff/match/MatchPipeline.js';
+import {Node} from './tree/Node.js';
+import {GeneratedDiffEvaluation} from './eval/driver/GeneratedDiffEvaluation.js';
+import {GeneratedMatchingEvaluation} from './eval/driver/GeneratedMatchingEvaluation.js';
+import {EditScript} from './diff/delta/EditScript.js';
+import {Patcher} from './diff/patch/Patcher.js';
+import {DeltaTreeGenerator} from './diff/patch/DeltaTreeGenerator.js';
+import {DiffTestResult} from './eval/result/DiffTestResult.js';
+import {DiffTestCase} from './eval/case/DiffTestCase.js';
+import {CpeeDiffLocalAdapter} from './eval/diff_adapters/CpeeDiffLocalAdapter.js';
 import {markdownTable} from 'markdown-table';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 /**
  * @file Main entrypoint for the CpeeDiff command line utility.
  */
+
+// Change working directory to parent folder
+const currFile = fileURLToPath(import.meta.url);
+const currDirectory = dirname(currFile);
+process.chdir(currDirectory + '/..');
 
 const argv = yargs(hideBin(process.argv))
     .option('logLevel', {
@@ -396,6 +403,7 @@ const argv = yargs(hideBin(process.argv))
         },
     )
     .help()
+    .version()
     .demandCommand()
     .strictCommands()
     .argv;
