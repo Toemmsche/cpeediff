@@ -7,6 +7,7 @@ import xmldom from '@xmldom/xmldom';
  * This class serves as the basis for diff visualization as well as merging.
  *
  * @implements {XmlSerializable<DeltaNode>}
+ * @extends {Node}
  */
 export class DeltaNode extends Node {
   /**

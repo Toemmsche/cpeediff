@@ -1,5 +1,5 @@
 /**
- * Configuration object for CpeeDiff.
+ * Configuration object for the difference algorithm.
  * @type {Object}
  */
 export const DiffConfig = {

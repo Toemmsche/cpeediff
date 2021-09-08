@@ -5,7 +5,9 @@ import xmldom from '@xmldom/xmldom';
 
 /**
  * A node inside a merged process tree.
+ *
  * @implements {XmlSerializable<MergeNode>}
+ * @extends {DeltaNode}
  */
 export class MergeNode extends DeltaNode {
   /**
