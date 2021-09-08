@@ -124,6 +124,7 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
       const aggregateResults = [];
       for (const [adapter, resultsList] of resultsPerAdapter) {
         const aggregateResult = AverageGenMatchResult.of(resultsList);
+        aggregateResult.size = genParams.size;
         aggregateResults.push(aggregateResult);
         aggregateResultsPerAdapter.get(adapter)
             .push(aggregateResult);
@@ -137,15 +138,21 @@ export class GeneratedMatchingEvaluation extends MatchingEvaluation {
     }
 
     // Produce runtime plots
-    Logger.section('RUNTIME LATEX', this);
-    AbstractEvaluation.LATEX.fromTemplate(
-        [...aggregateResultsPerAdapter.entries()]
-            .map((entry) => entry[1].map((result) =>
-                '(' + result.avgRuntime + ',' + result.avgCommonality + ')')));
-
-    Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
-        .join(', ')
-        .replaceAll('_', '\\_') + '}');
+    if(EvalConfig.OUTPUT_LATEX) {
+      Logger.section('RUNTIME LATEX', this);
+      Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+          [...aggregateResultsPerAdapter.entries()]
+              .map((entry) => entry[1].map((result) =>
+                  '(' + result.size + ',' + result.avgRuntime + ')'))));
+      Logger.section('COMMONALITY LATEX', this);
+      Logger.result(AbstractEvaluation.LATEX.fromTemplate(
+          [...aggregateResultsPerAdapter.entries()]
+              .map((entry) => entry[1].map((result) =>
+                  '(' + result.size + ',' + result.avgCommonality + ')'))));
+      Logger.result('\\legend{' + this._adapters.map((a) => a.displayName)
+          .join(', ')
+          .replaceAll('_', '\\_') + '}');
+    }
   }
 
   /**

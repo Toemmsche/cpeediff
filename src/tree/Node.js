@@ -85,16 +85,6 @@ export class Node {
     return this._index;
   }
 
-  /**
-   * Set the child index of this node.
-   * WARNING: Use very carefully.
-   * @param {Number} index
-   */
-  set index(index) {
-    // TODO remove, too dangerous
-    this._index = index;
-  }
-
   /** @return {Array<Node>} */
   get children() {
     return this._children;

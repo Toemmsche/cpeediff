@@ -18,7 +18,6 @@ export class Patcher {
    * @return {Node} The root of the editOpd tree.
    */
   patch(tree, editScript) {
-    // TODO really copy?
     // Copy the old tree
     this.#tree = Node.fromNode(tree);
 

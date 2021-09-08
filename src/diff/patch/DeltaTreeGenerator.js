@@ -298,7 +298,6 @@ export class DeltaTreeGenerator {
    */
   #trim() {
     for (const deltaNode of this.#deltaTree.toPostOrderArray()) {
-      // TODO
       if (deltaNode.label === 'dummy') {
         deltaNode.removeFromParent();
         continue;

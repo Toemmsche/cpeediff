@@ -920,7 +920,6 @@ export class TreeGenerator {
     while (currSize < 0.98 * this.#genParams.size) {
       while (currSize <= this.#genParams.size) {
         let newNode;
-        // TODO export probabilities to generator params
         // Pick a leaf node or inner node with a certain probability
         if (this.#withProbability(0.6)) {
           newNode = this.#randomLeaf();

@@ -140,7 +140,6 @@ export class Comparator {
     );
     // If the service call has the exact same signature (!), we can rather sure
     // they must match.
-    // TODO think about this again
     if (serviceCallCV === 0) {
       return serviceCallCV;
     }
@@ -247,9 +246,10 @@ export class Comparator {
    * @return {?Number} The comparison value from the range [0;1]
    */
   compareLcs(seqA, seqB, defaultValue = null) {
-    // TODO TODO TOD
-    if (seqA == null || seqB == null) {
-      return defaultValue;
+    if (seqA == null) {
+      seqA = [];
+    } else if (seqB == null) {
+      seqB = [];
     }
     const maxLength = Math.max(seqA.length, seqB.length);
     if (maxLength === 0) return defaultValue;

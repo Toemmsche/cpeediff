@@ -68,7 +68,6 @@ export class Preprocessor {
           // trim attribute value
           const val = node.attributes.get(key);
           const trimmedVal = val.trim();
-          // TODO trim ends of newlines
           if (trimmedVal !== val) {
             node.attributes.set(key, trimmedVal);
             updated = true;
@@ -103,9 +102,9 @@ export class Preprocessor {
 
       // trim data
       if (node.text != null) {
-        const newText = node.text.trim();
-        if (newText !== node.text) {
-          node.text = newText;
+        const trimmedText = node.text.trim();
+        if (trimmedText !== node.text) {
+          node.text = trimmedText;
           updated = true;
         }
       }
