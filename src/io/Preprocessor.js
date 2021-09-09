@@ -188,17 +188,21 @@ export class Preprocessor {
       const xmlEndpoints =
           DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.ENDPOINTS);
       DomHelper.forAllChildElements(xmlEndpoints, (xmlEndpoint) => {
-        endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
+        if (xmlEndpoint.firstChild != null) {
+          endpointToUrl.set(xmlEndpoint.localName, xmlEndpoint.firstChild.data);
+        }
       });
 
       // Parse initial values for data elements
       const xmlDataElements =
           DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.DATA_ELEMENTS);
       DomHelper.forAllChildElements(xmlDataElements, (xmlDataElement) => {
-        dataElements.set(
-            xmlDataElement.localName,
-            xmlDataElement.firstChild.data,
-        );
+        if (xmlDataElement.firstChild != null) {
+          dataElements.set(
+              xmlDataElement.localName,
+              xmlDataElement.firstChild.data,
+          );
+        }
       });
     }
     // Preprocess in any case
