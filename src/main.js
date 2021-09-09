@@ -291,6 +291,9 @@ const argv = yargs(hideBin(process.argv))
                 if (!fs.existsSync(argv.branch2)) {
                   throw new Error(argv.branch2 + ' ist not a valid file path');
                 }
+                if (argv.threshold < 0 || argv.threshold > 1) {
+                  throw new Error('threshold must be in [0,1]');
+                }
                 return true;
               });
         },
