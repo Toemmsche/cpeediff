@@ -46,7 +46,7 @@ export class MergeEvaluation extends AbstractEvaluation {
    *     includes a base  process tree and two branch process trees.
    * @override
    */
-  evalAll(rootDir = EvalConfig.MERGE_CASES_DIR) {
+  evalAll(rootDir) {
     Logger.section('Merge Evaluation with Cases from ' + rootDir, this);
 
     const resultsPerAdapter = new Map();

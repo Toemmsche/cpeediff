@@ -106,7 +106,7 @@ export class DeltaNode extends Node {
     xmlElement.localName = this.label;
 
     if (this.isMoved() || this.isMovedFrom()) {
-      xmlElement.setAttribute(prefix + 'id', this.baseNode);
+      xmlElement.setAttribute(prefix + 'move_id', this.baseNode);
     }
 
     if (this.isRoot()) {

@@ -73,6 +73,9 @@ export class AggregateMatchResult {
    * @return {AggregateMatchResult}
    */
   static of(results) {
+    if (results.length === 0) {
+      return null;
+    }
     let ok = 0;
     let wrongAnswer = 0;
     let runtimeError = 0;

@@ -84,6 +84,9 @@ export class AggregateMergeResult {
    * @return {AggregateMergeResult}
    */
   static of(results) {
+    if (results.length === 0) {
+      return null;
+    }
     const algorithm = results[0].algorithm;
     let ok = 0;
     let acceptable = 0;

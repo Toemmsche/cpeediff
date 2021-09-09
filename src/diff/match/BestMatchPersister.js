@@ -16,7 +16,7 @@
  * @param {Function} matchHandler A function to execute when two nodes are
  *     chosen for a match.
  * @param {Function} thresholdFunction A boolean function to determine if a
- *     comparison value is sufficient for a match.7
+ *     comparison value is sufficient for a match.
  */
 export function persistBestMatches(oldNodes, newNodes, matching,
     keyFunction, compareFunction, matchHandler,

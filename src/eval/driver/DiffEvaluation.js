@@ -53,7 +53,7 @@ export class DiffEvaluation extends AbstractEvaluation {
    *     least includes an old and new process tree as XML documents.
    * @override
    */
-  evalAll(rootDir = EvalConfig.DIFF_CASES_DIR) {
+  evalAll(rootDir) {
     Logger.section('Diff Evaluation with Cases from ' + rootDir, this);
 
     // Collect all directories representing testCases

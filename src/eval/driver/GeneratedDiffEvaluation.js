@@ -36,8 +36,8 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    */
   evalAll() {
     // Simply run all functions...
-    this.average(false, false, false);
     this.single(false, false, false);
+    this.average(false, false, false);
   }
 
   /**
@@ -53,7 +53,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    *     changes are growing and randomly distributed within the tree.
    */
   average(constChanges, constSize, local = false) {
-    Logger.section('Diff Evaluation with Generated Trees', this);
+    Logger.section('Diff Evaluation with Generated Trees - Averages', this);
     // TODO LATEX REMOVE
     /** @type {Map<String, Array<AverageDiffResult>>} */
     const aResultsPerAdapter = new Map(this._adapters.map((adapter) => [
@@ -172,7 +172,7 @@ export class GeneratedDiffEvaluation extends DiffEvaluation {
    *     changes are growing and randomly distributed within the tree.
    */
   single(constChanges, constSize, local = false) {
-    Logger.section('Diff Evaluation with Generated Trees', this);
+    Logger.section('Diff Evaluation with Generated Trees - Singular Runs', this);
     for (let i = 1; i <= EvalConfig.SIZE_GROWTH.LIMIT; i++) {
       const size = EvalConfig.SIZE_GROWTH.INTERVAL * (constSize ? 1 : i);
       const genParams = new GeneratorParameters(

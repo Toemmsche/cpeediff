@@ -42,7 +42,7 @@ export class MatchingEvaluation extends AbstractEvaluation {
    *     rules for the expected matching.
    * @override
    */
-  evalAll(rootDir = EvalConfig.MATCH_CASES_DIR) {
+  evalAll(rootDir) {
     Logger.section('Matching Evaluation with Cases from ' + rootDir, this);
 
     const resultsPerAdapter = new Map();

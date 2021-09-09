@@ -90,7 +90,7 @@ export class MergeNode extends DeltaNode {
       .createDocument(Dsl.DEFAULT_NAMESPACE)) {
     const deltaXmlRoot = DeltaNode.fromNode(this, true).toXmlDom(ownerDocument);
 
-    deltaXmlRoot.setAttribute('xmlns:' + Dsl.MERGE_TREE.NAMESPACE_PREFIX +
+    deltaXmlRoot.setAttribute('xmlns:' + Dsl.MERGE_TREE.NAMESPACE_PREFIX,
         Dsl.MERGE_TREE.NAMESPACE_URI);
 
     const annotate = (mergeNode, xmlElement) => {
