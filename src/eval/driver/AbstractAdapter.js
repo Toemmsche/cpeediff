@@ -1,4 +1,6 @@
 import {Logger} from '../../util/Logger.js';
+import {fileURLToPath} from 'url';
+import {dirname} from 'path';
 
 /**
  * Abstract superclass for all adapters to some form of algorithm (match, diff,
@@ -29,7 +31,11 @@ export class AbstractAdapter {
    *     adapter represents.
    */
   constructor(path, displayName) {
-    this.path = path;
+    // Adjust relative directory paths
+    const currFile = fileURLToPath(import.meta.url);
+    const currDirectory = dirname(currFile);
+    // project root is three folders upstream
+    this.path = currDirectory + '/../../../' + path;
     this.displayName = displayName;
   }
 

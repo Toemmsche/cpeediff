@@ -9,11 +9,11 @@ export const EvalConfig = {
 
   REPS: 5,
   SIZE_GROWTH: {
-    INTERVAL: 2000,
+    INTERVAL: 100,
     LIMIT: 20,
   },
   CHANGE_GROWTH: {
-    INTERVAL: 200,
+    INTERVAL: 5,
     LIMIT: 20,
   },
 
@@ -32,10 +32,6 @@ export const EvalConfig = {
     ACCEPTED_MERGE_PREFIX: 'accepted',
   },
 
-  MATCH_CASES_DIR: 'test_set/match_cases',
-  DIFF_CASES_DIR: 'test_set/diff_cases',
-  MERGE_CASES_DIR: 'test_set/merge_cases',
-
   EXECUTION_OPTIONS: {
     timeout: 30000, // 30s
     maxBuffer: 100 * 1024 * 1024, // 100 MiB
@@ -47,6 +43,13 @@ export const EvalConfig = {
       path: '',
     },
   },
+
+  // All paths are relative to the project root directory
+
+  MATCH_CASES_DIR: 'test_set/match_cases',
+  DIFF_CASES_DIR: 'test_set/diff_cases',
+  MERGE_CASES_DIR: 'test_set/merge_cases',
+
   DIFFS: {
     CPEEDIFF: {
       displayName: 'CpeeDiff',
