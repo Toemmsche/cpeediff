@@ -53,7 +53,7 @@ export class Preprocessor {
    * @return {Node} The root of the preprocessed tree
    */
   preprocess(tree, endpointToUrl = new Map(),
-      dataElements = new Map(), editScript = new EditScript()) {
+             dataElements = new Map(), editScript = new EditScript()) {
     // traverse tree in post-order (bottom-up)
     for (const node of tree.toPostOrderArray()) {
       let updated = false;
@@ -167,9 +167,15 @@ export class Preprocessor {
     } else {
       // Parse process tree with metadata
       const xmlDescription =
-          DomHelper.firstChildElement(xmlRoot, Dsl.ELEMENTS.DSL_ROOT.label) ||
+          DomHelper.firstChildElement(
+              DomHelper.firstChildElement(xmlRoot, Dsl.ELEMENTS.DSL_ROOT.label),
+              Dsl.ELEMENTS.DSL_ROOT.label,
+          ) ||
           DomHelper.firstChildElement(
               DomHelper.firstChildElement(xmlRoot, Dsl.XML_DOC.WRAPPER),
+              Dsl.ELEMENTS.DSL_ROOT.label,
+          ) || DomHelper.firstChildElement(
+              xmlRoot,
               Dsl.ELEMENTS.DSL_ROOT.label,
           );
       if (xmlDescription == null) {

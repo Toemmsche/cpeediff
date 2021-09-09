@@ -9,11 +9,11 @@ export const EvalConfig = {
 
   REPS: 5,
   SIZE_GROWTH: {
-    INTERVAL: 1000,
+    INTERVAL: 2000,
     LIMIT: 20,
   },
   CHANGE_GROWTH: {
-    INTERVAL: 100,
+    INTERVAL: 200,
     LIMIT: 20,
   },
 

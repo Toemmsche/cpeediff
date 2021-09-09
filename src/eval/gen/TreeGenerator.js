@@ -1032,22 +1032,22 @@ export class TreeGenerator {
         }
         case Dsl.INNER_PROPERTIES.CHOICE_MODE.label: {
           // change choose mode
-          const chooseMode = node.attributes.get(key);
-          node.attributes.set(
-              key,
-              this.#randomFrom(Dsl.INNER_PROPERTIES.CHOICE_MODE.options
-                  .filter((option) => option !== chooseMode)),
-          );
-          break;
-        }
-        case Dsl.INNER_PROPERTIES.LOOP_MODE.label: {
-          // change choose mode
-          const loopMode = node.attributes.get(key);
-          node.attributes.set(
-              key,
-              this.#randomFrom(Dsl.INNER_PROPERTIES.LOOP_MODE.options
-                  .filter((option) => option !== loopMode)),
-          );
+          if (node.isChoice()) {
+            const chooseMode = node.attributes.get(key);
+            node.attributes.set(
+                key,
+                this.#randomFrom(Dsl.INNER_PROPERTIES.CHOICE_MODE.options
+                    .filter((option) => option !== chooseMode)),
+            );
+          } else if (node.isLoop()) {
+            // change loop mode
+            const loopMode = node.attributes.get(key);
+            node.attributes.set(
+                key,
+                this.#randomFrom(Dsl.INNER_PROPERTIES.LOOP_MODE.options
+                    .filter((option) => option !== loopMode)),
+            );
+          }
           break;
         }
         case Dsl.INNER_PROPERTIES.PARALLEL_WAIT.label: {

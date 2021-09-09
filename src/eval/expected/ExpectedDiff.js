@@ -30,12 +30,12 @@ export class ExpectedDiff extends AbstractExpected {
       'Expected', // algorithm
       '-', // runtime
       this.editScript?.cost, // cost
-      this.editScript?.toXmlString().length, // diff size
       this.editScript?.size(), // edit operations
       this.editScript?.insertions(), // insertions
       this.editScript?.moves(), // moves
       this.editScript?.updates(), // updates
       this.editScript?.deletions(), // deletions
+      this.editScript?.toXmlString().length, // diff size
     ];
   }
 }
