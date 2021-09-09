@@ -352,7 +352,7 @@ const argv = yargs(hideBin(process.argv))
               })
               .option('afterPreprocess', {
                 description: 'Show the changes applied during preprocessing.',
-                alias: 's',
+                alias: 'P',
                 type: 'boolean',
                 default: false,
               })
@@ -383,8 +383,12 @@ const argv = yargs(hideBin(process.argv))
           const oldTree = parser.fromFile(argv.old, preProcessorEditScript);
 
           if (argv.afterPreprocess) {
-            Logger.result('Changes applied during preprocessing:');
+            if (argv.editScript != null) {
+              Logger.info('Ignoring the supplied edit script');
+            }
+            Logger.info('Changes applied during preprocessing:');
             Logger.result(preProcessorEditScript.toXmlString());
+            return;
           }
 
           let editScript = new EditScript();
