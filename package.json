@@ -1,6 +1,6 @@
 {
   "name": "cpeediff",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An advanced diff tool for process models conforming to the CPEE notation.",
   "main": "src/main.js",
   "esversion": 21,
