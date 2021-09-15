@@ -10,9 +10,9 @@ CpeeDiff is an advanced diff tool for business process models conforming to the 
 Although not explicitly tested, CpeeDiff should also work with Node.js 15.x.x.
 ## Installation
 
-To install globally and as a command line utility, run `npm install -g @toemmsche/cpeediff` (root user privileges may be necessary). To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
+To install globally and as a command line utility, run `npm install -g cpeediff` (root user privileges may be necessary). To verify that the symbolic link to the main.js file has been created, run `cpeediff --help`.
 
-If you want to use CpeeDiff for a single project only, navigate to your project folder and run `npm install @toemmsche/cpeediff`.
+If you want to use CpeeDiff for a single project only, navigate to your project folder and run `npm install cpeediff`.
 
 If you want to install from source, clone this repository, navigate to it, and run `npm install`. This should place all the necessary dependencies in the `node_modules` directory.
 ## Usage
@@ -33,9 +33,9 @@ By default, output XML documents are unformatted and (nearly) impossible to navi
 
 CpeeDiff can only be imported as an ES6 module and will **not** function with `require()` syntax.
 ```javascript
-import {Preprocessor} from '@toemmsche/cpeediff/src/io/Preprocessor.js'
-import {CpeeDiff} from '@toemmsche/cpeediff/src/diff/CpeeDiff.js'
-import {DiffConfig} from '@toemmsche/cpeediff/src/config/DiffConfig.js'
+import {Preprocessor} from 'cpeediff/src/io/Preprocessor.js'
+import {CpeeDiff} from 'cpeediff/src/diff/CpeeDiff.js'
+import {DiffConfig} from 'cpeediff/src/config/DiffConfig.js'
 
 // Parse process models
 const parser = new Preprocessor();
