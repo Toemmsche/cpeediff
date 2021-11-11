@@ -1,6 +1,6 @@
 # cpeediff
 
-CpeeDiff is an advanced diff tool for business process models conforming to the [CPEE](https://cpee.org) notation. This project is part of my bachelor's thesis at the Technical University of Munich (TUM).
+CpeeDiff is an advanced diff tool for business process models conforming to the [CPEE](https://cpee.org) notation. This project is part of [my bachelor's thesis](https://mytumde-my.sharepoint.com/:b:/g/personal/ge36nud_mytum_de/EUl5GyMd79lBmukMbVXCgtIB8QbxpC64zZZpi7UgazFbnw?e=RxCStC) at the Technical University of Munich (TUM).
 
 ## Prerequisites
 
